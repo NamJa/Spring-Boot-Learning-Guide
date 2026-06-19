@@ -11,6 +11,7 @@ Served as a **Docsify** static site (`docs/index.html` is the entry point).
 ## Structure
 
 - `docs/phase-{0..7}-*/` — content broken into per-topic pages for Docsify navigation (Phase 7 = Google Cloud & Cloud Run 배포)
+- `docs/appendix-{a..d}-*/` — 심화 부록: A=JPA 심화, B=Querydsl, C=AOP/프록시 고급, D=Spring MVC 내부 원리 & SSR. Querydsl은 OpenFeign 포크(`io.github.openfeign.querydsl`, `:jakarta` classifier, Kotlin kapt) 기준.
 - `docs/_sidebar.md` — defines the sidebar navigation tree (update when adding/renaming pages)
 - `docs/README.md` — Docsify landing page (renders as the home page)
 - `docs/index.html` — Docsify config and plugins (theme, search, pagination, syntax highlighting)

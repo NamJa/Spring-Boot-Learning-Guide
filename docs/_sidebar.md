@@ -53,3 +53,28 @@
   - [소스에서 직접 배포](phase-7-cloud-run/03-source-deploy.md)
   - [컨테이너 이미지 빌드 후 배포](phase-7-cloud-run/04-image-deploy.md)
   - [CI/CD와 운영](phase-7-cloud-run/05-cicd-operations.md)
+
+- **부록 A: JPA 심화**
+  - [영속성 컨텍스트](appendix-a-jpa-advanced/01-persistence-context.md)
+  - [연관관계 매핑](appendix-a-jpa-advanced/02-associations.md)
+  - [상속 매핑과 값 타입](appendix-a-jpa-advanced/03-inheritance-embedded.md)
+  - [프록시와 N+1](appendix-a-jpa-advanced/04-proxy-fetch.md)
+  - [JPQL](appendix-a-jpa-advanced/05-jpql.md)
+
+- **부록 B: Querydsl**
+  - [왜 Querydsl인가](appendix-b-querydsl/01-why-querydsl.md)
+  - [Kotlin + Gradle 설정](appendix-b-querydsl/02-setup-kotlin.md)
+  - [기본 쿼리](appendix-b-querydsl/03-basic-queries.md)
+  - [동적 쿼리와 조인](appendix-b-querydsl/04-dynamic-and-join.md)
+  - [DTO 프로젝션 & 리포지토리 통합](appendix-b-querydsl/05-dto-and-repository.md)
+
+- **부록 C: AOP / 프록시 고급**
+  - [프록시와 동적 프록시](appendix-c-aop/01-proxy-and-decorator.md)
+  - [Spring AOP 실전](appendix-c-aop/02-spring-aop.md)
+  - [함정과 내부 동작](appendix-c-aop/03-pitfalls-and-internals.md)
+
+- **부록 D: Spring MVC 내부 원리 & SSR**
+  - [DispatcherServlet과 요청 흐름](appendix-d-mvc-internals/01-dispatcher-servlet.md)
+  - [Thymeleaf 서버 사이드 렌더링](appendix-d-mvc-internals/02-thymeleaf-ssr.md)
+  - [필터와 인터셉터](appendix-d-mvc-internals/03-filter-interceptor.md)
+  - [쿠키·세션과 로그인](appendix-d-mvc-internals/04-session-login.md)
