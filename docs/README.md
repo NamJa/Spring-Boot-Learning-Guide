@@ -1,0 +1,81 @@
+# Spring Boot 학습 가이드 (Kotlin)
+
+> **Kotlin으로 배우는 Spring Boot 4 — 핵심 개념부터 REST API · 데이터 · 보안 · 배포까지**
+
+Kotlin은 알지만 Spring 생태계는 처음인 분들을 위한 실습형 입문 가이드입니다. IoC/DI 같은 Spring의 핵심 철학부터 시작해, Kotlin으로 REST API를 만들고, Spring Data JPA로 데이터를 다루며, 검증·예외·보안·관측성을 더한 뒤, JAR·Docker·네이티브 이미지로 배포하는 전 과정을 단계별로 다룹니다.
+
+## 📦 기준 버전 (2026-06-20 기준)
+
+| 구성요소 | 버전 | 비고 |
+|---|---|---|
+| **Spring Boot** | 4.1.0 | 2026-06-10 GA |
+| **Spring Framework** | 7.0.8+ | Spring Boot 4.1의 베이스라인 |
+| **Kotlin** | 2.2.21 | Spring Boot BOM이 관리 |
+| **JDK** | 17 (최소) ~ 26 | 빌드·런타임. 본 가이드는 LTS인 JDK 21 기준 |
+| **Gradle** | 8.14+ / 9.x | Kotlin DSL(`build.gradle.kts`) 사용 |
+| **Maven** | 3.6.3+ | (가이드는 Gradle 중심) |
+| **내장 서버** | Tomcat 11.0.x (Servlet 6.1) | 기본값. Jetty 12.1.x도 지원 |
+| **GraalVM** | Community 25 | 네이티브 이미지 |
+
+> Spring Boot 4.1.0은 **Java 17을 최소 버전**으로 요구하며 **Java 26까지** 호환됩니다. 본 가이드는 가장 무난한 LTS인 **JDK 21**을 기준으로 작성했습니다. Spring Boot 3.5.x도 여전히 유지보수되는 안정 버전이지만, 본 가이드는 최신 메이저인 **4.1.0**을 기준으로 합니다.
+
+## 🗺️ 학습 경로
+
+Spring이 처음이라면 **Phase 0**부터 순서대로 읽어 IoC/DI와 자동 설정의 원리를 먼저 이해하세요. 개념이 익숙하다면 **Phase 1**부터 바로 실습을 시작해도 좋습니다.
+
+### Phase 0 — Spring 핵심 개념
+- [Spring & Spring Boot 입문](phase-0-spring-fundamentals/01-what-is-spring.md)
+- [IoC 컨테이너와 의존성 주입](phase-0-spring-fundamentals/02-ioc-and-di.md)
+- [Bean 생명주기와 스코프](phase-0-spring-fundamentals/03-bean-lifecycle-scope.md)
+- [자동 설정과 스타터](phase-0-spring-fundamentals/04-auto-configuration.md)
+- [Spring MVC vs WebFlux](phase-0-spring-fundamentals/05-mvc-vs-webflux.md)
+
+### Phase 1 — 프로젝트 설정
+- [개발 환경 설정](phase-1-project-setup/01-environment-setup.md)
+- [Spring Initializr로 프로젝트 생성](phase-1-project-setup/02-create-project.md)
+- [프로젝트 구조 해부](phase-1-project-setup/03-project-structure.md)
+- [build.gradle.kts 해부](phase-1-project-setup/04-build-gradle-kts.md)
+- [application.yml 설정](phase-1-project-setup/05-application-yml.md)
+
+### Phase 2 — 첫 번째 REST API
+- [진입점 — @SpringBootApplication](phase-2-first-api/01-application-entry-point.md)
+- [DTO와 JSON 직렬화](phase-2-first-api/02-dto-and-serialization.md)
+- [@RestController 구현](phase-2-first-api/03-rest-controller.md)
+- [Service 계층과 DI](phase-2-first-api/04-service-layer.md)
+- [로컬 실행과 테스트](phase-2-first-api/05-local-run-and-test.md)
+
+### Phase 3 — 데이터 영속성 (Spring Data JPA)
+- [Spring Data JPA 개념](phase-3-data-jpa/01-jpa-concepts.md)
+- [Entity 매핑 (Kotlin)](phase-3-data-jpa/02-entity-mapping.md)
+- [Repository 인터페이스](phase-3-data-jpa/03-repository.md)
+- [트랜잭션 관리](phase-3-data-jpa/04-transactions.md)
+- [데이터베이스 설정 (H2 / PostgreSQL)](phase-3-data-jpa/05-database-setup.md)
+
+### Phase 4 — 검증 · 예외 · 설정
+- [Bean Validation 입력 검증](phase-4-validation-config/01-bean-validation.md)
+- [전역 예외 처리](phase-4-validation-config/02-exception-handling.md)
+- [외부화된 설정과 프로파일](phase-4-validation-config/03-profiles-config.md)
+- [@ConfigurationProperties](phase-4-validation-config/04-configuration-properties.md)
+
+### Phase 5 — 실전 기능 (Spring Boot 4)
+- [선언적 HTTP 클라이언트](phase-5-production-features/01-http-interface-client.md)
+- [Spring Security 7 기초](phase-5-production-features/02-security-basics.md)
+- [Actuator와 관측성](phase-5-production-features/03-actuator-observability.md)
+- [테스트 전략](phase-5-production-features/04-testing.md)
+
+### Phase 6 — 빌드 & 배포
+- [실행 가능 JAR 빌드](phase-6-build-deploy/01-executable-jar.md)
+- [Docker 컨테이너화](phase-6-build-deploy/02-docker.md)
+- [GraalVM 네이티브 이미지](phase-6-build-deploy/03-native-image.md)
+- [프로파일별 배포 & 운영](phase-6-build-deploy/04-deploy-operations.md)
+
+---
+
+## 📚 공식 문서
+
+- [Spring Framework Reference](https://docs.spring.io/spring-framework/reference/overview.html)
+- [Spring Boot Reference](https://docs.spring.io/spring-boot/index.html)
+- [Spring 공식 사이트](https://spring.io/)
+- [Spring Initializr](https://start.spring.io/)
+
+> 본 문서의 모든 버전·API는 **2026년 6월 20일** 기준 공식 문서로 검증했습니다.
