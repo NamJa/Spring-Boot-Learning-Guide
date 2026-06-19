@@ -45,8 +45,8 @@ docker run -d --name book-api \
   -p 8080:8080 \
   --memory=512m --cpus=1 \
   -e SPRING_PROFILES_ACTIVE=prod \
-  -e SPRING_DATASOURCE_URL=jdbc:postgresql://db.internal:5432/books \
-  -e SPRING_DATASOURCE_USERNAME=book_app \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://db.internal:5432/bookdb \
+  -e SPRING_DATASOURCE_USERNAME=bookuser \
   -e SPRING_DATASOURCE_PASSWORD="$DB_PASSWORD" \
   registry.example.com/book-api:1.0.0
 ```
@@ -67,8 +67,8 @@ gcloud run deploy book-api \
   --memory=512Mi --cpu=1 \
   --min-instances=0 --max-instances=10 \
   --set-env-vars=SPRING_PROFILES_ACTIVE=prod \
-  --set-env-vars=SPRING_DATASOURCE_URL=jdbc:postgresql:///books?cloudSqlInstance=... \
-  --set-env-vars=SPRING_DATASOURCE_USERNAME=book_app \
+  --set-env-vars=SPRING_DATASOURCE_URL=jdbc:postgresql:///bookdb?cloudSqlInstance=... \
+  --set-env-vars=SPRING_DATASOURCE_USERNAME=bookuser \
   --set-secrets=SPRING_DATASOURCE_PASSWORD=book-db-password:latest
 ```
 

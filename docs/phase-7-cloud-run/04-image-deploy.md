@@ -22,16 +22,18 @@
 Spring Boot에는 Paketo buildpacks로 이미지를 만드는 태스크가 내장돼 있습니다. Docker 데몬은 필요하지만 Dockerfile은 필요 없습니다.
 
 ```bash
-./gradlew bootBuildImage
-# → 로컬에 docker.io/library/book-api:0.0.1-SNAPSHOT 이미지 생성
+./gradlew bootBuildImage --imageName=book-api:1.0.0
+# → 로컬에 book-api:1.0.0 이미지 생성
 ```
+
+> `--imageName`을 생략하면 `build.gradle.kts`의 `version`을 따라 `book-api:0.0.1-SNAPSHOT`이 만들어집니다. 이후 `docker tag`/`docker push` 단계와 태그를 맞추기 위해 `1.0.0`으로 명시했습니다.
 
 ### 방법 B: 멀티 스테이지 Dockerfile
 
 Phase 6에서 만든 Dockerfile을 그대로 빌드합니다.
 
 ```bash
-docker build -t book-api:1.0 .
+docker build -t book-api:1.0.0 .
 ```
 
 > **방법 C: JIB**: `com.google.cloud.tools.jib` 플러그인을 적용하면 `./gradlew jib`만으로 레이어 최적화된 이미지를 Docker 없이 레지스트리에 직접 푸시할 수 있습니다. 여기서는 개념만 짚고 넘어갑니다.
@@ -59,7 +61,7 @@ gcloud auth configure-docker asia-northeast3-docker.pkg.dev
 asia-northeast3-docker.pkg.dev/<PROJECT_ID>/<REPO>/<IMAGE>:<TAG>
 └────────── 리전 호스트 ──────────┘ └─프로젝트─┘ └저장소┘ └이미지┘ └태그┘
 
-예: asia-northeast3-docker.pkg.dev/book-api-12345/book-repo/book-api:1.0
+예: asia-northeast3-docker.pkg.dev/book-api-12345/book-repo/book-api:1.0.0
 ```
 
 ## 3. 태그 붙이고 푸시하기
@@ -69,10 +71,10 @@ asia-northeast3-docker.pkg.dev/<PROJECT_ID>/<REPO>/<IMAGE>:<TAG>
 ```bash
 # 편의를 위한 변수 (본인 PROJECT_ID로 교체)
 PROJECT_ID=book-api-12345
-IMAGE=asia-northeast3-docker.pkg.dev/$PROJECT_ID/book-repo/book-api:1.0
+IMAGE=asia-northeast3-docker.pkg.dev/$PROJECT_ID/book-repo/book-api:1.0.0
 
 # 로컬 이미지에 레지스트리 태그 부여
-docker tag book-api:1.0 $IMAGE
+docker tag book-api:1.0.0 $IMAGE
 
 # Artifact Registry로 푸시
 docker push $IMAGE
@@ -84,7 +86,7 @@ docker push $IMAGE
 
 ```bash
 gcloud run deploy book-api \
-  --image asia-northeast3-docker.pkg.dev/$PROJECT_ID/book-repo/book-api:1.0 \
+  --image asia-northeast3-docker.pkg.dev/$PROJECT_ID/book-repo/book-api:1.0.0 \
   --region asia-northeast3 \
   --memory 512Mi \
   --port 8080 \
@@ -100,7 +102,7 @@ gcloud run deploy book-api \
 
 ```bash
 ./gradlew bootBuildImage \
-  --imageName=asia-northeast3-docker.pkg.dev/book-api-12345/book-repo/book-api:1.0 \
+  --imageName=asia-northeast3-docker.pkg.dev/book-api-12345/book-repo/book-api:1.0.0 \
   --publishImage
 ```
 
@@ -109,7 +111,7 @@ gcloud run deploy book-api \
 ```kotlin
 // build.gradle.kts
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>("bootBuildImage") {
-    imageName.set("asia-northeast3-docker.pkg.dev/book-api-12345/book-repo/book-api:1.0")
+    imageName.set("asia-northeast3-docker.pkg.dev/book-api-12345/book-repo/book-api:1.0.0")
     publish.set(true)
     // 레지스트리 인증 정보(docker 설정에서 자동으로 읽힘)
 }

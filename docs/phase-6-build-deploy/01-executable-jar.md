@@ -161,11 +161,11 @@ java -Dspring.profiles.active=prod -jar app.jar
 
 ```bash
 # 커맨드라인 인자
-java -jar app.jar --server.port=8081 --spring.datasource.url=jdbc:postgresql://db:5432/books
+java -jar app.jar --server.port=8081 --spring.datasource.url=jdbc:postgresql://db:5432/bookdb
 
 # 동일한 의미의 환경변수
 SERVER_PORT=8081 \
-SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/books \
+SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/bookdb \
 java -jar app.jar
 ```
 

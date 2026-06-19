@@ -30,7 +30,9 @@ testImplementation("org.springframework.boot:spring-boot-starter-test")
 ```kotlin
 package com.example.bookapi.controller
 
+import com.example.bookapi.dto.BookResponse
 import com.example.bookapi.service.BookService
+import java.time.LocalDate
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.given
 import org.springframework.beans.factory.annotation.Autowired
@@ -50,7 +52,18 @@ class BookControllerTest(
     @Test
     fun `GET books returns 200 with list`() {
         given(bookService.findAll())
-            .willReturn(listOf(Book(1, "코틀린 인 액션", 35000)))
+            .willReturn(
+                listOf(
+                    BookResponse(
+                        id = 1,
+                        title = "코틀린 인 액션",
+                        author = "드미트리 제메로프",
+                        isbn = "978-8966262281",
+                        price = 35000,
+                        publishedAt = LocalDate.of(2017, 6, 1),
+                    ),
+                ),
+            )
 
         mockMvc.get("/api/books")
             .andExpect {
@@ -63,7 +76,7 @@ class BookControllerTest(
     fun `POST with blank title returns 400`() {
         mockMvc.post("/api/books") {
             contentType = org.springframework.http.MediaType.APPLICATION_JSON
-            content = """{"title":"","price":1000}"""
+            content = """{"title":"","author":"홍길동","isbn":"978-8966262281","price":1000,"publishedAt":"2017-06-01"}"""
         }.andExpect {
             status { isBadRequest() }   // Bean Validation 실패 (Phase 4)
         }
@@ -101,6 +114,7 @@ class BookControllerTesterTest(@Autowired val mvc: MockMvcTester) {
 package com.example.bookapi.repository
 
 import com.example.bookapi.domain.Book
+import java.time.LocalDate
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -112,9 +126,33 @@ class BookRepositoryTest(
 ) {
     @Test
     fun `findByTitleContaining returns matching books`() {
-        repository.save(Book(title = "코틀린 인 액션", price = 35000))
-        repository.save(Book(title = "이펙티브 코틀린", price = 30000))
-        repository.save(Book(title = "자바 최강의 기술", price = 28000))
+        repository.save(
+            Book(
+                title = "코틀린 인 액션",
+                author = "드미트리 제메로프",
+                isbn = "978-8966262281",
+                price = 35000,
+                publishedAt = LocalDate.of(2017, 6, 1),
+            ),
+        )
+        repository.save(
+            Book(
+                title = "이펙티브 코틀린",
+                author = "마르친 모스카와",
+                isbn = "978-8966263363",
+                price = 30000,
+                publishedAt = LocalDate.of(2022, 3, 1),
+            ),
+        )
+        repository.save(
+            Book(
+                title = "자바 최강의 기술",
+                author = "조슈아 블로크",
+                isbn = "978-8966263158",
+                price = 28000,
+                publishedAt = LocalDate.of(2018, 10, 1),
+            ),
+        )
 
         val result = repository.findByTitleContaining("코틀린")
 
@@ -137,6 +175,9 @@ class BookRepositoryTest(
 ```kotlin
 package com.example.bookapi
 
+import com.example.bookapi.dto.BookResponse
+import com.example.bookapi.dto.CreateBookRequest
+import java.time.LocalDate
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -154,7 +195,15 @@ class BookApiIntegrationTest(
         // 1. 도서 등록 (인증 필요 — Phase 5-2)
         val created = restClient.post().uri("/api/books")
             .headers { it.setBasicAuth("admin", "admin-secret") }
-            .body(CreateBookRequest(title = "스프링 부트 4 입문", price = 42000))
+            .body(
+                CreateBookRequest(
+                    title = "스프링 부트 4 입문",
+                    author = "김종우",
+                    isbn = "978-8966262281",
+                    price = 42000,
+                    publishedAt = LocalDate.of(2025, 1, 1),
+                ),
+            )
             .retrieve()
             .toEntity(BookResponse::class.java)
 
@@ -224,7 +273,15 @@ class BookRepositoryPostgresTest {
 
     @Test
     fun `works against real postgres`() {
-        val saved = repository.save(Book(title = "테스트 도서", price = 1000))
+        val saved = repository.save(
+            Book(
+                title = "테스트 도서",
+                author = "테스트 저자",
+                isbn = "978-8966262281",
+                price = 1000,
+                publishedAt = LocalDate.of(2025, 1, 1),
+            ),
+        )
         assertThat(repository.findById(saved.id!!)).isPresent
     }
 }

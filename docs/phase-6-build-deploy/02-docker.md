@@ -144,8 +144,8 @@ docker run --rm -p 8080:8080 book-api:1.0.0
 docker run --rm -p 8080:8080 \
   -e SPRING_PROFILES_ACTIVE=prod \
   -e SERVER_PORT=8080 \
-  -e SPRING_DATASOURCE_URL=jdbc:postgresql://db.internal:5432/books \
-  -e SPRING_DATASOURCE_USERNAME=book_app \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://db.internal:5432/bookdb \
+  -e SPRING_DATASOURCE_USERNAME=bookuser \
   -e SPRING_DATASOURCE_PASSWORD="$DB_PASSWORD" \
   book-api:1.0.0
 ```
@@ -174,7 +174,7 @@ services:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/books
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/bookdb
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health"]
       interval: 30s
@@ -186,8 +186,8 @@ services:
   db:
     image: postgres:17
     environment:
-      POSTGRES_DB: books
-      POSTGRES_USER: book_app
+      POSTGRES_DB: bookdb
+      POSTGRES_USER: bookuser
       POSTGRES_PASSWORD: secret
 ```
 

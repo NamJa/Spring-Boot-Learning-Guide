@@ -117,7 +117,7 @@ CREATE TABLE books (
     title        VARCHAR(200)  NOT NULL,
     author       VARCHAR(100)  NOT NULL,
     isbn         VARCHAR(20)   NOT NULL,
-    price        NUMERIC(10,2) NOT NULL,
+    price        INT           NOT NULL,
     published_at DATE          NOT NULL,
     CONSTRAINT uk_books_isbn UNIQUE (isbn)
 );
@@ -137,8 +137,8 @@ CREATE TABLE books (
 ```sql
 -- src/main/resources/data.sql
 INSERT INTO books (title, author, isbn, price, published_at) VALUES
-  ('코틀린 인 액션', '드미트리 제메로프', '9788966262366', 36000.00, '2017-05-25'),
-  ('이펙티브 코틀린', '마르친 모스카와', '9791165215897', 32000.00, '2022-01-01');
+  ('코틀린 인 액션', '드미트리 제메로프', '9788966262366', 36000, '2017-05-25'),
+  ('이펙티브 코틀린', '마르친 모스카와', '9791165215897', 32000, '2022-01-01');
 ```
 
 ```yaml
@@ -164,7 +164,6 @@ import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
-import java.math.BigDecimal
 import java.time.LocalDate
 
 @Configuration
@@ -180,14 +179,14 @@ class DataSeeder {
                         title = "코틀린 인 액션",
                         author = "드미트리 제메로프",
                         isbn = "9788966262366",
-                        price = BigDecimal("36000.00"),
+                        price = 36000,
                         publishedAt = LocalDate.of(2017, 5, 25),
                     ),
                     Book(
                         title = "이펙티브 코틀린",
                         author = "마르친 모스카와",
                         isbn = "9791165215897",
-                        price = BigDecimal("32000.00"),
+                        price = 32000,
                         publishedAt = LocalDate.of(2022, 1, 1),
                     ),
                 )

@@ -93,7 +93,6 @@ import jakarta.validation.constraints.PastOrPresent
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.Size
-import java.math.BigDecimal
 import java.time.LocalDate
 
 data class CreateBookRequest(
@@ -115,7 +114,7 @@ data class CreateBookRequest(
 
     // 가격: 양수만 허용
     @field:Positive(message = "가격은 0보다 커야 합니다")
-    val price: BigDecimal,
+    val price: Int,
 
     // 출판일: 미래일 수 없음 (오늘까지 허용)
     @field:PastOrPresent(message = "출판일은 미래일 수 없습니다")

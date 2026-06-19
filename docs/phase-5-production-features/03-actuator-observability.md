@@ -133,11 +133,11 @@ class BookService(
         .description("도서 등록 처리 시간")
         .register(registry)
 
-    fun create(book: Book): Book =
+    fun create(request: CreateBookRequest): BookResponse =
         createTimer.recordCallable {
-            val saved = repository.save(book)
+            val saved = repository.save(request.toEntity())
             createdCounter.increment()
-            saved
+            saved.toResponse()
         }!!
 }
 ```

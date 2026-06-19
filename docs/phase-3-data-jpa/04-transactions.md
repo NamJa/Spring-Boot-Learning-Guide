@@ -38,10 +38,12 @@ Phase 3-3에서 본 패턴이 모범 답안입니다.
 @Transactional(readOnly = true)   // 클래스 기본값: 읽기 전용
 class BookService(private val bookRepository: BookRepository) {
 
-    fun findAll(): List<Book> = bookRepository.findAll()   // readOnly 적용
+    fun findAll(): List<BookResponse> =                          // readOnly 적용
+        bookRepository.findAll().map { it.toResponse() }
 
-    @Transactional                 // 쓰기 메서드만 개별 재정의
-    fun create(book: Book): Book = bookRepository.save(book)
+    @Transactional                                               // 쓰기 메서드만 개별 재정의
+    fun create(request: CreateBookRequest): BookResponse =
+        bookRepository.save(request.toEntity()).toResponse()
 }
 ```
 
@@ -54,6 +56,23 @@ class BookService(private val bookRepository: BookRepository) {
 - DB 드라이버/복제 환경에 따라 읽기 전용 커넥션·읽기 복제본으로 라우팅될 수 있다.
 
 위 예처럼 클래스에 `readOnly = true`를 기본으로 깔고, 쓰기 메서드에만 `@Transactional`을 다시 붙여 덮어쓰는 패턴이 흔합니다.
+
+쓰기 트랜잭션의 진가는 **변경 감지(dirty checking)** 와 만날 때 드러납니다. `update`는 `save()`를 호출하지 않고도 동작합니다.
+
+```kotlin
+@Transactional   // 쓰기: 영속성 컨텍스트가 열려 있어야 변경 감지가 작동
+fun update(id: Long, request: UpdateBookRequest): BookResponse {
+    val book = bookRepository.findByIdOrNull(id) ?: throw BookNotFoundException(id)
+    book.title = request.title
+    book.author = request.author
+    book.isbn = request.isbn
+    book.price = request.price
+    book.publishedAt = request.publishedAt
+    return book.toResponse()   // save() 없이도 트랜잭션 커밋 시 UPDATE가 자동으로 나간다
+}
+```
+
+조회한 `book`은 **영속 상태**이므로, 필드를 바꾸기만 하면 트랜잭션이 끝나는 순간 Hibernate가 변경을 감지해 `UPDATE` SQL을 발행합니다. 이 마법은 `@Transactional`로 영속성 컨텍스트가 살아 있는 동안에만 작동합니다(7절 참고).
 
 ## 4. 전파(Propagation)와 격리(Isolation)
 
@@ -129,7 +148,7 @@ fun doAnother() { /* ... */ }
 // kotlin-spring 플러그인이 없으면 이렇게 직접 open을 붙여야 한다
 open class BookService(/* ... */) {
     @Transactional
-    open fun create(book: Book): Book = /* ... */
+    open fun create(request: CreateBookRequest): BookResponse = /* ... */
 }
 // 플러그인이 있으면 open 없이 위 BookService 그대로 동작
 ```

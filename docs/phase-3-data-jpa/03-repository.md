@@ -49,7 +49,7 @@ interface BookRepository : JpaRepository<Book, Long> {
 
     fun findByTitleContaining(keyword: String): List<Book>
 
-    fun findByAuthorAndPriceLessThan(author: String, price: BigDecimal): List<Book>
+    fun findByAuthorAndPriceLessThan(author: String, price: Int): List<Book>
 
     fun findByPublishedAtBetween(start: LocalDate, end: LocalDate): List<Book>
 
@@ -98,7 +98,7 @@ interface BookRepository : JpaRepository<Book, Long> {
 
     // 특정 가격 이하의 책을 저자별로 정렬
     @Query("SELECT b FROM Book b WHERE b.price <= :max ORDER BY b.author")
-    fun findCheaperThan(@Param("max") max: BigDecimal): List<Book>
+    fun findCheaperThan(@Param("max") max: Int): List<Book>
 
     // 네이티브 SQL (DB 고유 기능이 필요할 때만 사용)
     @Query(
@@ -146,30 +146,80 @@ page.hasNext()        // 다음 페이지 존재 여부
 > [!TIP]
 > 전체 페이지 수를 화면에 표시할 필요가 없다면(예: 무한 스크롤) `Page` 대신 **`Slice`** 를 쓰세요. 비싼 `COUNT(*)` 쿼리를 생략해 성능이 좋아집니다.
 
-## 5. BookService 리팩터링 (Before → After)
+## 5. Entity ↔ DTO 매핑 헬퍼
 
-이제 Phase 2의 인메모리 `BookService`를 `BookRepository` 기반으로 바꿉니다.
+Phase 2의 `BookService`는 **DTO를 받아 DTO를 돌려주는(DTO-in / DTO-out)** 형태였습니다. 컨트롤러와 주고받는 것은 `CreateBookRequest`·`UpdateBookRequest`·`BookResponse`이고, 그 사이에서만 `Book`을 다룹니다. JPA로 바꾸어도 이 계약은 그대로 유지하므로, 먼저 Entity와 DTO를 변환하는 확장 함수를 마련합니다. (매퍼는 별도 파일이나 서비스 상단 어디에 두어도 됩니다.)
+
+```kotlin
+package com.example.bookapi.mapper
+
+import com.example.bookapi.domain.Book
+import com.example.bookapi.dto.BookResponse
+import com.example.bookapi.dto.CreateBookRequest
+
+// Entity → 응답 DTO
+fun Book.toResponse() = BookResponse(
+    id = id!!,                  // 영속 후에는 id가 반드시 채워져 있으므로 !! 가 안전하다
+    title = title,
+    author = author,
+    isbn = isbn,
+    price = price,
+    publishedAt = publishedAt,
+)
+
+// 생성 요청 DTO → 새 Entity (id는 null로 두고 DB가 채우게 한다)
+fun CreateBookRequest.toEntity() = Book(
+    title = title,
+    author = author,
+    isbn = isbn,
+    price = price,
+    publishedAt = publishedAt,
+)
+```
+
+> [!NOTE]
+> Entity의 `id`는 `Long?`(nullable)이지만, `toResponse()`는 **항상 영속화된(save된) Book에 대해서만** 호출됩니다. 저장이 끝나면 DB가 id를 채워 주므로 이 시점의 `id`는 절대 null이 아닙니다. 그래서 `id!!`로 단언해도 안전합니다.
+
+## 6. BookService 리팩터링 (Before → After)
+
+이제 Phase 2의 인메모리 `BookService`를 `BookRepository` 기반으로 바꿉니다. 핵심은 **메서드 시그니처는 그대로 유지되므로 Phase 2의 컨트롤러는 한 줄도 바꾸지 않아도 됩니다**. 저장 방식(메모리 → DB)만 갈아끼우는 것이죠. 이것이 Phase 2에서 계층을 분리하며 약속했던 바로 그 효과입니다.
 
 ### Before — 인메모리 Map (Phase 2)
 
 ```kotlin
 @Service
 class BookService {
+
+    // 스레드 안전한 메모리 저장소
     private val store = ConcurrentHashMap<Long, Book>()
-    private val sequence = AtomicLong(0)
+    private val idGenerator = AtomicLong(0)
 
-    fun findAll(): List<Book> = store.values.toList()
+    fun findAll(): List<BookResponse> =
+        store.values.sortedBy { it.id }.map { it.toResponse() }
 
-    fun findById(id: Long): Book? = store[id]
+    fun findByAuthor(author: String): List<BookResponse> =
+        store.values.filter { it.author == author }.sortedBy { it.id }.map { it.toResponse() }
 
-    fun create(book: Book): Book {
-        val id = sequence.incrementAndGet()
-        val saved = book.copy(id = id)   // data class였음
-        store[id] = saved
-        return saved
+    fun findById(id: Long): BookResponse =
+        (store[id] ?: throw BookNotFoundException(id)).toResponse()
+
+    fun create(request: CreateBookRequest): BookResponse {
+        val newId = idGenerator.incrementAndGet()
+        val book = Book(newId, request.title, request.author, request.isbn, request.price, request.publishedAt)
+        store[newId] = book
+        return book.toResponse()
     }
 
-    fun delete(id: Long): Boolean = store.remove(id) != null
+    fun update(id: Long, request: UpdateBookRequest): BookResponse {
+        if (!store.containsKey(id)) throw BookNotFoundException(id)
+        val updated = Book(id, request.title, request.author, request.isbn, request.price, request.publishedAt)
+        store[id] = updated
+        return updated.toResponse()
+    }
+
+    fun delete(id: Long) {
+        store.remove(id) ?: throw BookNotFoundException(id)
+    }
 }
 ```
 
@@ -178,7 +228,12 @@ class BookService {
 ```kotlin
 package com.example.bookapi.service
 
-import com.example.bookapi.domain.Book
+import com.example.bookapi.dto.BookResponse
+import com.example.bookapi.dto.CreateBookRequest
+import com.example.bookapi.dto.UpdateBookRequest
+import com.example.bookapi.exception.BookNotFoundException
+import com.example.bookapi.mapper.toEntity
+import com.example.bookapi.mapper.toResponse
 import com.example.bookapi.repository.BookRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -189,28 +244,45 @@ import org.springframework.transaction.annotation.Transactional
 class BookService(
     private val bookRepository: BookRepository,   // 생성자 주입
 ) {
-    fun findAll(): List<Book> = bookRepository.findAll()
+    fun findAll(): List<BookResponse> =
+        bookRepository.findAll().map { it.toResponse() }
+
+    fun findByAuthor(author: String): List<BookResponse> =
+        bookRepository.findByAuthor(author).map { it.toResponse() }
 
     // findByIdOrNull은 Spring Data Kotlin 확장 (Optional → Book?)
-    fun findById(id: Long): Book? = bookRepository.findByIdOrNull(id)
+    fun findById(id: Long): BookResponse =
+        bookRepository.findByIdOrNull(id)?.toResponse() ?: throw BookNotFoundException(id)
 
     @Transactional   // 쓰기 작업은 읽기 전용을 해제
-    fun create(book: Book): Book = bookRepository.save(book)
+    fun create(request: CreateBookRequest): BookResponse =
+        bookRepository.save(request.toEntity()).toResponse()
 
     @Transactional
-    fun delete(id: Long): Boolean {
-        if (!bookRepository.existsById(id)) return false
+    fun update(id: Long, request: UpdateBookRequest): BookResponse {
+        val book = bookRepository.findByIdOrNull(id) ?: throw BookNotFoundException(id)
+        book.title = request.title
+        book.author = request.author
+        book.isbn = request.isbn
+        book.price = request.price
+        book.publishedAt = request.publishedAt
+        return book.toResponse()   // 변경 감지(dirty checking)로 자동 UPDATE (save 호출 불필요)
+    }
+
+    @Transactional
+    fun delete(id: Long) {
+        if (!bookRepository.existsById(id)) throw BookNotFoundException(id)
         bookRepository.deleteById(id)
-        return true
     }
 }
 ```
 
 달라진 점을 정리하면 다음과 같습니다.
 
+- **시그니처는 동일**: `findAll`/`findByAuthor`/`findById`/`create`/`update`/`delete` 6개 메서드 모두 입·출력 타입이 Phase 2와 똑같습니다. 그래서 컨트롤러는 그대로 둡니다.
 - **저장소 코드가 사라졌다**: `ConcurrentHashMap`, `AtomicLong`, 수동 ID 채번 → 전부 JPA가 처리.
 - **ID 생성**: `@GeneratedValue(IDENTITY)`로 DB가 채번하므로 `save()`만 호출하면 된다.
-- **`copy()` 사용 안 함**: Entity는 `data class`가 아니므로 `save()`가 같은 객체에 id를 채워 돌려준다.
+- **`update`는 변경 감지로**: Phase 2처럼 객체를 통째로 갈아끼우지 않고, 영속 상태인 `Book`의 필드를 바꾸기만 합니다. 트랜잭션이 끝날 때 Hibernate가 자동으로 `UPDATE`를 날립니다(`save()` 호출 불필요). 자세한 내용은 다음 문서에서 다룹니다.
 - **`@Transactional` 등장**: 트랜잭션 경계를 명시. 다음 문서의 주제다.
 
 > [!NOTE]

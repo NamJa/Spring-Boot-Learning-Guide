@@ -14,7 +14,6 @@
 package com.example.bookapi.domain
 
 import jakarta.persistence.*
-import java.math.BigDecimal
 import java.time.LocalDate
 
 @Entity
@@ -38,8 +37,9 @@ class Book(
     @Column(nullable = false, length = 20)
     var isbn: String,
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    var price: BigDecimal,
+    // 가격은 원 단위 정수 (Int)로 다룬다
+    @Column(nullable = false)
+    var price: Int,
 
     @Column(name = "published_at", nullable = false)
     var publishedAt: LocalDate,
@@ -59,7 +59,7 @@ class Book(
 ```
 
 > [!NOTE]
-> `price`를 `Double`이 아니라 `BigDecimal`로 둔 점에 주목하세요. 돈을 다루는 값은 부동소수점 오차를 피하기 위해 항상 `BigDecimal`을 쓰는 것이 원칙입니다.
+> 이 가이드는 가격을 **원(₩) 단위 정수(`Int`)** 로 다룹니다. 한국 원화는 보조 단위(전)를 쓰지 않으므로 소수점이 필요 없고, 정수로 두면 부동소수점 오차 걱정도 없습니다. (원/달러처럼 소수 단위가 있는 통화나 환율·세금 계산이 얽히는 도메인이라면 `BigDecimal`을 쓰는 것이 원칙이지만, 여기서는 단순화를 위해 `Int`로 통일합니다.) Phase 2의 `BookResponse.price`·`CreateBookRequest.price`도 모두 `Int`입니다.
 
 ## 3. Kotlin + JPA 함정 ①: no-arg 플러그인
 

@@ -84,11 +84,11 @@ DB 비밀번호 같은 민감 정보를 환경 변수에 평문으로 넣는 건
 
 ```bash
 # 비밀 생성
-echo -n "내DB비밀번호" | gcloud secrets create db-password --data-file=-
+echo -n "내DB비밀번호" | gcloud secrets create book-db-password --data-file=-
 
 # 배포 시 비밀을 환경 변수로 주입
 gcloud run deploy book-api --source . --region asia-northeast3 \
-  --set-secrets DB_PASSWORD=db-password:latest \
+  --set-secrets SPRING_DATASOURCE_PASSWORD=book-db-password:latest \
   --set-env-vars SPRING_PROFILES_ACTIVE=prod
 ```
 
@@ -102,7 +102,7 @@ gcloud run deploy book-api --source . --region asia-northeast3 \
 ```bash
 gcloud run deploy book-api --source . --region asia-northeast3 \
   --add-cloudsql-instances book-api-12345:asia-northeast3:book-db \
-  --set-secrets DB_PASSWORD=db-password:latest \
+  --set-secrets SPRING_DATASOURCE_PASSWORD=book-db-password:latest \
   --set-env-vars SPRING_PROFILES_ACTIVE=prod
 ```
 
@@ -115,7 +115,7 @@ spring:
     # Cloud SQL은 /cloudsql/<INSTANCE_CONNECTION_NAME> 소켓으로 접속
     url: jdbc:postgresql:///bookdb?cloudSqlInstance=book-api-12345:asia-northeast3:book-db&socketFactory=com.google.cloud.sql.postgres.SocketFactory
     username: bookuser
-    password: ${DB_PASSWORD}        # Secret Manager에서 주입
+    password: ${SPRING_DATASOURCE_PASSWORD}   # Secret Manager에서 주입
   jpa:
     hibernate:
       ddl-auto: validate            # prod에서는 절대 update/create 금지
