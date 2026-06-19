@@ -24,7 +24,7 @@ Phase 1을 마치면 다음을 할 수 있습니다.
 | 4 | [build.gradle.kts 해부](04-build-gradle-kts.md) | 플러그인, 의존성, 컴파일러 옵션 |
 | 5 | [application.yml 설정](05-application-yml.md) | properties vs yaml, 데이터소스, 프로파일 |
 
-> 💡 이 가이드는 2026-06-20 기준 최신 GA 버전인 **Spring Boot 4.1.0** (2026-06-10 출시), **Spring Framework 7.0.8+**, **Kotlin 2.2.21** (Spring Boot BOM 관리)을 기준으로 합니다. JDK는 LTS인 **21**로 표준화합니다.
+> 💡 이 가이드는 2026-06-20 기준 최신 GA 버전인 **Spring Boot 4.1.0** (2026-06-10 출시), **Spring Framework 7.0.8+**, **Kotlin 2.3.21** (Spring Boot BOM 관리)을 기준으로 합니다. JDK는 LTS인 **21**로 표준화합니다.
 
 ## 다음 단계
 

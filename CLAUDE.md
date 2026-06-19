@@ -31,7 +31,7 @@ python3 -m http.server 3000 --directory docs
 
 - All documentation is written in **Korean (한국어)**. Maintain Korean when editing or adding content.
 - All code examples use **Kotlin**.
-- Reference versions (verified 2026-06-20): **Spring Boot 4.1.0**, Spring Framework 7.0.8+, Kotlin 2.2.21, JDK 21 (17~26 supported), Gradle 8.14+/9.x, Tomcat 11.0.x. Keep version claims consistent with `docs/README.md`.
+- Reference versions (verified 2026-06-20): **Spring Boot 4.1.0**, Spring Framework 7.0.8+, Kotlin 2.3.21, JDK 21 (17~26 supported), Gradle 8.14+/9.x, Tomcat 11.0.x. Keep version claims consistent with `docs/README.md`.
 
 ## Docsify Conventions
 

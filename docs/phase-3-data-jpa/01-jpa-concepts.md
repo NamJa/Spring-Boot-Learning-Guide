@@ -97,9 +97,9 @@ Spring Data JPA를 사용하려면 `build.gradle.kts`에 스타터 하나만 추
 
 ```kotlin
 plugins {
-    kotlin("jvm") version "2.2.21"
-    kotlin("plugin.spring") version "2.2.21"
-    kotlin("plugin.jpa") version "2.2.21"        // ← JPA Entity용 no-arg 플러그인
+    kotlin("jvm") version "2.3.21"
+    kotlin("plugin.spring") version "2.3.21"
+    kotlin("plugin.jpa") version "2.3.21"        // ← JPA Entity용 no-arg 플러그인
     id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
 }

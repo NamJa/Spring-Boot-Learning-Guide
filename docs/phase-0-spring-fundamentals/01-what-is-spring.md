@@ -113,7 +113,7 @@ Ktor는 "내가 무엇을 켰는지 코드에 다 보인다"는 투명성이 장
 
 ## 5. 왜 Spring + Kotlin인가
 
-Spring은 Java 진영에서 출발했지만, **Kotlin을 1급 언어로 공식 지원**합니다. Spring Boot 4.1은 Kotlin **2.2.21**을 BOM으로 관리합니다. Kotlin과 Spring의 궁합이 좋은 이유는 다음과 같습니다.
+Spring은 Java 진영에서 출발했지만, **Kotlin을 1급 언어로 공식 지원**합니다. Spring Boot 4.1은 Kotlin **2.3.21**을 BOM으로 관리합니다. Kotlin과 Spring의 궁합이 좋은 이유는 다음과 같습니다.
 
 - **널 안전성** — Kotlin의 `?` 타입과 Spring 7의 JSpecify 어노테이션이 맞물려, 컴파일 시점에 NPE 위험을 크게 줄입니다.
 - **간결한 데이터 클래스** — DTO/엔티티를 `data class` 한 줄로. Lombok이 필요 없습니다.

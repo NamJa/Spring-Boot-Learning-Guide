@@ -40,8 +40,8 @@ GraalVM Community **25**를 설치하고, `build.gradle.kts`에 **Native Build T
 ```kotlin
 // build.gradle.kts
 plugins {
-    kotlin("jvm") version "2.2.21"
-    kotlin("plugin.spring") version "2.2.21"
+    kotlin("jvm") version "2.3.21"
+    kotlin("plugin.spring") version "2.3.21"
     id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
     // GraalVM 네이티브 빌드 도구

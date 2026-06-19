@@ -11,9 +11,9 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     // Kotlin JVM 컴파일 지원
-    kotlin("jvm") version "2.2.21"
+    kotlin("jvm") version "2.3.21"
     // kotlin-spring: @Component/@Configuration 등 Spring 어노테이션이 붙은 클래스를 자동 open
-    kotlin("plugin.spring") version "2.2.21"
+    kotlin("plugin.spring") version "2.3.21"
     // Spring Boot Gradle 플러그인: bootJar/bootRun, BOM 버전 관리 연동
     id("org.springframework.boot") version "4.1.0"
     // 의존성 버전을 Spring Boot BOM에 맞춰 자동 관리 (Initializr 기본 출력)
@@ -83,7 +83,7 @@ tasks.withType<Test> {
 | `org.springframework.boot` | `bootJar`, `bootRun` 태스크 제공, 실행 가능 Jar 패키징 |
 | `io.spring.dependency-management` | 의존성 버전을 Spring Boot BOM에 맞춰 자동 정렬 |
 
-> 💡 Kotlin 버전 `2.2.21`은 Spring Boot 4.1.0 BOM이 관리하는 버전과 일치시킨 값입니다. 임의의 다른 버전으로 바꾸지 마세요.
+> 💡 Kotlin 버전 `2.3.21`은 Spring Boot 4.1.0 BOM이 관리하는 버전과 일치시킨 값입니다. 임의의 다른 버전으로 바꾸지 마세요.
 
 ### kotlin-spring(allOpen) 플러그인이 필요한 이유
 
@@ -177,7 +177,7 @@ rootProject.name = "book-api"
 ```toml
 # gradle/libs.versions.toml
 [versions]
-kotlin = "2.2.21"
+kotlin = "2.3.21"
 springBoot = "4.1.0"
 
 [plugins]

@@ -2,7 +2,7 @@
 
 [![Live Site](https://img.shields.io/badge/Live-namja.github.io-6DB33F?style=flat-square&logo=githubpages&logoColor=white)](https://namja.github.io/Spring-Boot-Learning-Guide/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.0-6DB33F?style=flat-square&logo=springboot&logoColor=white)](https://docs.spring.io/spring-boot/index.html)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.2.21-7F52FF?style=flat-square&logo=kotlin&logoColor=white)](https://kotlinlang.org/)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3.21-7F52FF?style=flat-square&logo=kotlin&logoColor=white)](https://kotlinlang.org/)
 [![JDK](https://img.shields.io/badge/JDK-21%20LTS-orange?style=flat-square&logo=openjdk&logoColor=white)](https://adoptium.net/)
 
 > **Kotlin으로 배우는 Spring Boot 4 — 핵심 개념부터 REST API · 데이터 · 보안 · 배포까지**
@@ -15,7 +15,7 @@ Kotlin은 알지만 Spring 생태계는 처음인 분들을 위한 실습형 입
 |---|---|---|
 | **Spring Boot** | 4.1.0 | 2026-06-10 GA |
 | **Spring Framework** | 7.0.8+ | Spring Boot 4.1의 베이스라인 |
-| **Kotlin** | 2.2.21 | Spring Boot BOM이 관리 |
+| **Kotlin** | 2.3.21 | Spring Boot 4.1.0 BOM이 관리 (스탠드얼론 최신은 2.4.0) |
 | **JDK** | 17 (최소) ~ 26 | 빌드·런타임. 본 가이드는 LTS인 JDK 21 기준 |
 | **Gradle** | 8.14+ / 9.x | Kotlin DSL(`build.gradle.kts`) 사용 |
 | **Maven** | 3.6.3+ | (가이드는 Gradle 중심) |
@@ -23,6 +23,8 @@ Kotlin은 알지만 Spring 생태계는 처음인 분들을 위한 실습형 입
 | **GraalVM** | Community 25 | 네이티브 이미지 |
 
 > Spring Boot 4.1.0은 **Java 17을 최소 버전**으로 요구하며 **Java 26까지** 호환됩니다. 본 가이드는 가장 무난한 LTS인 **JDK 21**을 기준으로 작성했습니다. Spring Boot 3.5.x도 여전히 유지보수되는 안정 버전이지만, 본 가이드는 최신 메이저인 **4.1.0**을 기준으로 합니다.
+>
+> **Kotlin 버전에 관하여:** 2026-06-20 기준 Kotlin의 스탠드얼론 최신 릴리스는 **2.4.0**(2026-06-03)이지만, Spring Boot 4.1.0의 BOM은 **Kotlin 2.3.21**을 관리합니다. Spring Boot 프로젝트에서는 BOM이 검증한 버전을 그대로 쓰는 것이 안전하므로, 본 가이드는 **2.3.21**을 기준으로 합니다. (Spring Boot 4.0.0은 2.2.21을 관리했습니다.)
 
 ## 🗺️ 학습 경로
 
