@@ -129,8 +129,11 @@ com.example.bookapi
 ├── domain                       # JPA 엔티티
 │   └── Book.kt
 ├── dto                          # 요청/응답 DTO
-│   ├── BookRequest.kt
+│   ├── CreateBookRequest.kt
+│   ├── UpdateBookRequest.kt
 │   └── BookResponse.kt
+├── exception                    # 커스텀 예외
+│   └── BookNotFoundException.kt
 └── config                       # 설정 클래스(@Configuration)
     └── ...
 ```

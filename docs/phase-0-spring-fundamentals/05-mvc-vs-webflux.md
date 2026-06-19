@@ -12,7 +12,7 @@ Spring으로 웹 애플리케이션을 만들 때 가장 먼저 마주치는 갈
 
 ```kotlin
 @RestController
-@RequestMapping("/api/v1/books")
+@RequestMapping("/api/books")
 class BookController(private val service: BookService) {
 
     @GetMapping("/{id}")
@@ -43,7 +43,7 @@ class BookController(private val service: BookService) {
 
 ```kotlin
 @RestController
-@RequestMapping("/api/v1/books")
+@RequestMapping("/api/books")
 class ReactiveBookController(private val service: ReactiveBookService) {
 
     @GetMapping("/{id}")
@@ -74,13 +74,13 @@ class ReactiveBookController(private val service: ReactiveBookService) {
 @RestController
 class CoroutineBookController(private val service: BookService) {
 
-    @GetMapping("/api/v1/books/{id}")
+    @GetMapping("/api/books/{id}")
     suspend fun getBook(@PathVariable id: Long): Book? {
         // 코루틴 덕분에 논블로킹이지만 동기 코드처럼 읽힌다
         return service.findById(id)
     }
 
-    @GetMapping("/api/v1/books")
+    @GetMapping("/api/books")
     fun listBooks(): Flow<Book> = service.findAll() // Flux 대신 Flow
 }
 ```

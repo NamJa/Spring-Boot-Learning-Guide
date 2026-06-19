@@ -28,7 +28,7 @@ testImplementation("org.springframework.boot:spring-boot-starter-test")
 > `@MockitoBean`은 과거의 **`@MockBean`을 대체**합니다(`@MockBean`은 deprecated). 동작은 같습니다: 목 객체를 만들어 스프링 컨텍스트의 해당 빈을 교체합니다.
 
 ```kotlin
-package com.example.bookapi.web
+package com.example.bookapi.controller
 
 import com.example.bookapi.service.BookService
 import org.junit.jupiter.api.Test
@@ -52,7 +52,7 @@ class BookControllerTest(
         given(bookService.findAll())
             .willReturn(listOf(Book(1, "코틀린 인 액션", 35000)))
 
-        mockMvc.get("/books")
+        mockMvc.get("/api/books")
             .andExpect {
                 status { isOk() }
                 jsonPath("$[0].title") { value("코틀린 인 액션") }
@@ -61,7 +61,7 @@ class BookControllerTest(
 
     @Test
     fun `POST with blank title returns 400`() {
-        mockMvc.post("/books") {
+        mockMvc.post("/api/books") {
             contentType = org.springframework.http.MediaType.APPLICATION_JSON
             content = """{"title":"","price":1000}"""
         }.andExpect {
@@ -86,7 +86,7 @@ class BookControllerTesterTest(@Autowired val mvc: MockMvcTester) {
     fun `GET books is ok`() {
         given(bookService.findAll()).willReturn(emptyList())
 
-        assertThat(mvc.get().uri("/books"))
+        assertThat(mvc.get().uri("/api/books"))
             .hasStatusOk()
             .bodyJson().isEqualTo("[]")
     }
@@ -152,9 +152,9 @@ class BookApiIntegrationTest(
     @Test
     fun `create then fetch book end-to-end`() {
         // 1. 도서 등록 (인증 필요 — Phase 5-2)
-        val created = restClient.post().uri("/books")
+        val created = restClient.post().uri("/api/books")
             .headers { it.setBasicAuth("admin", "admin-secret") }
-            .body(BookRequest(title = "스프링 부트 4 입문", price = 42000))
+            .body(CreateBookRequest(title = "스프링 부트 4 입문", price = 42000))
             .retrieve()
             .toEntity(BookResponse::class.java)
 
@@ -162,7 +162,7 @@ class BookApiIntegrationTest(
         val id = created.body!!.id
 
         // 2. 조회 (인증 불필요)
-        val fetched = restClient.get().uri("/books/{id}", id)
+        val fetched = restClient.get().uri("/api/books/{id}", id)
             .retrieve()
             .body(BookResponse::class.java)
 

@@ -83,6 +83,18 @@ logging:
 > [!TIP]
 > 여러 프로파일을 한 파일에 담고 싶으면 YAML 문서 구분자 `---` 와 `spring.config.activate.on-profile` 을 쓸 수도 있습니다. 하지만 환경별로 파일을 나누는 편이 보통 더 읽기 좋습니다.
 
+흔히 쓰는 세 번째 프로파일이 **`test`** 입니다. 자동화 테스트 전용 설정(`src/test/resources/application-test.yml`)을 두고, 테스트 클래스에 `@ActiveProfiles("test")`를 붙여 활성화합니다. 보통 인메모리 H2와 `ddl-auto: create-drop`을 써서 테스트마다 깨끗한 스키마로 시작합니다. (실제 테스트 작성은 [Phase 5의 테스트 전략](../phase-5-production-features/04-testing.md)에서 다룹니다.)
+
+```yaml
+# src/test/resources/application-test.yml
+spring:
+  datasource:
+    url: jdbc:h2:mem:bookdb-test
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+```
+
 ## 3. 프로파일 활성화
 
 작성한 프로파일은 **활성화(activate)** 해야 적용됩니다. 활성화 방법은 여러 가지이고, 1절의 우선순위 규칙이 그대로 적용됩니다.

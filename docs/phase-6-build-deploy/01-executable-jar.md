@@ -142,7 +142,7 @@ java -Djarmode=tools -jar build/libs/book-api-0.0.1-SNAPSHOT.jar extract --layer
 
 ### 프로파일 활성화
 
-Phase 4에서 만든 `prod` 프로파일을 켜는 방법은 세 가지입니다.
+Phase 3에서 도입한 `prod` 프로파일을 켜는 방법은 세 가지입니다.
 
 ```bash
 # 1) 커맨드라인 인자

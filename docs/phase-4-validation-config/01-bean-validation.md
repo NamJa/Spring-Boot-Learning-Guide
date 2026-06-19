@@ -130,7 +130,7 @@ data class CreateBookRequest(
 DTO에 규칙을 선언만 한다고 검증이 자동으로 일어나지는 않습니다. 컨트롤러 메서드에서 **`@Valid`** 를 `@RequestBody` 앞에 붙여 검증을 발동시켜야 합니다.
 
 ```kotlin
-package com.example.bookapi.web
+package com.example.bookapi.controller
 
 import com.example.bookapi.dto.CreateBookRequest
 import com.example.bookapi.service.BookService
