@@ -1,5 +1,10 @@
 # Spring Boot 학습 가이드 (Kotlin)
 
+[![Live Site](https://img.shields.io/badge/Live-namja.github.io-6DB33F?style=flat-square&logo=githubpages&logoColor=white)](https://namja.github.io/Spring-Boot-Learning-Guide/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.0-6DB33F?style=flat-square&logo=springboot&logoColor=white)](https://docs.spring.io/spring-boot/index.html)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.2.21-7F52FF?style=flat-square&logo=kotlin&logoColor=white)](https://kotlinlang.org/)
+[![JDK](https://img.shields.io/badge/JDK-21%20LTS-orange?style=flat-square&logo=openjdk&logoColor=white)](https://adoptium.net/)
+
 > **Kotlin으로 배우는 Spring Boot 4 — 핵심 개념부터 REST API · 데이터 · 보안 · 배포까지**
 
 Kotlin은 알지만 Spring 생태계는 처음인 분들을 위한 실습형 입문 가이드입니다. IoC/DI 같은 Spring의 핵심 철학부터 시작해, Kotlin으로 REST API를 만들고, Spring Data JPA로 데이터를 다루며, 검증·예외·보안·관측성을 더한 뒤, JAR·Docker·네이티브 이미지로 배포하는 전 과정을 단계별로 다룹니다.
