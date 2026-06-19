@@ -171,12 +171,6 @@ readiness 프로브와 그레이스풀 셧다운이 함께 켜져 있어야 이 
 
 ## 다음 단계
 
-축하합니다! 🎉 Phase 0의 "Spring이란 무엇인가"에서 출발해, 첫 REST API, 데이터 영속성, 검증·예외·설정, 보안·관측성·테스트를 거쳐, 마침내 이번 Phase에서 Book API를 **빌드하고 컨테이너로 패키징해 운영 환경까지 배포**했습니다. 이제 여러분은 Kotlin으로 Spring Boot 4 애플리케이션을 처음부터 끝까지 만들고 배포할 수 있습니다.
+이번 Phase에서 Book API를 **빌드하고 컨테이너로 패키징**하고, JAR·Docker·네이티브 이미지라는 세 가지 산출물을 만들었습니다. 이제 이 컨테이너를 **실제 클라우드에 올려 전 세계에서 접근 가능한 서버**로 만들 차례입니다.
 
-여기서 멈추지 말고, 직접 만든 Book API에 기능을 더하고, 네이티브 빌드를 측정하고, 실제 클라우드에 한 번 올려 보세요. 막히는 부분은 공식 문서가 가장 정확한 길잡이가 되어 줄 것입니다.
-
-- 🏠 [가이드 홈으로 돌아가기](../README.md)
-- 📘 [Spring Boot 공식 문서](https://docs.spring.io/spring-boot/index.html)
-- 🧭 [Spring Guides (주제별 실습)](https://spring.io/guides)
-
-이 가이드를 완주해 주셔서 감사합니다. 즐거운 Spring 여정 되시길 바랍니다!
+다음 문서 [Cloud Run 핵심 개념](../phase-7-cloud-run/01-cloud-run-concepts.md)에서 Google Cloud Run이 무엇이고, 우리가 만든 컨테이너를 어떻게 서버리스로 배포하는지 알아봅니다.

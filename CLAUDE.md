@@ -10,7 +10,7 @@ Served as a **Docsify** static site (`docs/index.html` is the entry point).
 
 ## Structure
 
-- `docs/phase-{0..6}-*/` — content broken into per-topic pages for Docsify navigation
+- `docs/phase-{0..7}-*/` — content broken into per-topic pages for Docsify navigation (Phase 7 = Google Cloud & Cloud Run 배포)
 - `docs/_sidebar.md` — defines the sidebar navigation tree (update when adding/renaming pages)
 - `docs/README.md` — Docsify landing page (renders as the home page)
 - `docs/index.html` — Docsify config and plugins (theme, search, pagination, syntax highlighting)

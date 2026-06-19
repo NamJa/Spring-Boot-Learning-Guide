@@ -1,6 +1,7 @@
 - [🏠 홈](README.md)
 
 - **Phase 0: Spring 핵심 개념**
+  - [서버 사이드 개발 입문](phase-0-spring-fundamentals/00-server-side-intro.md)
   - [Spring & Spring Boot 입문](phase-0-spring-fundamentals/01-what-is-spring.md)
   - [IoC 컨테이너와 의존성 주입](phase-0-spring-fundamentals/02-ioc-and-di.md)
   - [Bean 생명주기와 스코프](phase-0-spring-fundamentals/03-bean-lifecycle-scope.md)
@@ -45,3 +46,10 @@
   - [Docker 컨테이너화](phase-6-build-deploy/02-docker.md)
   - [GraalVM 네이티브 이미지](phase-6-build-deploy/03-native-image.md)
   - [프로파일별 배포 & 운영](phase-6-build-deploy/04-deploy-operations.md)
+
+- **Phase 7: Google Cloud & Cloud Run 배포**
+  - [Cloud Run 핵심 개념](phase-7-cloud-run/01-cloud-run-concepts.md)
+  - [gcloud CLI 설치와 프로젝트 설정](phase-7-cloud-run/02-gcloud-setup.md)
+  - [소스에서 직접 배포](phase-7-cloud-run/03-source-deploy.md)
+  - [컨테이너 이미지 빌드 후 배포](phase-7-cloud-run/04-image-deploy.md)
+  - [CI/CD와 운영](phase-7-cloud-run/05-cicd-operations.md)
