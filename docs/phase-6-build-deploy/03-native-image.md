@@ -94,7 +94,7 @@ java -version
 ```kotlin
 // 1) 특정 타입을 직렬화/역직렬화 대상으로 등록 (Jackson 등)
 @Configuration
-@RegisterReflectionForBinding(BookResponse::class, BookRequest::class)
+@RegisterReflectionForBinding(BookResponse::class, CreateBookRequest::class)
 class NativeHintsConfig
 ```
 

@@ -191,7 +191,7 @@ BookService.findById(id)
 
 컨트롤러는 "어떻게 저장되는지" 전혀 모릅니다. 그저 서비스에게 시키고, 결과를 HTTP 응답으로 포장할 뿐입니다. 이것이 계층 분리의 힘입니다.
 
-> **Phase 3 예고**: `BookService` 안의 `ConcurrentHashMap`은 임시방편입니다. Phase 3에서 `JpaRepository<BookEntity, Long>`를 주입받아 실제 DB에 저장하도록 바꿉니다. 그때 컨트롤러는 거의 그대로 둘 수 있다는 점이, 우리가 계층을 분리한 이유를 증명합니다.
+> **Phase 3 예고**: `BookService` 안의 `ConcurrentHashMap`은 임시방편입니다. Phase 3에서 `JpaRepository<Book, Long>`를 주입받아 실제 DB에 저장하도록 바꿉니다. 그때 컨트롤러는 거의 그대로 둘 수 있다는 점이, 우리가 계층을 분리한 이유를 증명합니다.
 
 ## 다음 단계
 
