@@ -173,10 +173,14 @@ interface BookRepository :
 ```kotlin
 @Service
 class BookService(private val bookRepository: BookRepository) {
-    fun register(book: Book) = bookRepository.save(book)                    // Spring Data
-    fun byIsbn(isbn: String) = bookRepository.findByIsbn(isbn)              // 파생 쿼리
-    fun search(t: String?, a: String?, p: Int?) =
-        bookRepository.searchByConditions(t, a, p)                          // Querydsl
+    // 서비스는 DTO를 반환한다(본문 계약과 동일). 매핑 헬퍼는 Phase 3에서 정의한
+    // CreateBookRequest.toEntity() / Book.toResponse() 를 그대로 쓴다.
+    fun register(request: CreateBookRequest): BookResponse =
+        bookRepository.save(request.toEntity()).toResponse()               // Spring Data + 매핑
+    fun byIsbn(isbn: String): BookResponse? =
+        bookRepository.findByIsbn(isbn)?.toResponse()                      // 파생 쿼리
+    fun search(t: String?, a: String?, p: Int?): List<BookResponse> =
+        bookRepository.searchByConditions(t, a, p)                          // Querydsl(이미 DTO 프로젝션)
 }
 ```
 

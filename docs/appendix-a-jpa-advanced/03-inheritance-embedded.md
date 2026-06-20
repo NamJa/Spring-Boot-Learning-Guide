@@ -101,11 +101,11 @@ class JpaConfig
 class Book(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
-    var title: String = "",
-    var author: String = "",
-    var isbn: String = "",
-    var price: Int = 0,
-    var publishedAt: LocalDate = LocalDate.now()
+    var title: String,
+    var author: String,
+    var isbn: String,
+    var price: Int,
+    var publishedAt: LocalDate
 ) : BaseEntity()   // createdAt / updatedAt 를 물려받음
 ```
 

@@ -202,14 +202,20 @@ class BookFormController(private val bookService: BookService) {
 }
 
 // 폼 전용 객체 (검증 애너테이션은 Phase 4-1 참고)
+// 빈 폼 렌더링을 위해 기본값을 둔다(BookForm()). 필드 구성은 본문 CreateBookRequest와 동일.
 data class BookForm(
     @field:NotBlank val title: String = "",
     @field:NotBlank val author: String = "",
+    @field:Pattern(regexp = "^(?:\\d[- ]?){12}\\d$") val isbn: String = "",
     @field:Positive val price: Int = 0,
-)
+    @field:PastOrPresent val publishedAt: LocalDate = LocalDate.now(),
+) {
+    // 폼 객체 → 서비스 커맨드로 변환. 본문 Phase 2/4의 CreateBookRequest와 필드가 1:1로 맞는다.
+    fun toCommand() = CreateBookRequest(title, author, isbn, price, publishedAt)
+}
 ```
 
-`@ModelAttribute`는 폼 필드(`title`, `author`, `price`)를 객체로 바인딩하는 아규먼트 리졸버를 동작시키고, `@Valid`는 [Phase 4-1](../phase-4-validation-config/01-bean-validation.md)의 Bean Validation을 그대로 적용합니다. **REST에서는 `@RequestBody`로 받던 것을, SSR 폼에서는 `@ModelAttribute`로 받는다**는 차이만 기억하면 됩니다.
+`@ModelAttribute`는 폼 필드(`title`, `author`, `isbn`, `price`, `publishedAt`)를 객체로 바인딩하는 아규먼트 리졸버를 동작시키고, `@Valid`는 [Phase 4-1](../phase-4-validation-config/01-bean-validation.md)의 Bean Validation을 그대로 적용합니다. **REST에서는 `@RequestBody`로 받던 것을, SSR 폼에서는 `@ModelAttribute`로 받는다**는 차이만 기억하면 됩니다. `toCommand()`가 폼을 본문의 `CreateBookRequest`로 변환하므로, 서비스 계층은 REST든 SSR이든 **동일한 DTO 계약**을 받습니다.
 
 ### 폼 템플릿 — `templates/books/form.html`
 
@@ -237,9 +243,19 @@ data class BookForm(
             <span th:if="${#fields.hasErrors('author')}" th:errors="*{author}"></span>
         </div>
         <div>
+            <label>ISBN</label>
+            <input type="text" th:field="*{isbn}">
+            <span th:if="${#fields.hasErrors('isbn')}" th:errors="*{isbn}"></span>
+        </div>
+        <div>
             <label>가격</label>
             <input type="number" th:field="*{price}">
             <span th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></span>
+        </div>
+        <div>
+            <label>출판일</label>
+            <input type="date" th:field="*{publishedAt}">
+            <span th:if="${#fields.hasErrors('publishedAt')}" th:errors="*{publishedAt}"></span>
         </div>
 
         <button type="submit">저장</button>

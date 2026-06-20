@@ -18,6 +18,12 @@ Served as a **Docsify** static site (`docs/index.html` is the entry point).
 
 Phase directories follow the pattern `phase-N-topic/NN-slug.md` with a `README.md` per phase.
 
+## Content Conventions
+
+- **One running example across the whole guide.** Every phase and appendix builds the same Book API under the package root `com.example.bookapi` (subpackages: `controller`, `service`, `repository`, `domain`, `dto`, `config`, `exception`, `validation`, `client`). The canonical types are `BookService` / `BookController` / `BookRepository`. Reuse these names and package paths when adding examples — do **not** introduce a new sample domain.
+- **Cross-phase continuity is actively maintained.** The git history shows repeated "연속성 검증 / 정합화" passes that keep package names, class names, and service-method contracts identical across pages. When editing one page, check that signatures and package paths still match the phases/appendices that reference the same code, so a reader following along never hits a contradiction.
+- Appendix code targets the same example but at intermediate/advanced depth (mirrors 김영한 roadmap: JPA 기본편 / Querydsl / 핵심원리 고급편 / MVC 1·2편).
+
 ## Local Preview
 
 Docsify requires a local HTTP server. Any of these work from the repo root:

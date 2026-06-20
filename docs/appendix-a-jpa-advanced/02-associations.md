@@ -40,7 +40,7 @@ class Category(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
 
-    var name: String = ""
+    var name: String
 )
 ```
 
@@ -49,11 +49,11 @@ class Category(
 class Book(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
-    var title: String = "",
-    var author: String = "",      // 그대로 String 유지
-    var isbn: String = "",
-    var price: Int = 0,           // 그대로 Int(원화) 유지
-    var publishedAt: LocalDate = LocalDate.now(),
+    var title: String,
+    var author: String,           // 그대로 String 유지
+    var isbn: String,
+    var price: Int,               // 그대로 Int(원화) 유지
+    var publishedAt: LocalDate,
 
     @ManyToOne(fetch = FetchType.LAZY)   // 항상 LAZY 권장 (04장 참고)
     @JoinColumn(name = "category_id")    // FK 컬럼명 지정
@@ -79,8 +79,8 @@ class Book(
 class Review(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
-    var content: String = "",
-    var rating: Int = 0,
+    var content: String,
+    var rating: Int,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id")   // ← 주인: 이쪽이 FK를 관리
