@@ -78,7 +78,7 @@ session.invalidate()
 ### 로그인 컨트롤러
 
 ```kotlin
-package com.example.bookapi.web
+package com.example.bookapi.controller
 
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Controller

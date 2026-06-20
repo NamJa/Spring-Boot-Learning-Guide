@@ -43,7 +43,7 @@
 필터는 `jakarta.servlet.Filter` 인터페이스를 구현합니다. 핵심은 `doFilter` 안에서 **`chain.doFilter(...)`를 호출하기 전이 "요청 진입 시점", 호출한 후가 "응답 반환 시점"** 이라는 점입니다.
 
 ```kotlin
-package com.example.bookapi.web.filter
+package com.example.bookapi.config
 
 import jakarta.servlet.*
 import jakarta.servlet.http.HttpServletRequest
@@ -113,7 +113,7 @@ class FilterConfig {
 ### 예제 — 요청 ID 부여 + 처리 시간 측정
 
 ```kotlin
-package com.example.bookapi.web.interceptor
+package com.example.bookapi.config
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

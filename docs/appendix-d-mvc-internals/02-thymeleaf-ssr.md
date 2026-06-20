@@ -64,7 +64,7 @@ src/main/resources/
 SSR의 핵심 협업은 **컨트롤러가 `Model`에 데이터를 담고, 뷰 이름을 반환하면, 템플릿이 그 데이터를 꺼내 HTML을 채우는 것** 입니다.
 
 ```kotlin
-package com.example.bookapi.web   // /api 컨트롤러와 패키지도 분리해 두면 깔끔
+package com.example.bookapi.controller   // SSR 컨트롤러도 REST와 같은 controller 패키지를 씁니다
 
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
