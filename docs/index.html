@@ -1,92 +1,364 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>Spring Boot 학습 가이드 (Kotlin)</title>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="description" content="Kotlin으로 배우는 Spring Boot 4 입문부터 배포까지 — 2026년 6월 기준 최신 가이드">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css">
-  <style>
-    :root {
-      --base-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
-      --base-font-size: 15px;
-      --base-line-height: 1.7;
-      --theme-color: #6DB33F;
-      --sidebar-width: 290px;
-      --sidebar-nav-link-color--active: #6DB33F;
-      --sidebar-nav-link-font-weight--active: bold;
-      --code-font-family: "JetBrains Mono", "Fira Code", monospace;
-      --code-font-size: 0.875em;
-      --blockquote-border-color: #6DB33F;
-    }
-    .sidebar-nav li.active > a {
-      border-right: 3px solid var(--theme-color);
-    }
-    .markdown-section table {
-      display: table;
-      width: 100%;
-    }
-    .markdown-section pre > code {
-      font-size: 0.85em;
-    }
-    .cover-main {
-      color: #333;
-    }
-    .cover-main blockquote {
-      color: #666;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spring Boot 학습 가이드 (Kotlin) · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="./assets/style.css">
 </head>
 <body>
-  <div id="app"></div>
-  <script>
-    window.$docsify = {
-      name: 'Spring Boot 가이드 (Kotlin)',
-      repo: '',
-      loadSidebar: true,
-      subMaxLevel: 3,
-      auto2top: true,
-      coverpage: false,
-      search: {
-        placeholder: '검색어를 입력하세요',
-        noData: '결과가 없습니다',
-        depth: 3
-      },
-      pagination: {
-        previousText: '이전',
-        nextText: '다음',
-        crossChapter: true,
-        crossChapterText: true
-      },
-      copyCode: {
-        buttonText: '복사',
-        errorText: '실패',
-        successText: '완료!'
-      },
-      tabs: {
-        persist: true,
-        sync: true
-      }
-    }
-  </script>
-  <!-- Docsify core -->
-  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
-  <!-- Plugins -->
-  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code@2/dist/docsify-copy-code.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-tabs@1/dist/docsify-tabs.min.js"></script>
-  <!-- Syntax highlighting -->
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-kotlin.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-yaml.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-docker.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-groovy.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-sql.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-properties.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-xml-doc.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-http.min.js"></script>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="index.html" class="active">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>Spring Boot 학습 가이드 (Kotlin)</h1>
+<p><a href="https://namja.github.io/Spring-Boot-Learning-Guide/"><img alt="Live Site" src="https://img.shields.io/badge/Live-namja.github.io-6DB33F?style=flat-square&amp;logo=githubpages&amp;logoColor=white" /></a>
+<a href="https://docs.spring.io/spring-boot/index.html"><img alt="Spring Boot" src="https://img.shields.io/badge/Spring%20Boot-4.1.0-6DB33F?style=flat-square&amp;logo=springboot&amp;logoColor=white" /></a>
+<a href="https://kotlinlang.org/"><img alt="Kotlin" src="https://img.shields.io/badge/Kotlin-2.3.21-7F52FF?style=flat-square&amp;logo=kotlin&amp;logoColor=white" /></a>
+<a href="https://adoptium.net/"><img alt="JDK" src="https://img.shields.io/badge/JDK-21%20LTS-orange?style=flat-square&amp;logo=openjdk&amp;logoColor=white" /></a></p>
+<blockquote>
+<p><strong>Kotlin으로 배우는 Spring Boot 4 — 핵심 개념부터 REST API · 데이터 · 보안 · 배포까지</strong></p>
+</blockquote>
+<p>Kotlin은 알지만 Spring 생태계는 처음인 분들을 위한 실습형 입문 가이드입니다. IoC/DI 같은 Spring의 핵심 철학부터 시작해, Kotlin으로 REST API를 만들고, Spring Data JPA로 데이터를 다루며, 검증·예외·보안·관측성을 더한 뒤, JAR·Docker·네이티브 이미지로 배포하는 전 과정을 단계별로 다룹니다.</p>
+<h2>📦 기준 버전 (2026-06-20 기준)</h2>
+<table>
+<thead>
+<tr>
+<th>구성요소</th>
+<th>버전</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Spring Boot</strong></td>
+<td>4.1.0</td>
+<td>2026-06-10 GA</td>
+</tr>
+<tr>
+<td><strong>Spring Framework</strong></td>
+<td>7.0.8+</td>
+<td>Spring Boot 4.1의 베이스라인</td>
+</tr>
+<tr>
+<td><strong>Kotlin</strong></td>
+<td>2.3.21</td>
+<td>Spring Boot 4.1.0 BOM이 관리 (스탠드얼론 최신은 2.4.0)</td>
+</tr>
+<tr>
+<td><strong>JDK</strong></td>
+<td>17 (최소) ~ 26</td>
+<td>빌드·런타임. 본 가이드는 LTS인 JDK 21 기준</td>
+</tr>
+<tr>
+<td><strong>Gradle</strong></td>
+<td>8.14+ / 9.x</td>
+<td>Kotlin DSL(<code>build.gradle.kts</code>) 사용</td>
+</tr>
+<tr>
+<td><strong>Maven</strong></td>
+<td>3.6.3+</td>
+<td>(가이드는 Gradle 중심)</td>
+</tr>
+<tr>
+<td><strong>내장 서버</strong></td>
+<td>Tomcat 11.0.x (Servlet 6.1)</td>
+<td>기본값. Jetty 12.1.x도 지원</td>
+</tr>
+<tr>
+<td><strong>GraalVM</strong></td>
+<td>Community 25</td>
+<td>네이티브 이미지</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Spring Boot 4.1.0은 <strong>Java 17을 최소 버전</strong>으로 요구하며 <strong>Java 26까지</strong> 호환됩니다. 본 가이드는 가장 무난한 LTS인 <strong>JDK 21</strong>을 기준으로 작성했습니다. Spring Boot 3.5.x도 여전히 유지보수되는 안정 버전이지만, 본 가이드는 최신 메이저인 <strong>4.1.0</strong>을 기준으로 합니다.</p>
+<p><strong>Kotlin 버전에 관하여:</strong> 2026-06-20 기준 Kotlin의 스탠드얼론 최신 릴리스는 <strong>2.4.0</strong>(2026-06-03)이지만, Spring Boot 4.1.0의 BOM은 <strong>Kotlin 2.3.21</strong>을 관리합니다. Spring Boot 프로젝트에서는 BOM이 검증한 버전을 그대로 쓰는 것이 안전하므로, 본 가이드는 <strong>2.3.21</strong>을 기준으로 합니다. (Spring Boot 4.0.0은 2.2.21을 관리했습니다.)</p>
+</blockquote>
+<h2>🧭 추천 학습 경로</h2>
+<p>본 가이드는 <strong>하나의 예제(도서 관리 API)</strong> 를 본문 Phase 0→7로 완성한 뒤, <strong>부록 A~D</strong>로 깊이를 더하는 구성입니다. 모든 페이지는 "다음 단계" 링크로 이어져 있어, 아래 순서대로 따라가면 됩니다.</p>
+<h3>✅ 권장 통합 순서 (본문 + 부록)</h3>
+<p>처음이라면 이 순서를 권장합니다. <strong>부록은 선택적 심화</strong>이므로, 일단 본문(Phase 0~7)만 완주하고 부록은 나중에 봐도 됩니다.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">순서</th>
+<th>단계</th>
+<th>핵심 학습</th>
+<th style="text-align: center;">선행</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td><strong>Phase 0</strong> 핵심 개념</td>
+<td>서버 입문, IoC/DI, 자동 설정, MVC vs WebFlux</td>
+<td style="text-align: center;">—</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td><strong>Phase 1</strong> 프로젝트 설정</td>
+<td>JDK·Initializr·<code>build.gradle.kts</code>·<code>application.yml</code></td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td><strong>Phase 2</strong> 첫 REST API</td>
+<td><code>@RestController</code>·DTO·Service (인메모리)</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td><strong>Phase 3</strong> 데이터 영속성</td>
+<td>Spring Data JPA·Entity·트랜잭션</td>
+<td style="text-align: center;">2</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td>📎 <strong>부록 A</strong> JPA 심화</td>
+<td>영속성 컨텍스트·연관관계·프록시·N+1·JPQL</td>
+<td style="text-align: center;">3</td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td>📎 <strong>부록 B</strong> Querydsl</td>
+<td>타입 안전·동적 쿼리·DTO 프로젝션</td>
+<td style="text-align: center;">A</td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td><strong>Phase 4</strong> 검증·예외·설정</td>
+<td>Bean Validation·<code>ProblemDetail</code>·프로파일</td>
+<td style="text-align: center;">2~3</td>
+</tr>
+<tr>
+<td style="text-align: center;">8</td>
+<td><strong>Phase 5</strong> 실전 기능</td>
+<td>HTTP 클라이언트·Security 7·Actuator·테스트</td>
+<td style="text-align: center;">4</td>
+</tr>
+<tr>
+<td style="text-align: center;">9</td>
+<td>📎 <strong>부록 C</strong> AOP/프록시 고급</td>
+<td>동적 프록시·<code>@Aspect</code>·<code>@Transactional</code> 원리</td>
+<td style="text-align: center;">3-4(트랜잭션)</td>
+</tr>
+<tr>
+<td style="text-align: center;">10</td>
+<td><strong>Phase 6</strong> 빌드 &amp; 배포</td>
+<td>JAR·Docker·GraalVM 네이티브</td>
+<td style="text-align: center;">5</td>
+</tr>
+<tr>
+<td style="text-align: center;">11</td>
+<td><strong>Phase 7</strong> Cloud Run 배포</td>
+<td>gcloud·소스/이미지 배포·CI/CD</td>
+<td style="text-align: center;">6</td>
+</tr>
+<tr>
+<td style="text-align: center;">12</td>
+<td>📎 <strong>부록 D</strong> MVC 내부·SSR</td>
+<td>DispatcherServlet·Thymeleaf·필터/인터셉터·세션</td>
+<td style="text-align: center;">2(+5)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>💡 <strong>부록 선행 관계</strong>: 부록 B는 <strong>부록 A</strong>를, 부록 C는 <strong>Phase 3-4(트랜잭션)</strong> 를, 부록 D는 <strong>Phase 2</strong>를 먼저 보고 오는 것을 권장합니다.</p>
+</blockquote>
+<h3>🎯 목표별 빠른 트랙</h3>
+<p>시간이 부족하거나 목적이 분명하다면 아래 축약 경로를 참고하세요.</p>
+<ul>
+<li><strong>🚀 빠르게 배포까지 (야생형)</strong>: Phase 0(빠르게) → 1 → 2 → 3 → 6 → 7 <em>(검증·보안은 나중에 4·5로 보강)</em></li>
+<li><strong>📚 탄탄한 백엔드 정석</strong>: 위 <strong>권장 통합 순서 전체</strong>(1→12)</li>
+<li><strong>🗄️ 데이터/쿼리 집중</strong>: Phase 0 → 1 → 2 → 3 → 부록 A → 부록 B → Phase 4</li>
+<li><strong>🧠 이론·면접 대비</strong>: Phase 0 → 부록 C(AOP) → 부록 A(JPA) → 부록 D(MVC 내부) <em>(원리 위주)</em></li>
+<li><strong>🌐 화면(SSR)까지</strong>: 본문 완주 → 부록 D(Thymeleaf·세션 로그인)</li>
+</ul>
+<hr />
+<h2>🗺️ 전체 페이지 목록</h2>
+<p>아래는 모든 페이지의 전체 목차입니다. (추천 순서는 위 <strong>🧭 추천 학습 경로</strong> 절 참고)</p>
+<h3>Phase 0 — Spring 핵심 개념</h3>
+<ul>
+<li><a href="phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a></li>
+<li><a href="phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a></li>
+<li><a href="phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a></li>
+<li><a href="phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a></li>
+<li><a href="phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a></li>
+<li><a href="phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a></li>
+</ul>
+<h3>Phase 1 — 프로젝트 설정</h3>
+<ul>
+<li><a href="phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a></li>
+<li><a href="phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a></li>
+<li><a href="phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a></li>
+<li><a href="phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a></li>
+<li><a href="phase-1-project-setup/05-application-yml.html">application.yml 설정</a></li>
+</ul>
+<h3>Phase 2 — 첫 번째 REST API</h3>
+<ul>
+<li><a href="phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a></li>
+<li><a href="phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a></li>
+<li><a href="phase-2-first-api/03-rest-controller.html">@RestController 구현</a></li>
+<li><a href="phase-2-first-api/04-service-layer.html">Service 계층과 DI</a></li>
+<li><a href="phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a></li>
+</ul>
+<h3>Phase 3 — 데이터 영속성 (Spring Data JPA)</h3>
+<ul>
+<li><a href="phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a></li>
+<li><a href="phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a></li>
+<li><a href="phase-3-data-jpa/03-repository.html">Repository 인터페이스</a></li>
+<li><a href="phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a></li>
+<li><a href="phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a></li>
+</ul>
+<h3>Phase 4 — 검증 · 예외 · 설정</h3>
+<ul>
+<li><a href="phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a></li>
+<li><a href="phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a></li>
+<li><a href="phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a></li>
+<li><a href="phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a></li>
+</ul>
+<h3>Phase 5 — 실전 기능 (Spring Boot 4)</h3>
+<ul>
+<li><a href="phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a></li>
+<li><a href="phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a></li>
+<li><a href="phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a></li>
+<li><a href="phase-5-production-features/04-testing.html">테스트 전략</a></li>
+</ul>
+<h3>Phase 6 — 빌드 &amp; 배포</h3>
+<ul>
+<li><a href="phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a></li>
+<li><a href="phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a></li>
+<li><a href="phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a></li>
+<li><a href="phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a></li>
+</ul>
+<h3>Phase 7 — Google Cloud &amp; Cloud Run 배포</h3>
+<ul>
+<li><a href="phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a></li>
+<li><a href="phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a></li>
+<li><a href="phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a></li>
+<li><a href="phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a></li>
+<li><a href="phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a></li>
+</ul>
+<hr />
+<h2>📎 부록 (심화)</h2>
+<p>본문이 "넓고 빠르게" 한 바퀴 도는 입문 과정이라면, 부록은 실무·중급으로 들어가는 <strong>심화 과정</strong>입니다. (인프런 김영한 강사 로드맵의 <em>JPA 기본편 / Querydsl / 핵심원리 고급편 / MVC 1·2편</em> 영역을 Kotlin·Spring Boot 4 기준으로 보강)</p>
+<h3>부록 A — JPA 심화</h3>
+<ul>
+<li><a href="appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a></li>
+<li><a href="appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a></li>
+<li><a href="appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a></li>
+<li><a href="appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a></li>
+<li><a href="appendix-a-jpa-advanced/05-jpql.html">JPQL</a></li>
+</ul>
+<h3>부록 B — Querydsl</h3>
+<ul>
+<li><a href="appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a></li>
+<li><a href="appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a></li>
+<li><a href="appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a></li>
+<li><a href="appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a></li>
+<li><a href="appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a></li>
+</ul>
+<h3>부록 C — AOP / 프록시 고급</h3>
+<ul>
+<li><a href="appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a></li>
+<li><a href="appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a></li>
+<li><a href="appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a></li>
+</ul>
+<h3>부록 D — Spring MVC 내부 원리 &amp; SSR</h3>
+<ul>
+<li><a href="appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a></li>
+<li><a href="appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a></li>
+<li><a href="appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a></li>
+<li><a href="appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a></li>
+</ul>
+<hr />
+<h2>📚 공식 문서</h2>
+<ul>
+<li><a href="https://docs.spring.io/spring-framework/reference/overview.html">Spring Framework Reference</a></li>
+<li><a href="https://docs.spring.io/spring-boot/index.html">Spring Boot Reference</a></li>
+<li><a href="https://spring.io/">Spring 공식 사이트</a></li>
+<li><a href="https://start.spring.io/">Spring Initializr</a></li>
+</ul>
+<blockquote>
+<p>본 문서의 모든 버전·API는 <strong>2026년 6월 20일</strong> 기준 공식 문서로 검증했습니다.</p>
+</blockquote>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
 </body>
 </html>

@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thymeleaf 서버 사이드 렌더링 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="02-thymeleaf-ssr.html" class="active">Thymeleaf 서버 사이드 렌더링</a>
+<a href="03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>Thymeleaf 서버 사이드 렌더링</h1>
+<p><a href="01-dispatcher-servlet.html">1번 문서</a>의 마지막에서 본 그림 ⑤에는 두 갈래가 있었습니다. <code>@ResponseBody</code>로 JSON 본문을 만드는 위쪽(MessageConverter)과, <strong>뷰 이름을 반환해 ViewResolver가 HTML을 그리는 아래쪽</strong>. 이번 문서는 그 아래쪽 갈래, 즉 <strong>서버 사이드 렌더링(SSR)</strong> 을 다룹니다. 서버가 데이터를 채운 완성된 HTML을 브라우저에 내려주는 전통적인 웹 방식입니다.</p>
+<h2>1. SSR vs REST — 언제 무엇을</h2>
+<p>같은 도서 데이터라도 두 가지 방식으로 전달할 수 있습니다.</p>
+<figure class="diagram"><pre>[REST 방식 — Phase 2]                      [SSR 방식 — 이 부록]
+브라우저(JS) ─GET /api/books─► 서버         브라우저 ─GET /books─► 서버
+            ◄──── JSON ───────                       ◄── 완성된 HTML ──
+브라우저가 JS로 화면을 그림                  서버가 화면을 다 그려서 보냄</pre></figure>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>SSR (<code>@Controller</code> + Thymeleaf)</th>
+<th>REST (<code>@RestController</code> + JSON)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>응답</td>
+<td>완성된 HTML</td>
+<td>데이터(JSON)</td>
+</tr>
+<tr>
+<td>화면 렌더링 주체</td>
+<td>서버</td>
+<td>클라이언트(브라우저 JS, React 등)</td>
+</tr>
+<tr>
+<td>적합한 곳</td>
+<td>관리자 페이지, 사내 도구, 콘텐츠 사이트, 폼 위주 화면</td>
+<td>SPA/모바일 앱 백엔드, 외부 공개 API</td>
+</tr>
+<tr>
+<td>초기 로딩/SEO</td>
+<td>유리(HTML이 바로 옴)</td>
+<td>별도 처리 필요</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>둘은 양자택일이 아닙니다. 한 애플리케이션이 외부에는 <code>/api/books</code> REST를, 내부 관리자에게는 <code>/books</code> SSR 화면을 동시에 제공하는 구성은 매우 흔합니다. 이 부록이 정확히 그 구조입니다.</p>
+</blockquote>
+<h2>2. 의존성과 자동 설정</h2>
+<p>SSR을 위해 필요한 것은 스타터 하나입니다(<a href="../phase-1-project-setup/04-build-gradle-kts.html">Phase 1-4</a>의 의존성 추가 방식 그대로).</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
+<span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-web&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-thymeleaf&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// 추가</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>이 스타터는 <strong>Thymeleaf 3.1.5</strong>(Boot 4.1 관리 버전)를 끌어오고, 자동 설정(<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">Phase 0-04</a>)이 다음을 알아서 구성합니다.</p>
+<ul>
+<li><strong><code>ThymeleafViewResolver</code></strong> — 컨트롤러가 반환한 뷰 이름(예: <code>"books/list"</code>)을 실제 템플릿 파일로 연결.</li>
+<li><strong>템플릿 위치</strong> — 기본 prefix <code>classpath:/templates/</code>, suffix <code>.html</code>. 즉 <code>"books/list"</code> → <code>src/main/resources/templates/books/list.html</code>.</li>
+<li><strong>인코딩</strong> UTF-8, 정적 리소스는 <code>src/main/resources/static/</code>.</li>
+</ul>
+<figure class="diagram"><pre>src/main/resources/
+├── templates/          ← Thymeleaf HTML (서버가 렌더링)
+│   └── books/
+│       ├── list.html
+│       ├── detail.html
+│       └── form.html
+└── static/             ← CSS/JS/이미지 (그대로 서빙)</pre></figure>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>개발 중 템플릿을 고쳤는데 화면이 안 바뀐다면 캐시 때문입니다. 운영에서는 캐시가 켜져 있어야 하지만, 로컬에서는 꺼 두면 편합니다.
+<code>yaml
+spring:
+  thymeleaf:
+    cache: false   # 개발용. 운영(prod 프로파일)에서는 true 유지</code></p>
+</blockquote>
+<h2>3. @Controller + Model로 데이터 전달</h2>
+<p>SSR의 핵심 협업은 <strong>컨트롤러가 <code>Model</code>에 데이터를 담고, 뷰 이름을 반환하면, 템플릿이 그 데이터를 꺼내 HTML을 채우는 것</strong> 입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.controller</span><span class="w">   </span><span class="c1">// SSR 컨트롤러도 REST와 같은 controller 패키지를 씁니다</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.stereotype.Controller</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.ui.Model</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.bind.annotation.*</span>
+
+<span class="nd">@Controller</span><span class="w">                      </span><span class="c1">// @RestController 아님! (1번 문서 3절)</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;/books&quot;</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookViewController</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookService</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="p">,</span><span class="w">   </span><span class="c1">// Phase 2의 서비스 그대로 재사용</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="c1">// 목록 화면: GET /books</span>
+<span class="w">    </span><span class="nd">@GetMapping</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="n">Model</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">&quot;books&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">findAll</span><span class="p">())</span><span class="w">  </span><span class="c1">// 뷰에 넘길 데이터</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;books/list&quot;</span><span class="w">      </span><span class="c1">// → templates/books/list.html</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 상세 화면: GET /books/1</span>
+<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">&quot;/{id}&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">detail</span><span class="p">(</span><span class="nd">@PathVariable</span><span class="w"> </span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">,</span><span class="w"> </span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="n">Model</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">&quot;book&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">id</span><span class="p">))</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;books/detail&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code>Model</code>은 <a href="01-dispatcher-servlet.html">1번 문서</a>에서 본 아규먼트 리졸버가 채워 주는 객체로, <strong>컨트롤러 → 뷰로 넘기는 데이터 보관함</strong>입니다. <code>addAttribute("books", ...)</code>로 담은 값은 템플릿에서 <code>${books}</code>로 꺼냅니다.</p>
+<h2>4. 타임리프 기본 문법</h2>
+<p>Thymeleaf의 가장 큰 장점은 <strong>순수 HTML로도 열린다</strong>는 점입니다(natural template). 동적 부분을 <code>th:*</code> 속성으로 표현하므로, 브라우저로 파일을 직접 열어도 디자인을 확인할 수 있습니다.</p>
+<table>
+<thead>
+<tr>
+<th>문법</th>
+<th>용도</th>
+<th>예시</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>th:text</code></td>
+<td>태그 내용을 값으로 치환</td>
+<td><code>&lt;td th:text="${book.title}"&gt;샘플&lt;/td&gt;</code></td>
+</tr>
+<tr>
+<td><code>th:each</code></td>
+<td>반복</td>
+<td><code>&lt;tr th:each="book : ${books}"&gt;</code></td>
+</tr>
+<tr>
+<td><code>th:if</code> / <code>th:unless</code></td>
+<td>조건부 렌더링</td>
+<td><code>&lt;p th:if="${books.isEmpty()}"&gt;없음&lt;/p&gt;</code></td>
+</tr>
+<tr>
+<td><code>th:href</code></td>
+<td>링크 속성</td>
+<td><code>th:href="@{/books/{id}(id=${book.id})}"</code></td>
+</tr>
+<tr>
+<td><code>${...}</code></td>
+<td>변수식(모델 값 접근)</td>
+<td><code>${book.title}</code></td>
+</tr>
+<tr>
+<td><code>@{...}</code></td>
+<td>URL 식(컨텍스트 경로 자동 처리)</td>
+<td><code>@{/books}</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong><code>${...}</code> (변수식)</strong>: 모델에 담긴 객체의 값을 읽습니다. <code>${book.title}</code>은 <code>book.getTitle()</code>(Kotlin이면 프로퍼티 <code>title</code>)을 호출합니다.</li>
+<li><strong><code>@{...}</code> (URL식)</strong>: 애플리케이션 컨텍스트 경로를 자동으로 붙여 안전한 URL을 만듭니다. 경로 변수는 <code>@{/books/{id}(id=${book.id})}</code> 처럼 괄호로 전달합니다.</li>
+</ul>
+<h2>5. 목록·상세 페이지 예제</h2>
+<h3>목록 — <code>templates/books/list.html</code></h3>
+<div class="code-block" data-lang="html"><span class="code-lang">html</span><div class="hl"><pre><span></span><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">&quot;ko&quot;</span> <span class="na">xmlns:th</span><span class="o">=</span><span class="s">&quot;http://www.thymeleaf.org&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&quot;UTF-8&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>도서 목록<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>도서 목록<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+
+    <span class="cm">&lt;!-- 데이터가 없을 때 --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span> <span class="na">th:if</span><span class="o">=</span><span class="s">&quot;${books.isEmpty()}&quot;</span><span class="p">&gt;</span>등록된 도서가 없습니다.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">table</span> <span class="na">th:unless</span><span class="o">=</span><span class="s">&quot;${books.isEmpty()}&quot;</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">thead</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">tr</span><span class="p">&gt;&lt;</span><span class="nt">th</span><span class="p">&gt;</span>제목<span class="p">&lt;/</span><span class="nt">th</span><span class="p">&gt;&lt;</span><span class="nt">th</span><span class="p">&gt;</span>저자<span class="p">&lt;/</span><span class="nt">th</span><span class="p">&gt;&lt;</span><span class="nt">th</span><span class="p">&gt;</span>가격<span class="p">&lt;/</span><span class="nt">th</span><span class="p">&gt;&lt;/</span><span class="nt">tr</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">thead</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">tbody</span><span class="p">&gt;</span>
+            <span class="cm">&lt;!-- books 리스트를 한 행씩 반복 --&gt;</span>
+            <span class="p">&lt;</span><span class="nt">tr</span> <span class="na">th:each</span><span class="o">=</span><span class="s">&quot;book : ${books}&quot;</span><span class="p">&gt;</span>
+                <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>
+                    <span class="cm">&lt;!-- 상세 페이지로 가는 링크: @{/books/{id}(id=...)} --&gt;</span>
+                    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">th:href</span><span class="o">=</span><span class="s">&quot;@{/books/{id}(id=${book.id})}&quot;</span>
+                       <span class="na">th:text</span><span class="o">=</span><span class="s">&quot;${book.title}&quot;</span><span class="p">&gt;</span>제목<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+                <span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+                <span class="p">&lt;</span><span class="nt">td</span> <span class="na">th:text</span><span class="o">=</span><span class="s">&quot;${book.author}&quot;</span><span class="p">&gt;</span>저자<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+                <span class="p">&lt;</span><span class="nt">td</span> <span class="na">th:text</span><span class="o">=</span><span class="s">&quot;${book.price}&quot;</span><span class="p">&gt;</span>0<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+            <span class="p">&lt;/</span><span class="nt">tr</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">tbody</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">table</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">th:href</span><span class="o">=</span><span class="s">&quot;@{/books/new}&quot;</span><span class="p">&gt;</span>새 도서 등록<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<h3>상세 — <code>templates/books/detail.html</code></h3>
+<div class="code-block" data-lang="html"><span class="code-lang">html</span><div class="hl"><pre><span></span><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">&quot;ko&quot;</span> <span class="na">xmlns:th</span><span class="o">=</span><span class="s">&quot;http://www.thymeleaf.org&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&quot;UTF-8&quot;</span><span class="p">&gt;&lt;</span><span class="nt">title</span><span class="p">&gt;</span>도서 상세<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h1</span> <span class="na">th:text</span><span class="o">=</span><span class="s">&quot;${book.title}&quot;</span><span class="p">&gt;</span>제목<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">dl</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">dt</span><span class="p">&gt;</span>저자<span class="p">&lt;/</span><span class="nt">dt</span><span class="p">&gt;&lt;</span><span class="nt">dd</span> <span class="na">th:text</span><span class="o">=</span><span class="s">&quot;${book.author}&quot;</span><span class="p">&gt;</span>저자<span class="p">&lt;/</span><span class="nt">dd</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">dt</span><span class="p">&gt;</span>가격<span class="p">&lt;/</span><span class="nt">dt</span><span class="p">&gt;&lt;</span><span class="nt">dd</span> <span class="na">th:text</span><span class="o">=</span><span class="s">&quot;${book.price}&quot;</span><span class="p">&gt;</span>0<span class="p">&lt;/</span><span class="nt">dd</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">dl</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">th:href</span><span class="o">=</span><span class="s">&quot;@{/books}&quot;</span><span class="p">&gt;</span>목록으로<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<h2>6. 폼 처리 — th:object / th:field 와 PRG 패턴</h2>
+<p>SSR이 빛나는 영역이 <strong>폼 입력</strong>입니다. Thymeleaf는 폼 객체를 모델에 바인딩해 입력값을 채우고 검증 오류를 표시하는 기능을 제공합니다.</p>
+<h3>폼 컨트롤러</h3>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Controller</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;/books&quot;</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookFormController</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookService</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="c1">// 등록 폼 보여주기: GET /books/new</span>
+<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">&quot;/new&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">newForm</span><span class="p">(</span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="n">Model</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 빈 폼 객체를 모델에 담아 둬야 th:object가 바인딩할 대상이 생긴다</span>
+<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">&quot;form&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">BookForm</span><span class="p">())</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;books/form&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 등록 처리: POST /books</span>
+<span class="w">    </span><span class="nd">@PostMapping</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span>
+<span class="w">        </span><span class="nd">@Valid</span><span class="w"> </span><span class="nd">@ModelAttribute</span><span class="p">(</span><span class="s">&quot;form&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">form</span><span class="p">:</span><span class="w"> </span><span class="n">BookForm</span><span class="p">,</span><span class="w">  </span><span class="c1">// 폼 → 객체 바인딩 + 검증</span>
+<span class="w">        </span><span class="n">bindingResult</span><span class="p">:</span><span class="w"> </span><span class="n">BindingResult</span><span class="p">,</span><span class="w">                    </span><span class="c1">// 검증 결과 (Phase 4-1 연계)</span>
+<span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bindingResult</span><span class="p">.</span><span class="na">hasErrors</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;books/form&quot;</span><span class="w">          </span><span class="c1">// 오류가 있으면 폼을 다시 보여 줌</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">saved</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">form</span><span class="p">.</span><span class="na">toCommand</span><span class="p">())</span>
+<span class="w">        </span><span class="c1">// PRG: 저장 후 상세 페이지로 리다이렉트 (아래 설명)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;redirect:/books/</span><span class="si">${</span><span class="n">saved</span><span class="p">.</span><span class="na">id</span><span class="si">}</span><span class="s">&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 폼 전용 객체 (검증 애너테이션은 Phase 4-1 참고)</span>
+<span class="c1">// 빈 폼 렌더링을 위해 기본값을 둔다(BookForm()). 필드 구성은 본문 CreateBookRequest와 동일.</span>
+<span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BookForm</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">NotBlank</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">NotBlank</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">Pattern</span><span class="p">(</span><span class="n">regexp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;^(?:\\d[- ]?){12}\\d</span><span class="err">$</span><span class="s">&quot;</span><span class="p">)</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">Positive</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">price</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span><span class="p">,</span>
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">PastOrPresent</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">publishedAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">.</span><span class="na">now</span><span class="p">(),</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 폼 객체 → 서비스 커맨드로 변환. 본문 Phase 2/4의 CreateBookRequest와 필드가 1:1로 맞는다.</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">toCommand</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CreateBookRequest</span><span class="p">(</span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="n">author</span><span class="p">,</span><span class="w"> </span><span class="n">isbn</span><span class="p">,</span><span class="w"> </span><span class="n">price</span><span class="p">,</span><span class="w"> </span><span class="n">publishedAt</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code>@ModelAttribute</code>는 폼 필드(<code>title</code>, <code>author</code>, <code>isbn</code>, <code>price</code>, <code>publishedAt</code>)를 객체로 바인딩하는 아규먼트 리졸버를 동작시키고, <code>@Valid</code>는 <a href="../phase-4-validation-config/01-bean-validation.html">Phase 4-1</a>의 Bean Validation을 그대로 적용합니다. <strong>REST에서는 <code>@RequestBody</code>로 받던 것을, SSR 폼에서는 <code>@ModelAttribute</code>로 받는다</strong>는 차이만 기억하면 됩니다. <code>toCommand()</code>가 폼을 본문의 <code>CreateBookRequest</code>로 변환하므로, 서비스 계층은 REST든 SSR이든 <strong>동일한 DTO 계약</strong>을 받습니다.</p>
+<h3>폼 템플릿 — <code>templates/books/form.html</code></h3>
+<div class="code-block" data-lang="html"><span class="code-lang">html</span><div class="hl"><pre><span></span><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">&quot;ko&quot;</span> <span class="na">xmlns:th</span><span class="o">=</span><span class="s">&quot;http://www.thymeleaf.org&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&quot;UTF-8&quot;</span><span class="p">&gt;&lt;</span><span class="nt">title</span><span class="p">&gt;</span>도서 등록<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>도서 등록<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+
+    <span class="cm">&lt;!-- th:object: 이 폼이 다룰 모델 객체 지정 --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">form</span> <span class="na">th:action</span><span class="o">=</span><span class="s">&quot;@{/books}&quot;</span> <span class="na">th:object</span><span class="o">=</span><span class="s">&quot;${form}&quot;</span> <span class="na">method</span><span class="o">=</span><span class="s">&quot;post&quot;</span><span class="p">&gt;</span>
+
+        <span class="cm">&lt;!-- th:field=&quot;*{title}&quot; 가 name/id/value 를 한 번에 처리 --&gt;</span>
+        <span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">label</span><span class="p">&gt;</span>제목<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="na">th:field</span><span class="o">=</span><span class="s">&quot;*{title}&quot;</span><span class="p">&gt;</span>
+            <span class="cm">&lt;!-- 해당 필드의 검증 오류 메시지 --&gt;</span>
+            <span class="p">&lt;</span><span class="nt">span</span> <span class="na">th:if</span><span class="o">=</span><span class="s">&quot;${#fields.hasErrors(&#39;title&#39;)}&quot;</span>
+                  <span class="na">th:errors</span><span class="o">=</span><span class="s">&quot;*{title}&quot;</span><span class="p">&gt;</span>오류<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">label</span><span class="p">&gt;</span>저자<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="na">th:field</span><span class="o">=</span><span class="s">&quot;*{author}&quot;</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">span</span> <span class="na">th:if</span><span class="o">=</span><span class="s">&quot;${#fields.hasErrors(&#39;author&#39;)}&quot;</span> <span class="na">th:errors</span><span class="o">=</span><span class="s">&quot;*{author}&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">label</span><span class="p">&gt;</span>ISBN<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="na">th:field</span><span class="o">=</span><span class="s">&quot;*{isbn}&quot;</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">span</span> <span class="na">th:if</span><span class="o">=</span><span class="s">&quot;${#fields.hasErrors(&#39;isbn&#39;)}&quot;</span> <span class="na">th:errors</span><span class="o">=</span><span class="s">&quot;*{isbn}&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">label</span><span class="p">&gt;</span>가격<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;number&quot;</span> <span class="na">th:field</span><span class="o">=</span><span class="s">&quot;*{price}&quot;</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">span</span> <span class="na">th:if</span><span class="o">=</span><span class="s">&quot;${#fields.hasErrors(&#39;price&#39;)}&quot;</span> <span class="na">th:errors</span><span class="o">=</span><span class="s">&quot;*{price}&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">label</span><span class="p">&gt;</span>출판일<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;date&quot;</span> <span class="na">th:field</span><span class="o">=</span><span class="s">&quot;*{publishedAt}&quot;</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">span</span> <span class="na">th:if</span><span class="o">=</span><span class="s">&quot;${#fields.hasErrors(&#39;publishedAt&#39;)}&quot;</span> <span class="na">th:errors</span><span class="o">=</span><span class="s">&quot;*{publishedAt}&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+        <span class="p">&lt;</span><span class="nt">button</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;submit&quot;</span><span class="p">&gt;</span>저장<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<p><code>th:object</code>로 폼 전체가 다룰 객체를 지정하면, 내부에서 <code>*{title}</code>처럼 <code>*{}</code>(선택 변수식)로 그 객체의 프로퍼티에 접근합니다. <strong><code>th:field="*{title}"</code></strong> 한 줄이 <code>name="title"</code>, <code>id="title"</code>, <code>value="(현재값)"</code>을 모두 채워 주므로, 검증 실패로 폼을 다시 그릴 때 사용자가 입력했던 값이 그대로 보존됩니다.</p>
+<h3>PRG 패턴 — Post/Redirect/Get</h3>
+<p><code>create()</code>가 저장 후 <code>"redirect:/books/${id}"</code>를 반환한 것에 주목하세요. 이것이 <strong>PRG(Post-Redirect-Get) 패턴</strong> 입니다.</p>
+<figure class="diagram"><pre>[잘못된 방식]                          [PRG 방식]
+POST /books → 200 OK + HTML            POST /books → 302 Redirect → /books/1
+새로고침(F5) → 폼이 또 전송됨(중복 저장!)   GET /books/1 → 200 OK + HTML
+                                       새로고침 → 단순 GET 재요청 (안전)</pre></figure>
+<p>폼 제출 응답을 HTML로 바로 내려주면, 사용자가 새로고침할 때 <strong>POST가 재전송되어 중복 등록</strong>이 발생합니다. 저장 직후 <code>redirect:</code>로 GET 페이지로 보내면, 이후 새로고침은 안전한 GET이 됩니다. <code>redirect:</code> 접두사는 <code>ThymeleafViewResolver</code>가 인식해 302 응답을 만들어 줍니다.</p>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>리다이렉트하면서 일회성 메시지("등록되었습니다")를 전달하려면 <code>RedirectAttributes.addFlashAttribute(...)</code>를 사용하세요. 세션에 잠깐 저장됐다가 다음 요청에서 한 번 읽히고 사라지는 <strong>플래시 속성</strong>입니다. 세션은 <a href="04-session-login.html">4번 문서</a>에서 자세히 다룹니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>이제 같은 도서 데이터를 JSON(<code>/api/books</code>)과 HTML(<code>/books</code>) 두 가지로 내려줄 수 있게 됐습니다. 다음 문서에서는 이 요청들이 컨트롤러에 닿기 <strong>전후로</strong> 공통 처리를 끼워 넣는 두 장치 — <strong>서블릿 필터와 스프링 인터셉터</strong> — 를 다룹니다. 요청 로깅, 인증 체크 같은 횡단 관심사를 처리하는 방법입니다.</p>
+<p>➡️ <strong><a href="03-filter-interceptor.html">3. 서블릿 필터와 스프링 인터셉터</a></strong></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

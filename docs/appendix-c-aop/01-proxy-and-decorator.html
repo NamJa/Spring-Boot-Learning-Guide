@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>프록시와 동적 프록시 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="01-proxy-and-decorator.html" class="active">프록시와 동적 프록시</a>
+<a href="02-spring-aop.html">Spring AOP 실전</a>
+<a href="03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>프록시와 동적 프록시</h1>
+<p>AOP의 정체를 이해하려면, 먼저 <strong>프록시(proxy)</strong> 를 알아야 합니다. Spring AOP는 결국 "여러분의 빈을 프록시 객체로 감싸 호출을 가로채는" 기술이기 때문입니다. 이 페이지에서는 횡단 관심사 문제에서 출발해, 프록시·데코레이터 패턴, 그리고 Spring이 런타임에 프록시를 자동으로 만들어 내는 두 가지 방식(JDK 동적 프록시 / CGLIB)을 비교합니다.</p>
+<h2>1. 문제 — 횡단 관심사가 비즈니스 코드를 오염시킨다</h2>
+<p>도서 등록 메서드에 "실행 시간을 로그로 남겨 달라"는 요구가 들어왔다고 합시다. AOP 없이 직접 짜면 이렇게 됩니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookRepository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">log</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LoggerFactory</span><span class="p">.</span><span class="na">getLogger</span><span class="p">(</span><span class="n">javaClass</span><span class="p">)</span>
+
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">CreateBookRequest</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span><span class="w">       </span><span class="c1">// ← 부가 기능</span>
+<span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// ↓↓↓ 진짜 비즈니스 로직은 이 한 줄</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="na">toEntity</span><span class="p">()).</span><span class="na">toResponse</span><span class="p">()</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">took</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="w">   </span><span class="c1">// ← 부가 기능</span>
+<span class="w">            </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;create() 실행 시간 = {}ms&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">took</span><span class="p">)</span><span class="w">        </span><span class="c1">// ← 부가 기능</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>비즈니스 로직은 한 줄인데 부가 코드가 메서드를 뒤덮었습니다. 더 큰 문제는 <strong><code>findById</code>, <code>update</code>, <code>delete</code>에도 똑같은 코드를 복사해야 한다</strong>는 것입니다. 로깅 형식을 바꾸려면 수십 군데를 고쳐야 하죠. 이것이 횡단 관심사가 흩어졌을 때 생기는 전형적인 고통입니다.</p>
+<h2>2. 프록시 패턴 — 대신 받아 주는 대리인</h2>
+<p><strong>프록시</strong>는 원본 객체(real subject)와 <strong>같은 인터페이스를 구현한 대리 객체</strong>입니다. 클라이언트는 원본인 줄 알고 프록시를 호출하고, 프록시는 부가 기능을 수행한 뒤 원본에게 일을 넘깁니다.</p>
+<figure class="diagram"><pre>  클라이언트 ──► [ 프록시 ] ──► [ 실제 BookService ]
+                  │  부가기능(로깅) 후
+                  └─ 원본에 위임(delegate)</pre></figure>
+<p>핵심은 클라이언트가 <strong>프록시인지 원본인지 구별하지 못한다</strong>는 점입니다. 같은 타입(인터페이스)이기 때문입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">interface</span><span class="w"> </span><span class="nc">BookService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">CreateBookRequest</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span>
+<span class="p">}</span>
+
+<span class="c1">// 실제 구현</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookServiceImpl</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookRepository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">CreateBookRequest</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="na">toEntity</span><span class="p">()).</span><span class="na">toResponse</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1">// 프록시 — 같은 인터페이스를 구현하고, 부가 기능 후 원본에 위임</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookServiceLoggingProxy</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">target</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">log</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LoggerFactory</span><span class="p">.</span><span class="na">getLogger</span><span class="p">(</span><span class="n">javaClass</span><span class="p">)</span>
+
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">CreateBookRequest</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span>
+<span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">target</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">request</span><span class="p">)</span><span class="w">        </span><span class="c1">// 원본에 위임</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;create() = {}ms&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>이제 <code>BookServiceImpl</code>은 비즈니스 로직만, 프록시는 로깅만 책임집니다. <strong>관심사가 분리</strong>됐습니다.</p>
+<h2>3. 데코레이터 패턴과의 관계</h2>
+<p>프록시 패턴과 <strong>데코레이터(decorator) 패턴</strong>은 코드 구조(원본과 같은 인터페이스를 구현하고 위임)가 거의 같아 헷갈립니다. 차이는 <strong>의도</strong>에 있습니다.</p>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>프록시 패턴</th>
+<th>데코레이터 패턴</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>의도</td>
+<td>접근 <strong>제어</strong>(권한, 캐싱, 지연 로딩)</td>
+<td>기능 <strong>추가</strong>(부가 동작 덧붙이기)</td>
+</tr>
+<tr>
+<td>클라이언트가 보는 것</td>
+<td>"원본을 그대로 쓴다"고 생각</td>
+<td>"기능이 더해진 것"을 알 수도 있음</td>
+</tr>
+<tr>
+<td>Spring AOP에서는</td>
+<td>두 의도를 모두 포괄해 <strong>프록시</strong>라 부름</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>GoF는 둘을 구분하지만, Spring AOP 문맥에서는 의도와 무관하게 "호출을 가로채 부가 기능을 더하는 대리 객체"를 통칭 <strong>프록시</strong>라고 부릅니다. 용어에 너무 매이지 마세요.</p>
+</blockquote>
+<h2>4. 동적 프록시 — 프록시를 손으로 안 만든다</h2>
+<p>위 <code>BookServiceLoggingProxy</code>는 메서드가 늘어날 때마다 손으로 위임 코드를 써야 합니다. <code>findById</code>, <code>update</code>, <code>delete</code>까지 일일이 오버라이드하는 건 비현실적이죠. 그래서 Spring은 <strong>런타임에 프록시 클래스를 자동 생성</strong>합니다. 이를 <strong>동적 프록시(dynamic proxy)</strong> 라고 하며, 두 가지 방식이 있습니다.</p>
+<h3>4-1. JDK 동적 프록시 — 인터페이스 기반</h3>
+<p>JDK가 표준으로 제공하는 <code>java.lang.reflect.Proxy</code>를 씁니다. <strong>인터페이스를 구현한</strong> 프록시를 런타임에 만듭니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">val</span><span class="w"> </span><span class="nv">proxy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Proxy</span><span class="p">.</span><span class="na">newProxyInstance</span><span class="p">(</span>
+<span class="w">    </span><span class="n">BookService</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">.</span><span class="na">classLoader</span><span class="p">,</span>
+<span class="w">    </span><span class="n">arrayOf</span><span class="p">(</span><span class="n">BookService</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">),</span><span class="w">     </span><span class="c1">// ← 반드시 &quot;인터페이스&quot;가 필요</span>
+<span class="w">    </span><span class="n">InvocationHandler</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">_</span><span class="p">,</span><span class="w"> </span><span class="n">method</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span>
+<span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">method</span><span class="p">.</span><span class="na">invoke</span><span class="p">(</span><span class="n">target</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="p">(</span><span class="n">args</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="n">emptyArray</span><span class="p">()))</span><span class="w">   </span><span class="c1">// 원본에 위임</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;{}() = {}ms&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">method</span><span class="p">.</span><span class="na">name</span><span class="p">,</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">BookService</span>
+</pre></div>
+</div>
+<p><strong>제약</strong>: 대상이 반드시 <strong>인터페이스를 구현</strong>해야 합니다. 구체 클래스만 있으면 JDK 동적 프록시를 만들 수 없습니다.</p>
+<h3>4-2. CGLIB — 클래스 상속 기반</h3>
+<p>CGLIB(Code Generation Library)는 대상 클래스를 <strong>상속(extends)한 자식 클래스</strong>를 바이트코드로 생성해 프록시로 씁니다. 메서드를 오버라이드해 가로채므로 <strong>인터페이스가 없어도</strong> 됩니다.</p>
+<div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>JDK 동적 프록시:  프록시  implements  BookService(인터페이스)
+CGLIB:           프록시  extends     BookServiceImpl(클래스)</code></pre></div>
+<h3>4-3. 비교표</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>JDK 동적 프록시</th>
+<th>CGLIB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>기반</td>
+<td>인터페이스 구현</td>
+<td>클래스 상속</td>
+</tr>
+<tr>
+<td>전제 조건</td>
+<td>대상이 <strong>인터페이스</strong>를 가져야 함</td>
+<td>인터페이스 불필요 (구체 클래스 OK)</td>
+</tr>
+<tr>
+<td>한계</td>
+<td>인터페이스에 선언된 메서드만 프록시</td>
+<td><strong><code>final</code> 클래스/메서드는 상속 불가 → 프록시 불가</strong></td>
+</tr>
+<tr>
+<td>제공 주체</td>
+<td>JDK 표준 (<code>java.lang.reflect.Proxy</code>)</td>
+<td>라이브러리 (Spring Core에 내장)</td>
+</tr>
+<tr>
+<td>Spring Boot 기본값</td>
+<td>(예전 Spring 기본)</td>
+<td><strong>현재 기본</strong></td>
+</tr>
+</tbody>
+</table>
+<h2>5. Spring Boot는 왜 기본으로 CGLIB을 쓰는가</h2>
+<p>과거 순수 Spring은 "인터페이스가 있으면 JDK 동적 프록시, 없으면 CGLIB"이었습니다. 하지만 <strong>Spring Boot는 4.x에서도 일관되게 CGLIB을 기본</strong>(<code>spring.aop.proxy-target-class=true</code>)으로 씁니다. 이유는:</p>
+<ul>
+<li><strong>인터페이스 유무에 따라 동작이 달라지지 않아</strong> 혼란이 적다.</li>
+<li>인터페이스에 선언되지 않은 <strong>구체 클래스의 public 메서드도 프록시</strong>할 수 있다.</li>
+<li>JDK 동적 프록시는 프록시 타입이 인터페이스라, 구현 클래스 타입으로 주입받으려 하면 <code>ClassCastException</code>이 난다 — CGLIB은 자식 클래스라 이 문제가 없다.</li>
+</ul>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>굳이 JDK 동적 프록시로 강제하고 싶다면 <code>spring.aop.proxy-target-class=false</code>로 바꿀 수 있지만, 특별한 이유가 없다면 기본값(CGLIB)을 권장합니다.</p>
+</blockquote>
+<h2>6. Kotlin의 <code>final</code> 문제와 all-open 플러그인</h2>
+<p>CGLIB은 대상 클래스를 <strong>상속</strong>해 프록시를 만든다고 했습니다. 그런데 <strong>Kotlin의 클래스와 메서드는 기본이 <code>final</code></strong> 입니다. <code>final</code>은 상속·오버라이드가 금지된다는 뜻이므로, 그대로 두면 <strong>CGLIB이 프록시를 만들 수 없습니다.</strong></p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1">// Kotlin에서 이 클래스는 사실상 final</span>
+
+<span class="c1">// → CGLIB이 상속하려다 실패</span>
+<span class="c1">//   &quot;Cannot subclass final class ...&quot; 같은 에러 또는 프록시 미적용</span>
+</pre></div>
+</div>
+<p>해결책이 <strong>Phase 1에서 이미 적용한</strong> <code>kotlin("plugin.spring")</code>(내부적으로 all-open) 플러그인입니다. 이 플러그인은 <code>@Component</code>, <code>@Service</code>, <code>@Repository</code>, <code>@Configuration</code>, <code>@Transactional</code>, <code>@Async</code>, <code>@Aspect</code> 등이 붙은 클래스와 그 멤버를 <strong>자동으로 <code>open</code></strong> 으로 바꿔 줍니다. 따라서 우리가 직접 <code>open</code>을 붙이지 않아도 프록시가 정상 생성됩니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts (Phase 1에서 설정 완료)</span>
+<span class="n">plugins</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;plugin.spring&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span><span class="w">   </span><span class="c1">// all-open: 스프링 애너테이션 클래스를 open 처리</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>all-open이 자동으로 열어 주는 건 <strong>스프링 표준 애너테이션이 붙은 클래스</strong>뿐입니다. 자작 애너테이션이나 일반 클래스를 프록시 대상으로 삼고 싶다면 직접 <code>open</code>을 붙이거나 all-open 설정에 애너테이션을 추가해야 합니다. 이 <code>final</code>/<code>open</code> 함정은 <a href="03-pitfalls-and-internals.html">03. 함정과 내부 동작</a>에서 다시 다룹니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>프록시의 원리를 이해했으니, 이제 손으로 프록시를 짜는 대신 <strong>Spring AOP가 선언적으로 같은 일을 하게</strong> 만들 차례입니다. → <strong><a href="02-spring-aop.html">02. Spring AOP 실전</a></strong></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

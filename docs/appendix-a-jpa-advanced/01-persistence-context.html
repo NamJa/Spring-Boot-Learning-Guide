@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>영속성 컨텍스트 (Persistence Context) · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="01-persistence-context.html" class="active">영속성 컨텍스트</a>
+<a href="02-associations.html">연관관계 매핑</a>
+<a href="03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="04-proxy-fetch.html">프록시와 N+1</a>
+<a href="05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>영속성 컨텍스트 (Persistence Context)</h1>
+<p>JPA를 한 문장으로 요약하면 <strong>"영속성 컨텍스트라는 중간 캐시를 통해 객체와 DB를 동기화하는 기술"</strong> 입니다. Phase 3에서 우리는 <code>BookRepository.save()</code>를 호출하면 데이터가 저장된다는 사실만 알고 넘어갔습니다. 하지만 그 <code>save()</code>가 실제로 <code>INSERT</code>를 즉시 날리는지, 변경된 엔티티는 어떻게 <code>UPDATE</code>로 이어지는지 — 이 모든 것의 중심에 <strong>영속성 컨텍스트(Persistence Context)</strong> 가 있습니다.</p>
+<h2>1. EntityManager와 영속성 컨텍스트</h2>
+<p><strong>영속성 컨텍스트</strong>는 "엔티티를 보관하는 논리적인 작업 공간"입니다. 눈에 보이는 객체가 아니라, <code>EntityManager</code> 내부에 존재하는 관리 영역입니다. 우리가 <code>EntityManager</code>를 통해 엔티티를 저장하거나 조회하면, 그 엔티티는 영속성 컨텍스트에 담겨 관리됩니다.</p>
+<figure class="diagram"><pre>   애플리케이션 코드
+        │  persist(book) / find(...)
+        ▼
+ ┌──────────────────────────────┐
+ │       EntityManager          │
+ │  ┌────────────────────────┐  │
+ │  │   영속성 컨텍스트        │  │   ← 1차 캐시, 쓰기 지연 SQL 저장소
+ │  │   [ Book@1, Book@2 ]   │  │
+ │  └────────────────────────┘  │
+ └──────────────────────────────┘
+        │  flush (SQL 전송)
+        ▼
+       Database</pre></figure>
+<p>Spring Data JPA를 쓰면 <code>EntityManager</code>를 직접 만질 일이 거의 없습니다. <code>JpaRepository</code>가 내부적으로 <code>EntityManager</code>를 위임받아 사용하기 때문입니다. 하지만 원리를 익히려면 <code>EntityManager</code>의 메서드를 직접 보는 편이 명확합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">jakarta.persistence.EntityManager</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.persistence.PersistenceContext</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.stereotype.Repository</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.transaction.annotation.Transactional</span>
+
+<span class="nd">@Repository</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookEntityManagerDemo</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@PersistenceContext</span><span class="w"> </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">em</span><span class="p">:</span><span class="w"> </span><span class="n">EntityManager</span><span class="w">  </span><span class="c1">// 컨테이너가 주입</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nd">@Transactional</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">demo</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Book</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;JPA 기본편&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;김영한&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;111&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">30000</span><span class="p">,</span><span class="w"> </span><span class="n">publishedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">.</span><span class="na">now</span><span class="p">())</span>
+<span class="w">        </span><span class="n">em</span><span class="p">.</span><span class="na">persist</span><span class="p">(</span><span class="n">book</span><span class="p">)</span><span class="w">              </span><span class="c1">// (1) 영속 상태로 만든다 — 아직 INSERT 안 나감</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="na">find</span><span class="p">(</span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">id</span><span class="p">)</span><span class="w"> </span><span class="c1">// (2) 1차 캐시에서 반환 — SELECT 안 나감</span>
+<span class="w">        </span><span class="n">println</span><span class="p">(</span><span class="n">book</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="n">found</span><span class="p">)</span><span class="w">       </span><span class="c1">// true — 동일성 보장</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p><code>@PersistenceContext</code>로 주입받는 <code>EntityManager</code>는 사실 <strong>실제 EntityManager가 아니라 프록시</strong>입니다. 호출 시점의 트랜잭션에 묶인 진짜 <code>EntityManager</code>로 매번 위임합니다. 덕분에 싱글턴 빈에 주입해도 스레드별 트랜잭션마다 다른 영속성 컨텍스트를 쓸 수 있습니다.</p>
+</blockquote>
+<h2>2. 엔티티의 생명주기 (네 가지 상태)</h2>
+<p>엔티티 인스턴스는 영속성 컨텍스트와의 관계에 따라 <strong>네 가지 상태</strong>를 가집니다. 이 상태를 구분하는 것이 JPA 디버깅의 절반입니다.</p>
+<figure class="diagram"><pre>            new Book(...)
+                │
+                ▼
+        ┌───────────────┐   persist()    ┌───────────────┐
+        │ 비영속 (new)   │ ─────────────▶ │  영속 (managed) │ ◀── find() 결과
+        │ transient      │                │  managed        │
+        └───────────────┘                └───────┬────────┘
+                                                  │ detach() / clear() / close()
+                                                  ▼
+                                          ┌───────────────┐
+                                          │ 준영속(detached)│
+                                          └───────────────┘
+                                                  ▲ merge()
+                              remove()            │
+        ┌───────────────┐                         │
+        │  삭제 (removed) │ ◀───────────────────────┘
+        └───────────────┘</pre></figure>
+<table>
+<thead>
+<tr>
+<th>상태</th>
+<th>설명</th>
+<th style="text-align: center;">컨텍스트 관리</th>
+<th style="text-align: center;">변경 감지</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>비영속 (transient)</strong></td>
+<td><code>new</code>로 막 만든, 컨텍스트와 무관한 순수 객체</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+</tr>
+<tr>
+<td><strong>영속 (managed)</strong></td>
+<td><code>persist()</code> 또는 <code>find()</code>로 컨텍스트가 관리 중</td>
+<td style="text-align: center;">O</td>
+<td style="text-align: center;">O</td>
+</tr>
+<tr>
+<td><strong>준영속 (detached)</strong></td>
+<td>한때 영속이었으나 컨텍스트에서 분리됨</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+</tr>
+<tr>
+<td><strong>삭제 (removed)</strong></td>
+<td><code>remove()</code>로 삭제 예약됨</td>
+<td style="text-align: center;">O</td>
+<td style="text-align: center;">-</td>
+</tr>
+</tbody>
+</table>
+<p>핵심은 <strong>영속 상태일 때만 변경 감지·1차 캐시·쓰기 지연이 작동한다</strong>는 것입니다. 준영속 객체의 필드를 아무리 바꿔도 <code>UPDATE</code>는 나가지 않습니다.</p>
+<h2>3. 1차 캐시와 동일성 보장</h2>
+<p>영속성 컨텍스트는 내부에 <code>@Id</code> 값을 키로 하는 <strong>1차 캐시(first-level cache)</strong> 를 가집니다. 같은 트랜잭션 안에서 같은 ID를 두 번 조회하면, 두 번째 조회는 DB로 가지 않고 캐시된 인스턴스를 그대로 반환합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Transactional</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">firstLevelCache</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="na">find</span><span class="p">(</span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">,</span><span class="w"> </span><span class="m">1L</span><span class="p">)</span><span class="w">  </span><span class="c1">// SELECT 발생 → 1차 캐시에 적재</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="na">find</span><span class="p">(</span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">,</span><span class="w"> </span><span class="m">1L</span><span class="p">)</span><span class="w">  </span><span class="c1">// SELECT 없음 → 캐시에서 반환</span>
+<span class="w">    </span><span class="n">println</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w">  </span><span class="c1">// true — 같은 인스턴스 (동일성, identity 보장)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>이로부터 <strong>동일성(identity) 보장</strong>이 따라옵니다. 같은 트랜잭션 안에서 같은 식별자로 조회한 엔티티는 <code>==</code>(Kotlin 참조 동등) 비교에서 항상 같은 객체입니다. 마치 컬렉션에서 <code>Map</code>을 캐시처럼 쓰는 것과 동작이 같습니다.</p>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>1차 캐시는 <strong>트랜잭션 범위</strong>에서만 유효합니다. 트랜잭션이 끝나면 영속성 컨텍스트와 함께 사라집니다. 애플리케이션 전역에서 공유되는 <strong>2차 캐시</strong>와 혼동하지 마세요. 1차 캐시는 성능 최적화 도구가 아니라, "한 트랜잭션 안에서 객체 동일성을 보장하기 위한" 부산물에 가깝습니다.</p>
+</blockquote>
+<h2>4. 쓰기 지연 (Write-behind)</h2>
+<p><code>em.persist()</code>를 호출해도 <code>INSERT</code> SQL은 <strong>즉시 나가지 않습니다.</strong> 영속성 컨텍스트는 SQL을 <strong>쓰기 지연 SQL 저장소(action queue)</strong> 에 모아 두었다가, <strong>flush 시점</strong>에 한꺼번에 전송합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Transactional</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">writeBehind</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">em</span><span class="p">.</span><span class="na">persist</span><span class="p">(</span><span class="n">bookA</span><span class="p">)</span><span class="w">   </span><span class="c1">// INSERT를 쓰기 지연 저장소에 보관</span>
+<span class="w">    </span><span class="n">em</span><span class="p">.</span><span class="na">persist</span><span class="p">(</span><span class="n">bookB</span><span class="p">)</span><span class="w">   </span><span class="c1">// INSERT를 쓰기 지연 저장소에 보관</span>
+<span class="w">    </span><span class="c1">// 여기까지 DB에는 아무 SQL도 가지 않았다</span>
+<span class="p">}</span><span class="w">   </span><span class="c1">// 트랜잭션 커밋 → flush → INSERT A, INSERT B 한 번에 전송</span>
+</pre></div>
+</div>
+<figure class="diagram"><pre>persist(A) ─┐
+persist(B) ─┤─▶ [ 쓰기 지연 SQL 저장소 ]  ──flush──▶  DB (INSERT A; INSERT B;)
+            ┘</pre></figure>
+<p>이 방식은 <strong>JDBC 배치(batch)</strong> 최적화의 토대가 됩니다. 모아 둔 INSERT를 묶어 보낼 수 있기 때문입니다(<code>hibernate.jdbc.batch_size</code> 설정).</p>
+<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p>단, <code>IDENTITY</code> 전략(우리 <code>Book</code>의 <code>@GeneratedValue(strategy = IDENTITY)</code>)은 예외입니다. ID를 DB의 auto-increment가 매기므로, <code>persist()</code> 시점에 <strong>즉시 INSERT를 날려야</strong> ID를 알 수 있습니다. 즉 IDENTITY 전략에서는 쓰기 지연이 사실상 동작하지 않습니다. 쓰기 지연·배치를 제대로 활용하려면 <code>SEQUENCE</code> 전략이 유리합니다.</p>
+</blockquote>
+<h2>5. 변경 감지 (Dirty Checking)</h2>
+<p>JPA에서 가장 직관에 반하는 동작입니다. <strong>영속 상태 엔티티의 필드를 바꾸면, <code>save()</code>를 부르지 않아도 트랜잭션 종료 시 자동으로 <code>UPDATE</code>가 나갑니다.</strong></p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Transactional</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">dirtyChecking</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="na">find</span><span class="p">(</span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">,</span><span class="w"> </span><span class="m">1L</span><span class="p">)</span><span class="w">  </span><span class="c1">// 영속 상태</span>
+<span class="w">    </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">25000</span><span class="w">                         </span><span class="c1">// 단순히 필드만 변경</span>
+<span class="w">    </span><span class="c1">// em.update() 같은 메서드는 존재하지 않는다!</span>
+<span class="p">}</span><span class="w">   </span><span class="c1">// 커밋 시 flush → 스냅샷과 비교 → 변경 감지 → UPDATE 자동 전송</span>
+</pre></div>
+</div>
+<p>원리는 이렇습니다. 영속성 컨텍스트는 엔티티를 처음 보관할 때 <strong>스냅샷(snapshot)</strong> 을 함께 저장합니다. flush 시점에 현재 엔티티 상태와 스냅샷을 비교(diff)해, 달라진 필드가 있으면 <code>UPDATE</code> SQL을 생성합니다.</p>
+<figure class="diagram"><pre>적재 시:  Book{price=30000}  ──복사──▶  스냅샷{price=30000}
+변경:     Book{price=25000}            스냅샷{price=30000}
+flush:    비교 → price 다름 → UPDATE book SET price=25000 WHERE id=1</pre></figure>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>이것이 Phase 3-3에서 "서비스 메서드에 <code>@Transactional</code>만 걸면 조회 후 필드 변경만으로 수정이 된다"고 했던 이유입니다. Spring Data JPA의 <code>save()</code>는 사실 <strong>새 엔티티엔 <code>persist</code>, 이미 영속이던 엔티티엔 <code>merge</code></strong> 를 호출할 뿐, 변경 감지의 본질은 영속성 컨텍스트에 있습니다.</p>
+</blockquote>
+<h2>6. flush — 동기화의 순간</h2>
+<p><strong>flush</strong>는 영속성 컨텍스트의 변경 내용을 DB에 반영(SQL 전송)하는 동작입니다. <strong>flush는 영속성 컨텍스트를 비우지 않습니다.</strong> 단지 "지금까지 쌓인 쓰기 지연 SQL과 변경 감지 결과를 DB로 내보낼" 뿐입니다.</p>
+<p>flush가 발생하는 시점은 셋입니다.</p>
+<ol>
+<li><strong>트랜잭션 커밋</strong> — 가장 일반적. 커밋 직전 자동 flush.</li>
+<li><strong>JPQL 쿼리 실행 직전</strong> — 조회 정합성을 위해 자동 flush(아래 주의).</li>
+<li><strong><code>em.flush()</code> 직접 호출</strong> — 수동.</li>
+</ol>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>JPQL 실행 전 자동 flush는 함정의 원천입니다. <code>persist()</code>한 엔티티는 1차 캐시엔 있지만 DB엔 아직 없을 수 있는데, JPQL은 <strong>DB에 직접 SQL을 날리므로</strong> 방금 저장한 데이터를 못 볼 수 있습니다. JPA는 이를 막기 위해 JPQL 실행 직전 자동으로 flush해 DB를 동기화합니다(<code>FlushModeType.AUTO</code>가 기본). 벌크 연산과 엮이면 더 까다로워지는데, 자세한 내용은 <a href="05-jpql.html">05-jpql</a>에서 다룹니다.</p>
+</blockquote>
+<h2>7. detach / clear / merge</h2>
+<p>영속 상태를 풀거나 다시 붙이는 연산들입니다.</p>
+<table>
+<thead>
+<tr>
+<th>메서드</th>
+<th>효과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>em.detach(entity)</code></td>
+<td>특정 엔티티 하나를 준영속으로 분리. 이후 변경 감지 안 됨</td>
+</tr>
+<tr>
+<td><code>em.clear()</code></td>
+<td>영속성 컨텍스트를 통째로 초기화. 모든 엔티티가 준영속</td>
+</tr>
+<tr>
+<td><code>em.close()</code></td>
+<td>컨텍스트 종료 (트랜잭션 종료 시 자동)</td>
+</tr>
+<tr>
+<td><code>em.merge(entity)</code></td>
+<td>준영속/비영속 엔티티를 <strong>복사해</strong> 새 영속 엔티티를 반환</td>
+</tr>
+</tbody>
+</table>
+<p><code>merge</code>는 특히 오해가 많습니다. <strong>인자로 넘긴 객체가 영속이 되는 게 아니라, 그 값을 복사한 새 인스턴스가 영속이 되어 반환</strong>됩니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Transactional</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">mergeDemo</span><span class="p">(</span><span class="n">detachedBook</span><span class="p">:</span><span class="w"> </span><span class="n">Book</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">managed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="na">merge</span><span class="p">(</span><span class="n">detachedBook</span><span class="p">)</span><span class="w">  </span><span class="c1">// detachedBook은 여전히 준영속</span>
+<span class="w">    </span><span class="n">println</span><span class="p">(</span><span class="n">managed</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="n">detachedBook</span><span class="p">)</span><span class="w">     </span><span class="c1">// false — 반환된 managed만 영속</span>
+<span class="w">    </span><span class="n">managed</span><span class="p">.</span><span class="na">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">19000</span><span class="w">                 </span><span class="c1">// 이쪽을 변경해야 UPDATE가 나간다</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p><code>merge</code>는 준영속 엔티티의 <strong>모든 필드를 통째로 덮어씁니다.</strong> 일부 필드가 <code>null</code>이면 그 값으로 <code>UPDATE</code>되어 데이터가 날아갈 수 있습니다. 그래서 실무에서는 <code>merge</code>보다 <strong>"조회 후 변경 감지"</strong> 패턴을 권장합니다. 즉, 엔티티를 다시 <code>find</code>로 영속화한 뒤 필요한 필드만 바꾸는 방식입니다.</p>
+</blockquote>
+<h2>8. @Transactional 경계와의 관계</h2>
+<p>영속성 컨텍스트의 생존 범위는 곧 <strong>트랜잭션의 범위</strong>와 같습니다(OSIV를 끈 기본 가정). <a href="../phase-3-data-jpa/04-transactions.html">Phase 3-4</a>에서 본 <code>@Transactional</code>이 정확히 이 경계를 만듭니다.</p>
+<figure class="diagram"><pre>@Transactional fun service() {
+   ┌──────────── 트랜잭션 시작 = 영속성 컨텍스트 생성 ────────────┐
+   │  find() → 1차 캐시 적재                                      │
+   │  엔티티 필드 변경 → (스냅샷과 차이 기록)                      │
+   └──────────── 커밋 직전 flush → UPDATE → 컨텍스트 종료 ────────┘
+}</pre></figure>
+<p>여기서 그 악명 높은 <code>LazyInitializationException</code>이 등장합니다. 트랜잭션(=영속성 컨텍스트)이 끝난 <strong>뒤에</strong> 지연 로딩 필드에 접근하면, 더 이상 엔티티가 영속 상태가 아니라 프록시를 초기화할 수 없어 예외가 터집니다. 이 문제의 본질과 해법(페치 조인, OSIV 등)은 <a href="04-proxy-fetch.html">04-proxy-fetch</a>에서 본격적으로 다룹니다.</p>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>정리하면 — <strong>영속성 컨텍스트는 트랜잭션 단위로 태어나고 죽으며, 그 안에서만 1차 캐시·동일성·변경 감지·지연 로딩이 동작한다.</strong> 이 한 문장이 JPA 동작의 90%를 설명합니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>영속성 컨텍스트가 엔티티를 어떻게 관리하는지 봤으니, 이제 엔티티 <strong>사이의 관계</strong> — 연관관계 매핑으로 넘어갑니다.</p>
+<p>→ <a href="02-associations.html">연관관계 매핑</a></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

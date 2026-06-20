@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docker 컨테이너화 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="02-docker.html" class="active">Docker 컨테이너화</a>
+<a href="03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>Docker 컨테이너화</h1>
+<p>실행 가능 jar를 손에 넣었으니, 이제 어디서든 동일하게 실행되는 <strong>컨테이너 이미지</strong>로 패키징할 차례입니다. 컨테이너는 JDK 버전, OS 라이브러리, 환경변수까지 함께 봉인하므로 "내 노트북에선 됐는데" 문제를 없애 줍니다.</p>
+<p>Spring Boot에서 컨테이너 이미지를 만드는 길은 크게 두 가지입니다.</p>
+<ol>
+<li><strong>Cloud Native Buildpacks</strong> — Dockerfile 없이 <code>./gradlew bootBuildImage</code>로 자동 생성</li>
+<li><strong>직접 작성한 멀티 스테이지 Dockerfile</strong> — 세밀한 제어가 필요할 때</li>
+</ol>
+<p>둘 다 실무에서 쓰이며, 트레이드오프가 다릅니다. 차례로 살펴봅니다.</p>
+<h2>방법 A — Cloud Native Buildpacks (<code>bootBuildImage</code>)</h2>
+<p>Spring Boot Gradle 플러그인에는 <strong>Buildpacks</strong>를 이용해 이미지를 만드는 <code>bootBuildImage</code> 태스크가 내장돼 있습니다. <strong>Dockerfile을 한 줄도 작성하지 않고도</strong> OCI 이미지가 만들어집니다.</p>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># Docker 데몬이 떠 있어야 함</span>
+./gradlew<span class="w"> </span>bootBuildImage
+</pre></div>
+</div>
+<p>내부적으로는 <strong>Paketo Buildpacks</strong>가 동작합니다. 우리 jar를 분석해 적절한 JRE, 메모리 계산기, layered jar 추출, 시작 스크립트까지 자동으로 구성해 줍니다. 사람이 OS 패치나 JRE 선택을 신경 쓸 필요가 없는 것이 가장 큰 장점입니다.</p>
+<h3>이미지 이름과 레지스트리 push 설정</h3>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
+<span class="n">tasks</span><span class="p">.</span><span class="na">named</span><span class="o">&lt;</span><span class="n">org</span><span class="p">.</span><span class="na">springframework</span><span class="p">.</span><span class="na">boot</span><span class="p">.</span><span class="na">gradle</span><span class="p">.</span><span class="na">tasks</span><span class="p">.</span><span class="na">bundling</span><span class="p">.</span><span class="na">BootBuildImage</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;bootBuildImage&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">imageName</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="s">&quot;registry.example.com/book-api:</span><span class="si">${</span><span class="n">project</span><span class="p">.</span><span class="na">version</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c1">// 빌드 후 레지스트리로 바로 push</span>
+<span class="w">    </span><span class="n">publish</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span><span class="w"> </span><span class="c1">// true면 push (아래 인증 필요)</span>
+
+<span class="w">    </span><span class="c1">// 환경변수로 빌드 시점 옵션 전달 (예: BP_JVM_VERSION)</span>
+<span class="w">    </span><span class="n">environment</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">mapOf</span><span class="p">(</span><span class="s">&quot;BP_JVM_VERSION&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="s">&quot;21&quot;</span><span class="p">))</span>
+
+<span class="w">    </span><span class="n">docker</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">publishRegistry</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">url</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="s">&quot;https://registry.example.com&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="n">username</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">System</span><span class="p">.</span><span class="na">getenv</span><span class="p">(</span><span class="s">&quot;REGISTRY_USER&quot;</span><span class="p">))</span>
+<span class="w">            </span><span class="n">password</span><span class="p">.</span><span class="na">set</span><span class="p">(</span><span class="n">System</span><span class="p">.</span><span class="na">getenv</span><span class="p">(</span><span class="s">&quot;REGISTRY_TOKEN&quot;</span><span class="p">))</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>커맨드라인에서도 옵션을 줄 수 있습니다.</p>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>./gradlew<span class="w"> </span>bootBuildImage<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--imageName<span class="o">=</span>registry.example.com/book-api:1.0.0<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--publishImage
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>Buildpacks 방식은 Dockerfile 유지보수 부담이 없고, OS 보안 패치를 buildpack 업데이트로 흡수할 수 있어 <strong>운영팀이 선호</strong>합니다. 단, 빌드에 인터넷(빌더 이미지 pull)이 필요하고 세밀한 커스터마이징은 Dockerfile보다 어렵습니다.</p>
+</blockquote>
+<h2>방법 B — 직접 작성한 멀티 스테이지 Dockerfile</h2>
+<p>이미지 구성을 완전히 통제하고 싶거나, 사내 베이스 이미지를 강제해야 할 때는 Dockerfile을 직접 씁니다. 핵심은 두 가지입니다.</p>
+<ul>
+<li><strong>멀티 스테이지 빌드</strong> — 무거운 JDK·Gradle은 빌드 단계에만 두고, 런타임 이미지는 가벼운 JRE만 포함</li>
+<li><strong>layered jar 활용</strong> — 의존성 레이어와 애플리케이션 레이어를 분리해 Docker 캐시를 극대화</li>
+</ul>
+<p>프로젝트 루트에 다음 <code>Dockerfile</code>을 둡니다.</p>
+<div class="code-block" data-lang="dockerfile"><span class="code-lang">dockerfile</span><div class="hl"><pre><span></span><span class="c"># ===== 1단계: 빌드 스테이지 =====</span>
+<span class="c"># JDK 21 + Gradle 환경에서 layered jar 빌드</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">eclipse-temurin:21-jdk</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">builder</span>
+<span class="k">WORKDIR</span><span class="w"> </span><span class="s">/workspace</span>
+
+<span class="c"># 의존성 정의 파일 먼저 복사 → 의존성 다운로드 레이어 캐싱</span>
+<span class="k">COPY</span><span class="w"> </span>gradlew<span class="w"> </span>settings.gradle.kts<span class="w"> </span>build.gradle.kts<span class="w"> </span>./
+<span class="k">COPY</span><span class="w"> </span>gradle<span class="w"> </span>./gradle
+<span class="k">RUN</span><span class="w"> </span>./gradlew<span class="w"> </span>dependencies<span class="w"> </span>--no-daemon<span class="w"> </span><span class="o">||</span><span class="w"> </span>true
+
+<span class="c"># 소스 복사 후 실행 가능 jar 빌드 (테스트는 CI에서 별도 수행)</span>
+<span class="k">COPY</span><span class="w"> </span>src<span class="w"> </span>./src
+<span class="k">RUN</span><span class="w"> </span>./gradlew<span class="w"> </span>bootJar<span class="w"> </span>--no-daemon
+
+<span class="c"># layered jar를 레이어별 디렉터리로 추출</span>
+<span class="k">RUN</span><span class="w"> </span>java<span class="w"> </span>-Djarmode<span class="o">=</span>tools<span class="w"> </span>-jar<span class="w"> </span>build/libs/*.jar<span class="w"> </span>extract<span class="w"> </span>--layers<span class="w"> </span>--destination<span class="w"> </span>extracted
+
+<span class="c"># ===== 2단계: 런타임 스테이지 =====</span>
+<span class="c"># 가벼운 JRE 21만 포함 (JDK 불필요)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">eclipse-temurin:21-jre</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">runtime</span>
+<span class="k">WORKDIR</span><span class="w"> </span><span class="s">/app</span>
+
+<span class="c"># 보안: root가 아닌 전용 사용자로 실행</span>
+<span class="k">RUN</span><span class="w"> </span>groupadd<span class="w"> </span>--system<span class="w"> </span>spring<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>useradd<span class="w"> </span>--system<span class="w"> </span>--gid<span class="w"> </span>spring<span class="w"> </span>spring
+<span class="k">USER</span><span class="w"> </span><span class="s">spring:spring</span>
+
+<span class="c"># 변경 빈도가 낮은 레이어부터 복사 → 위쪽 레이어일수록 캐시 재사용 잘 됨</span>
+<span class="k">COPY</span><span class="w"> </span>--from<span class="o">=</span>builder<span class="w"> </span>/workspace/extracted/dependencies/<span class="w"> </span>./
+<span class="k">COPY</span><span class="w"> </span>--from<span class="o">=</span>builder<span class="w"> </span>/workspace/extracted/spring-boot-loader/<span class="w"> </span>./
+<span class="k">COPY</span><span class="w"> </span>--from<span class="o">=</span>builder<span class="w"> </span>/workspace/extracted/snapshot-dependencies/<span class="w"> </span>./
+<span class="k">COPY</span><span class="w"> </span>--from<span class="o">=</span>builder<span class="w"> </span>/workspace/extracted/application/<span class="w"> </span>./
+
+<span class="k">EXPOSE</span><span class="w"> </span><span class="s">8080</span>
+
+<span class="c"># 컨테이너 메모리에 맞춰 힙 자동 조정</span>
+<span class="k">ENTRYPOINT</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;java&quot;</span>,<span class="w"> </span><span class="s2">&quot;-XX:MaxRAMPercentage=75.0&quot;</span>,<span class="w"> </span><span class="se">\</span>
+<span class="w">            </span><span class="s2">&quot;org.springframework.boot.loader.launch.JarLauncher&quot;</span><span class="o">]</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p>추출된 레이어는 <code>JarLauncher</code>가 인식하는 디렉터리 구조(<code>BOOT-INF/</code> 등)로 풀립니다. 따라서 ENTRYPOINT는 jar가 아니라 <strong><code>JarLauncher</code> 클래스</strong>를 직접 실행합니다. 각 <code>COPY</code>가 별도 Docker 레이어가 되고, 코드만 바뀌면 마지막 <code>application</code> 레이어만 다시 만들어집니다.</p>
+</blockquote>
+<h3>.dockerignore</h3>
+<p>빌드 컨텍스트에서 불필요하거나 민감한 파일을 제외해 빌드를 빠르고 안전하게 만듭니다.</p>
+<div class="code-block" data-lang="dockerignore"><span class="code-lang">dockerignore</span><div class="hl"><pre><span></span># 빌드 산출물 (이미지 안에서 새로 빌드함)
+build/
+.gradle/
+
+# IDE / VCS
+.idea/
+.git/
+*.iml
+
+# 로컬 환경 / 시크릿
+.env
+*.local.yml
+src/main/resources/application-local.yml
+</pre></div>
+</div>
+<h2>이미지 빌드 &amp; 실행</h2>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># 이미지 빌드</span>
+docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>book-api:1.0.0<span class="w"> </span>.
+
+<span class="c1"># 컨테이너 실행 (8080 포트 매핑)</span>
+docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span>:8080<span class="w"> </span>book-api:1.0.0
+</pre></div>
+</div>
+<h3>환경변수로 설정 주입</h3>
+<p><a href="01-executable-jar.html">이전 문서</a>에서 본 relaxed binding 덕분에, 모든 설정을 <code>docker run -e</code>로 주입할 수 있습니다. 이미지는 그대로 두고 <strong>환경변수만 바꿔</strong> 여러 환경에 배포하는 것이 핵심입니다.</p>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-p<span class="w"> </span><span class="m">8080</span>:8080<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">SPRING_PROFILES_ACTIVE</span><span class="o">=</span>prod<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">SERVER_PORT</span><span class="o">=</span><span class="m">8080</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">SPRING_DATASOURCE_URL</span><span class="o">=</span>jdbc:postgresql://db.internal:5432/bookdb<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">SPRING_DATASOURCE_USERNAME</span><span class="o">=</span>bookuser<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">SPRING_DATASOURCE_PASSWORD</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$DB_PASSWORD</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>book-api:1.0.0
+</pre></div>
+</div>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>일부 플랫폼(예: Cloud Run, Heroku)은 리스닝 포트를 <strong><code>PORT</code></strong> 환경변수로 주입합니다. 이를 받기 위해 <code>application.yml</code>에 <code>server.port: ${PORT:8080}</code>처럼 기본값과 함께 바인딩해 두면 어떤 플랫폼에서도 동작합니다.</p>
+</blockquote>
+<h3>헬스 체크</h3>
+<p>Phase 5에서 노출한 Actuator 헬스 엔드포인트를 컨테이너 헬스 체크에 연결합니다.</p>
+<div class="code-block" data-lang="dockerfile"><span class="code-lang">dockerfile</span><div class="hl"><pre><span></span><span class="c"># Dockerfile에 추가 (런타임 스테이지)</span>
+<span class="k">HEALTHCHECK</span><span class="w"> </span>--interval<span class="o">=</span>30s<span class="w"> </span>--timeout<span class="o">=</span>3s<span class="w"> </span>--start-period<span class="o">=</span>40s<span class="w"> </span>--retries<span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>CMD<span class="w"> </span><span class="o">[</span><span class="s2">&quot;sh&quot;</span>,<span class="w"> </span><span class="s2">&quot;-c&quot;</span>,<span class="w"> </span><span class="s2">&quot;wget -qO- http://localhost:8080/actuator/health | grep -q UP&quot;</span><span class="o">]</span>
+</pre></div>
+</div>
+<p><code>docker compose</code> 환경에서는 다음처럼 선언할 수도 있습니다.</p>
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="c1"># compose.yaml (발췌)</span>
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">book-api</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">book-api:1.0.0</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8080:8080&quot;</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">SPRING_PROFILES_ACTIVE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">prod</span>
+<span class="w">      </span><span class="nt">SPRING_DATASOURCE_URL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jdbc:postgresql://db:5432/bookdb</span>
+<span class="w">    </span><span class="nt">healthcheck</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;wget&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-qO-&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;http://localhost:8080/actuator/health&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<span class="w">      </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3s</span>
+<span class="w">      </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">      </span><span class="nt">start_period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">40s</span>
+<span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">db</span>
+<span class="w">  </span><span class="nt">db</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres:17</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">POSTGRES_DB</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bookdb</span>
+<span class="w">      </span><span class="nt">POSTGRES_USER</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bookuser</span>
+<span class="w">      </span><span class="nt">POSTGRES_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">secret</span>
+</pre></div>
+</div>
+<h2>두 방법 비교</h2>
+<table>
+<thead>
+<tr>
+<th>기준</th>
+<th>Buildpacks (<code>bootBuildImage</code>)</th>
+<th>직접 Dockerfile</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dockerfile 필요</td>
+<td>❌ 없음</td>
+<td>✅ 직접 작성·유지보수</td>
+</tr>
+<tr>
+<td>OS 패치</td>
+<td>buildpack 업데이트로 자동 흡수</td>
+<td>베이스 이미지 직접 관리</td>
+</tr>
+<tr>
+<td>커스터마이징</td>
+<td>환경변수/빌드팩 한정</td>
+<td>완전 자유</td>
+</tr>
+<tr>
+<td>빌드 속도</td>
+<td>첫 빌드는 빌더 pull로 느릴 수 있음</td>
+<td>캐시 잘 타면 빠름</td>
+</tr>
+<tr>
+<td>적합한 상황</td>
+<td>표준화·운영 편의 우선</td>
+<td>사내 베이스 이미지 강제, 세밀한 제어</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>처음에는 <code>bootBuildImage</code>로 빠르게 시작하고, 사내 보안 정책이나 특수 요구사항이 생기면 Dockerfile로 전환하는 흐름을 권합니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>지금까지는 모두 <strong>JVM 위에서</strong> 도는 컨테이너였습니다. 다음은 시작 시간을 수십 밀리초로 줄이는 <strong>GraalVM 네이티브 이미지</strong>를 살펴봅니다.</p>
+<p>→ <a href="03-native-image.html">GraalVM 네이티브 이미지</a></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

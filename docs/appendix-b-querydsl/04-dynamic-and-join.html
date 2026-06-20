@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04. 동적 쿼리와 조인 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="03-basic-queries.html">기본 쿼리</a>
+<a href="04-dynamic-and-join.html" class="active">동적 쿼리와 조인</a>
+<a href="05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>04. 동적 쿼리와 조인</h1>
+<p>이 페이지는 Querydsl을 도입하는 <strong>가장 큰 이유</strong> 두 가지를 다룹니다. 검색 조건이 런타임에 결정되는 <strong>동적 쿼리</strong>, 그리고 연관 엔티티를 함께 다루는 <strong>조인</strong>입니다. 조인 예제에는 부록 A에서 만든 <code>Category</code>(다대일)와 <code>Review</code>(일대다)를 사용합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 부록 A에서 추가한 연관관계 (요약)</span>
+<span class="nd">@Entity</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">Book</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@Id</span><span class="w"> </span><span class="nd">@GeneratedValue</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">price</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">publishedAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">,</span>
+<span class="w">    </span><span class="nd">@ManyToOne</span><span class="p">(</span><span class="n">fetch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FetchType</span><span class="p">.</span><span class="na">LAZY</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">category</span><span class="p">:</span><span class="w"> </span><span class="n">Category? </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">                 </span><span class="c1">// 도서 → 분류 (N:1)</span>
+<span class="w">    </span><span class="nd">@OneToMany</span><span class="p">(</span><span class="n">mappedBy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;book&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">reviews</span><span class="p">:</span><span class="w"> </span><span class="n">MutableList</span><span class="o">&lt;</span><span class="n">Review</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mutableListOf</span><span class="p">(),</span><span class="w">  </span><span class="c1">// 도서 → 리뷰 (1:N)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<h2>1. BooleanBuilder로 조건 누적하기</h2>
+<p>가장 전통적인 동적 쿼리 방식은 <code>BooleanBuilder</code>에 조건을 조건부로 <code>and</code>/<code>or</code>로 쌓는 것입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">fun</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="n">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="n">minPrice</span><span class="p">:</span><span class="w"> </span><span class="kt">Int?</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QBook</span><span class="p">.</span><span class="na">book</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BooleanBuilder</span><span class="p">()</span>
+
+<span class="w">    </span><span class="c1">// 값이 있을 때만 조건을 누적한다</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">title</span><span class="p">.</span><span class="na">isNullOrBlank</span><span class="p">())</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="na">and</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">title</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="n">title</span><span class="p">))</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">author</span><span class="p">.</span><span class="na">isNullOrBlank</span><span class="p">())</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="na">and</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="n">author</span><span class="p">))</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">minPrice</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="na">and</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">.</span><span class="na">goe</span><span class="p">(</span><span class="n">minPrice</span><span class="p">))</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">queryFactory</span>
+<span class="w">        </span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">where</span><span class="p">(</span><span class="n">builder</span><span class="p">)</span><span class="w">          </span><span class="c1">// 누적된 조건을 한 번에 적용</span>
+<span class="w">        </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>동작은 잘 하지만, <code>if</code> 블록이 본문을 차지하고 조건 생성 로직을 <strong>재사용하기 어렵다</strong>는 단점이 있습니다.</p>
+<h2>2. 권장 패턴 — where(...)에 다중 BooleanExpression</h2>
+<p>Querydsl의 <code>where(...)</code>는 <strong>여러 개의 조건을 콤마로 받고, 그중 <code>null</code>인 것은 무시</strong>합니다. 이 성질을 이용하면 <code>if</code> 없이도 동적 쿼리를 만들 수 있습니다. 핵심은 "조건이 없으면 <code>null</code>을 반환하는 메서드"를 만드는 것입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Repository</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookSearchRepository</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">queryFactory</span><span class="p">:</span><span class="w"> </span><span class="n">JPAQueryFactory</span><span class="p">,</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QBook</span><span class="p">.</span><span class="na">book</span>
+
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="n">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="n">minPrice</span><span class="p">:</span><span class="w"> </span><span class="kt">Int?</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="n">queryFactory</span>
+<span class="w">            </span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">where</span><span class="p">(</span>
+<span class="w">                </span><span class="n">titleContains</span><span class="p">(</span><span class="n">title</span><span class="p">),</span><span class="w">     </span><span class="c1">// null이면 자동 무시</span>
+<span class="w">                </span><span class="n">authorEq</span><span class="p">(</span><span class="n">author</span><span class="p">),</span>
+<span class="w">                </span><span class="n">priceGoe</span><span class="p">(</span><span class="n">minPrice</span><span class="p">),</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
+
+<span class="w">    </span><span class="c1">// 조건이 없으면 null → where에서 제외된다</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">titleContains</span><span class="p">(</span><span class="n">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">):</span><span class="w"> </span><span class="n">BooleanExpression? </span><span class="o">=</span>
+<span class="w">        </span><span class="n">title</span><span class="o">?.</span><span class="na">takeIf</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">isNotBlank</span><span class="p">()</span><span class="w"> </span><span class="p">}</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">title</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">authorEq</span><span class="p">(</span><span class="n">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">):</span><span class="w"> </span><span class="n">BooleanExpression? </span><span class="o">=</span>
+<span class="w">        </span><span class="n">author</span><span class="o">?.</span><span class="na">takeIf</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">isNotBlank</span><span class="p">()</span><span class="w"> </span><span class="p">}</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">priceGoe</span><span class="p">(</span><span class="n">minPrice</span><span class="p">:</span><span class="w"> </span><span class="kt">Int?</span><span class="p">):</span><span class="w"> </span><span class="n">BooleanExpression? </span><span class="o">=</span>
+<span class="w">        </span><span class="n">minPrice</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">.</span><span class="na">goe</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>이 패턴의 장점은 다음과 같습니다.</p>
+<ul>
+<li><strong>본문이 선언적</strong>입니다. <code>where</code>만 봐도 "제목·저자·최소가격으로 검색"임이 한눈에 보입니다.</li>
+<li><strong>조건 메서드를 재사용</strong>할 수 있습니다. <code>authorEq</code>는 다른 쿼리에서도 그대로 씁니다.</li>
+<li><strong>조합이 가능</strong>합니다. <code>BooleanExpression</code>은 <code>.and()</code>/<code>.or()</code>로 묶어 더 복잡한 조건을 만들 수 있습니다.</li>
+</ul>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 조건 메서드끼리 조합도 가능</span>
+<span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">inPriceRange</span><span class="p">(</span><span class="n">min</span><span class="p">:</span><span class="w"> </span><span class="kt">Int?</span><span class="p">,</span><span class="w"> </span><span class="n">max</span><span class="p">:</span><span class="w"> </span><span class="kt">Int?</span><span class="p">):</span><span class="w"> </span><span class="n">BooleanExpression? </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">lower</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">min</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">.</span><span class="na">goe</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">upper</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">max</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">.</span><span class="na">loe</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">lower</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">upper</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">lower</span><span class="p">.</span><span class="na">and</span><span class="p">(</span><span class="n">upper</span><span class="p">)</span>
+<span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">lower</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="n">upper</span><span class="w">          </span><span class="c1">// 한쪽만 있으면 그것만, 둘 다 없으면 null</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p><strong>둘 중 무엇을 쓸까?</strong> 조건이 단순하고 메서드 재사용이 필요하면 <strong>다중 <code>BooleanExpression</code>(권장)</strong>, 조건들이 복잡하게 <code>and</code>/<code>or</code>로 얽혀 동적으로 그룹핑돼야 하면 <strong><code>BooleanBuilder</code></strong> 가 편합니다. 실무에선 다중 <code>BooleanExpression</code>이 기본이고, 정 복잡할 때만 <code>BooleanBuilder</code>를 섞습니다.</p>
+<p>[!WARNING]
+<code>null</code> 무시는 편리하지만 위험할 수도 있습니다. <strong>모든 조건이 <code>null</code>이면 <code>where</code>가 비어 전체 조회</strong>가 됩니다. 적어도 하나의 필수 조건을 두거나, 페이징을 강제해 대량 조회를 막으세요.</p>
+</blockquote>
+<h2>3. 조인</h2>
+<h3>3.1 inner join / left join</h3>
+<p><code>join(연관필드, Q별칭)</code> 형태로 조인합니다. <code>Category</code>의 Q타입은 <code>QCategory.category</code>입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QBook</span><span class="p">.</span><span class="na">book</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">category</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QCategory</span><span class="p">.</span><span class="na">category</span>
+
+<span class="c1">// 분류명이 &#39;프로그래밍&#39;인 도서 (inner join)</span>
+<span class="n">queryFactory</span>
+<span class="w">    </span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">join</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">category</span><span class="p">,</span><span class="w"> </span><span class="n">category</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">where</span><span class="p">(</span><span class="n">category</span><span class="p">.</span><span class="na">name</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="s">&quot;프로그래밍&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
+
+<span class="c1">// 분류가 없는 도서까지 포함 (left join)</span>
+<span class="n">queryFactory</span>
+<span class="w">    </span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">leftJoin</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">category</span><span class="p">,</span><span class="w"> </span><span class="n">category</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
+</pre></div>
+</div>
+<h3>3.2 fetch join — N+1 해결</h3>
+<p>부록 A에서 본 <strong>N+1 문제</strong>(연관 엔티티를 지연 로딩하다 쿼리가 폭증)를 Querydsl에서는 <code>fetchJoin()</code>으로 해결합니다. 연관 엔티티를 같은 쿼리에서 함께 로딩합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 도서 + 분류를 한 방의 쿼리로 함께 로딩</span>
+<span class="n">queryFactory</span>
+<span class="w">    </span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">join</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">category</span><span class="p">,</span><span class="w"> </span><span class="n">category</span><span class="p">).</span><span class="na">fetchJoin</span><span class="p">()</span><span class="w">   </span><span class="c1">// ← fetchJoin</span>
+<span class="w">    </span><span class="p">.</span><span class="na">where</span><span class="p">(</span><span class="n">category</span><span class="p">.</span><span class="na">name</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="s">&quot;프로그래밍&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="sql"><span class="code-lang">sql</span><div class="hl"><pre><span></span><span class="c1">-- fetch join이 만드는 SQL (분류를 join으로 함께 select)</span>
+<span class="k">select</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">category</span><span class="p">.</span><span class="o">*</span>
+<span class="k">from</span><span class="w"> </span><span class="n">book</span><span class="w"> </span><span class="n">book</span>
+<span class="k">join</span><span class="w"> </span><span class="n">category</span><span class="w"> </span><span class="n">category</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">category</span><span class="p">.</span><span class="n">id</span>
+<span class="k">where</span><span class="w"> </span><span class="n">category</span><span class="p">.</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">?</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p><strong>컬렉션(1:N) fetch join은 페이징과 함께 쓰면 안 됩니다.</strong> <code>book.reviews</code> 같은 일대다를 fetch join하면 결과 행이 뻥튀기되어, <code>offset</code>/<code>limit</code>을 적용하면 <strong>JPA가 메모리에서 페이징</strong>하게 됩니다(경고 로그 발생). 일대다 + 페이징이 필요하면, ToOne만 fetch join하고 컬렉션은 <code>@BatchSize</code>나 별도 조회로 푸는 것이 정석입니다(부록 A 참고).</p>
+</blockquote>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 일대다(reviews)와 페이징을 함께? → 안티패턴</span>
+<span class="n">queryFactory</span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">leftJoin</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">reviews</span><span class="p">).</span><span class="na">fetchJoin</span><span class="p">()</span><span class="w">   </span><span class="c1">// reviews는 컬렉션</span>
+<span class="w">    </span><span class="p">.</span><span class="na">offset</span><span class="p">(</span><span class="m">0</span><span class="p">).</span><span class="na">limit</span><span class="p">(</span><span class="m">10</span><span class="p">)</span><span class="w">                  </span><span class="c1">// 위험: 메모리 페이징 경고</span>
+<span class="w">    </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
+</pre></div>
+</div>
+<h2>4. 서브쿼리 — JPAExpressions</h2>
+<p>서브쿼리는 <code>JPAExpressions</code>로 작성합니다. 메인 쿼리의 Q타입과 충돌하지 않도록 <strong>서브쿼리용 별칭을 따로</strong> 만드는 점이 중요합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QBook</span><span class="p">.</span><span class="na">book</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">sub</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QBook</span><span class="p">(</span><span class="s">&quot;sub&quot;</span><span class="p">)</span><span class="w">     </span><span class="c1">// 서브쿼리 전용 별칭</span>
+
+<span class="c1">// 가격이 전체 평균가 이상인 도서</span>
+<span class="n">queryFactory</span>
+<span class="w">    </span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">where</span><span class="p">(</span>
+<span class="w">        </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">.</span><span class="na">goe</span><span class="p">(</span>
+<span class="w">            </span><span class="n">JPAExpressions</span>
+<span class="w">                </span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="n">sub</span><span class="p">.</span><span class="na">price</span><span class="p">.</span><span class="na">avg</span><span class="p">())</span>
+<span class="w">                </span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">sub</span><span class="p">),</span>
+<span class="w">        </span><span class="p">),</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="sql"><span class="code-lang">sql</span><div class="hl"><pre><span></span><span class="k">select</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">book</span><span class="w"> </span><span class="n">book</span>
+<span class="k">where</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="n">price</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="p">(</span><span class="k">select</span><span class="w"> </span><span class="k">avg</span><span class="p">(</span><span class="n">sub</span><span class="p">.</span><span class="n">price</span><span class="p">)</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">book</span><span class="w"> </span><span class="n">sub</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code>in</code> 서브쿼리도 가능합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 리뷰가 하나라도 있는 도서 (review 테이블에 book_id가 존재)</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">review</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QReview</span><span class="p">.</span><span class="na">review</span>
+<span class="n">queryFactory</span>
+<span class="w">    </span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">where</span><span class="p">(</span>
+<span class="w">        </span><span class="n">book</span><span class="p">.</span><span class="na">id</span><span class="p">.</span><span class="n">`in`</span><span class="p">(</span>
+<span class="w">            </span><span class="n">JPAExpressions</span>
+<span class="w">                </span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="n">review</span><span class="p">.</span><span class="na">book</span><span class="p">.</span><span class="na">id</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">review</span><span class="p">),</span>
+<span class="w">        </span><span class="p">),</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>JPA(JPQL) 표준상 <strong><code>from</code> 절 서브쿼리(인라인 뷰)는 지원되지 않습니다.</strong> <code>where</code>/<code>select</code> 절 서브쿼리만 가능합니다. from 절 서브쿼리가 꼭 필요하면 쿼리를 둘로 나누거나 네이티브 쿼리를 검토하세요.</p>
+</blockquote>
+<h2>5. 동적 쿼리 + 조인을 한 번에</h2>
+<p>지금까지의 패턴을 합치면, 조인이 걸린 검색도 동적으로 깔끔하게 표현됩니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">fun</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">categoryName</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="n">minPrice</span><span class="p">:</span><span class="w"> </span><span class="kt">Int?</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QBook</span><span class="p">.</span><span class="na">book</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">category</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QCategory</span><span class="p">.</span><span class="na">category</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">queryFactory</span>
+<span class="w">        </span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">leftJoin</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">category</span><span class="p">,</span><span class="w"> </span><span class="n">category</span><span class="p">).</span><span class="na">fetchJoin</span><span class="p">()</span>
+<span class="w">        </span><span class="p">.</span><span class="na">where</span><span class="p">(</span>
+<span class="w">            </span><span class="n">categoryName</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">category</span><span class="p">.</span><span class="na">name</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">},</span><span class="w">   </span><span class="c1">// null이면 무시</span>
+<span class="w">            </span><span class="n">minPrice</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">.</span><span class="na">goe</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">orderBy</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">publishedAt</span><span class="p">.</span><span class="na">desc</span><span class="p">())</span>
+<span class="w">        </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h2>다음 단계</h2>
+<p>마지막으로, 결과를 DTO로 받고 사용자 정의 리포지토리로 Spring Data와 통합해 봅시다.</p>
+<p>→ <a href="05-dto-and-repository.html">05. DTO 프로젝션 &amp; 리포지토리 통합</a></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

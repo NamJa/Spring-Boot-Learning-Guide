@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>자동 설정과 스타터 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="04-auto-configuration.html" class="active">자동 설정과 스타터</a>
+<a href="05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>자동 설정과 스타터</h1>
+<p>Spring Boot로 프로젝트를 만들면 <code>@SpringBootApplication</code> 하나 붙이고 <code>runApplication</code>만 호출했는데 웹 서버가 뜨고, DB가 연결되고, JSON 직렬화까지 됩니다. 이 "마법"의 정체가 바로 <strong>자동 설정(auto-configuration)</strong> 과 <strong>스타터(starter)</strong> 입니다. 이 둘을 이해하면 Spring Boot가 더 이상 마법이 아니라 <strong>예측 가능한 도구</strong>가 됩니다.</p>
+<h2>1. @SpringBootApplication 해부</h2>
+<p>모든 Spring Boot 앱의 출발점인 이 어노테이션은 사실 <strong>세 개의 어노테이션을 합친 것</strong>입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@SpringBootApplication</span><span class="w"> </span><span class="c1">// = 아래 세 개의 합성</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookApiApplication</span>
+
+<span class="c1">// @SpringBootApplication 은 내부적으로:</span>
+<span class="c1">// @SpringBootConfiguration  (= @Configuration)</span>
+<span class="c1">// @EnableAutoConfiguration</span>
+<span class="c1">// @ComponentScan</span>
+</pre></div>
+</div>
+<table>
+<thead>
+<tr>
+<th>구성 어노테이션</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@SpringBootConfiguration</code></td>
+<td>이 클래스 자체가 설정 클래스(<code>@Configuration</code>)임을 표시</td>
+</tr>
+<tr>
+<td><code>@ComponentScan</code></td>
+<td><strong>이 클래스가 속한 패키지 이하</strong>를 스캔해 <code>@Component</code>/<code>@Service</code> 등을 Bean으로 등록</td>
+</tr>
+<tr>
+<td><code>@EnableAutoConfiguration</code></td>
+<td>클래스패스를 보고 <strong>자동 설정을 활성화</strong> — 핵심</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>WARNING</strong>: <code>@ComponentScan</code>은 메인 클래스가 위치한 패키지부터 하위만 스캔합니다. <code>com.example.bookapi</code>에 메인 클래스를 두면 그 하위 패키지(<code>controller</code>, <code>service</code>, <code>repository</code>)는 자동 스캔되지만, <strong>상위나 형제 패키지의 컴포넌트는 발견되지 않습니다.</strong> 그래서 메인 클래스를 최상위 기본 패키지에 두는 것이 관례입니다.</p>
+</blockquote>
+<h2>2. 자동 설정 메커니즘</h2>
+<p><code>@EnableAutoConfiguration</code>은 "클래스패스에 X가 있고, 사용자가 직접 Y를 만들지 않았다면, 합리적인 기본 Bean을 대신 등록"하는 일을 합니다. 어떻게 동작하는지 단계별로 봅시다.</p>
+<h3>2.1 AutoConfiguration.imports</h3>
+<p>각 스타터(또는 라이브러리) jar 안에는 다음 파일이 들어 있습니다.</p>
+<div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code></pre></div>
+<p>이 파일에는 적용 후보가 되는 자동 설정 클래스들의 이름이 나열되어 있습니다. Spring Boot는 기동 시 이 목록을 모두 읽어 후보로 올린 뒤, <strong>조건(condition)을 만족하는 것만 실제로 적용</strong>합니다.</p>
+<blockquote>
+<p>참고: 과거(Spring Boot 2.x 이전)에는 <code>spring.factories</code> 파일을 썼지만, 현재는 위의 <code>.imports</code> 파일이 표준입니다.</p>
+</blockquote>
+<h3>2.2 조건부 Bean — @Conditional 계열</h3>
+<p>자동 설정 클래스의 Bean에는 "이런 조건일 때만 만들어라"는 어노테이션이 붙습니다. 대표적인 것들입니다.</p>
+<table>
+<thead>
+<tr>
+<th>어노테이션</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@ConditionalOnClass</code></td>
+<td>특정 클래스가 <strong>클래스패스에 있을 때</strong>만 적용</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnMissingClass</code></td>
+<td>특정 클래스가 <strong>없을 때</strong>만 적용</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnBean</code></td>
+<td>특정 Bean이 <strong>이미 등록돼 있을 때</strong>만 적용</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnMissingBean</code></td>
+<td>사용자가 같은 타입 Bean을 <strong>직접 만들지 않았을 때</strong>만 적용 (오버라이딩의 핵심)</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnProperty</code></td>
+<td>특정 프로퍼티 값일 때만 적용</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnWebApplication</code></td>
+<td>웹 애플리케이션일 때만 적용</td>
+</tr>
+</tbody>
+</table>
+<p>자동 설정 클래스를 흉내 낸 예시입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@AutoConfiguration</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookJsonAutoConfiguration</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="nd">@ConditionalOnClass</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s">&quot;com.fasterxml.jackson.databind.ObjectMapper&quot;</span><span class="o">]</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@ConditionalOnMissingBean</span><span class="w"> </span><span class="c1">// 사용자가 ObjectMapper Bean을 안 만들었을 때만!</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">objectMapper</span><span class="p">():</span><span class="w"> </span><span class="n">ObjectMapper</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ObjectMapper</span><span class="p">().</span><span class="na">findAndRegisterModules</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>핵심은 <strong><code>@ConditionalOnMissingBean</code></strong> 입니다. "기본값은 우리가 줄게. 하지만 네가 직접 만들면 네 것을 쓸게"라는 철학이 여기서 구현됩니다. 이것이 Spring Boot가 "관례를 따르면 자동, 원하면 언제든 재정의 가능"한 이유입니다.</p>
+<figure class="diagram"><pre>클래스패스 스캔
+      │
+      ▼
+.imports의 자동설정 후보 목록 로드
+      │
+      ▼
+각 후보의 @Conditional 평가
+      │
+   조건 만족? ──No──▶ 건너뜀
+      │ Yes
+      ▼
+사용자가 같은 Bean 등록했나? (@ConditionalOnMissingBean)
+      │
+   이미 있음 ──Yes──▶ 사용자 Bean 우선 (자동설정 양보)
+      │ No
+      ▼
+자동설정 Bean 등록</pre></figure>
+<h2>3. 스타터(Starter)란</h2>
+<p><strong>스타터</strong>는 특정 기능에 필요한 의존성들을 미리 묶어 둔 <strong>편의용 의존성 패키지</strong>입니다. 버전 충돌 걱정 없이 한 줄로 필요한 라이브러리 묶음을 가져옵니다. 예를 들어 <code>spring-boot-starter-web</code> 하나를 추가하면 Spring MVC, 내장 Tomcat, Jackson(JSON), 검증 기본기 등이 함께 따라옵니다.</p>
+<div class="code-block" data-lang="groovy"><span class="code-lang">groovy</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts (Gradle Kotlin DSL)</span>
+<span class="n">dependencies</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">&quot;org.springframework.boot:spring-boot-starter-web&quot;</span><span class="o">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">&quot;org.springframework.boot:spring-boot-starter-data-jpa&quot;</span><span class="o">)</span>
+<span class="w">    </span><span class="n">testImplementation</span><span class="o">(</span><span class="s2">&quot;org.springframework.boot:spring-boot-starter-test&quot;</span><span class="o">)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<blockquote>
+<p><strong>TIP</strong>: 버전 번호를 적지 않은 것에 주목하세요. Spring Boot <strong>BOM(Bill of Materials)</strong> 이 검증된 버전 조합을 관리하므로, 스타터를 추가할 때 버전을 신경 쓸 필요가 없습니다. 이것이 "의견이 반영된(opinionated)" 기본값의 한 예입니다.</p>
+</blockquote>
+<h3>3.1 자주 쓰는 스타터</h3>
+<table>
+<thead>
+<tr>
+<th>스타터</th>
+<th>제공 기능</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spring-boot-starter-web</code></td>
+<td>Spring MVC, 내장 Tomcat, Jackson — 가장 기본</td>
+</tr>
+<tr>
+<td><code>spring-boot-starter-data-jpa</code></td>
+<td>Spring Data JPA, Hibernate, 트랜잭션</td>
+</tr>
+<tr>
+<td><code>spring-boot-starter-security</code></td>
+<td>Spring Security 7.0 기반 인증/인가</td>
+</tr>
+<tr>
+<td><code>spring-boot-starter-validation</code></td>
+<td>Bean Validation(Jakarta Validation)</td>
+</tr>
+<tr>
+<td><code>spring-boot-starter-actuator</code></td>
+<td>헬스 체크·메트릭 등 운영 엔드포인트</td>
+</tr>
+<tr>
+<td><code>spring-boot-starter-test</code></td>
+<td>JUnit 5, Mockito, AssertJ, Spring Test</td>
+</tr>
+<tr>
+<td><code>spring-boot-starter-restclient</code></td>
+<td>동기 HTTP 클라이언트(<code>RestClient</code>) — 4.x 신규</td>
+</tr>
+<tr>
+<td><code>spring-boot-starter-webclient</code></td>
+<td>리액티브 HTTP 클라이언트(<code>WebClient</code>) — 4.x 신규</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>본 가이드의 도서 API는 <code>web</code>, <code>data-jpa</code>, <code>validation</code>, <code>security</code>, <code>actuator</code>, <code>test</code> 정도를 사용하게 됩니다. 외부 API 연동이 필요해지면 <code>restclient</code>를 추가합니다.</p>
+</blockquote>
+<h2>4. 자동 설정 들여다보기</h2>
+<p>"왜 이 Bean이 만들어졌지? / 왜 안 만들어졌지?"를 알고 싶을 때, Spring Boot는 <strong>조건 평가 보고서(Condition Evaluation Report)</strong> 를 제공합니다. <code>--debug</code> 플래그로 켭니다.</p>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>java<span class="w"> </span>-jar<span class="w"> </span>build/libs/bookapi.jar<span class="w"> </span>--debug
+</pre></div>
+</div>
+<p>또는 <code>application.yml</code>에서:</p>
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">debug</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+<p>기동 로그에 다음과 같은 보고서가 출력됩니다.</p>
+<div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>============================
+CONDITIONS EVALUATION REPORT
+============================
+
+Positive matches:   (조건을 만족해 적용된 자동설정)
+-----------------
+   DataSourceAutoConfiguration matched:
+      - @ConditionalOnClass found &#x27;javax.sql.DataSource&#x27; (OnClassCondition)
+
+Negative matches:   (조건 불충족으로 적용 안 된 자동설정)
+-----------------
+   MongoAutoConfiguration:
+      Did not match:
+      - @ConditionalOnClass did not find required class &#x27;com.mongodb.client.MongoClient&#x27;</code></pre></div>
+<p>이 보고서를 읽으면 "어떤 자동 설정이 왜 켜졌고 왜 꺼졌는지"를 정확히 파악할 수 있어, 설정 디버깅의 강력한 무기가 됩니다.</p>
+<blockquote>
+<p><strong>TIP</strong>: Actuator를 쓰면 <code>/actuator/conditions</code> 엔드포인트로 같은 정보를 런타임에 JSON으로 조회할 수도 있습니다.</p>
+</blockquote>
+<h2>5. 자동 설정 재정의(오버라이딩)</h2>
+<p>자동 설정이 만든 기본 Bean이 마음에 들지 않으면, 방법은 간단합니다. <strong>같은 타입의 Bean을 직접 등록</strong>하면 됩니다. <code>@ConditionalOnMissingBean</code> 덕분에 자동 설정이 알아서 양보합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Configuration</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">JacksonConfig</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 이 Bean을 직접 등록하면 자동설정의 기본 ObjectMapper는 적용되지 않는다</span>
+<span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">objectMapper</span><span class="p">():</span><span class="w"> </span><span class="n">ObjectMapper</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="n">ObjectMapper</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="na">registerModule</span><span class="p">(</span><span class="n">JavaTimeModule</span><span class="p">())</span><span class="w"> </span><span class="c1">// LocalDate 직렬화를 위한 커스터마이징</span>
+<span class="w">            </span><span class="p">.</span><span class="na">disable</span><span class="p">(</span><span class="n">SerializationFeature</span><span class="p">.</span><span class="na">WRITE_DATES_AS_TIMESTAMPS</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>또는 프로퍼티로 동작을 바꾸거나, 특정 자동 설정을 통째로 제외할 수도 있습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@SpringBootApplication</span><span class="p">(</span><span class="n">exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">DataSourceAutoConfiguration</span><span class="o">::</span><span class="n">class</span><span class="o">]</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookApiApplication</span>
+</pre></div>
+</div>
+<blockquote>
+<p><strong>Ktor와 비교</strong>: Ktor에서는 <code>install(ContentNegotiation) { jackson { ... } }</code>처럼 <strong>무엇을 켰는지 코드에 다 드러납니다.</strong> Spring Boot는 기본을 자동으로 깔아 주는 대신, 위처럼 "재정의 가능 지점"을 약속해 둡니다. 자동화의 편의와 명시성의 트레이드오프를 잘 보여주는 대목입니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>➡️ <a href="05-mvc-vs-webflux.html">05. Spring MVC vs WebFlux</a> — 자동 설정이 깔아 주는 두 가지 웹 스택을 비교하고, 본 가이드가 어떤 스택을 선택했는지와 그 이유를 설명합니다.</p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

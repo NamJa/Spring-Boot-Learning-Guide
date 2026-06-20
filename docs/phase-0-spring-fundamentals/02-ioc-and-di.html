@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IoC 컨테이너와 의존성 주입 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="02-ioc-and-di.html" class="active">IoC 컨테이너와 의존성 주입</a>
+<a href="03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>IoC 컨테이너와 의존성 주입</h1>
+<p>Spring을 한 문장으로 설명하라면 "거대한 IoC 컨테이너"라고 답해야 합니다. 트랜잭션, 보안, 캐시, 웹 라우팅까지 Spring의 모든 기능은 결국 <strong>컨테이너가 Bean을 만들고 연결하는 방식</strong> 위에 올라가 있기 때문입니다. 이 문서를 제대로 이해하면 이후 모든 Phase가 쉬워집니다.</p>
+<h2>1. 제어의 역전(IoC)이란</h2>
+<p><strong>IoC(Inversion of Control, 제어의 역전)</strong> 란, 객체의 생성·조립·생명주기에 대한 <strong>제어권을 개발자에서 프레임워크(컨테이너)로 넘기는 것</strong>입니다. 말로는 추상적이니 코드로 봅시다.</p>
+<h3>1.1 IoC 적용 전 — 직접 제어</h3>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 객체를 내가 직접 만들고(new), 의존성도 내가 직접 연결한다.</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">repository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JdbcBookRepository</span><span class="p">(</span><span class="n">DataSource</span><span class="p">(...))</span><span class="w"> </span><span class="c1">// 강한 결합!</span>
+
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findById</span><span class="p">(</span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">):</span><span class="w"> </span><span class="n">Book? </span><span class="o">=</span><span class="w"> </span><span class="n">repository</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">fun</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BookService</span><span class="p">()</span><span class="w"> </span><span class="c1">// 내가 직접 생성·제어</span>
+<span class="w">    </span><span class="n">println</span><span class="p">(</span><span class="n">service</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="m">1L</span><span class="p">))</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>문제점이 보입니다.</p>
+<ul>
+<li><code>BookService</code>가 <strong>구체 구현(<code>JdbcBookRepository</code>)에 직접 의존</strong>합니다. 메모리 구현이나 JPA 구현으로 바꾸려면 <code>BookService</code> 코드를 고쳐야 합니다.</li>
+<li><code>DataSource</code> 같은 의존성을 누가 만들고 주입할지 일일이 손으로 챙겨야 합니다.</li>
+<li>테스트할 때 가짜(Mock) Repository로 교체하기가 어렵습니다.</li>
+</ul>
+<h3>1.2 IoC 적용 후 — 컨테이너가 제어</h3>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">interface</span><span class="w"> </span><span class="nc">BookRepository</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findById</span><span class="p">(</span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">):</span><span class="w"> </span><span class="n">Book?</span>
+<span class="p">}</span>
+
+<span class="nd">@Repository</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">JdbcBookRepository</span><span class="p">(</span><span class="cm">/* DataSource는 컨테이너가 주입 */</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findById</span><span class="p">(</span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">):</span><span class="w"> </span><span class="n">Book? </span><span class="o">=</span><span class="w"> </span><span class="n">TODO</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">,</span><span class="w"> </span><span class="c1">// 인터페이스에만 의존, 구현은 컨테이너가 결정</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findById</span><span class="p">(</span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">):</span><span class="w"> </span><span class="n">Book? </span><span class="o">=</span><span class="w"> </span><span class="n">repository</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>이제 <strong>누가 <code>BookService</code>를 만들고, 그 안에 어떤 <code>BookRepository</code> 구현을 넣을지를 Spring 컨테이너가 결정</strong>합니다. 개발자는 "무엇이 필요한지"만 선언하고, "어떻게 조립할지"는 컨테이너에 맡깁니다. 이것이 제어의 역전입니다.</p>
+<figure class="diagram"><pre>[전통적 흐름]   내 코드 ──생성·호출──▶ 라이브러리
+[IoC 흐름]      컨테이너 ──생성·주입──▶ 내 코드(Bean)</pre></figure>
+<blockquote>
+<p><strong>Ktor와 비교</strong>: Ktor에는 내장 IoC 컨테이너가 없어, 의존성을 직접 만들거나 Koin 같은 외부 DI 라이브러리를 씁니다. Spring은 IoC 컨테이너 자체가 프레임워크의 본체입니다.</p>
+</blockquote>
+<h2>2. ApplicationContext와 BeanFactory</h2>
+<p>Spring의 IoC 컨테이너는 <strong>Bean들을 담고 관리하는 객체</strong>입니다. 두 가지 핵심 인터페이스가 있습니다.</p>
+<table>
+<thead>
+<tr>
+<th>인터페이스</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>BeanFactory</strong></td>
+<td>가장 기본적인 컨테이너. Bean의 생성과 DI 등 최소 기능만 제공 (지연 로딩)</td>
+</tr>
+<tr>
+<td><strong>ApplicationContext</strong></td>
+<td><code>BeanFactory</code>를 상속한 상위 인터페이스. 메시지 국제화, 이벤트 발행, AOP, 환경(프로퍼티) 등 <strong>엔터프라이즈 기능을 모두 포함</strong>. 실무에서 사용하는 것은 사실상 이것</td>
+</tr>
+</tbody>
+</table>
+<p>Spring Boot 애플리케이션을 실행하면 <code>runApplication</code>이 내부적으로 <code>ApplicationContext</code>를 생성하고, <strong>컴포넌트 스캔</strong>으로 발견한 모든 Bean을 등록합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@SpringBootApplication</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookApiApplication</span>
+
+<span class="kd">fun</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">runApplication</span><span class="o">&lt;</span><span class="n">BookApiApplication</span><span class="o">&gt;</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+<span class="w">    </span><span class="c1">// 이 시점에 ApplicationContext가 완성되어 있고, 모든 Bean이 준비됨</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">context</span><span class="p">.</span><span class="na">getBean</span><span class="p">(</span><span class="n">BookService</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote>
+<p><strong>TIP</strong>: 실무에서 <code>getBean()</code>을 직접 호출할 일은 거의 없습니다. 필요한 Bean은 생성자 주입으로 받는 것이 정석입니다. 컨테이너를 직접 만지는 코드는 "DI를 거스르는" 신호일 때가 많습니다.</p>
+</blockquote>
+<h2>3. 의존성 주입(DI)의 세 가지 방식</h2>
+<p>DI는 IoC를 구현하는 구체적 방법입니다. Spring에는 세 가지 주입 방식이 있습니다.</p>
+<h3>3.1 생성자 주입 (Constructor Injection) — Kotlin에서 권장</h3>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">,</span><span class="w"> </span><span class="c1">// 주생성자 파라미터 = 주입 지점</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Kotlin의 주생성자가 그대로 주입 지점이 됩니다. 가장 권장되는 방식이며 이유는 다음과 같습니다.</p>
+<ul>
+<li><strong>불변성</strong>: <code>val</code>로 선언 가능 → 주입 후 바뀌지 않음, 스레드 안전.</li>
+<li><strong>필수 의존성 보장</strong>: 의존성 없이는 객체를 만들 수 없으므로 누락이 컴파일/기동 시점에 드러남.</li>
+<li><strong>널 안전성</strong>: Kotlin의 non-null 타입과 자연스럽게 결합. <code>lateinit</code> 불필요.</li>
+<li><strong>테스트 용이</strong>: 테스트에서 생성자에 Mock을 그냥 넣으면 됨. Spring 없이도 단위 테스트 가능.</li>
+</ul>
+<h3>3.2 필드 주입 (Field Injection) — 비권장</h3>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nd">@Autowired</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">lateinit</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="w"> </span><span class="c1">// 권장하지 않음</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>코드가 짧아 보이지만 단점이 큽니다.</p>
+<ul>
+<li><code>lateinit var</code>라 <strong>불변이 아니고</strong>, 주입 전 접근 시 예외 위험.</li>
+<li>Spring 컨테이너 없이는 주입할 방법이 없어 <strong>단위 테스트가 어려움</strong>.</li>
+<li>의존성이 숨겨져 한 클래스가 의존성을 몇 개나 갖는지 드러나지 않음(과도한 의존 발견 곤란).</li>
+</ul>
+<h3>3.3 세터 주입 (Setter Injection)</h3>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository? </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+
+<span class="w">    </span><span class="nd">@Autowired</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">setRepository</span><span class="p">(</span><span class="n">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">repository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repository</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>선택적(optional) 의존성이나 런타임 재설정이 필요한 드문 경우에만 사용합니다. 일반적으로는 생성자 주입을 쓰세요.</p>
+<table>
+<thead>
+<tr>
+<th>방식</th>
+<th>불변성</th>
+<th>테스트 용이성</th>
+<th>권장도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>생성자 주입</strong></td>
+<td><code>val</code> 가능</td>
+<td>매우 높음</td>
+<td>★ 권장</td>
+</tr>
+<tr>
+<td>세터 주입</td>
+<td>불가</td>
+<td>보통</td>
+<td>선택적 의존성만</td>
+</tr>
+<tr>
+<td>필드 주입</td>
+<td>불가</td>
+<td>낮음</td>
+<td>지양</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>결론</strong>: Kotlin + Spring에서는 <strong>생성자 주입을 기본으로</strong> 삼으세요. 주생성자에 적으면 끝입니다.</p>
+</blockquote>
+<h2>4. Bean을 등록하는 두 가지 방법</h2>
+<p>컨테이너가 관리하려면 객체가 Bean으로 등록되어야 합니다. 방법은 크게 둘입니다.</p>
+<h3>4.1 스테레오타입 어노테이션 (컴포넌트 스캔)</h3>
+<p>클래스에 어노테이션을 붙이면 컴포넌트 스캔이 자동으로 Bean으로 등록합니다. 의미에 따라 종류가 나뉘지만 <strong>기능은 사실상 동일</strong>하며(모두 <code>@Component</code>의 특수화), 역할을 드러내는 문서적 의미가 큽니다.</p>
+<table>
+<thead>
+<tr>
+<th>어노테이션</th>
+<th>의미하는 계층</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@Component</code></td>
+<td>범용 컴포넌트 (가장 일반적)</td>
+</tr>
+<tr>
+<td><code>@Service</code></td>
+<td>비즈니스 로직 계층</td>
+</tr>
+<tr>
+<td><code>@Repository</code></td>
+<td>데이터 접근 계층 (+ DB 예외를 Spring 표준 예외로 변환하는 부가 기능)</td>
+</tr>
+<tr>
+<td><code>@Controller</code> / <code>@RestController</code></td>
+<td>웹 요청 처리 계층</td>
+</tr>
+</tbody>
+</table>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Repository</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">JdbcBookRepository</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
+
+<span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
+
+<span class="nd">@RestController</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookController</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">service</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+<h3>4.2 <code>@Configuration</code> + <code>@Bean</code> (자바/코틀린 설정)</h3>
+<p>내가 직접 만들 수 없는 <strong>외부 라이브러리 객체</strong>(예: <code>ObjectMapper</code>, <code>RestClient</code>)를 Bean으로 등록할 때 사용합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Configuration</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">AppConfig</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">restClient</span><span class="p">():</span><span class="w"> </span><span class="n">RestClient</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="n">RestClient</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="na">baseUrl</span><span class="p">(</span><span class="s">&quot;https://api.example.com&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">build</span><span class="p">()</span>
+
+<span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">bookService</span><span class="p">(</span><span class="n">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">):</span><span class="w"> </span><span class="n">BookService</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="c1">// @Bean 메서드의 파라미터도 컨테이너가 자동 주입한다</span>
+<span class="w">        </span><span class="n">BookService</span><span class="p">(</span><span class="n">repository</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote>
+<p><strong>TIP</strong>: 직접 작성한 컴포넌트는 <code>@Service</code> 등 스캔 방식으로, 외부 객체는 <code>@Bean</code> 방식으로 — 이 구분이 일반적인 관례입니다.</p>
+</blockquote>
+<h2>5. @Autowired, @Qualifier, @Primary, @Value</h2>
+<h3>5.1 @Autowired — 단일 생성자면 생략 가능</h3>
+<p><code>@Autowired</code>는 "이 지점에 의존성을 주입하라"는 표시입니다. 그러나 <strong>생성자가 하나뿐인 클래스에서는 생략할 수 있습니다.</strong> Spring이 유일한 생성자를 자동으로 주입 대상으로 인식하기 때문입니다. Kotlin의 주생성자는 거의 항상 단일 생성자이므로, 실무 코드에서 <code>@Autowired</code>를 거의 보지 못하게 됩니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">)</span><span class="w"> </span><span class="c1">// @Autowired 없이 동작</span>
+</pre></div>
+</div>
+<h3>5.2 @Qualifier / @Primary — 같은 타입 Bean이 여러 개일 때</h3>
+<p><code>BookRepository</code> 구현이 둘 이상이면 Spring은 "어느 것을 주입할지" 결정하지 못해 기동에 실패합니다. 이때 충돌을 해소하는 두 방법이 있습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Repository</span>
+<span class="nd">@Primary</span><span class="w"> </span><span class="c1">// 동일 타입 중 기본으로 선택될 Bean</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">JpaBookRepository</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span>
+
+<span class="nd">@Repository</span><span class="p">(</span><span class="s">&quot;memoryBookRepository&quot;</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">InMemoryBookRepository</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span>
+
+<span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@Qualifier</span><span class="p">(</span><span class="s">&quot;memoryBookRepository&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// 특정 Bean을 이름으로 지정</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<ul>
+<li><code>@Primary</code>: 여러 후보 중 <strong>기본값</strong>을 지정.</li>
+<li><code>@Qualifier("이름")</code>: 주입 지점에서 <strong>콕 집어</strong> 특정 Bean을 선택. <code>@Qualifier</code>가 <code>@Primary</code>보다 우선합니다.</li>
+</ul>
+<h3>5.3 @Value — 프로퍼티 값 주입</h3>
+<p><code>application.yml</code>이나 환경 변수의 값을 Bean에 주입합니다.</p>
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="c1"># application.yml</span>
+<span class="nt">book</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">default-page-size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">,</span>
+<span class="w">    </span><span class="nd">@Value</span><span class="p">(</span><span class="s">&quot;\</span><span class="si">${</span><span class="n">book</span><span class="p">.</span><span class="na">default</span><span class="o">-</span><span class="n">page</span><span class="o">-</span><span class="n">size</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span><span class="w"> </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">pageSize</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<p><strong>TIP</strong>: 여러 프로퍼티를 묶어 받을 때는 <code>@Value</code>보다 타입 안전한 <code>@ConfigurationProperties</code>를 쓰는 것이 좋습니다. (Phase 1의 설정 편에서 다룹니다.)</p>
+</blockquote>
+<h2>6. Spring Framework 7의 Kotlin Bean Registration DSL</h2>
+<p>Spring Framework 7은 어노테이션 대신 <strong>Kotlin DSL로 Bean을 프로그래밍 방식 등록</strong>하는 길도 제공합니다. 어노테이션 스캔의 리플렉션을 줄여 기동을 빠르게 하거나(특히 GraalVM 네이티브 이미지), 조건에 따라 동적으로 Bean을 구성할 때 유용합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">val</span><span class="w"> </span><span class="nv">beans</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">beans</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">bean</span><span class="o">&lt;</span><span class="n">JpaBookRepository</span><span class="o">&gt;</span><span class="p">()</span>
+<span class="w">    </span><span class="n">bean</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">BookService</span><span class="p">(</span><span class="n">ref</span><span class="p">())</span><span class="w"> </span><span class="c1">// ref()로 컨테이너에서 의존성 조회</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>지금 단계에서는 "어노테이션 외에 DSL 방식도 있다" 정도만 기억하면 충분합니다. 본 가이드의 본문 예제는 가독성을 위해 어노테이션 방식을 기본으로 사용합니다.</p>
+<h2>다음 단계</h2>
+<p>➡️ <a href="03-bean-lifecycle-scope.html">03. Bean 생명주기와 스코프</a> — 컨테이너에 등록된 Bean이 언제 생성되고 초기화되며 소멸하는지, 그리고 singleton/prototype 등 스코프를 살펴봅니다.</p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

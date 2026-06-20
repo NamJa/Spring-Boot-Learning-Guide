@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>테스트 전략 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="02-security-basics.html">Spring Security 7 기초</a>
+<a href="03-actuator-observability.html">Actuator와 관측성</a>
+<a href="04-testing.html" class="active">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>테스트 전략</h1>
+<p>테스트 없는 코드는 <strong>배포할 때마다 도박</strong>입니다. 하지만 모든 테스트를 매번 전체 애플리케이션을 띄워서 돌리면 느리고 깨지기 쉽습니다. Spring Boot의 핵심 테스트 전략은 <strong>필요한 만큼만 컨텍스트를 띄우는 "테스트 슬라이스(test slice)"</strong> 입니다.</p>
+<p>이 문서에서는 슬라이스별 도구를 정리하고, Book API에 대한 Kotlin + JUnit 5 테스트를 실제로 작성합니다.</p>
+<h2>1. 테스트 슬라이스 한눈에 보기</h2>
+<table>
+<thead>
+<tr>
+<th>애너테이션</th>
+<th>띄우는 범위</th>
+<th>용도</th>
+<th>속도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@SpringBootTest</code></td>
+<td><strong>전체</strong> 애플리케이션 컨텍스트</td>
+<td>통합 테스트, E2E</td>
+<td>느림</td>
+</tr>
+<tr>
+<td><code>@WebMvcTest</code></td>
+<td>웹 계층(컨트롤러)만, 서비스는 목</td>
+<td>컨트롤러 + <code>MockMvc</code></td>
+<td>빠름</td>
+</tr>
+<tr>
+<td><code>@DataJpaTest</code></td>
+<td>JPA 계층(리포지토리 + 내장 DB)</td>
+<td>쿼리·매핑 검증</td>
+<td>빠름</td>
+</tr>
+<tr>
+<td><code>@RestClientTest</code></td>
+<td>HTTP 클라이언트 + <code>MockRestServiceServer</code></td>
+<td>외부 호출 클라이언트(Phase 5-1)</td>
+<td>빠름</td>
+</tr>
+</tbody>
+</table>
+<p>원칙: <strong>가능한 한 좁은 슬라이스로</strong> 테스트하고, 전체 통합 테스트는 핵심 시나리오에만 사용합니다. 슬라이스 테스트가 빠르므로 많이, 통합 테스트는 적게 — 흔히 말하는 테스트 피라미드입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts — spring-boot-starter-test 에 JUnit5, AssertJ, Mockito 등이 모두 포함</span>
+<span class="n">testImplementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-test&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<h2>2. <code>@WebMvcTest</code> — 컨트롤러 테스트</h2>
+<p>컨트롤러의 요청 매핑·직렬화·검증·상태 코드만 검증하고 싶을 때 씁니다. 서비스 계층은 <strong>목(mock)</strong> 으로 대체합니다. 여기서 Spring Boot가 제공하는 <strong><code>@MockitoBean</code></strong> 을 씁니다.</p>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p><code>@MockitoBean</code>은 과거의 <strong><code>@MockBean</code>을 대체</strong>합니다(<code>@MockBean</code>은 deprecated). 동작은 같습니다: 목 객체를 만들어 스프링 컨텍스트의 해당 빈을 교체합니다.</p>
+</blockquote>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.controller</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">com.example.bookapi.dto.BookResponse</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">com.example.bookapi.service.BookService</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">java.time.LocalDate</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.junit.jupiter.api.Test</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.mockito.kotlin.given</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.beans.factory.annotation.Autowired</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.test.context.bean.override.mockito.MockitoBean</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.MockMvc</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.get</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.post</span>
+
+<span class="nd">@WebMvcTest</span><span class="p">(</span><span class="n">BookController</span><span class="o">::</span><span class="n">class</span><span class="p">)</span><span class="w">   </span><span class="c1">// BookController만 로드</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookControllerTest</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@Autowired</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">mockMvc</span><span class="p">:</span><span class="w"> </span><span class="n">MockMvc</span><span class="p">,</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nd">@MockitoBean</span>
+<span class="w">    </span><span class="kd">lateinit</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">bookService</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="w">   </span><span class="c1">// 진짜 서비스 대신 목 주입</span>
+
+<span class="w">    </span><span class="nd">@Test</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">`GET books returns 200 with list`</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">given</span><span class="p">(</span><span class="n">bookService</span><span class="p">.</span><span class="na">findAll</span><span class="p">())</span>
+<span class="w">            </span><span class="p">.</span><span class="na">willReturn</span><span class="p">(</span>
+<span class="w">                </span><span class="n">listOf</span><span class="p">(</span>
+<span class="w">                    </span><span class="n">BookResponse</span><span class="p">(</span>
+<span class="w">                        </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;코틀린 인 액션&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;드미트리 제메로프&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;978-8966262281&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">35000</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">publishedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="m">2017</span><span class="p">,</span><span class="w"> </span><span class="m">6</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span>
+<span class="w">                    </span><span class="p">),</span>
+<span class="w">                </span><span class="p">),</span>
+<span class="w">            </span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">mockMvc</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">andExpect</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">status</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">isOk</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
+<span class="w">                </span><span class="n">jsonPath</span><span class="p">(</span><span class="s">&quot;</span><span class="err">$</span><span class="s">[0].title&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">value</span><span class="p">(</span><span class="s">&quot;코틀린 인 액션&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@Test</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">`POST with blank title returns 400`</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">mockMvc</span><span class="p">.</span><span class="na">post</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">contentType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">org</span><span class="p">.</span><span class="na">springframework</span><span class="p">.</span><span class="na">http</span><span class="p">.</span><span class="na">MediaType</span><span class="p">.</span><span class="na">APPLICATION_JSON</span>
+<span class="w">            </span><span class="n">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;&quot;{&quot;title&quot;:&quot;&quot;,&quot;author&quot;:&quot;홍길동&quot;,&quot;isbn&quot;:&quot;978-8966262281&quot;,&quot;price&quot;:1000,&quot;publishedAt&quot;:&quot;2017-06-01&quot;}&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="p">}.</span><span class="na">andExpect</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">status</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">isBadRequest</span><span class="p">()</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1">// Bean Validation 실패 (Phase 4)</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Spring Boot 4에서는 fluent한 <strong><code>MockMvcTester</code></strong> (AssertJ 기반)도 자동 주입됩니다. 더 읽기 좋은 단언을 원하면 이렇게 쓸 수 있습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.test.web.servlet.assertj.MockMvcTester</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.assertj.core.api.Assertions.assertThat</span>
+
+<span class="nd">@WebMvcTest</span><span class="p">(</span><span class="n">BookController</span><span class="o">::</span><span class="n">class</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookControllerTesterTest</span><span class="p">(</span><span class="nd">@Autowired</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">mvc</span><span class="p">:</span><span class="w"> </span><span class="n">MockMvcTester</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@MockitoBean</span><span class="w"> </span><span class="kd">lateinit</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">bookService</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span>
+
+<span class="w">    </span><span class="nd">@Test</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">`GET books is ok`</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">given</span><span class="p">(</span><span class="n">bookService</span><span class="p">.</span><span class="na">findAll</span><span class="p">()).</span><span class="na">willReturn</span><span class="p">(</span><span class="n">emptyList</span><span class="p">())</span>
+
+<span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">mvc</span><span class="p">.</span><span class="na">get</span><span class="p">().</span><span class="na">uri</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">))</span>
+<span class="w">            </span><span class="p">.</span><span class="na">hasStatusOk</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="na">bodyJson</span><span class="p">().</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">&quot;[]&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h2>3. <code>@DataJpaTest</code> — 리포지토리 테스트</h2>
+<p>리포지토리의 쿼리 메서드와 엔티티 매핑을 검증합니다. 기본적으로 <strong>내장 H2 DB</strong>를 띄우고, 각 테스트는 <strong>트랜잭션 후 롤백</strong>되어 서로 격리됩니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.repository</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">com.example.bookapi.domain.Book</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">java.time.LocalDate</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.assertj.core.api.Assertions.assertThat</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.junit.jupiter.api.Test</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.beans.factory.annotation.Autowired</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest</span>
+
+<span class="nd">@DataJpaTest</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookRepositoryTest</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@Autowired</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">,</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nd">@Test</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">`findByTitleContaining returns matching books`</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">repository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span>
+<span class="w">            </span><span class="n">Book</span><span class="p">(</span>
+<span class="w">                </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;코틀린 인 액션&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;드미트리 제메로프&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;978-8966262281&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">35000</span><span class="p">,</span>
+<span class="w">                </span><span class="n">publishedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="m">2017</span><span class="p">,</span><span class="w"> </span><span class="m">6</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span>
+<span class="w">            </span><span class="p">),</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">        </span><span class="n">repository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span>
+<span class="w">            </span><span class="n">Book</span><span class="p">(</span>
+<span class="w">                </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;이펙티브 코틀린&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;마르친 모스카와&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;978-8966263363&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">30000</span><span class="p">,</span>
+<span class="w">                </span><span class="n">publishedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="m">2022</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span>
+<span class="w">            </span><span class="p">),</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">        </span><span class="n">repository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span>
+<span class="w">            </span><span class="n">Book</span><span class="p">(</span>
+<span class="w">                </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;자바 최강의 기술&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;조슈아 블로크&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;978-8966263158&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">28000</span><span class="p">,</span>
+<span class="w">                </span><span class="n">publishedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="m">2018</span><span class="p">,</span><span class="w"> </span><span class="m">10</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span>
+<span class="w">            </span><span class="p">),</span>
+<span class="w">        </span><span class="p">)</span>
+
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repository</span><span class="p">.</span><span class="na">findByTitleContaining</span><span class="p">(</span><span class="s">&quot;코틀린&quot;</span><span class="p">)</span>
+
+<span class="w">        </span><span class="c1">// AssertJ — 읽기 좋은 단언</span>
+<span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">hasSize</span><span class="p">(</span><span class="m">2</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">extracting</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">title</span><span class="w"> </span><span class="p">}</span>
+<span class="w">            </span><span class="p">.</span><span class="na">containsExactlyInAnyOrder</span><span class="p">(</span><span class="s">&quot;코틀린 인 액션&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;이펙티브 코틀린&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p><code>@DataJpaTest</code>는 컨트롤러·서비스 빈을 로드하지 않습니다. 따라서 매우 빠릅니다. 단, 내장 H2와 운영 DB(PostgreSQL) 사이에 방언 차이가 있을 수 있으니, 미묘한 쿼리는 6절의 Testcontainers로 실제 DB에서 검증하세요.</p>
+</blockquote>
+<h2>4. <code>@SpringBootTest</code> — 통합 테스트</h2>
+<p>실제 서버를 띄워 HTTP 호출부터 DB 저장까지 <strong>전 계층을 관통</strong>하는 테스트입니다. <code>webEnvironment = RANDOM_PORT</code> 로 실제 포트에 톰캣을 띄우고, <strong><code>TestRestClient</code></strong> (Spring Boot 4, <code>RestClient</code> 기반)로 호출합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">com.example.bookapi.dto.BookResponse</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">com.example.bookapi.dto.CreateBookRequest</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">java.time.LocalDate</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.assertj.core.api.Assertions.assertThat</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.junit.jupiter.api.Test</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.beans.factory.annotation.Autowired</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.boot.test.context.SpringBootTest</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.boot.test.web.client.TestRestClient</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.test.context.ActiveProfiles</span>
+
+<span class="nd">@SpringBootTest</span><span class="p">(</span><span class="n">webEnvironment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SpringBootTest</span><span class="p">.</span><span class="na">WebEnvironment</span><span class="p">.</span><span class="na">RANDOM_PORT</span><span class="p">)</span>
+<span class="nd">@ActiveProfiles</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">)</span><span class="w">   </span><span class="c1">// application-test.yml 설정 사용 (Phase 4)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookApiIntegrationTest</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@Autowired</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">restClient</span><span class="p">:</span><span class="w"> </span><span class="n">TestRestClient</span><span class="p">,</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nd">@Test</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">`create then fetch book end-to-end`</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 1. 도서 등록 (인증 필요 — Phase 5-2)</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">created</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">restClient</span><span class="p">.</span><span class="na">post</span><span class="p">().</span><span class="na">uri</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">headers</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">setBasicAuth</span><span class="p">(</span><span class="s">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;admin-secret&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="w">            </span><span class="p">.</span><span class="na">body</span><span class="p">(</span>
+<span class="w">                </span><span class="n">CreateBookRequest</span><span class="p">(</span>
+<span class="w">                    </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;스프링 부트 4 입문&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;김종우&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;978-8966262281&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="n">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">42000</span><span class="p">,</span>
+<span class="w">                    </span><span class="n">publishedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="m">2025</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span>
+<span class="w">                </span><span class="p">),</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">retrieve</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="na">toEntity</span><span class="p">(</span><span class="n">BookResponse</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">created</span><span class="p">.</span><span class="na">statusCode</span><span class="p">.</span><span class="na">value</span><span class="p">()).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="m">201</span><span class="p">)</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">created</span><span class="p">.</span><span class="na">body</span><span class="o">!!</span><span class="p">.</span><span class="na">id</span>
+
+<span class="w">        </span><span class="c1">// 2. 조회 (인증 불필요)</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">fetched</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">restClient</span><span class="p">.</span><span class="na">get</span><span class="p">().</span><span class="na">uri</span><span class="p">(</span><span class="s">&quot;/api/books/{id}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">retrieve</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="na">body</span><span class="p">(</span><span class="n">BookResponse</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">fetched</span><span class="o">!!</span><span class="p">.</span><span class="na">title</span><span class="p">).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">&quot;스프링 부트 4 입문&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>아직 <code>TestRestClient</code>가 없는 환경이라면 기존의 <strong><code>TestRestTemplate</code></strong> 을 같은 방식으로 주입해 쓸 수 있습니다. 새 코드는 <code>RestClient</code> 기반인 <code>TestRestClient</code>를 권장합니다.</p>
+</blockquote>
+<h2>5. <code>@RestClientTest</code> — 외부 클라이언트 테스트</h2>
+<p>Phase 5-1에서 만든 <code>BookMetadataClient</code>처럼 <strong>외부 API를 호출하는 클라이언트</strong>는, 실제 외부 서버에 의존하지 않고 <code>MockRestServiceServer</code>로 응답을 흉내 내 테스트합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@RestClientTest</span><span class="p">(</span><span class="n">BookEnrichmentService</span><span class="o">::</span><span class="n">class</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookEnrichmentServiceTest</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@Autowired</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">service</span><span class="p">:</span><span class="w"> </span><span class="n">BookEnrichmentService</span><span class="p">,</span>
+<span class="w">    </span><span class="nd">@Autowired</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">server</span><span class="p">:</span><span class="w"> </span><span class="n">MockRestServiceServer</span><span class="p">,</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nd">@Test</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">`enrich returns title from external api`</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">server</span><span class="p">.</span><span class="na">expect</span><span class="p">(</span><span class="n">requestTo</span><span class="p">(</span><span class="s">&quot;/books/978-1617293290&quot;</span><span class="p">))</span>
+<span class="w">            </span><span class="p">.</span><span class="na">andRespond</span><span class="p">(</span><span class="n">withSuccess</span><span class="p">(</span><span class="s">&quot;&quot;&quot;{&quot;isbn&quot;:&quot;978-1617293290&quot;,&quot;title&quot;:&quot;코틀린 인 액션&quot;,&quot;authors&quot;:[&quot;드미트리&quot;]}&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">MediaType</span><span class="p">.</span><span class="na">APPLICATION_JSON</span><span class="p">))</span>
+
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">enrich</span><span class="p">(</span><span class="s">&quot;978-1617293290&quot;</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">result</span><span class="p">).</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;코틀린 인 액션&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h2>6. 실제 DB 통합 테스트 — Testcontainers</h2>
+<p>H2로는 PostgreSQL 고유 기능(JSONB, 특정 함수 등)을 검증할 수 없습니다. <strong>Testcontainers</strong>는 테스트 중 <strong>실제 PostgreSQL을 도커 컨테이너로</strong> 띄워 줍니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
+<span class="n">testImplementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-testcontainers&quot;</span><span class="p">)</span>
+<span class="n">testImplementation</span><span class="p">(</span><span class="s">&quot;org.testcontainers:postgresql&quot;</span><span class="p">)</span>
+<span class="n">testImplementation</span><span class="p">(</span><span class="s">&quot;org.testcontainers:junit-jupiter&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@SpringBootTest</span>
+<span class="nd">@ActiveProfiles</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">)</span>
+<span class="nd">@Testcontainers</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookRepositoryPostgresTest</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">companion</span><span class="w"> </span><span class="kd">object</span><span class="w"> </span><span class="err">{</span>
+<span class="w">        </span><span class="nd">@Container</span>
+<span class="w">        </span><span class="nd">@ServiceConnection</span><span class="w">   </span><span class="c1">// 컨테이너 접속 정보를 datasource 설정에 자동 연결 (Spring Boot 3.1+)</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">postgres</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PostgreSQLContainer</span><span class="p">(</span><span class="s">&quot;postgres:17&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@Autowired</span><span class="w"> </span><span class="kd">lateinit</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span>
+
+<span class="w">    </span><span class="nd">@Test</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">`works against real postgres`</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">saved</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span>
+<span class="w">            </span><span class="n">Book</span><span class="p">(</span>
+<span class="w">                </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;테스트 도서&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;테스트 저자&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;978-8966262281&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1000</span><span class="p">,</span>
+<span class="w">                </span><span class="n">publishedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="m">2025</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span>
+<span class="w">            </span><span class="p">),</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">repository</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">saved</span><span class="p">.</span><span class="na">id</span><span class="o">!!</span><span class="p">)).</span><span class="na">isPresent</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code>@ServiceConnection</code> 덕분에 컨테이너의 JDBC URL·계정을 수동으로 프로퍼티에 옮길 필요가 없습니다. 운영과 동일한 DB로 검증하므로 신뢰도가 가장 높지만, 도커가 필요하고 느리므로 <strong>핵심 쿼리에만</strong> 적용합니다.</p>
+<h2>7. 정리: 무엇을 언제 쓰나</h2>
+<table>
+<thead>
+<tr>
+<th>검증하고 싶은 것</th>
+<th>사용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>요청 매핑·검증·상태 코드·직렬화</td>
+<td><code>@WebMvcTest</code> + <code>@MockitoBean</code></td>
+</tr>
+<tr>
+<td>쿼리 메서드·엔티티 매핑 (빠르게)</td>
+<td><code>@DataJpaTest</code></td>
+</tr>
+<tr>
+<td>외부 API 호출 클라이언트</td>
+<td><code>@RestClientTest</code></td>
+</tr>
+<tr>
+<td>전 계층 시나리오 / 보안 / 통합</td>
+<td><code>@SpringBootTest(RANDOM_PORT)</code> + <code>TestRestClient</code></td>
+</tr>
+<tr>
+<td>운영 DB 고유 동작</td>
+<td><code>@SpringBootTest</code> + Testcontainers</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>단언은 <strong>AssertJ</strong>(<code>assertThat(...)</code>)로 통일하면 가독성과 에러 메시지가 좋아집니다. JUnit <code>assertEquals</code>보다 권장됩니다. 그리고 통합 테스트에는 <code>@ActiveProfiles("test")</code>로 테스트 전용 설정을 분리하세요.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>축하합니다. 이제 Book API는 외부와 통신하고, 보안이 적용되고, 관측 가능하며, 테스트로 검증됩니다. 운영에 필요한 기능을 모두 갖췄으니, 마지막 Phase에서 이 애플리케이션을 <strong>실제로 빌드하고 배포</strong>합니다.</p>
+<p>→ <a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

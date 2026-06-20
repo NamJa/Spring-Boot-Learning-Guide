@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>로컬 실행과 테스트 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="03-rest-controller.html">@RestController 구현</a>
+<a href="04-service-layer.html">Service 계층과 DI</a>
+<a href="05-local-run-and-test.html" class="active">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>로컬 실행과 테스트</h1>
+<p>코드가 모두 준비되었습니다. 이제 애플리케이션을 실행하고, 5개 엔드포인트를 직접 호출하며 정상 동작과 에러 동작을 모두 확인합니다.</p>
+<h2>1. bootRun으로 실행하기</h2>
+<p>프로젝트 루트에서 Gradle 태스크 <code>bootRun</code>을 실행합니다.</p>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>./gradlew<span class="w"> </span>bootRun
+</pre></div>
+</div>
+<p>(Windows는 <code>gradlew.bat bootRun</code>)</p>
+<p>처음 실행 시 의존성을 내려받느라 시간이 걸릴 수 있습니다. 다음과 같은 로그의 <strong>마지막 줄</strong>이 보이면 기동 완료입니다.</p>
+<div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>... INFO ... Tomcat started on port 8080 (http) with context path &#x27;/&#x27;
+... INFO ... Started BookApiApplication in 1.234 seconds (process running for 1.567)</code></pre></div>
+<ul>
+<li>포트는 기본 <strong>8080</strong>입니다. 바꾸려면 <code>application.yml</code>에 <code>server.port: 9090</code> 등을 지정합니다.</li>
+<li>종료는 터미널에서 <code>Ctrl + C</code>입니다.</li>
+</ul>
+<blockquote>
+<p><strong>빌드 후 실행 (대안)</strong>: <code>./gradlew build</code>로 실행 가능한 JAR을 만든 뒤 <code>java -jar build/libs/book-api-0.0.1-SNAPSHOT.jar</code>로 띄울 수도 있습니다. 운영 환경은 보통 이 방식을 씁니다.</p>
+</blockquote>
+<h2>2. 전체 엔드포인트 수동 테스트 (curl)</h2>
+<p>서버가 떠 있는 다른 터미널에서 아래 순서대로 실행해 보세요. 데이터는 메모리에 있으므로 서버를 재시작하면 초기화됩니다.</p>
+<h3>① 도서 등록 (POST → 201)</h3>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>curl<span class="w"> </span>-i<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/api/books<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">    &quot;title&quot;: &quot;소년이 온다&quot;,</span>
+<span class="s1">    &quot;author&quot;: &quot;한강&quot;,</span>
+<span class="s1">    &quot;isbn&quot;: &quot;9788936434120&quot;,</span>
+<span class="s1">    &quot;price&quot;: 13500,</span>
+<span class="s1">    &quot;publishedAt&quot;: &quot;2014-05-19&quot;</span>
+<span class="s1">  }&#39;</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>HTTP/1.1 201 Created
+Location: /api/books/1</code></pre></div>
+<div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;소년이 온다&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;author&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;한강&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;isbn&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;9788936434120&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;price&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">13500</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;publishedAt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2014-05-19&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>한 번 더 다른 책을 등록하면 <code>id</code>는 <code>2</code>가 됩니다.</p>
+<h3>② 전체 목록 (GET → 200)</h3>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>curl<span class="w"> </span>http://localhost:8080/api/books
+</pre></div>
+</div>
+<div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;소년이 온다&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;author&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;한강&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;isbn&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;9788936434120&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;price&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">13500</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;publishedAt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2014-05-19&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<h3>③ 단건 조회 (GET → 200)</h3>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>curl<span class="w"> </span>http://localhost:8080/api/books/1
+</pre></div>
+</div>
+<div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;소년이 온다&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;author&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;한강&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;isbn&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;9788936434120&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;price&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">13500</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;publishedAt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2014-05-19&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h3>④ 수정 (PUT → 200)</h3>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span>http://localhost:8080/api/books/1<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">    &quot;title&quot;: &quot;소년이 온다 (리커버)&quot;,</span>
+<span class="s1">    &quot;author&quot;: &quot;한강&quot;,</span>
+<span class="s1">    &quot;isbn&quot;: &quot;9788936434120&quot;,</span>
+<span class="s1">    &quot;price&quot;: 14000,</span>
+<span class="s1">    &quot;publishedAt&quot;: &quot;2014-05-19&quot;</span>
+<span class="s1">  }&#39;</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;소년이 온다 (리커버)&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;author&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;한강&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;isbn&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;9788936434120&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;price&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">14000</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;publishedAt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2014-05-19&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h3>⑤ 삭제 (DELETE → 204)</h3>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>curl<span class="w"> </span>-i<span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span>http://localhost:8080/api/books/1
+</pre></div>
+</div>
+<div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>HTTP/1.1 204 No Content</code></pre></div>
+<p>삭제 후 다시 조회하면 404가 나옵니다(아래 에러 케이스 참고).</p>
+<h2>3. HTTPie를 쓰는 경우 (대안)</h2>
+<p><code>curl</code>이 번거롭다면 <strong>HTTPie</strong>(<code>brew install httpie</code>)가 더 읽기 쉽습니다.</p>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># 등록</span>
+http<span class="w"> </span>POST<span class="w"> </span>:8080/api/books<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">title</span><span class="o">=</span><span class="s2">&quot;채식주의자&quot;</span><span class="w"> </span><span class="nv">author</span><span class="o">=</span><span class="s2">&quot;한강&quot;</span><span class="w"> </span><span class="nv">isbn</span><span class="o">=</span><span class="s2">&quot;9788936433598&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>price:<span class="o">=</span><span class="m">13500</span><span class="w"> </span><span class="nv">publishedAt</span><span class="o">=</span><span class="s2">&quot;2007-10-30&quot;</span>
+
+<span class="c1"># 조회</span>
+http<span class="w"> </span>:8080/api/books/1
+
+<span class="c1"># 삭제</span>
+http<span class="w"> </span>DELETE<span class="w"> </span>:8080/api/books/1
+</pre></div>
+</div>
+<blockquote>
+<p>HTTPie에서 <code>:=</code>는 <strong>숫자/불리언</strong> 등 비문자열 값을 의미합니다. <code>price:=13500</code>은 <code>"price": 13500</code>(숫자)으로 보냅니다. 그냥 <code>price=13500</code>이면 문자열이 되어 역직렬화에 실패할 수 있으니 주의하세요.</p>
+</blockquote>
+<h2>4. 에러 케이스 확인</h2>
+<p>정상 동작뿐 아니라 실패 동작도 검증해야 합니다.</p>
+<h3>404 Not Found — 없는 도서</h3>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>curl<span class="w"> </span>-i<span class="w"> </span>http://localhost:8080/api/books/9999
+</pre></div>
+</div>
+<div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>HTTP/1.1 404 Not Found</code></pre></div>
+<p><code>BookNotFoundException</code>에 붙인 <code>@ResponseStatus(HttpStatus.NOT_FOUND)</code> 덕분에 404가 반환됩니다. (응답 본문의 에러 JSON 형식은 Phase 4에서 다듬습니다.)</p>
+<h3>400 Bad Request — 잘못된 JSON</h3>
+<p>본문 JSON 문법이 깨졌거나, non-null 필드(<code>price</code>)에 <code>null</code>을 보내면 역직렬화에 실패합니다.</p>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>curl<span class="w"> </span>-i<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/api/books<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{ &quot;title&quot;: &quot;제목만&quot;, &quot;price&quot;: null }&#39;</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>HTTP/1.1 400 Bad Request</code></pre></div>
+<p><code>jackson-module-kotlin</code>이 non-null 프로퍼티에 <code>null</code>이 들어온 것을 감지해 거부합니다.</p>
+<h3>415 Unsupported Media Type — Content-Type 누락</h3>
+<p><code>@RequestBody</code>로 JSON을 받는 엔드포인트는 <code>Content-Type: application/json</code> 헤더가 필요합니다. 누락하면 415가 납니다.</p>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># 헤더 없이 POST → 415</span>
+curl<span class="w"> </span>-i<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/api/books<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{ &quot;title&quot;: &quot;헤더 없음&quot; }&#39;</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>HTTP/1.1 415 Unsupported Media Type</code></pre></div>
+<h2>5. DevTools — 코드 수정 시 자동 재시작</h2>
+<p>개발 중 매번 수동 재시작은 번거롭습니다. <strong>Spring Boot DevTools</strong>를 추가하면 클래스가 변경될 때 애플리케이션이 <strong>자동 재시작</strong>됩니다.</p>
+<p><code>build.gradle.kts</code>:</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">developmentOnly</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-devtools&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ul>
+<li><code>developmentOnly</code> 스코프이므로 운영 빌드(JAR)에는 포함되지 않습니다.</li>
+<li>IDE에서 빌드(컴파일)가 일어나면 자동 재시작됩니다. IntelliJ는 <code>Build &gt; Build Project</code>(또는 저장 시 자동 빌드 설정)로 트리거됩니다.</li>
+<li>전체 재시작이 아니라 애플리케이션 클래스로더만 다시 로드하므로, 콜드 스타트보다 훨씬 빠릅니다.</li>
+</ul>
+<blockquote>
+<p><strong>팁</strong>: DevTools 재시작은 <strong>메모리 데이터 초기화</strong>를 의미합니다. 재시작 후에는 등록했던 도서가 사라집니다. 이는 메모리 저장소의 한계이며, Phase 3에서 DB를 붙이면 해결됩니다.</p>
+</blockquote>
+<h2>6. 시작 오류 트러블슈팅</h2>
+<table>
+<thead>
+<tr>
+<th>증상(로그)</th>
+<th>원인</th>
+<th>해결</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Port 8080 was already in use</code></td>
+<td>8080 포트를 다른 프로세스가 사용 중</td>
+<td>기존 프로세스 종료(<code>lsof -i :8080</code> 후 <code>kill</code>) 또는 <code>server.port</code> 변경</td>
+</tr>
+<tr>
+<td><code>Web server failed to start</code></td>
+<td>포트 충돌 또는 빈 생성 실패</td>
+<td>위 포트 확인, 그리고 아래 행들 점검</td>
+</tr>
+<tr>
+<td>404가 계속 발생</td>
+<td>컨트롤러가 컴포넌트 스캔 밖에 위치</td>
+<td>클래스를 <code>com.example.bookapi</code> 하위 패키지로 이동</td>
+</tr>
+<tr>
+<td><code>No qualifying bean of type 'BookService'</code></td>
+<td><code>@Service</code> 누락 또는 패키지 위치 오류</td>
+<td><code>BookService</code>에 <code>@Service</code>가 있는지, 패키지가 진입점 하위인지 확인</td>
+</tr>
+<tr>
+<td><code>LocalDate</code> 직렬화 오류</td>
+<td>JSR-310 모듈 누락</td>
+<td><code>spring-boot-starter-web</code> 의존성 확인(보통 자동 포함)</td>
+</tr>
+<tr>
+<td><code>Cannot construct instance of CreateBookRequest</code></td>
+<td><code>jackson-module-kotlin</code> 누락</td>
+<td>의존성에 <code>jackson-module-kotlin</code> 추가</td>
+</tr>
+<tr>
+<td><code>Whitelabel Error Page</code> 표시</td>
+<td>매핑되지 않은 경로 접근</td>
+<td>URL 경로/메서드 확인 (<code>/api/books</code> 오타 등)</td>
+</tr>
+</tbody>
+</table>
+<p>8080 포트를 점유한 프로세스를 찾고 종료하는 예시(macOS/Linux):</p>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>lsof<span class="w"> </span>-i<span class="w"> </span>:8080<span class="w">        </span><span class="c1"># 점유 프로세스 PID 확인</span>
+<span class="nb">kill</span><span class="w"> </span>-9<span class="w"> </span>&lt;PID&gt;<span class="w">        </span><span class="c1"># 해당 프로세스 종료</span>
+</pre></div>
+</div>
+<h2>7. 이번 단계 정리</h2>
+<p>축하합니다. 동작하는 REST API를 완성했습니다. 이번 Phase에서 익힌 것을 돌아보면,</p>
+<ul>
+<li><code>@SpringBootApplication</code>과 <code>runApplication</code>으로 애플리케이션을 띄우는 구조</li>
+<li><code>data class</code> DTO와 Jackson 기반 JSON 직렬화/역직렬화</li>
+<li><code>@RestController</code>로 5개 CRUD 엔드포인트 구현, <code>ResponseEntity</code>로 상태 코드 제어</li>
+<li><code>@Service</code> + 생성자 주입(DI)으로 비즈니스 로직 분리</li>
+<li>메모리 저장소(<code>ConcurrentHashMap</code>)와 커스텀 예외 처리</li>
+<li><code>bootRun</code> 실행과 <code>curl</code>/HTTPie를 이용한 엔드포인트 검증</li>
+</ul>
+<p>하지만 데이터가 메모리에만 있어 서버를 끄면 사라집니다. 실무에서는 데이터베이스가 필요합니다.</p>
+<h2>다음 단계</h2>
+<p>Phase 3에서는 메모리 저장소를 <strong>JPA</strong>로 교체하여 데이터를 실제 데이터베이스에 영속화합니다. JPA의 핵심 개념부터 시작합니다. <a href="../phase-3-data-jpa/01-jpa-concepts.html">Phase 3 — JPA 개념</a>으로 이동하세요.</p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

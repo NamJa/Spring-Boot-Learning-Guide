@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GraalVM 네이티브 이미지 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="02-docker.html">Docker 컨테이너화</a>
+<a href="03-native-image.html" class="active">GraalVM 네이티브 이미지</a>
+<a href="04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>GraalVM 네이티브 이미지</h1>
+<p>지금까지 만든 산출물은 모두 <strong>JVM 위에서</strong> 실행됩니다. JVM은 강력하지만, 클래스 로딩과 JIT 워밍업 때문에 시작이 느리고 기본 메모리 사용량이 큽니다. 서버리스나 오토스케일링처럼 <strong>빠른 콜드 스타트</strong>와 <strong>낮은 메모리</strong>가 중요한 환경에서는 이 비용이 부담입니다.</p>
+<p><strong>GraalVM 네이티브 이미지</strong>는 이 문제에 대한 답입니다. 애플리케이션을 <strong>AOT(Ahead-Of-Time) 컴파일</strong>해, JVM 없이 OS에서 바로 실행되는 <strong>단일 네이티브 실행 파일</strong>로 만듭니다.</p>
+<h2>AOT / 네이티브 컴파일이란</h2>
+<p>기존 JVM은 바이트코드를 실행 중에 JIT로 기계어로 번역합니다(런타임 컴파일). 반면 네이티브 이미지는 <strong>빌드 시점에 모든 것을 기계어로 컴파일</strong>하고, 도달 가능한 코드만 골라(closed-world 분석) 하나의 실행 파일에 담습니다.</p>
+<figure class="diagram"><pre>[ 전통적 JVM ]
+  jar → JVM 시작 → 클래스 로딩 → JIT 워밍업 → 정상 속도
+  (시작 수 초, 메모리 수백 MB)
+
+[ 네이티브 이미지 ]
+  소스 → AOT 컴파일(빌드 길다) → 단일 실행 파일 → 즉시 풀 스피드
+  (시작 수십 ms, 메모리 수십 MB)</pre></figure>
+<p>Spring Boot는 자체 <strong>AOT 엔진</strong>을 통해 빈 정의, 프록시, 설정을 빌드 시점에 미리 처리해 GraalVM이 분석하기 쉬운 코드를 생성합니다. 그 위에 GraalVM이 네이티브 컴파일을 수행합니다.</p>
+<h3>장점</h3>
+<ul>
+<li><strong>콜드 스타트가 수십 ms</strong> — 함수/컨테이너가 거의 즉시 응답. Cloud Run, AWS Lambda 같은 서버리스에 이상적</li>
+<li><strong>메모리 사용량이 작음</strong> — JVM 메타데이터·JIT 캐시가 없어 RSS가 수십 MB 수준</li>
+<li><strong>단일 실행 파일</strong> — JRE조차 필요 없어 컨테이너 이미지가 매우 작아짐</li>
+</ul>
+<h3>트레이드오프 (단점)</h3>
+<ul>
+<li><strong>빌드가 길다</strong> — AOT 컴파일은 수 분이 걸리고 CPU·메모리를 많이 씀</li>
+<li><strong>closed-world 가정</strong> — 빌드 시점에 도달 가능한 코드만 포함. 런타임에 새 클래스를 동적으로 로드할 수 없음</li>
+<li><strong>리플렉션 설정 필요</strong> — 리플렉션·프록시·리소스 접근은 빌드 시점에 <strong>힌트</strong>로 알려 줘야 함</li>
+<li><strong>피크 스루풋</strong> — 장시간 도는 워크로드에서는 JIT가 최적화한 JVM의 최대 처리량을 따라가지 못할 수 있음</li>
+</ul>
+<h2>프로젝트 설정</h2>
+<p>GraalVM Community <strong>25</strong>를 설치하고, <code>build.gradle.kts</code>에 <strong>Native Build Tools 1.1.1</strong> 플러그인을 추가합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
+<span class="n">plugins</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;jvm&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;plugin.spring&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span>
+<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;org.springframework.boot&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;4.1.0&quot;</span>
+<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;io.spring.dependency-management&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;1.1.7&quot;</span>
+<span class="w">    </span><span class="c1">// GraalVM 네이티브 빌드 도구</span>
+<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;org.graalvm.buildtools.native&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;1.1.1&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Spring Boot 플러그인이 적용되면 AOT 처리(<code>processAot</code>)와 네이티브 컴파일 태스크가 자동 구성됩니다. GraalVM JDK가 활성 JDK인지 확인합니다.</p>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>java<span class="w"> </span>-version
+<span class="c1"># openjdk version &quot;25&quot; ... GraalVM CE 25...</span>
+</pre></div>
+</div>
+<h2>네이티브 이미지 빌드하기</h2>
+<p>두 가지 방법이 있습니다.</p>
+<h3>1) 로컬 네이티브 실행 파일 (<code>nativeCompile</code>)</h3>
+<p>호스트에 직접 실행 파일을 만듭니다.</p>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>./gradlew<span class="w"> </span>nativeCompile
+
+<span class="c1"># 산출물 실행</span>
+./build/native/nativeCompile/book-api
+</pre></div>
+</div>
+<p>시작 로그에서 기동 시간이 초 단위가 아니라 <strong>밀리초 단위</strong>로 찍히는 것을 볼 수 있습니다.</p>
+<h3>2) 네이티브 컨테이너 이미지 (<code>bootBuildImage</code>)</h3>
+<p>별도 GraalVM 설치 없이, Buildpacks가 네이티브 빌드팩으로 네이티브 이미지를 만들어 컨테이너에 담습니다.</p>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>./gradlew<span class="w"> </span>bootBuildImage
+<span class="c1"># (Spring Boot가 네이티브 빌드팩을 자동 선택하도록 구성된 경우)</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>로컬에 GraalVM을 깔기 번거롭다면 <code>bootBuildImage</code> 방식이 편리합니다. 빌드 환경이 컨테이너 안에 격리되므로 CI에서도 재현이 쉽습니다.</p>
+</blockquote>
+<h2>런타임 힌트: 리플렉션과 closed-world</h2>
+<p>대부분의 Spring/Jackson 사용 패턴은 Spring과 GraalVM의 메타데이터로 <strong>자동 처리</strong>됩니다. 하지만 우리가 직접 리플렉션·프록시·리소스에 접근하거나, 힌트가 없는 라이브러리를 쓰면 <strong>명시적 힌트</strong>가 필요합니다.</p>
+<p>가장 흔한 두 가지 방법입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 1) 특정 타입을 직렬화/역직렬화 대상으로 등록 (Jackson 등)</span>
+<span class="nd">@Configuration</span>
+<span class="nd">@RegisterReflectionForBinding</span><span class="p">(</span><span class="n">BookResponse</span><span class="o">::</span><span class="n">class</span><span class="p">,</span><span class="w"> </span><span class="n">CreateBookRequest</span><span class="o">::</span><span class="n">class</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">NativeHintsConfig</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 2) 더 세밀한 제어가 필요하면 RuntimeHintsRegistrar 구현</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookRuntimeHints</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">RuntimeHintsRegistrar</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">registerHints</span><span class="p">(</span><span class="n">hints</span><span class="p">:</span><span class="w"> </span><span class="n">RuntimeHints</span><span class="p">,</span><span class="w"> </span><span class="n">classLoader</span><span class="p">:</span><span class="w"> </span><span class="n">ClassLoader?)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 리플렉션 힌트</span>
+<span class="w">        </span><span class="n">hints</span><span class="p">.</span><span class="na">reflection</span><span class="p">().</span><span class="na">registerType</span><span class="p">(</span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">withMembers</span><span class="p">(</span><span class="o">*</span><span class="n">MemberCategory</span><span class="p">.</span><span class="na">values</span><span class="p">())</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="c1">// 리소스 힌트 (네이티브 이미지에 포함시킬 리소스)</span>
+<span class="w">        </span><span class="n">hints</span><span class="p">.</span><span class="na">resources</span><span class="p">().</span><span class="na">registerPattern</span><span class="p">(</span><span class="s">&quot;db/migration/*.sql&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 등록</span>
+<span class="nd">@Configuration</span>
+<span class="nd">@ImportRuntimeHints</span><span class="p">(</span><span class="n">BookRuntimeHints</span><span class="o">::</span><span class="n">class</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">HintsConfig</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>네이티브에서 <code>ClassNotFoundException</code>이나 <code>Jackson</code>/리플렉션 관련 오류가 난다면 거의 항상 <strong>힌트 누락</strong>이 원인입니다. 동일한 코드가 JVM jar에서는 잘 돌아가더라도 네이티브에서는 closed-world 분석에 걸리지 않은 타입이 빠질 수 있습니다.</p>
+</blockquote>
+<h2>네이티브 테스트 (<code>nativeTest</code>)</h2>
+<p>네이티브 이미지에서만 드러나는 힌트 누락을 잡으려면, 테스트도 네이티브로 돌려 봐야 합니다.</p>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>./gradlew<span class="w"> </span>nativeTest
+</pre></div>
+</div>
+<p>이 태스크는 테스트 스위트를 네이티브로 컴파일해 실행하므로, JVM 테스트는 통과하지만 네이티브에서 깨지는 케이스를 CI에서 조기에 발견할 수 있습니다.</p>
+<h2>언제 네이티브를 쓰지 말아야 하나</h2>
+<p>네이티브는 만능이 아닙니다. 다음 상황에서는 <strong>JVM jar가 더 낫습니다.</strong></p>
+<ul>
+<li><strong>장시간 도는 고스루풋 서비스</strong> — JIT가 충분히 워밍업되면 JVM의 피크 처리량이 더 높음</li>
+<li><strong>빈번한 배포 + 긴 빌드가 부담</strong> — 네이티브 빌드는 수 분이 걸려 개발 피드백 루프를 늦춤</li>
+<li><strong>동적 클래스 로딩·바이트코드 생성에 크게 의존</strong> — closed-world와 충돌</li>
+<li><strong>힌트가 정비되지 않은 외부 라이브러리</strong> 다수 사용</li>
+</ul>
+<p>반대로 <strong>콜드 스타트와 메모리가 비용을 좌우하는</strong> 서버리스(Cloud Run, Lambda), 짧게 떴다 사라지는 배치/CLI에는 네이티브가 강력합니다.</p>
+<h2>JVM jar vs 네이티브 이미지 비교</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>JVM 실행 가능 jar</th>
+<th>네이티브 이미지</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>시작 시간</td>
+<td>1~3초 (워밍업 별도)</td>
+<td>수십 ms</td>
+</tr>
+<tr>
+<td>메모리 사용량</td>
+<td>수백 MB</td>
+<td>수십 MB</td>
+</tr>
+<tr>
+<td>빌드 시간</td>
+<td>빠름 (초 단위)</td>
+<td>느림 (분 단위, CPU 多)</td>
+</tr>
+<tr>
+<td>피크 스루풋</td>
+<td>높음 (JIT 최적화)</td>
+<td>약간 낮을 수 있음</td>
+</tr>
+<tr>
+<td>이미지 크기</td>
+<td>JRE 포함, 큼</td>
+<td>작음 (JRE 불필요)</td>
+</tr>
+<tr>
+<td>동적 기능</td>
+<td>자유로움</td>
+<td>힌트 필요, 제약 있음</td>
+</tr>
+<tr>
+<td>적합한 워크로드</td>
+<td>장시간 고부하 서비스</td>
+<td>서버리스, 콜드 스타트 민감</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>"일단 JVM jar로 배포해 보고, 콜드 스타트나 메모리가 실제 병목으로 측정될 때 네이티브를 검토한다"가 안전한 순서입니다. 측정 없이 네이티브로 직행하면 빌드·힌트 관리 비용만 떠안을 수 있습니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>빌드 산출물(jar·컨테이너·네이티브)을 모두 준비했습니다. 마지막으로 이를 <strong>프로파일별로 실제 운영 환경에 배포</strong>하고, 프로덕션 체크리스트와 운영·트러블슈팅을 정리합니다.</p>
+<p>→ <a href="04-deploy-operations.html">프로파일별 배포 &amp; 운영</a></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

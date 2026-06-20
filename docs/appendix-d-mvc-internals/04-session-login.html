@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>쿠키·세션과 로그인 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="04-session-login.html" class="active">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>쿠키·세션과 로그인</h1>
+<p><a href="03-filter-interceptor.html">3번 문서</a>의 인증 인터셉터에서 <code>session.getAttribute("loginMember")</code>를 사용하며 "세션"을 미뤄 뒀습니다. 이제 그 정체를 밝힙니다. 그런데 그러려면 먼저 한 가지 근본적인 사실부터 짚어야 합니다. <strong>HTTP는 상태가 없다(stateless)</strong> 는 것입니다.</p>
+<h2>1. HTTP의 무상태성 복습</h2>
+<p><a href="../phase-0-spring-fundamentals/00-server-side-intro.html">Phase 0</a>에서 봤듯, HTTP는 <strong>요청-응답이 끝나면 연결을 잊는</strong> 무상태 프로토콜입니다. 서버 입장에서 방금 로그인한 사용자가 보낸 다음 요청과, 처음 보는 사용자의 요청은 <strong>구별할 방법이 없습니다.</strong></p>
+<figure class="diagram"><pre>요청 1: POST /login (id=kim) → 응답: &quot;로그인 성공&quot;   ← 서버: 이 사람 누구지? 기억함
+요청 2: GET  /books            → 응답: ???           ← 서버: ...누구세요?</pre></figure>
+<p>요청 2에 "나 아까 로그인한 kim이야"라는 증거가 없으면 서버는 알 수 없습니다. 이 단절을 메우는 장치가 <strong>쿠키와 세션</strong> 입니다.</p>
+<h2>2. 쿠키 vs 세션</h2>
+<h3>쿠키(Cookie)</h3>
+<p>서버가 응답에 <code>Set-Cookie</code> 헤더를 실어 보내면, 브라우저는 그 값을 저장해 두고 <strong>이후 같은 서버로 가는 모든 요청에 <code>Cookie</code> 헤더로 자동 첨부</strong>합니다. 이렇게 요청 간 연속성이 생깁니다.</p>
+<figure class="diagram"><pre>응답:  Set-Cookie: SESSIONID=abc123
+이후 요청:  Cookie: SESSIONID=abc123   ← 브라우저가 자동으로 붙임</pre></figure>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>쿠키에 사용자 ID나 권한을 <strong>직접</strong> 담으면 안 됩니다. 쿠키는 클라이언트에 저장되므로 사용자가 위·변조할 수 있습니다(<code>Cookie: role=admin</code>으로 바꿔치기). 그래서 의미 없는 <strong>세션 ID만</strong> 쿠키에 담고, 실제 데이터는 서버에 두는 방식 — 세션 — 을 씁니다.</p>
+</blockquote>
+<h3>세션(Session)</h3>
+<p><strong>세션은 서버 메모리(또는 저장소)에 사용자별 데이터를 보관하고, 그 보관함을 가리키는 열쇠(세션 ID)만 쿠키로 주고받는 방식</strong> 입니다.</p>
+<figure class="diagram"><pre>[로그인 시]
+  서버 메모리:  { &quot;abc123&quot; → {loginMember: kim, role: USER} }   ← 실제 데이터는 서버에
+  응답:        Set-Cookie: JSESSIONID=abc123                    ← 열쇠만 클라이언트로
+
+[이후 요청]
+  요청:        Cookie: JSESSIONID=abc123
+  서버:        abc123 → 보관함 조회 → &quot;아, kim이구나&quot;</pre></figure>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>쿠키</th>
+<th>세션</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>저장 위치</td>
+<td>클라이언트(브라우저)</td>
+<td>서버</td>
+</tr>
+<tr>
+<td>보안</td>
+<td>위·변조 가능</td>
+<td>세션 ID만 노출, 데이터는 서버</td>
+</tr>
+<tr>
+<td>용량</td>
+<td>작음(수 KB)</td>
+<td>서버 자원 한도 내</td>
+</tr>
+<tr>
+<td>비고</td>
+<td>세션 동작에 필수(세션 ID 운반)</td>
+<td>내부적으로 쿠키를 사용</td>
+</tr>
+</tbody>
+</table>
+<p>Servlet 스펙에서 세션 ID 쿠키의 이름은 관례적으로 <strong><code>JSESSIONID</code></strong> 입니다. Tomcat이 자동으로 발급·관리합니다.</p>
+<h2>3. HttpSession — 생성·조회·만료</h2>
+<p>Servlet은 세션을 <code>jakarta.servlet.http.HttpSession</code>으로 추상화합니다. 우리는 <code>JSESSIONID</code> 쿠키를 직접 다룰 필요 없이 이 객체만 쓰면 됩니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 생성/조회</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">getSession</span><span class="p">()</span><span class="w">        </span><span class="c1">// 없으면 새로 생성 (기본값 create=true)</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">session2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">getSession</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span><span class="w">  </span><span class="c1">// 있으면 반환, 없으면 null (조회 전용)</span>
+
+<span class="c1">// 저장 / 읽기 / 삭제</span>
+<span class="n">session</span><span class="p">.</span><span class="na">setAttribute</span><span class="p">(</span><span class="s">&quot;loginMember&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">member</span><span class="p">)</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">member</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="na">getAttribute</span><span class="p">(</span><span class="s">&quot;loginMember&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">Member?</span>
+<span class="n">session</span><span class="p">.</span><span class="na">removeAttribute</span><span class="p">(</span><span class="s">&quot;loginMember&quot;</span><span class="p">)</span>
+
+<span class="c1">// 세션 전체 만료 (로그아웃)</span>
+<span class="n">session</span><span class="p">.</span><span class="na">invalidate</span><span class="p">()</span>
+</pre></div>
+</div>
+<ul>
+<li><code>getSession(true)</code>(기본): 세션이 없으면 <strong>새로 만들고</strong> <code>Set-Cookie</code>로 <code>JSESSIONID</code>를 내려보냅니다.</li>
+<li><code>getSession(false)</code>: <strong>조회만</strong> 하고 없으면 <code>null</code> — 인증 체크에서 "로그인 안 했으면 만들지도 말라"는 의도에 적합합니다(<a href="03-filter-interceptor.html">3번 문서</a>의 인터셉터가 이걸 썼습니다).</li>
+</ul>
+<h2>4. 세션 기반 로그인 구현</h2>
+<p>이제 <code>@Controller</code>와 세션, 그리고 <a href="03-filter-interceptor.html">3번 문서</a>의 인터셉터를 합쳐 로그인을 완성합니다. 도서 화면(<code>/books</code>)은 로그인해야 볼 수 있도록 보호합니다.</p>
+<h3>로그인 컨트롤러</h3>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.controller</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.servlet.http.HttpServletRequest</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.stereotype.Controller</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.ui.Model</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.bind.annotation.*</span>
+
+<span class="nd">@Controller</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">LoginController</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">memberService</span><span class="p">:</span><span class="w"> </span><span class="n">MemberService</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="c1">// 로그인 폼</span>
+<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">&quot;/login&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">loginForm</span><span class="p">():</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;login/form&quot;</span><span class="w">   </span><span class="c1">// templates/login/form.html</span>
+
+<span class="w">    </span><span class="c1">// 로그인 처리</span>
+<span class="w">    </span><span class="nd">@PostMapping</span><span class="p">(</span><span class="s">&quot;/login&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">login</span><span class="p">(</span>
+<span class="w">        </span><span class="nd">@RequestParam</span><span class="w"> </span><span class="n">loginId</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">        </span><span class="nd">@RequestParam</span><span class="w"> </span><span class="n">password</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">        </span><span class="nd">@RequestParam</span><span class="p">(</span><span class="n">required</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span><span class="w"> </span><span class="n">redirect</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span>
+<span class="w">        </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">HttpServletRequest</span><span class="p">,</span>
+<span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">member</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">memberService</span><span class="p">.</span><span class="na">authenticate</span><span class="p">(</span><span class="n">loginId</span><span class="p">,</span><span class="w"> </span><span class="n">password</span><span class="p">)</span>
+<span class="w">            </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;redirect:/login?error&quot;</span><span class="w">      </span><span class="c1">// 인증 실패 → 폼으로</span>
+
+<span class="w">        </span><span class="c1">// 인증 성공: 세션을 만들고 회원 정보를 저장</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">getSession</span><span class="p">()</span><span class="w">         </span><span class="c1">// 여기서 JSESSIONID 발급</span>
+<span class="w">        </span><span class="n">session</span><span class="p">.</span><span class="na">setAttribute</span><span class="p">(</span><span class="s">&quot;loginMember&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">member</span><span class="p">)</span>
+
+<span class="w">        </span><span class="c1">// 원래 가려던 곳이 있으면 거기로, 없으면 목록으로 (3번 문서 인터셉터와 연동)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;redirect:</span><span class="si">${</span><span class="n">redirect</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;</span><span class="o">/</span><span class="n">books</span><span class="s">&quot;</span><span class="si">}</span><span class="s">&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 로그아웃</span>
+<span class="w">    </span><span class="nd">@PostMapping</span><span class="p">(</span><span class="s">&quot;/logout&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">logout</span><span class="p">(</span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">HttpServletRequest</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">request</span><span class="p">.</span><span class="na">getSession</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span><span class="o">?.</span><span class="na">invalidate</span><span class="p">()</span><span class="w">    </span><span class="c1">// 세션 폐기 (없으면 무시)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;redirect:/login&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h3>인증 가드 — 인터셉터 재사용</h3>
+<p>로그인 여부 확인은 <a href="03-filter-interceptor.html">3번 문서</a>에서 만든 <code>LoginCheckInterceptor</code>가 그대로 담당합니다. <code>WebMvcConfigurer</code>에서 <code>/books/**</code>에 적용하고 <code>/login</code>·<code>/logout</code>은 제외했던 그 설정입니다. <strong>세션이 없거나 <code>loginMember</code>가 비어 있으면 <code>/login</code>으로 리다이렉트</strong> 됩니다.</p>
+<h3>컨트롤러에서 로그인 사용자 꺼내기</h3>
+<p>매번 <code>session.getAttribute(...)</code>를 캐스팅하는 대신, <code>@SessionAttribute</code>를 쓰면 아규먼트 리졸버(<a href="01-dispatcher-servlet.html">1번 문서</a>)가 세션에서 값을 꺼내 줍니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Controller</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;/books&quot;</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookViewController</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookService</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@GetMapping</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
+<span class="w">        </span><span class="nd">@SessionAttribute</span><span class="p">(</span><span class="s">&quot;loginMember&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">member</span><span class="p">:</span><span class="w"> </span><span class="n">Member</span><span class="p">,</span><span class="w">  </span><span class="c1">// 세션에서 자동 주입</span>
+<span class="w">        </span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="n">Model</span><span class="p">,</span>
+<span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">&quot;loginName&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">member</span><span class="p">.</span><span class="na">name</span><span class="p">)</span><span class="w">      </span><span class="c1">// 화면에 &quot;kim님 환영&quot;</span>
+<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">&quot;books&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">findAll</span><span class="p">())</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;books/list&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h2>5. 세션 설정</h2>
+<p>세션의 수명과 쿠키 보안은 <code>application.yml</code>로 조정합니다(<a href="../phase-1-project-setup/05-application-yml.html">Phase 1-5</a>).</p>
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">server</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">servlet</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">session</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30m</span><span class="w">            </span><span class="c1"># 마지막 요청 후 30분간 활동 없으면 만료 (기본 30분)</span>
+<span class="w">      </span><span class="nt">cookie</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">http-only</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">       </span><span class="c1"># JS의 document.cookie 접근 차단 (XSS 방어)</span>
+<span class="w">        </span><span class="nt">secure</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">          </span><span class="c1"># HTTPS 연결에서만 쿠키 전송 (운영 권장)</span>
+<span class="w">        </span><span class="nt">same-site</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lax</span><span class="w">        </span><span class="c1"># CSRF 완화</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p><code>timeout</code>은 <strong>고정 만료가 아니라 비활동 기준</strong> 입니다. 요청이 올 때마다 30분이 갱신됩니다. <code>http-only</code>·<code>secure</code>·<code>same-site</code>는 세션 탈취 공격을 줄이는 기본 방어선이니 운영에서는 꼭 켜세요.</p>
+<p>[!WARNING]
+세션은 기본적으로 <strong>서버 메모리</strong>에 저장됩니다. 서버를 여러 대로 늘리면(스케일 아웃, <a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Phase 7</a>) A 서버에 만든 세션을 B 서버가 모릅니다. Cloud Run처럼 인스턴스가 늘었다 줄었다 하는 환경에서는 더 심각하죠. 해결책은 <strong>Redis 등 외부 세션 저장소(<code>spring-session-data-redis</code>)</strong> 로 세션을 외부화하거나, 아예 세션을 안 쓰는 <strong>토큰 방식</strong>으로 가는 것입니다.</p>
+</blockquote>
+<h2>6. 세션 방식 vs 토큰(JWT) 방식</h2>
+<p>위 경고가 자연스럽게 다음 질문으로 이어집니다. <strong>상태를 서버에 둘 것인가, 클라이언트에 둘 것인가?</strong></p>
+<figure class="diagram"><pre>[세션 방식 — 상태가 서버에]            [토큰(JWT) 방식 — 상태가 토큰에]
+쿠키(JSESSIONID) → 서버 보관함 조회     Authorization: Bearer &lt;JWT&gt;
+                                       서버는 토큰 서명만 검증, 저장소 불필요</pre></figure>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>세션 방식</th>
+<th>토큰(JWT) 방식</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>상태 저장 위치</td>
+<td>서버(stateful)</td>
+<td>토큰 자체(stateless)</td>
+</tr>
+<tr>
+<td>확장성(스케일 아웃)</td>
+<td>외부 세션 저장소 필요</td>
+<td>서버 간 공유 불필요(유리)</td>
+</tr>
+<tr>
+<td>무효화(로그아웃)</td>
+<td><code>invalidate()</code> 즉시</td>
+<td>어려움(만료까지 유효, 블랙리스트 필요)</td>
+</tr>
+<tr>
+<td>저장/전달</td>
+<td>쿠키(<code>JSESSIONID</code>)</td>
+<td>헤더(<code>Authorization: Bearer</code>) 흔함</td>
+</tr>
+<tr>
+<td>적합한 곳</td>
+<td>전통 SSR 웹, 동일 도메인</td>
+<td>SPA·모바일, 마이크로서비스, 공개 REST API</td>
+</tr>
+<tr>
+<td>본 가이드 연계</td>
+<td>이 부록(SSR)</td>
+<td><a href="../phase-2-first-api/README.html">Phase 2 REST</a> + <a href="../phase-5-production-features/02-security-basics.html">Phase 5 보안</a></td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p><strong>무엇이 더 좋다기보다 맥락의 문제</strong> 입니다. 이 부록의 SSR 도서 화면처럼 브라우저가 쿠키를 자동으로 운반하는 동일 도메인 웹앱은 세션이 자연스럽습니다. 반면 Phase 2처럼 모바일 앱이나 외부 클라이언트가 호출하는 <strong>스테이트리스 REST API</strong> 에서는 매 요청에 토큰을 실어 보내는 방식이 서버 확장에 유리합니다.</p>
+</blockquote>
+<p><strong><a href="../phase-5-production-features/02-security-basics.html">Phase 5-2 · Spring Security 7</a></strong> 는 이 두 방식을 모두 지원합니다. 폼 로그인 + 세션(전통 웹), 또는 <code>SessionCreationPolicy.STATELESS</code>로 세션을 끄고 토큰 기반으로 동작하는 REST 보안 모두 구성할 수 있습니다. 이 부록에서 손으로 만든 인터셉터 인증은 그 내부 원리를 이해하기 위한 학습용이며, 실무에서는 Spring Security의 검증된 필터 체인(<a href="03-filter-interceptor.html">3번 문서 6절</a>)에 맡기는 것이 정석입니다.</p>
+<h2>다음 단계</h2>
+<p>🎉 <strong>축하합니다 — 부록 D를 끝으로 모든 부록을 완주하셨습니다!</strong></p>
+<p>본 가이드 본문에서 REST API로 시작해, 부록 A·B에서 JPA와 Querydsl의 깊은 원리를 파고들었고, 이 부록 D에서는 그동안 비어 있던 <strong>웹 계층의 기초</strong> 를 메웠습니다. 이제 여러분은 다음을 자신 있게 설명할 수 있습니다.</p>
+<ul>
+<li>요청이 <strong>DispatcherServlet → HandlerMapping/Adapter → 컨트롤러 → 컨버터/뷰리졸버</strong> 를 거치는 전체 흐름</li>
+<li><code>@Controller</code>로 <strong>Thymeleaf SSR</strong> 화면과 폼(PRG)을 만드는 법</li>
+<li><strong>필터와 인터셉터</strong> 로 횡단 관심사를 처리하는 위치와 방법</li>
+<li><strong>쿠키·세션 기반 로그인</strong> 과 세션 vs 토큰 방식의 트레이드오프</li>
+</ul>
+<p>여기서 익힌 MVC 내부 동작은 Spring Security, Spring Data, Actuator 등 거의 모든 Spring 웹 기술의 토대입니다. 더 깊이 들어가고 싶다면 공식 레퍼런스를 권합니다.</p>
+<ul>
+<li>🏠 <strong><a href="../index.html">가이드 홈으로 돌아가기</a></strong></li>
+<li>📖 <strong><a href="https://docs.spring.io/spring-framework/reference/web/webmvc.html">Spring Framework — Web MVC 공식 문서</a></strong></li>
+</ul>
+<p>수고하셨습니다. 이제 만들고, 배포하고, 디버깅할 차례입니다. 🚀</p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

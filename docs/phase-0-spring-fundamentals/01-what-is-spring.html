@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spring &amp; Spring Boot 입문 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="01-what-is-spring.html" class="active">Spring &amp; Spring Boot 입문</a>
+<a href="02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>Spring &amp; Spring Boot 입문</h1>
+<p>Spring을 처음 접하면 가장 헷갈리는 것이 <strong>"Spring", "Spring Framework", "Spring Boot"가 같은 말인가 다른 말인가</strong>입니다. 결론부터 말하면 셋은 다릅니다. 이 문서에서는 Spring Framework의 본질, Spring Boot가 그 위에 무엇을 더했는지, 그리고 거대한 Spring 생태계의 전체 지도를 그려 보겠습니다.</p>
+<h2>1. Spring Framework란 무엇인가</h2>
+<p><strong>Spring Framework</strong>는 2003년 Rod Johnson이 당시 무겁고 복잡했던 Java EE(EJB)에 대한 대안으로 만든 <strong>경량 애플리케이션 프레임워크</strong>입니다. 20년이 넘게 진화하며 Java/Kotlin 진영의 사실상 표준이 되었습니다.</p>
+<p>Spring Framework의 핵심은 단 두 가지로 요약할 수 있습니다.</p>
+<h3>1.1 IoC 컨테이너 (Inversion of Control)</h3>
+<p>Spring의 심장입니다. 객체(Spring에서는 <strong>Bean</strong>이라 부릅니다)의 생성과 생명주기, 그리고 객체 간의 의존 관계 연결을 <strong>개발자가 아니라 컨테이너가 대신 관리</strong>합니다. 이것을 <strong>제어의 역전(IoC)</strong> 이라 부르며, 그 구체적 구현 기법이 <strong>의존성 주입(DI, Dependency Injection)</strong> 입니다. (자세한 내용은 <a href="02-ioc-and-di.html">02번 문서</a>에서 다룹니다.)</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 개발자가 직접 만들지 않는다. 컨테이너가 BookRepository를 주입해 준다.</span>
+<span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findById</span><span class="p">(</span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">):</span><span class="w"> </span><span class="n">Book? </span><span class="o">=</span><span class="w"> </span><span class="n">repository</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h3>1.2 AOP (Aspect-Oriented Programming, 관점 지향 프로그래밍)</h3>
+<p>트랜잭션, 로깅, 보안처럼 <strong>여러 곳에 흩어져 반복되는 부가 기능</strong>(횡단 관심사, cross-cutting concern)을 핵심 비즈니스 로직과 분리하는 기법입니다. 예를 들어 <code>@Transactional</code> 한 줄이면, 메서드 시작 시 트랜잭션을 열고 끝나면 커밋/롤백하는 코드를 Spring이 <strong>프록시</strong>를 통해 자동으로 감싸 줍니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nd">@Transactional</span><span class="w"> </span><span class="c1">// 메서드 전후로 트랜잭션 begin/commit이 AOP로 끼워진다</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span><span class="n">book</span><span class="p">:</span><span class="w"> </span><span class="n">Book</span><span class="p">):</span><span class="w"> </span><span class="n">Book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote>
+<p><strong>TIP</strong>: AOP가 "프록시"로 동작한다는 사실은 매우 중요합니다. 같은 클래스 내부 메서드끼리 호출하면 프록시를 거치지 않아 <code>@Transactional</code>이 동작하지 않는 함정이 있습니다. 이건 Phase 후반의 데이터 액세스 편에서 다시 다룹니다.</p>
+</blockquote>
+<p>이 두 핵심 위에 Spring은 웹(MVC), 데이터 접근, 트랜잭션, 메시징 등 <strong>모듈</strong>을 쌓아 올린 거대한 생태계를 형성합니다.</p>
+<h2>2. Spring Boot가 더한 것</h2>
+<p>Spring Framework는 강력하지만, 옛날에는 설정이 <strong>악명 높게 번거로웠습니다</strong>. XML 수백 줄, DispatcherServlet 등록, 뷰 리졸버 설정, 데이터소스 빈 구성... 애플리케이션 코드를 한 줄도 쓰기 전에 설정 지옥을 겪어야 했습니다.</p>
+<p><strong>Spring Boot</strong>(2014년 등장)는 이 문제를 해결하기 위한 <strong>Spring Framework 위의 레이어</strong>입니다. 본 가이드에서 사용하는 <strong>Spring Boot 4.1.0</strong>(2026-06-10 GA)은 <strong>Spring Framework 7</strong> 위에서 동작합니다. Spring Boot가 더하는 핵심 가치는 다음과 같습니다.</p>
+<table>
+<thead>
+<tr>
+<th>기능</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>자동 설정 (Auto-configuration)</strong></td>
+<td>클래스패스에 무엇이 있는지 보고 합리적인 기본 Bean들을 자동 등록. JPA가 있으면 DataSource·EntityManager를 알아서 구성</td>
+</tr>
+<tr>
+<td><strong>스타터 (Starters)</strong></td>
+<td><code>spring-boot-starter-web</code> 한 줄로 웹 개발에 필요한 의존성 묶음을 한꺼번에 가져옴</td>
+</tr>
+<tr>
+<td><strong>내장 서버 (Embedded server)</strong></td>
+<td>Tomcat/Jetty/Netty를 jar 안에 내장. 별도 WAS 설치·배포 없이 <code>java -jar</code>로 실행</td>
+</tr>
+<tr>
+<td><strong>No XML</strong></td>
+<td>모든 설정을 어노테이션과 <code>application.yml</code>로. XML 설정 파일 불필요</td>
+</tr>
+<tr>
+<td><strong>Production-ready</strong></td>
+<td>Actuator로 헬스 체크, 메트릭, 모니터링 엔드포인트를 즉시 제공</td>
+</tr>
+<tr>
+<td><strong>의견이 반영된(opinionated) 기본값</strong></td>
+<td>검증된 버전 조합, 합리적 기본 설정을 BOM(Bill of Materials)으로 제공</td>
+</tr>
+</tbody>
+</table>
+<p>핵심 한 문장: <strong>Spring Boot는 새로운 프레임워크가 아니라, Spring Framework를 "관례에 따라 자동으로 설정해 주는" 도구</strong>입니다.</p>
+<figure class="diagram"><pre>┌─────────────────────────────────────────┐
+│        내 애플리케이션 (BookApi)          │
+├─────────────────────────────────────────┤
+│   Spring Boot 4.1                        │
+│   (자동 설정 · 스타터 · 내장 서버)         │
+├─────────────────────────────────────────┤
+│   Spring Framework 7                     │
+│   (IoC 컨테이너 · AOP · MVC · TX ...)     │
+├─────────────────────────────────────────┤
+│   JVM (JDK 21)                           │
+└─────────────────────────────────────────┘</pre></figure>
+<h3>2.1 Spring Boot 4.1의 주요 신규 기능</h3>
+<p>본 가이드 시점의 Spring Boot 4.1 / Spring Framework 7에서 주목할 변화들입니다. 지금은 "이런 게 있구나" 정도만 알아 두고, 해당 Phase에서 자세히 다룹니다.</p>
+<ul>
+<li><strong>JSpecify 기반 널 안전성 어노테이션</strong> — Kotlin의 nullable 타입과 더 잘 맞물리도록 표준화된 <code>@Nullable</code>/<code>@NonNull</code> 메타데이터를 도입.</li>
+<li><strong>선언적 HTTP 클라이언트</strong> — 인터페이스에 <code>@HttpExchange</code>만 붙이고 <code>RestClient</code> 위에 <code>@ImportHttpServices</code>로 등록하면 구현 없이 HTTP 호출 가능 (Feign과 유사).</li>
+<li><strong>새 스타터</strong> — <code>spring-boot-starter-restclient</code>, <code>spring-boot-starter-webclient</code>로 HTTP 클라이언트 의존성을 명확히 분리.</li>
+<li><strong>회복탄력성(resilience)</strong> — <code>@Retryable</code>(재시도), <code>@ConcurrencyLimit</code>(동시성 제한)을 코어에 내장.</li>
+<li><strong>API 버저닝</strong> — <code>/api/v1</code> 같은 버전 라우팅을 프레임워크 차원에서 지원.</li>
+</ul>
+<h2>3. Spring 생태계 지도</h2>
+<p>"Spring을 배운다"는 것은 Framework 하나가 아니라 그 위의 여러 프로젝트를 함께 익히는 것입니다. 자주 마주칠 주요 프로젝트들입니다.</p>
+<table>
+<thead>
+<tr>
+<th>프로젝트</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Spring Framework</strong></td>
+<td>IoC/AOP/MVC 등 핵심. 모든 것의 기반</td>
+</tr>
+<tr>
+<td><strong>Spring Boot</strong></td>
+<td>자동 설정·스타터로 빠른 부트스트랩</td>
+</tr>
+<tr>
+<td><strong>Spring Data</strong></td>
+<td>JPA/JDBC/MongoDB/Redis 등 데이터 접근 추상화. Repository 인터페이스만 선언하면 구현 생성</td>
+</tr>
+<tr>
+<td><strong>Spring Security</strong></td>
+<td>인증·인가, OAuth2, JWT 등 보안 (본 가이드 기준 7.0)</td>
+</tr>
+<tr>
+<td><strong>Spring Web (MVC)</strong></td>
+<td>서블릿 기반 동기 웹 스택</td>
+</tr>
+<tr>
+<td><strong>Spring WebFlux</strong></td>
+<td>Reactor 기반 리액티브(비동기) 웹 스택</td>
+</tr>
+<tr>
+<td><strong>Spring Cloud</strong></td>
+<td>마이크로서비스(설정 서버, 서비스 디스커버리, 게이트웨이)</td>
+</tr>
+<tr>
+<td><strong>Spring Batch</strong></td>
+<td>대용량 배치 처리</td>
+</tr>
+<tr>
+<td><strong>Spring Integration / Kafka / AMQP</strong></td>
+<td>메시징·이벤트 기반 통합</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>TIP</strong>: 도서 관리 API를 만드는 동안 우리는 <strong>Spring Framework(코어) + Spring Boot + Spring Web(MVC) + Spring Data JPA + Spring Security</strong> 정도를 사용하게 됩니다. 나머지는 존재만 알아 두면 충분합니다.</p>
+</blockquote>
+<h2>4. Spring Boot vs 순수 Spring vs Ktor</h2>
+<p>자매 가이드의 Ktor 경험이 있다면, 세 가지 접근법의 철학 차이를 비교하는 것이 빠른 이해에 도움이 됩니다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>순수 Spring Framework</th>
+<th>Spring Boot</th>
+<th>Ktor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>설정 철학</strong></td>
+<td>모든 것을 명시적으로 직접 설정</td>
+<td>관례 기반 자동 설정</td>
+<td>명시적·미니멀, 필요한 것만 플러그인</td>
+</tr>
+<tr>
+<td><strong>초기 설정 비용</strong></td>
+<td>높음 (XML/Java Config 대량)</td>
+<td>매우 낮음 (스타터 추가만)</td>
+<td>낮음</td>
+</tr>
+<tr>
+<td><strong>서버</strong></td>
+<td>외부 WAS 배포 또는 직접 임베딩</td>
+<td>내장 서버 기본 제공</td>
+<td>내장 엔진(Netty/CIO)</td>
+</tr>
+<tr>
+<td><strong>DI</strong></td>
+<td>Spring IoC 컨테이너 (강력)</td>
+<td>동일 (Spring IoC)</td>
+<td>별도 DI 없음 (Koin 등 외부 사용)</td>
+</tr>
+<tr>
+<td><strong>러닝 커브</strong></td>
+<td>가파름</td>
+<td>완만 (자동화 덕분)</td>
+<td>완만</td>
+</tr>
+<tr>
+<td><strong>"마법" 정도</strong></td>
+<td>적음 (직접 다 씀)</td>
+<td>많음 (자동 설정)</td>
+<td>거의 없음 (명시적)</td>
+</tr>
+<tr>
+<td><strong>생태계 규모</strong></td>
+<td>거대</td>
+<td>거대</td>
+<td>작지만 Kotlin 친화적</td>
+</tr>
+</tbody>
+</table>
+<p>Ktor는 "내가 무엇을 켰는지 코드에 다 보인다"는 투명성이 장점입니다. Spring Boot는 "관례를 따르면 거의 안 짜도 된다"는 생산성이 장점입니다. 본 가이드는 후자의 생산성을 누리되, <strong>그 자동화가 내부에서 무엇을 하는지</strong> 끝까지 설명하는 것을 목표로 합니다.</p>
+<h2>5. 왜 Spring + Kotlin인가</h2>
+<p>Spring은 Java 진영에서 출발했지만, <strong>Kotlin을 1급 언어로 공식 지원</strong>합니다. Spring Boot 4.1은 Kotlin <strong>2.3.21</strong>을 BOM으로 관리합니다. Kotlin과 Spring의 궁합이 좋은 이유는 다음과 같습니다.</p>
+<ul>
+<li><strong>널 안전성</strong> — Kotlin의 <code>?</code> 타입과 Spring 7의 JSpecify 어노테이션이 맞물려, 컴파일 시점에 NPE 위험을 크게 줄입니다.</li>
+<li><strong>간결한 데이터 클래스</strong> — DTO/엔티티를 <code>data class</code> 한 줄로. Lombok이 필요 없습니다.</li>
+<li><strong>생성자 주입과의 궁합</strong> — Kotlin의 주생성자(primary constructor)가 곧 DI 지점이 되어, <code>@Autowired</code> 없이도 깔끔합니다.</li>
+</ul>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@RestController</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookController</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookService</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="p">,</span><span class="w"> </span><span class="c1">// 주생성자 = 생성자 주입, 어노테이션 불필요</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">&quot;/{id}&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getBook</span><span class="p">(</span><span class="nd">@PathVariable</span><span class="w"> </span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">):</span><span class="w"> </span><span class="n">Book? </span><span class="o">=</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ul>
+<li><strong>확장 함수 / DSL</strong> — Spring은 Kotlin 전용 확장(예: <code>beans { }</code> DSL, <code>runApplication</code>, MockMvc Kotlin DSL)을 제공해 Java보다 더 자연스러운 코드를 쓸 수 있습니다.</li>
+</ul>
+<blockquote>
+<p><strong>WARNING</strong>: Kotlin 클래스는 기본이 <code>final</code>입니다. Spring AOP(프록시)는 클래스를 상속해 동작하므로, <code>@Configuration</code>이나 <code>@Transactional</code>이 붙는 클래스에는 <code>kotlin-spring</code> 컴파일러 플러그인이 자동으로 <code>open</code>을 붙여 줍니다. Spring Boot 프로젝트를 생성하면 이 플러그인이 기본 포함되니 걱정하지 않아도 됩니다. (Phase 1에서 다룹니다.)</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>➡️ <a href="02-ioc-and-di.html">02. IoC 컨테이너와 의존성 주입</a> — Spring의 심장인 제어의 역전과 DI가 실제 Kotlin 코드에서 어떻게 동작하는지 깊이 들어갑니다.</p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

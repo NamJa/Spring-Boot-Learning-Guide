@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>서블릿 필터와 스프링 인터셉터 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="03-filter-interceptor.html" class="active">필터와 인터셉터</a>
+<a href="04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>서블릿 필터와 스프링 인터셉터</h1>
+<p>요청 로깅, 인증 확인, 요청마다 추적 ID 부여… 이런 작업은 특정 컨트롤러 하나의 일이 아니라 <strong>수많은 요청에 공통으로 적용되는 횡단 관심사(cross-cutting concern)</strong> 입니다. 컨트롤러마다 같은 코드를 복붙할 수는 없죠. Spring MVC에는 이를 위한 두 장치가 있습니다. <strong>서블릿 필터(Filter)</strong> 와 <strong>스프링 인터셉터(HandlerInterceptor)</strong> 입니다.</p>
+<p>둘은 비슷해 보이지만 <strong>동작하는 위치가 다릅니다.</strong> 이 차이가 둘의 용도를 가릅니다.</p>
+<h2>1. 실행 위치 — 필터 vs 인터셉터</h2>
+<p><a href="01-dispatcher-servlet.html">1번 문서</a>에서 본 구조를 떠올려 보세요. 요청은 <strong>서블릿 컨테이너(Tomcat) → DispatcherServlet → 컨트롤러</strong> 순으로 흐릅니다. 필터와 인터셉터는 이 흐름의 <strong>서로 다른 지점</strong>에 끼어듭니다.</p>
+<figure class="diagram"><pre>                          서블릿 컨테이너 (Tomcat) 영역
+  ┌───────────────────────────────────────────────────────────────────┐
+  │                                                                     │
+  │   [필터 A] → [필터 B] →  ┌──── DispatcherServlet (스프링 영역) ────┐ │
+  │   (Filter)              │                                         │ │
+  │                         │  [인터셉터 preHandle]                    │ │
+  │                         │       ↓                                 │ │
+  │                         │  [Controller 실행]                       │ │
+  │                         │       ↓                                 │ │
+  │                         │  [인터셉터 postHandle]                   │ │
+  │                         │       ↓ (뷰 렌더링)                       │ │
+  │                         │  [인터셉터 afterCompletion]              │ │
+  │   [필터 A] ← [필터 B] ←  └─────────────────────────────────────────┘ │
+  │                                                                     │
+  └───────────────────────────────────────────────────────────────────┘
+   요청 ─►                                                       ─► 응답</pre></figure>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>서블릿 필터 (Filter)</th>
+<th>스프링 인터셉터 (HandlerInterceptor)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>소속</td>
+<td><strong>서블릿 컨테이너</strong>(Tomcat)</td>
+<td><strong>Spring MVC</strong>(DispatcherServlet 내부)</td>
+</tr>
+<tr>
+<td>실행 시점</td>
+<td>DispatcherServlet <strong>이전/이후</strong></td>
+<td>DispatcherServlet <strong>이후</strong>, 컨트롤러 <strong>전후</strong></td>
+</tr>
+<tr>
+<td>스펙</td>
+<td><code>jakarta.servlet.Filter</code></td>
+<td><code>org.springframework.web.servlet.HandlerInterceptor</code></td>
+</tr>
+<tr>
+<td>어떤 핸들러가 매핑됐는지</td>
+<td>모름 (서블릿 도달 전)</td>
+<td>앎 (<code>handler</code> 객체를 받음)</td>
+</tr>
+<tr>
+<td>등록 방법</td>
+<td><code>FilterRegistrationBean</code></td>
+<td><code>WebMvcConfigurer</code></td>
+</tr>
+<tr>
+<td>주 용도</td>
+<td>인코딩, 요청 로깅, 보안(아주 넓은 범위)</td>
+<td>인증/인가, 요청별 컨텍스트, 핸들러 의존 로직</td>
+</tr>
+</tbody>
+</table>
+<p>핵심 직관: <strong>필터는 "스프링 바깥에서 모든 요청을 거르는 그물"</strong> 이고, <strong>인터셉터는 "스프링 안에서 컨트롤러를 감싸는 래퍼"</strong> 입니다. 인터셉터는 DispatcherServlet 안에서 동작하므로 어떤 핸들러가 호출될지 알고, <code>Model</code>과 뷰 렌더링 사이에도 끼어들 수 있습니다. 필터는 그보다 바깥이라 더 일찍/넓게 작동하지만 스프링의 내부 정보는 모릅니다.</p>
+<h2>2. 서블릿 필터 — 요청 로깅 예제</h2>
+<p>필터는 <code>jakarta.servlet.Filter</code> 인터페이스를 구현합니다. 핵심은 <code>doFilter</code> 안에서 <strong><code>chain.doFilter(...)</code>를 호출하기 전이 "요청 진입 시점", 호출한 후가 "응답 반환 시점"</strong> 이라는 점입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.config</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.servlet.*</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.servlet.http.HttpServletRequest</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.slf4j.LoggerFactory</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">RequestLoggingFilter</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Filter</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">log</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LoggerFactory</span><span class="p">.</span><span class="na">getLogger</span><span class="p">(</span><span class="n">javaClass</span><span class="p">)</span>
+
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">doFilter</span><span class="p">(</span>
+<span class="w">        </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">ServletRequest</span><span class="p">,</span>
+<span class="w">        </span><span class="n">response</span><span class="p">:</span><span class="w"> </span><span class="n">ServletResponse</span><span class="p">,</span>
+<span class="w">        </span><span class="n">chain</span><span class="p">:</span><span class="w"> </span><span class="n">FilterChain</span><span class="p">,</span><span class="w">           </span><span class="c1">// 다음 필터(또는 서블릿)로 넘기는 통로</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">req</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">HttpServletRequest</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span>
+<span class="w">        </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;[REQ] {} {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">req</span><span class="p">.</span><span class="na">method</span><span class="p">,</span><span class="w"> </span><span class="n">req</span><span class="p">.</span><span class="na">requestURI</span><span class="p">)</span><span class="w">   </span><span class="c1">// 진입 시점</span>
+
+<span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">chain</span><span class="p">.</span><span class="na">doFilter</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">)</span><span class="w">   </span><span class="c1">// ← 다음 단계로 진행 (필수!)</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">took</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span>
+<span class="w">            </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;[RES] {} {} ({}ms)&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">req</span><span class="p">.</span><span class="na">method</span><span class="p">,</span><span class="w"> </span><span class="n">req</span><span class="p">.</span><span class="na">requestURI</span><span class="p">,</span><span class="w"> </span><span class="n">took</span><span class="p">)</span><span class="w">  </span><span class="c1">// 반환 시점</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p><code>chain.doFilter(...)</code>를 호출하지 않으면 <strong>요청이 다음 단계로 전달되지 않고 거기서 끝납니다.</strong> 인증 실패 시 차단하는 용도로는 의도적으로 쓰지만, 무심코 빠뜨리면 모든 요청이 멈춥니다.</p>
+</blockquote>
+<h3>FilterRegistrationBean으로 등록</h3>
+<p>Spring Boot에서 필터를 등록하는 권장 방법은 <strong><code>FilterRegistrationBean</code></strong> 을 빈으로 노출하는 것입니다. URL 패턴과 순서를 명시적으로 제어할 수 있습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.boot.web.servlet.FilterRegistrationBean</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Bean</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Configuration</span>
+
+<span class="nd">@Configuration</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">FilterConfig</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">requestLoggingFilter</span><span class="p">():</span><span class="w"> </span><span class="n">FilterRegistrationBean</span><span class="o">&lt;</span><span class="n">RequestLoggingFilter</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="n">FilterRegistrationBean</span><span class="p">(</span><span class="n">RequestLoggingFilter</span><span class="p">()).</span><span class="na">apply</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">addUrlPatterns</span><span class="p">(</span><span class="s">&quot;/*&quot;</span><span class="p">)</span><span class="w">      </span><span class="c1">// 적용 URL 패턴</span>
+<span class="w">            </span><span class="n">order</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="w">                 </span><span class="c1">// 여러 필터 간 실행 순서(작을수록 먼저)</span>
+<span class="w">            </span><span class="n">setName</span><span class="p">(</span><span class="s">&quot;requestLoggingFilter&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>간단한 경우 필터 클래스에 <code>@Component</code>만 붙여도 자동 등록되지만, <strong>URL 패턴 제한이나 순서 제어가 필요하면 <code>FilterRegistrationBean</code>을 쓰세요.</strong> <code>@Component</code>로 등록한 필터는 기본적으로 모든 요청(<code>/*</code>)에 적용됩니다.</p>
+</blockquote>
+<h2>3. 스프링 인터셉터 — HandlerInterceptor</h2>
+<p>인터셉터는 <code>HandlerInterceptor</code> 인터페이스의 세 메서드로 컨트롤러 호출 전후에 개입합니다.</p>
+<table>
+<thead>
+<tr>
+<th>메서드</th>
+<th>호출 시점</th>
+<th>반환/특징</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>preHandle</code></td>
+<td>컨트롤러 호출 <strong>직전</strong></td>
+<td><code>false</code> 반환 시 <strong>요청 중단</strong>(컨트롤러 미실행)</td>
+</tr>
+<tr>
+<td><code>postHandle</code></td>
+<td>컨트롤러 실행 <strong>후, 뷰 렌더링 전</strong></td>
+<td><code>ModelAndView</code> 조작 가능. 예외 발생 시 호출 안 됨</td>
+</tr>
+<tr>
+<td><code>afterCompletion</code></td>
+<td>뷰 렌더링까지 <strong>완료 후</strong></td>
+<td>예외가 나도 항상 호출 → 리소스 정리/로깅에 적합</td>
+</tr>
+</tbody>
+</table>
+<h3>예제 — 요청 ID 부여 + 처리 시간 측정</h3>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.config</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.servlet.http.HttpServletRequest</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.servlet.http.HttpServletResponse</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.slf4j.LoggerFactory</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.servlet.HandlerInterceptor</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.servlet.ModelAndView</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">java.util.UUID</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">RequestContextInterceptor</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">HandlerInterceptor</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">log</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LoggerFactory</span><span class="p">.</span><span class="na">getLogger</span><span class="p">(</span><span class="n">javaClass</span><span class="p">)</span>
+
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">preHandle</span><span class="p">(</span>
+<span class="w">        </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">HttpServletRequest</span><span class="p">,</span>
+<span class="w">        </span><span class="n">response</span><span class="p">:</span><span class="w"> </span><span class="n">HttpServletResponse</span><span class="p">,</span>
+<span class="w">        </span><span class="n">handler</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w">            </span><span class="c1">// ★ 어떤 핸들러가 실행될지 안다 (필터와의 차이!)</span>
+<span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">requestId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">UUID</span><span class="p">.</span><span class="na">randomUUID</span><span class="p">().</span><span class="na">toString</span><span class="p">().</span><span class="na">take</span><span class="p">(</span><span class="m">8</span><span class="p">)</span>
+<span class="w">        </span><span class="n">request</span><span class="p">.</span><span class="na">setAttribute</span><span class="p">(</span><span class="s">&quot;requestId&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">requestId</span><span class="p">)</span>
+<span class="w">        </span><span class="n">request</span><span class="p">.</span><span class="na">setAttribute</span><span class="p">(</span><span class="s">&quot;startTime&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">())</span>
+<span class="w">        </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;[{}] preHandle → {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">requestId</span><span class="p">,</span><span class="w"> </span><span class="n">handler</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="w">              </span><span class="c1">// false면 여기서 중단 (인증 거부 등에 활용)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">postHandle</span><span class="p">(</span>
+<span class="w">        </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">HttpServletRequest</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">:</span><span class="w"> </span><span class="n">HttpServletResponse</span><span class="p">,</span>
+<span class="w">        </span><span class="n">handler</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">modelAndView</span><span class="p">:</span><span class="w"> </span><span class="n">ModelAndView?,</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">requestId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">getAttribute</span><span class="p">(</span><span class="s">&quot;requestId&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;[{}] postHandle (뷰 렌더링 직전)&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">requestId</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">afterCompletion</span><span class="p">(</span>
+<span class="w">        </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">HttpServletRequest</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">:</span><span class="w"> </span><span class="n">HttpServletResponse</span><span class="p">,</span>
+<span class="w">        </span><span class="n">handler</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">,</span><span class="w"> </span><span class="n">ex</span><span class="p">:</span><span class="w"> </span><span class="n">Exception?,</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">requestId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">getAttribute</span><span class="p">(</span><span class="s">&quot;requestId&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">took</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="na">getAttribute</span><span class="p">(</span><span class="s">&quot;startTime&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="kt">Long</span><span class="p">)</span>
+<span class="w">        </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;[{}] afterCompletion ({}ms){}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">requestId</span><span class="p">,</span><span class="w"> </span><span class="n">took</span><span class="p">,</span>
+<span class="w">            </span><span class="n">ex</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot; ex=</span><span class="si">${</span><span class="nb">it</span><span class="p">.</span><span class="na">message</span><span class="si">}</span><span class="s">&quot;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h3>인증 체크 인터셉터 예제</h3>
+<p><code>preHandle</code>이 <code>false</code>를 반환하면 컨트롤러가 실행되지 않는 점을 이용해, 간단한 인증 가드를 만들 수 있습니다(<a href="04-session-login.html">4번 문서</a>의 세션 로그인에서 다시 등장합니다).</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">class</span><span class="w"> </span><span class="nc">LoginCheckInterceptor</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">HandlerInterceptor</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">preHandle</span><span class="p">(</span><span class="n">req</span><span class="p">:</span><span class="w"> </span><span class="n">HttpServletRequest</span><span class="p">,</span><span class="w"> </span><span class="n">res</span><span class="p">:</span><span class="w"> </span><span class="n">HttpServletResponse</span><span class="p">,</span><span class="w"> </span><span class="n">handler</span><span class="p">:</span><span class="w"> </span><span class="kt">Any</span><span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">req</span><span class="p">.</span><span class="na">getSession</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span><span class="w">          </span><span class="c1">// 기존 세션만 조회(없으면 null)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">session</span><span class="o">?.</span><span class="na">getAttribute</span><span class="p">(</span><span class="s">&quot;loginMember&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">res</span><span class="p">.</span><span class="na">sendRedirect</span><span class="p">(</span><span class="s">&quot;/login?redirect=</span><span class="si">${</span><span class="n">req</span><span class="p">.</span><span class="na">requestURI</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span><span class="w">  </span><span class="c1">// 로그인 페이지로</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="w">                              </span><span class="c1">// 요청 중단</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h2>4. WebMvcConfigurer로 인터셉터 등록</h2>
+<p>인터셉터는 필터와 달리 <strong><code>WebMvcConfigurer</code>의 <code>addInterceptors</code></strong> 로 등록합니다. 여기서 적용 경로(<code>addPathPatterns</code>)와 제외 경로(<code>excludePathPatterns</code>), 그리고 등록 순서를 지정합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Configuration</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.servlet.config.annotation.InterceptorRegistry</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.servlet.config.annotation.WebMvcConfigurer</span>
+
+<span class="nd">@Configuration</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">WebMvcConfig</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">WebMvcConfigurer</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">addInterceptors</span><span class="p">(</span><span class="n">registry</span><span class="p">:</span><span class="w"> </span><span class="n">InterceptorRegistry</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 모든 요청에 공통 컨텍스트 인터셉터</span>
+<span class="w">        </span><span class="n">registry</span><span class="p">.</span><span class="na">addInterceptor</span><span class="p">(</span><span class="n">RequestContextInterceptor</span><span class="p">())</span>
+<span class="w">            </span><span class="p">.</span><span class="na">order</span><span class="p">(</span><span class="m">1</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">addPathPatterns</span><span class="p">(</span><span class="s">&quot;/**&quot;</span><span class="p">)</span>
+
+<span class="w">        </span><span class="c1">// 로그인 체크: /books/** 에만 적용, 단 로그인/정적/조회 화면은 제외</span>
+<span class="w">        </span><span class="n">registry</span><span class="p">.</span><span class="na">addInterceptor</span><span class="p">(</span><span class="n">LoginCheckInterceptor</span><span class="p">())</span>
+<span class="w">            </span><span class="p">.</span><span class="na">order</span><span class="p">(</span><span class="m">2</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">addPathPatterns</span><span class="p">(</span><span class="s">&quot;/books/**&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">excludePathPatterns</span><span class="p">(</span><span class="s">&quot;/login&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/logout&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/css/**&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/*.ico&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/error&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>인터셉터의 경로 패턴(<code>/**</code>, <code>/books/**</code>)은 <strong>필터의 URL 패턴보다 훨씬 유연</strong>합니다. 특정 컨트롤러군에만, 혹은 일부 경로를 제외하고 적용하는 세밀한 제어가 인터셉터를 인증/인가에 즐겨 쓰는 이유입니다. 필터는 서블릿 도달 전이라 "어떤 핸들러인지"를 모르므로 이런 제어가 어렵습니다.</p>
+</blockquote>
+<h2>5. 적용 순서 정리</h2>
+<p>요청 하나가 들어왔을 때 전체 실행 순서를 정리하면 다음과 같습니다.</p>
+<figure class="diagram"><pre>요청
+ → [필터들]  order 작은 순서로 doFilter 진입
+   → DispatcherServlet
+     → [인터셉터들] preHandle  order 작은 순서로
+       → Controller
+     ← [인터셉터들] postHandle  (역순)
+       → 뷰 렌더링
+     ← [인터셉터들] afterCompletion (역순)
+   ← DispatcherServlet
+ ← [필터들]  doFilter 빠져나옴 (진입 역순)
+응답</pre></figure>
+<ul>
+<li><strong>필터끼리</strong>는 <code>order</code> 값이 작을수록 먼저 진입하고, 응답 시엔 역순으로 빠져나옵니다(스택 구조).</li>
+<li><strong>인터셉터끼리</strong>는 등록/<code>order</code> 순서대로 <code>preHandle</code>, 그 역순으로 <code>postHandle</code>·<code>afterCompletion</code>이 호출됩니다.</li>
+<li>전체로 보면 <strong>필터가 인터셉터를 바깥에서 감쌉니다.</strong></li>
+</ul>
+<h2>6. Phase 5 보안과의 관계</h2>
+<p><strong><a href="../phase-5-production-features/02-security-basics.html">Phase 5-2 · Spring Security 7</a></strong> 의 인증/인가는 사실상 <strong>거대한 서블릿 필터 체인(<code>FilterChainProxy</code>)</strong> 으로 구현되어 있습니다 — 즉 이 문서에서 배운 "필터"가 Security의 동작 원리 그 자체입니다. 따라서 직접 만드는 인증 인터셉터는 학습·소규모용으로 충분하지만, 실제 운영 인증/인가는 Spring Security에 맡기는 것이 정석입니다.</p>
+<h2>다음 단계</h2>
+<p>인증 인터셉터에서 <code>session.getAttribute("loginMember")</code>를 슬쩍 사용했는데, <strong>그 "세션"이 정확히 무엇인지</strong> 는 아직 설명하지 않았습니다. 다음 문서에서 HTTP의 무상태성부터 시작해 쿠키와 세션, 그리고 세션 기반 로그인을 완성하고, 세션 방식과 토큰(JWT) 방식을 비교합니다.</p>
+<p>➡️ <strong><a href="04-session-login.html">4. 쿠키·세션과 로그인</a></strong></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

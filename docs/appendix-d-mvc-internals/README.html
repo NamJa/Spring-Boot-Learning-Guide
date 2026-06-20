@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>부록 D · Spring MVC 내부와 서버 사이드 렌더링 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>부록 D · Spring MVC 내부와 서버 사이드 렌더링</h1>
+<p>이 가이드의 본문(Phase 0~7)은 처음부터 끝까지 <strong>REST API</strong>에 집중했습니다. <code>@RestController</code>로 JSON을 주고받고, 그것을 JPA로 영속화하고, 클라우드에 배포하는 흐름이었죠. 실용적인 선택이었지만, 그 과정에서 의도적으로 건너뛴 것이 있습니다. 바로 <strong>Spring MVC가 요청을 어떻게 처리하는지에 대한 내부 동작</strong>과, 서버가 직접 HTML을 그려서 내려주는 <strong>서버 사이드 렌더링(SSR, Server-Side Rendering)</strong> 입니다.</p>
+<p>REST만 다루면 <code>@GetMapping</code>을 붙인 메서드가 "마법처럼" JSON을 반환하는 것처럼 보입니다. 하지만 그 마법의 정체 — <strong>DispatcherServlet</strong>, HandlerMapping, HttpMessageConverter, 아규먼트 리졸버 — 를 알지 못하면, 조금만 비표준적인 요구사항을 만나도 막힙니다. 또한 관리자 페이지, 사내 도구, 간단한 웹사이트처럼 <strong>브라우저에 완성된 화면을 내려주는</strong> 전통적인 웹 애플리케이션은 여전히 널리 쓰입니다.</p>
+<p>이 부록은 김영한 님의 <em>"스프링 MVC 1편 / 2편"</em> 에서 다루는 핵심 — 서블릿, MVC 내부 구조, SSR, 필터/인터셉터, 세션/로그인 — 을 Kotlin과 Spring Boot 4.1 맥락으로 재구성했습니다. <strong>본문이 REST-only였기 때문에 비어 있던 "웹 계층의 기초"를 메우는 것</strong>이 목표입니다.</p>
+<h2>1. 이 부록이 다루는 것</h2>
+<p>본문이 "REST API를 만드는 법"이었다면, 이 부록은 <strong>"Spring MVC가 동작하는 원리"</strong> 와 <strong>"HTML을 직접 그리는 법"</strong> 입니다. 본문에서 쓰던 도서 API(<code>com.example.bookapi</code>)를 그대로 이어받되, JSON을 내려주던 <code>/api/books</code>와 별개로 <strong>HTML 화면을 내려주는 <code>/books</code></strong> 를 새로 추가하며 진행합니다.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>문서</th>
+<th>핵심 주제</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><a href="01-dispatcher-servlet.html">DispatcherServlet과 요청 처리 흐름</a></td>
+<td>서블릿/Tomcat, DispatcherServlet, HandlerMapping/Adapter, HttpMessageConverter, 아규먼트 리졸버</td>
+</tr>
+<tr>
+<td>2</td>
+<td><a href="02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a></td>
+<td>SSR vs REST, <code>starter-thymeleaf</code> 자동설정, <code>Model</code>, 타임리프 문법, 폼 처리와 PRG</td>
+</tr>
+<tr>
+<td>3</td>
+<td><a href="03-filter-interceptor.html">서블릿 필터와 스프링 인터셉터</a></td>
+<td>필터 vs 인터셉터, <code>FilterRegistrationBean</code>, <code>HandlerInterceptor</code>, <code>WebMvcConfigurer</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td><a href="04-session-login.html">쿠키·세션과 로그인</a></td>
+<td>HTTP 무상태성, 쿠키 vs 세션, <code>HttpSession</code>, 세션 로그인, 세션 vs JWT 비교</td>
+</tr>
+</tbody>
+</table>
+<h2>2. 선수 지식</h2>
+<p>이 부록은 본 가이드의 <strong>Phase 0~5</strong> 를 어느 정도 따라왔다고 가정합니다. 구체적으로 다음을 알고 있어야 합니다.</p>
+<ul>
+<li><strong><a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Phase 0-05 · Spring MVC vs WebFlux</a></strong> — 이 부록은 그중 <strong>MVC(서블릿 스택)</strong> 만 깊게 파고듭니다. WebFlux는 다루지 않습니다.</li>
+<li><strong><a href="../phase-2-first-api/README.html">Phase 2 · 첫 번째 REST API</a></strong> — <code>@RestController</code>, <code>@RequestMapping</code>, DTO와 JSON 직렬화의 기초.</li>
+<li><strong><a href="../phase-4-validation-config/README.html">Phase 4 · 검증 · 예외</a></strong> — Bean Validation과 전역 예외 처리. SSR 폼 검증에서 다시 등장합니다.</li>
+<li><strong><a href="../phase-5-production-features/02-security-basics.html">Phase 5 · Spring Security 7 기초</a></strong> — 필터 체인과 인증. 이 부록의 필터/세션 내용이 그 기반을 설명합니다.</li>
+</ul>
+<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p>이 부록의 SSR 페이지는 본문의 <code>/api/books</code> JSON API와 <strong>공존</strong>합니다. 같은 애플리케이션 안에서 <code>@RestController</code>(JSON)와 <code>@Controller</code>(HTML)가 나란히 동작하는 구조를 직접 보게 됩니다. 둘이 충돌하지 않도록, JSON은 <code>/api/books</code>, 화면은 <code>/books</code>로 URL을 분리합니다.</p>
+</blockquote>
+<h2>3. 기준 스택</h2>
+<p>이 부록의 모든 코드는 다음 버전에서 검증되었습니다(2026-06-20 기준).</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>버전</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spring Boot</td>
+<td>4.1.0</td>
+</tr>
+<tr>
+<td>Spring Framework</td>
+<td>7.0.8+</td>
+</tr>
+<tr>
+<td>Kotlin</td>
+<td>2.3.21</td>
+</tr>
+<tr>
+<td>JDK</td>
+<td>21</td>
+</tr>
+<tr>
+<td>Tomcat (내장)</td>
+<td>11.0.x (Servlet 6.1)</td>
+</tr>
+<tr>
+<td>Thymeleaf</td>
+<td>3.1.5 (<code>spring-boot-starter-thymeleaf</code>)</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>화면 템플릿 기술로 <strong>JSP는 다루지 않습니다.</strong> JSP는 실행 가능한 jar(<a href="../phase-6-build-deploy/01-executable-jar.html">Phase 6-1</a>)와 궁합이 나쁘고(내장 Tomcat에서 제약이 많음), 현대 Spring SSR에서는 권장되지 않는 레거시입니다. 이 부록은 그 대안이자 사실상 표준인 <strong>Thymeleaf</strong>를 사용합니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>➡️ <strong><a href="01-dispatcher-servlet.html">1. DispatcherServlet과 요청 처리 흐름</a></strong> — <code>@GetMapping</code> 메서드 하나가 호출되기까지, 요청이 거치는 모든 단계를 해부합니다.</p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 7: Google Cloud &amp; Cloud Run 배포 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="03-source-deploy.html">소스에서 직접 배포</a>
+<a href="04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>Phase 7: Google Cloud &amp; Cloud Run 배포</h1>
+<p>Phase 6에서 우리는 Spring Boot 애플리케이션을 <strong>실행 가능한 JAR</strong>, <strong>Docker 이미지</strong>, 그리고 <strong>GraalVM 네이티브 이미지</strong>로 패키징하는 법을 배웠습니다. 이제 그 산출물을 <strong>실제로 인터넷에 올려</strong> 누구나 접근할 수 있는 서비스로 만들 차례입니다.</p>
+<h2>왜 매니지드/서버리스 플랫폼인가?</h2>
+<p>직접 서버를 운영하려면 생각보다 할 일이 많습니다.</p>
+<ul>
+<li>리눅스 VM을 빌리고 OS를 설치·패치하고 방화벽을 설정한다.</li>
+<li>JDK를 깔고, JAR을 올리고, <code>systemd</code> 서비스로 등록한다.</li>
+<li>HTTPS 인증서(Let's Encrypt 등)를 발급하고 90일마다 갱신한다.</li>
+<li>트래픽이 몰리면 서버를 늘리고(스케일 아웃), 한가하면 줄여야 한다.</li>
+<li>24시간 켜둔 서버 비용을 트래픽이 없는 새벽에도 그대로 낸다.</li>
+</ul>
+<p><strong>서버리스(serverless)</strong> 플랫폼은 이 모든 일을 플랫폼이 대신 해 줍니다. 여러분은 "이 컨테이너를 실행해 줘"라고 말하기만 하면, 나머지(HTTPS, 오토스케일링, 로드밸런싱, 인프라 패치)는 클라우드가 책임집니다. 트래픽이 없으면 인스턴스를 <strong>0개로 줄여</strong> 비용도 0에 수렴합니다.</p>
+<h2>Cloud Run 한 줄 요약</h2>
+<blockquote>
+<p><strong>Cloud Run</strong>은 "컨테이너 이미지를 던져주면 구글이 알아서 실행하고, HTTPS URL을 붙이고, 요청량에 따라 0에서 N개까지 자동으로 늘렸다 줄였다 하고, 쓴 만큼만 과금하는" 컨테이너 기반 서버리스 플랫폼입니다.</p>
+</blockquote>
+<p>Spring Boot 팀과 Google 양쪽 모두 Cloud Run 배포를 공식 문서로 안내할 만큼, JVM 웹 애플리케이션의 배포처로 잘 검증되어 있습니다.</p>
+<h2>이 Phase에서 배우는 것</h2>
+<table>
+<thead>
+<tr>
+<th>페이지</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="01-cloud-run-concepts.html">1. Cloud Run 핵심 개념</a></td>
+<td>서비스/리비전/인스턴스/동시성/콜드 스타트, 제약 조건, 무료 티어, 다른 컴퓨팅 옵션과의 비교</td>
+</tr>
+<tr>
+<td><a href="02-gcloud-setup.html">2. gcloud CLI 설치와 프로젝트 설정</a></td>
+<td>gcloud 설치, 프로젝트 생성, 결제 연결, 예산 알림, API 활성화</td>
+</tr>
+<tr>
+<td><a href="03-source-deploy.html">3. 소스에서 직접 배포</a></td>
+<td><code>gcloud run deploy --source .</code> 한 방으로 배포하는 가장 쉬운 길</td>
+</tr>
+<tr>
+<td><a href="04-image-deploy.html">4. 컨테이너 이미지 빌드 후 배포</a></td>
+<td>이미지를 직접 빌드해 Artifact Registry에 올리고 배포</td>
+</tr>
+<tr>
+<td><a href="05-cicd-operations.html">5. CI/CD와 운영</a></td>
+<td>GitHub Actions 자동 배포, Secret Manager, Cloud SQL, 프로브, 로그·모니터링</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>선수 지식</strong>: 이 Phase는 <a href="../phase-6-build-deploy/README.html">Phase 6</a>에서 만든 JAR/Docker/네이티브 이미지 산출물 위에서 진행됩니다. 또한 <a href="../phase-5-production-features/README.html">Phase 5</a>의 Actuator 헬스 체크, <a href="../phase-3-data-jpa/README.html">Phase 3</a>의 JPA prod 프로파일 설정을 활용합니다. 아직 보지 않았다면 먼저 훑어보길 권합니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>이제 Cloud Run이 무엇인지, 어떤 개념들로 이루어져 있는지부터 차근차근 살펴봅시다.</p>
+<p>➡️ <strong><a href="01-cloud-run-concepts.html">1. Cloud Run 핵심 개념</a></strong></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

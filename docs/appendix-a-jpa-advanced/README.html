@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>부록 A · JPA 심화 (원리편) · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="01-persistence-context.html">영속성 컨텍스트</a>
+<a href="02-associations.html">연관관계 매핑</a>
+<a href="03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="04-proxy-fetch.html">프록시와 N+1</a>
+<a href="05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>부록 A · JPA 심화 (원리편)</h1>
+<p>Phase 3에서 우리는 Book REST API를 실제 데이터베이스에 영속화했습니다. 하지만 거기서 다룬 JPA는 "동작하게 만드는" 수준이었습니다. <code>JpaRepository</code>를 상속하면 CRUD가 되고, <code>@Transactional</code>을 붙이면 트랜잭션이 걸린다는 정도였죠. 정작 그 아래에서 <strong>무슨 일이 벌어지는지</strong>는 거의 들여다보지 않았습니다.</p>
+<p>이 부록은 그 빈틈을 메웁니다. 김영한 님의 <em>"자바 ORM 표준 JPA 프로그래밍 - 기본편"</em> 에서 다루는 핵심 원리들을 Kotlin과 Spring Boot 4.1 맥락으로 재구성했습니다. <strong>왜 <code>save()</code>를 안 불러도 <code>UPDATE</code>가 나가는지</strong>, <strong>왜 똑같은 조회를 두 번 했는데 SQL이 한 번만 나가는지</strong>, <strong>N+1 문제는 정확히 어떤 구조에서 터지는지</strong> — 이런 질문에 자신 있게 답할 수 있게 되는 것이 목표입니다.</p>
+<h2>1. 이 부록이 다루는 것</h2>
+<p>Phase 3가 "JPA를 쓰는 법"이었다면, 이 부록은 <strong>"JPA가 동작하는 원리"</strong> 입니다. 같은 Book 예제를 사용하되, 연관관계를 가르치기 위해 <code>Category</code>와 <code>Review</code>라는 새 엔티티를 도입합니다.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>문서</th>
+<th>핵심 주제</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><a href="01-persistence-context.html">영속성 컨텍스트</a></td>
+<td><code>EntityManager</code>, 엔티티 생명주기, 1차 캐시, 쓰기 지연, 변경 감지, flush/merge</td>
+</tr>
+<tr>
+<td>2</td>
+<td><a href="02-associations.html">연관관계 매핑</a></td>
+<td>단방향/양방향, 다중성, 연관관계의 주인(<code>mappedBy</code>), 편의 메서드, cascade</td>
+</tr>
+<tr>
+<td>3</td>
+<td><a href="03-inheritance-embedded.html">상속 매핑과 값 타입</a></td>
+<td>상속 전략 3종, <code>@MappedSuperclass</code> + Auditing, <code>@Embeddable</code>, <code>@Enumerated</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td><a href="04-proxy-fetch.html">프록시와 지연 로딩, N+1</a></td>
+<td>프록시, <code>LAZY</code>/<code>EAGER</code>, N+1 재현과 해결책 4종, OSIV</td>
+</tr>
+<tr>
+<td>5</td>
+<td><a href="05-jpql.html">JPQL</a></td>
+<td>JPQL 문법, 프로젝션, 페이징, 조인, 벌크 연산, 문자열 쿼리의 한계</td>
+</tr>
+</tbody>
+</table>
+<h2>2. 선수 지식</h2>
+<p>이 부록은 <strong><a href="../phase-3-data-jpa/README.html">Phase 3 · Spring Data JPA</a></strong> 를 끝냈다고 가정합니다. 구체적으로 다음을 알고 있어야 합니다.</p>
+<ul>
+<li><code>@Entity</code>, <code>@Id</code>, <code>@GeneratedValue</code>로 엔티티를 매핑하는 법 (<a href="../phase-3-data-jpa/02-entity-mapping.html">Phase 3-2</a>)</li>
+<li><code>JpaRepository&lt;Book, Long&gt;</code>를 상속해 CRUD를 쓰는 법 (<a href="../phase-3-data-jpa/03-repository.html">Phase 3-3</a>)</li>
+<li><code>@Transactional</code>이 트랜잭션 경계를 만든다는 사실 (<a href="../phase-3-data-jpa/04-transactions.html">Phase 3-4</a>)</li>
+<li>H2 콘솔과 <code>show-sql</code>/<code>format_sql</code>로 SQL 로그를 보는 법 (<a href="../phase-3-data-jpa/05-database-setup.html">Phase 3-5</a>)</li>
+</ul>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>이 부록의 SQL 로그 실험을 직접 따라 하려면 <code>application.yml</code>에 아래 설정을 켜 두세요. <strong>무엇이 언제 실행되는지</strong> 눈으로 확인하는 것이 원리 이해의 지름길입니다.</p>
+<p><code>yaml
+spring:
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace   # 바인딩 파라미터 값까지 출력</code></p>
+</blockquote>
+<h2>3. 기준 스택</h2>
+<p>이 부록의 모든 코드는 다음 버전에서 검증되었습니다(2026-06-20 기준). Phase 3와 동일합니다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>버전</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spring Boot</td>
+<td>4.1.0</td>
+</tr>
+<tr>
+<td>Spring Framework</td>
+<td>7.0.8+</td>
+</tr>
+<tr>
+<td>Spring Data JPA</td>
+<td>Spring Data 2025.1</td>
+</tr>
+<tr>
+<td>Hibernate ORM</td>
+<td>7.x (Boot 4.1 관리 버전)</td>
+</tr>
+<tr>
+<td>Kotlin</td>
+<td>2.3.21</td>
+</tr>
+<tr>
+<td>JDK</td>
+<td>21</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p>패키지는 항상 <strong><code>jakarta.persistence.*</code></strong> 입니다. <code>javax</code>는 구버전이니 예제에서 보이면 무시하세요. Kotlin에서는 <code>kotlin("plugin.jpa")</code> 플러그인이 엔티티에 기본 생성자를 합성해 주므로(<a href="../phase-3-data-jpa/02-entity-mapping.html">Phase 3-2</a> 참고), 이 부록의 엔티티도 별도 no-arg 생성자를 직접 쓰지 않습니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>가장 먼저, JPA의 모든 동작이 출발하는 지점 — <strong>영속성 컨텍스트</strong> 부터 분해합니다.</p>
+<p>→ <a href="01-persistence-context.html">영속성 컨텍스트</a></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

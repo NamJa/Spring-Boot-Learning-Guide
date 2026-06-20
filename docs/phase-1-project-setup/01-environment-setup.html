@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>개발 환경 설정 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="01-environment-setup.html" class="active">개발 환경 설정</a>
+<a href="02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="03-project-structure.html">프로젝트 구조 해부</a>
+<a href="04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>개발 환경 설정</h1>
+<p>Spring Boot 프로젝트를 시작하기 전에 필요한 도구를 갖춰야 합니다. 다행히 Kotlin 개발자라면 이미 대부분 익숙한 도구들입니다. 이 페이지에서는 <strong>JDK, IDE, 빌드 도구, 보조 도구</strong>를 차례대로 설정합니다.</p>
+<h2>1. JDK 21 LTS 설치</h2>
+<p>Spring Boot 4.1.0은 <strong>JDK 17 이상 ~ 26</strong>까지 지원합니다. 이 가이드는 <strong>JDK 21 LTS</strong> 를 표준으로 사용합니다.</p>
+<h3>왜 JDK 21인가?</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>LTS (장기 지원)</strong></td>
+<td>21은 LTS 버전이라 장기간 보안/버그 패치를 받습니다. 17 다음 LTS입니다.</td>
+</tr>
+<tr>
+<td><strong>가상 스레드(Virtual Threads)</strong></td>
+<td>JDK 21에서 정식 도입(JEP 444). Spring Boot 4와 결합 시 높은 동시성 처리를 손쉽게 얻습니다.</td>
+</tr>
+<tr>
+<td><strong>레코드 패턴 / 패턴 매칭</strong></td>
+<td>최신 언어 기능을 안정적으로 사용할 수 있습니다.</td>
+</tr>
+<tr>
+<td><strong>생태계 호환성</strong></td>
+<td>대부분의 라이브러리와 클라우드 런타임이 21을 안정적으로 지원합니다.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>💡 17도 동작하지만, 가상 스레드 같은 핵심 기능과 향후 호환성을 위해 21을 권장합니다. 너무 최신(예: 25/26)은 일부 도구 체인이 따라오지 못할 수 있어 LTS인 21이 가장 안전한 선택입니다.</p>
+</blockquote>
+<h3>SDKMAN!으로 설치 (macOS / Linux 권장)</h3>
+<p>여러 JDK 버전을 관리하기엔 <a href="https://sdkman.io/">SDKMAN!</a>이 가장 편합니다.</p>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># 1. SDKMAN! 설치</span>
+curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;https://get.sdkman.io&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>bash
+<span class="nb">source</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/.sdkman/bin/sdkman-init.sh&quot;</span>
+
+<span class="c1"># 2. 설치 가능한 JDK 21 목록 확인</span>
+sdk<span class="w"> </span>list<span class="w"> </span>java<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">&#39;21\.&#39;</span>
+
+<span class="c1"># 3. Temurin(Eclipse Adoptium) 21 설치 — 식별자는 목록에서 확인 후 사용</span>
+sdk<span class="w"> </span>install<span class="w"> </span>java<span class="w"> </span><span class="m">21</span>.0.7-tem
+
+<span class="c1"># 4. 기본 JDK로 지정</span>
+sdk<span class="w"> </span>default<span class="w"> </span>java<span class="w"> </span><span class="m">21</span>.0.7-tem
+</pre></div>
+</div>
+<h3>설치 확인</h3>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>java<span class="w"> </span>-version
+</pre></div>
+</div>
+<p>다음과 비슷한 출력이 나오면 성공입니다.</p>
+<div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>openjdk version &quot;21.0.7&quot; 2025-04-15 LTS
+OpenJDK Runtime Environment Temurin-21.0.7+6 (build 21.0.7+6-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.7+6 (build 21.0.7+6-LTS, mixed mode, sharing)</code></pre></div>
+<blockquote>
+<p>⚠️ Windows에서는 SDKMAN! 대신 <a href="https://adoptium.net/">Adoptium</a>에서 MSI 인스톨러를 받거나, WSL2에서 위 명령을 그대로 사용하면 됩니다.</p>
+</blockquote>
+<h2>2. IntelliJ IDEA 설치</h2>
+<p>Spring Boot + Kotlin 조합에서 가장 생산성이 높은 IDE는 <strong>IntelliJ IDEA</strong> 입니다.</p>
+<ul>
+<li><strong>Community Edition으로 충분합니다.</strong> Spring 전용 지원(예: <code>application.yml</code> 자동완성, Bean 그래프)은 Ultimate 전용이지만, 학습과 일반 개발에는 Community로도 무리가 없습니다.</li>
+<li><strong>Kotlin 플러그인이 기본 내장</strong>되어 있어 별도 설치가 필요 없습니다.</li>
+<li>Gradle 통합, 코드 네비게이션, 디버거가 기본 제공됩니다.</li>
+</ul>
+<blockquote>
+<p>💡 JetBrains Toolbox App을 사용하면 IDE 버전 관리와 업데이트가 편리합니다.</p>
+</blockquote>
+<p>설치 후 첫 실행 시, 위에서 설치한 JDK 21을 프로젝트 SDK로 지정할 수 있습니다. (<code>File &gt; Project Structure &gt; SDKs</code>)</p>
+<h2>3. Gradle Wrapper — 전역 설치가 필요 없는 이유</h2>
+<p>Spring Initializr가 생성한 프로젝트에는 <strong>Gradle Wrapper</strong>가 포함됩니다. 따라서 <strong>Gradle을 시스템에 전역으로 설치할 필요가 없습니다.</strong></p>
+<figure class="diagram"><pre>book-api/
+├── gradlew              # macOS/Linux 실행 스크립트
+├── gradlew.bat          # Windows 실행 스크립트
+└── gradle/wrapper/
+    ├── gradle-wrapper.jar
+    └── gradle-wrapper.properties   # 사용할 Gradle 버전을 고정</pre></figure>
+<p><code>gradle-wrapper.properties</code>에 명시된 버전을 래퍼가 자동으로 내려받아 실행합니다. 덕분에 <strong>팀원 모두가 동일한 Gradle 버전</strong>을 사용하게 됩니다.</p>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># 전역 gradle 대신 항상 ./gradlew 사용</span>
+./gradlew<span class="w"> </span>--version<span class="w">      </span><span class="c1"># 사용 중인 Gradle 버전 확인</span>
+./gradlew<span class="w"> </span>build<span class="w">          </span><span class="c1"># 빌드</span>
+./gradlew<span class="w"> </span>bootRun<span class="w">        </span><span class="c1"># 애플리케이션 실행</span>
+</pre></div>
+</div>
+<blockquote>
+<p>💡 이 가이드는 <strong>Gradle 8.14+ / 9.x</strong> 를 기준으로 합니다. Initializr가 생성하는 래퍼 버전을 그대로 사용하면 됩니다. Maven(3.6.3+)도 가능하지만 이 가이드는 Gradle - Kotlin DSL을 사용합니다.</p>
+</blockquote>
+<h2>4. 보조 도구 (선택)</h2>
+<p>당장은 필요 없지만 이후 단계에서 유용한 도구들입니다.</p>
+<h3>Docker</h3>
+<p>뒤쪽 단계에서 PostgreSQL 같은 외부 데이터베이스나 컨테이너 배포를 다룰 때 사용합니다. 지금은 H2 인메모리 DB를 쓰므로 필수는 아닙니다.</p>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>docker<span class="w"> </span>--version
+</pre></div>
+</div>
+<h3>HTTPie 또는 curl</h3>
+<p>REST API를 테스트할 때 사용합니다. <code>curl</code>은 대부분의 시스템에 기본 설치되어 있고, <a href="https://httpie.io/">HTTPie</a>는 더 읽기 좋은 출력을 제공합니다.</p>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># curl</span>
+curl<span class="w"> </span>-i<span class="w"> </span>http://localhost:8080/api/books
+
+<span class="c1"># HTTPie (설치 시)</span>
+http<span class="w"> </span>GET<span class="w"> </span>:8080/api/books
+</pre></div>
+</div>
+<h2>환경 점검 체크리스트</h2>
+<table>
+<thead>
+<tr>
+<th>도구</th>
+<th>확인 명령</th>
+<th>기대 결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JDK 21</td>
+<td><code>java -version</code></td>
+<td><code>21.x</code> LTS</td>
+</tr>
+<tr>
+<td>IntelliJ IDEA</td>
+<td>실행</td>
+<td>Kotlin 내장</td>
+</tr>
+<tr>
+<td>Gradle Wrapper</td>
+<td><code>./gradlew --version</code></td>
+<td>8.14+ / 9.x (프로젝트 생성 후)</td>
+</tr>
+<tr>
+<td>curl/HTTPie</td>
+<td><code>curl --version</code></td>
+<td>임의 버전</td>
+</tr>
+</tbody>
+</table>
+<h2>다음 단계</h2>
+<p>환경이 준비되었으니, <a href="02-create-project.html">Spring Initializr로 프로젝트 생성</a>에서 실제 <code>book-api</code> 프로젝트를 만들어 봅니다.</p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

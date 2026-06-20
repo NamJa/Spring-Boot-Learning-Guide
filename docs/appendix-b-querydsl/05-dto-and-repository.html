@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05. DTO 프로젝션 &amp; 리포지토리 통합 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="03-basic-queries.html">기본 쿼리</a>
+<a href="04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="05-dto-and-repository.html" class="active">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>05. DTO 프로젝션 &amp; 리포지토리 통합</h1>
+<p>마지막 페이지입니다. 엔티티 대신 <strong>DTO로 결과를 받는 프로젝션</strong>, Querydsl을 Spring Data 리포지토리에 자연스럽게 녹이는 <strong>사용자 정의 리포지토리 패턴</strong>, 그리고 Spring Data의 <strong><code>Pageable</code>/<code>Page</code> 연동</strong>을 다룹니다.</p>
+<h2>1. DTO 프로젝션</h2>
+<p>엔티티 전체가 아니라 필요한 필드만 <code>BookResponse</code>로 받고 싶을 때 사용합니다. <code>select</code>에 변환식을 지정합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BookResponse</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">price</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">publishedAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<h3>1.1 Projections.constructor — 생성자 기반</h3>
+<p>DTO의 <strong>생성자 파라미터 순서·타입</strong>에 맞춰 값을 매핑합니다. 가장 무난한 방식입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">fun</span><span class="w"> </span><span class="nf">findResponses</span><span class="p">():</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">BookResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QBook</span><span class="p">.</span><span class="na">book</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">queryFactory</span>
+<span class="w">        </span><span class="p">.</span><span class="na">select</span><span class="p">(</span>
+<span class="w">            </span><span class="n">Projections</span><span class="p">.</span><span class="na">constructor</span><span class="p">(</span>
+<span class="w">                </span><span class="n">BookResponse</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">,</span>
+<span class="w">                </span><span class="n">book</span><span class="p">.</span><span class="na">id</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">title</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">,</span>
+<span class="w">                </span><span class="n">book</span><span class="p">.</span><span class="na">isbn</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">publishedAt</span><span class="p">,</span><span class="w">   </span><span class="c1">// 생성자 순서와 일치해야 함</span>
+<span class="w">            </span><span class="p">),</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p><code>Projections.constructor</code>는 <strong>컴파일 타임에 순서/타입을 검증하지 못합니다.</strong> 필드 순서를 바꾸면 런타임에야 매핑 오류가 드러납니다. 안전성이 중요하면 아래 <code>@QueryProjection</code>을 쓰세요.</p>
+</blockquote>
+<h3>1.2 Projections.fields — 필드명 기반</h3>
+<p>생성자 순서 대신 <strong>필드명</strong>으로 매핑합니다. 표현식에 별칭(<code>as</code>)을 주면 이름이 달라도 매핑됩니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">Projections</span><span class="p">.</span><span class="na">fields</span><span class="p">(</span>
+<span class="w">    </span><span class="n">BookResponse</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">,</span>
+<span class="w">    </span><span class="n">book</span><span class="p">.</span><span class="na">id</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">title</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">isbn</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">publishedAt</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1">// 이름이 다르면: book.title.`as`(&quot;title&quot;) 처럼 별칭 지정</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>Kotlin의 <code>data class</code>는 보통 <code>val</code> + 주생성자라 <code>Projections.fields</code>(세터/필드 주입)와 궁합이 나쁠 수 있습니다. <strong>Kotlin에서는 <code>Projections.constructor</code> 또는 <code>@QueryProjection</code>을 우선</strong> 고려하세요.</p>
+</blockquote>
+<h3>1.3 @QueryProjection — 가장 타입 안전</h3>
+<p>DTO 생성자에 <code>@QueryProjection</code>을 붙이면, 빌드 시 <strong>DTO의 Q타입(<code>QBookResponse</code>)</strong> 이 생성되어 생성자를 타입 안전하게 호출할 수 있습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BookResponse</span><span class="w"> </span><span class="nd">@QueryProjection</span><span class="w"> </span><span class="k">constructor</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">price</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">publishedAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// QBookResponse 생성자를 직접 사용 — 인자 순서/타입을 컴파일러가 검증</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">findResponses</span><span class="p">():</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">BookResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span>
+<span class="w">    </span><span class="n">queryFactory</span>
+<span class="w">        </span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="n">QBookResponse</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">id</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">title</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">isbn</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">publishedAt</span><span class="p">))</span>
+<span class="w">        </span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
+</pre></div>
+</div>
+<table>
+<thead>
+<tr>
+<th>방식</th>
+<th>타입 안전</th>
+<th>단점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Projections.constructor</code></td>
+<td>✗ (런타임 검증)</td>
+<td>순서 실수 시 런타임 오류</td>
+</tr>
+<tr>
+<td><code>Projections.fields</code></td>
+<td>✗</td>
+<td>이름 매핑·Kotlin val 궁합</td>
+</tr>
+<tr>
+<td><code>@QueryProjection</code></td>
+<td><strong>○ (컴파일 검증)</strong></td>
+<td><strong>DTO가 Querydsl에 의존</strong>(import 발생), DTO도 kapt 대상</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p><code>@QueryProjection</code>은 가장 안전하지만, DTO가 <code>com.querydsl</code> 애너테이션에 의존하게 됩니다. "DTO를 순수하게 유지"하려는 팀은 <code>Projections.constructor</code>를, "타입 안전이 최우선"인 팀은 <code>@QueryProjection</code>을 선택합니다. 정답은 없으며 팀 컨벤션을 따르세요.</p>
+</blockquote>
+<h2>2. 사용자 정의 리포지토리 패턴</h2>
+<p>지금까지는 별도의 <code>BookQueryRepository</code>를 만들었습니다. 하지만 실무에서는 <strong>하나의 <code>BookRepository</code></strong> 로 Spring Data의 기본 CRUD와 Querydsl 쿼리를 <strong>모두</strong> 쓰고 싶습니다. 이를 위한 표준 패턴이 <strong>사용자 정의 리포지토리</strong>입니다.</p>
+<p>구조는 세 조각입니다.</p>
+<figure class="diagram"><pre>BookRepository (interface)
+   ├── extends JpaRepository&lt;Book, Long&gt;     ← 기본 CRUD·파생 쿼리
+   └── extends BookRepositoryCustom          ← Querydsl 메서드 선언
+
+BookRepositoryCustom (interface)   ← Querydsl 메서드 시그니처
+BookRepositoryImpl  (class)        ← 위 인터페이스의 Querydsl 구현
+                                     (이름은 반드시 [리포지토리명]Impl)</pre></figure>
+<figure class="diagram"><pre>   호출부 (Service)
+        │  BookRepository 주입
+        ▼
+  ┌──────────────────────────────┐
+  │ BookRepository               │
+  │  : JpaRepository&lt;Book, Long&gt; │──► save/findById/findAll ... (Spring Data 자동 구현)
+  │  , BookRepositoryCustom      │──► searchByConditions ...    (BookRepositoryImpl가 구현)
+  └──────────────────────────────┘</pre></figure>
+<h3>2.1 커스텀 인터페이스</h3>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">interface</span><span class="w"> </span><span class="nc">BookRepositoryCustom</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">searchByConditions</span><span class="p">(</span><span class="n">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="n">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="n">minPrice</span><span class="p">:</span><span class="w"> </span><span class="kt">Int?</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">BookResponse</span><span class="o">&gt;</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">searchPage</span><span class="p">(</span><span class="n">cond</span><span class="p">:</span><span class="w"> </span><span class="n">BookSearchCond</span><span class="p">,</span><span class="w"> </span><span class="n">pageable</span><span class="p">:</span><span class="w"> </span><span class="n">Pageable</span><span class="p">):</span><span class="w"> </span><span class="n">Page</span><span class="o">&lt;</span><span class="n">BookResponse</span><span class="o">&gt;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h3>2.2 구현 클래스 — 이름 규칙이 핵심</h3>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 클래스 이름은 반드시 &quot;BookRepository&quot; + &quot;Impl&quot;  → BookRepositoryImpl</span>
+<span class="c1">// 이 규칙을 지켜야 Spring Data가 자동으로 엮어 준다.</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookRepositoryImpl</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">queryFactory</span><span class="p">:</span><span class="w"> </span><span class="n">JPAQueryFactory</span><span class="p">,</span>
+<span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">BookRepositoryCustom</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QBook</span><span class="p">.</span><span class="na">book</span>
+
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">searchByConditions</span><span class="p">(</span>
+<span class="w">        </span><span class="n">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="n">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="n">minPrice</span><span class="p">:</span><span class="w"> </span><span class="kt">Int?</span><span class="p">,</span>
+<span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">BookResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="n">queryFactory</span>
+<span class="w">            </span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="n">QBookResponse</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">id</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">title</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">isbn</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">publishedAt</span><span class="p">))</span>
+<span class="w">            </span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">where</span><span class="p">(</span>
+<span class="w">                </span><span class="n">title</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">title</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+<span class="w">                </span><span class="n">author</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+<span class="w">                </span><span class="n">minPrice</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">.</span><span class="na">goe</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
+
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">searchPage</span><span class="p">(</span><span class="n">cond</span><span class="p">:</span><span class="w"> </span><span class="n">BookSearchCond</span><span class="p">,</span><span class="w"> </span><span class="n">pageable</span><span class="p">:</span><span class="w"> </span><span class="n">Pageable</span><span class="p">):</span><span class="w"> </span><span class="n">Page</span><span class="o">&lt;</span><span class="n">BookResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">TODO</span><span class="p">(</span><span class="s">&quot;3절에서 구현&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>구현 클래스 이름은 반드시 <strong><code>[JpaRepository 인터페이스 이름]Impl</code></strong> 이어야 합니다(<code>BookRepository</code> → <code>BookRepositoryImpl</code>). 접미사가 다르면 Spring Data가 찾지 못해 빈 생성에 실패합니다. (접미사는 설정으로 바꿀 수 있지만 기본값을 따르는 것이 좋습니다.)</p>
+</blockquote>
+<h3>2.3 다중 상속으로 합치기</h3>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">interface</span><span class="w"> </span><span class="nc">BookRepository</span><span class="w"> </span><span class="p">:</span>
+<span class="w">    </span><span class="n">JpaRepository</span><span class="o">&lt;</span><span class="n">Book</span><span class="p">,</span><span class="w"> </span><span class="kt">Long</span><span class="o">&gt;</span><span class="p">,</span><span class="w">        </span><span class="c1">// 기본 CRUD</span>
+<span class="w">    </span><span class="n">BookRepositoryCustom</span><span class="w"> </span><span class="p">{</span><span class="w">            </span><span class="c1">// Querydsl 메서드</span>
+<span class="w">    </span><span class="c1">// 파생 쿼리도 그대로 추가 가능</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findByIsbn</span><span class="p">(</span><span class="n">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">Book?</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>이제 서비스는 <code>BookRepository</code> <strong>하나만</strong> 주입받아 <code>save()</code>, <code>findByIsbn()</code>, <code>searchByConditions()</code>를 모두 호출합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookRepository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 서비스는 DTO를 반환한다(본문 계약과 동일). 매핑 헬퍼는 Phase 3에서 정의한</span>
+<span class="w">    </span><span class="c1">// CreateBookRequest.toEntity() / Book.toResponse() 를 그대로 쓴다.</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">CreateBookRequest</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="na">toEntity</span><span class="p">()).</span><span class="na">toResponse</span><span class="p">()</span><span class="w">               </span><span class="c1">// Spring Data + 매핑</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">byIsbn</span><span class="p">(</span><span class="n">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse? </span><span class="o">=</span>
+<span class="w">        </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">findByIsbn</span><span class="p">(</span><span class="n">isbn</span><span class="p">)</span><span class="o">?.</span><span class="na">toResponse</span><span class="p">()</span><span class="w">                      </span><span class="c1">// 파생 쿼리</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">t</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">:</span><span class="w"> </span><span class="kt">Int?</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">BookResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">searchByConditions</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w">                          </span><span class="c1">// Querydsl(이미 DTO 프로젝션)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h2>3. Pageable / Page 연동 — content와 count 분리</h2>
+<p>Spring Data의 <code>Page</code>는 <strong>현재 페이지의 내용</strong>과 <strong>전체 개수</strong>를 모두 담습니다. 따라서 Querydsl로 페이징할 때는 <strong>content 쿼리</strong>와 <strong>count 쿼리</strong>를 따로 실행합니다(<a href="03-basic-queries.html">03 페이지</a>에서 <code>fetchCount</code>가 사라진 이유가 여기 있습니다).</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BookSearchCond</span><span class="p">(</span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">minPrice</span><span class="p">:</span><span class="w"> </span><span class="kt">Int?</span><span class="p">)</span>
+
+<span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">searchPage</span><span class="p">(</span><span class="n">cond</span><span class="p">:</span><span class="w"> </span><span class="n">BookSearchCond</span><span class="p">,</span><span class="w"> </span><span class="n">pageable</span><span class="p">:</span><span class="w"> </span><span class="n">Pageable</span><span class="p">):</span><span class="w"> </span><span class="n">Page</span><span class="o">&lt;</span><span class="n">BookResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QBook</span><span class="p">.</span><span class="na">book</span>
+
+<span class="w">    </span><span class="c1">// (1) content: 현재 페이지 데이터</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">content</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">BookResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">queryFactory</span>
+<span class="w">        </span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="n">QBookResponse</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">id</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">title</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">isbn</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">publishedAt</span><span class="p">))</span>
+<span class="w">        </span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">where</span><span class="p">(</span><span class="n">conds</span><span class="p">(</span><span class="n">cond</span><span class="p">))</span><span class="w">                       </span><span class="c1">// 조건 재사용</span>
+<span class="w">        </span><span class="p">.</span><span class="na">orderBy</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">publishedAt</span><span class="p">.</span><span class="na">desc</span><span class="p">())</span>
+<span class="w">        </span><span class="p">.</span><span class="na">offset</span><span class="p">(</span><span class="n">pageable</span><span class="p">.</span><span class="na">offset</span><span class="p">)</span><span class="w">                  </span><span class="c1">// Pageable이 offset/limit 제공</span>
+<span class="w">        </span><span class="p">.</span><span class="na">limit</span><span class="p">(</span><span class="n">pageable</span><span class="p">.</span><span class="na">pageSize</span><span class="p">.</span><span class="na">toLong</span><span class="p">())</span>
+<span class="w">        </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
+
+<span class="w">    </span><span class="c1">// (2) count: 전체 개수 (select·orderBy 없이 가볍게)</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">total</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">queryFactory</span>
+<span class="w">        </span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">count</span><span class="p">())</span>
+<span class="w">        </span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">where</span><span class="p">(</span><span class="n">conds</span><span class="p">(</span><span class="n">cond</span><span class="p">))</span>
+<span class="w">        </span><span class="p">.</span><span class="na">fetchOne</span><span class="p">()</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="m">0L</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">PageImpl</span><span class="p">(</span><span class="n">content</span><span class="p">,</span><span class="w"> </span><span class="n">pageable</span><span class="p">,</span><span class="w"> </span><span class="n">total</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// where 조건을 content/count가 공유</span>
+<span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">conds</span><span class="p">(</span><span class="n">c</span><span class="p">:</span><span class="w"> </span><span class="n">BookSearchCond</span><span class="p">):</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">BooleanExpression?&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QBook</span><span class="p">.</span><span class="na">book</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">arrayOf</span><span class="p">(</span>
+<span class="w">        </span><span class="n">c</span><span class="p">.</span><span class="na">title</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">title</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="n">c</span><span class="p">.</span><span class="na">author</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="n">c</span><span class="p">.</span><span class="na">minPrice</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">.</span><span class="na">goe</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p><strong>count 쿼리는 가볍게 유지하세요.</strong> <code>orderBy</code>, fetch join, 불필요한 select 컬럼은 count에서 빼야 성능에 유리합니다. 마지막 페이지처럼 "content 수 &lt; pageSize"인 경우엔 count 쿼리를 <strong>생략</strong>하는 최적화(<code>PageableExecutionUtils.getPage</code>)도 있지만, 입문 단계에서는 명시적 분리로 충분합니다.</p>
+</blockquote>
+<h2>4. 마무리 — 언제 무엇을 쓰는가</h2>
+<p>Querydsl을 배웠다고 모든 쿼리를 Querydsl로 쓸 필요는 없습니다. 실무의 표준 분담은 다음과 같습니다.</p>
+<table>
+<thead>
+<tr>
+<th>상황</th>
+<th>도구</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단건 조회, 단순 CRUD</td>
+<td><strong>Spring Data JPA</strong> (<code>findById</code>, <code>save</code>)</td>
+</tr>
+<tr>
+<td>조건 1~2개의 고정 쿼리</td>
+<td><strong>Spring Data 파생 쿼리</strong> (<code>findByAuthor</code>)</td>
+</tr>
+<tr>
+<td>동적 검색(조건 가변)</td>
+<td><strong>Querydsl</strong> (다중 <code>BooleanExpression</code>)</td>
+</tr>
+<tr>
+<td>복잡한 조인·서브쿼리·DTO 프로젝션</td>
+<td><strong>Querydsl</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>핵심 결론: <strong>Spring Data JPA(간단) + Querydsl(복잡·동적)</strong> 조합이 2026년 Kotlin·Spring Boot 실무의 표준입니다. 사용자 정의 리포지토리 패턴 덕분에 이 둘을 하나의 인터페이스로 매끄럽게 합칠 수 있습니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>부록 B를 모두 마쳤습니다. 다음 부록에서는 횡단 관심사를 우아하게 분리하는 <strong>AOP</strong>를 다룹니다.</p>
+<p>→ <a href="../appendix-c-aop/README.html">부록 C — AOP</a></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

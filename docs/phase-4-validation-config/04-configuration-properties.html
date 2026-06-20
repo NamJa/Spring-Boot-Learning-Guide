@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>@ConfigurationProperties · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="02-exception-handling.html">전역 예외 처리</a>
+<a href="03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="04-configuration-properties.html" class="active">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>@ConfigurationProperties</h1>
+<p>앞 문서에서 설정값을 YAML로 외부화했습니다. 이제 그 값을 코드에서 <strong>읽어 쓰는</strong> 방법이 필요합니다. 가장 단순한 방법은 <code>@Value</code>로 하나씩 주입하는 것입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@Value</span><span class="p">(</span><span class="s">&quot;\</span><span class="si">${</span><span class="n">app</span><span class="p">.</span><span class="na">book</span><span class="p">.</span><span class="na">default</span><span class="o">-</span><span class="n">page</span><span class="o">-</span><span class="n">size</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span><span class="w"> </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">defaultPageSize</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
+<span class="w">    </span><span class="nd">@Value</span><span class="p">(</span><span class="s">&quot;\</span><span class="si">${</span><span class="n">app</span><span class="p">.</span><span class="na">book</span><span class="p">.</span><span class="na">currency</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span><span class="w"> </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">currency</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="nd">@Value</span><span class="p">(</span><span class="s">&quot;\</span><span class="si">${</span><span class="n">app</span><span class="p">.</span><span class="na">book</span><span class="p">.</span><span class="na">recommendation</span><span class="o">-</span><span class="n">enabled</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span><span class="w"> </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">recommendationEnabled</span><span class="p">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">,</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>값이 한두 개면 괜찮지만, 관련 설정이 늘어나면 금세 지저분해집니다. 키를 문자열로 적으니 오타가 나도 컴파일러가 못 잡고, 타입도 매번 직접 맞춰야 합니다. 더 나은 방법이 <strong><code>@ConfigurationProperties</code></strong> — 관련 설정을 <strong>타입 안전한 Kotlin 클래스 하나에 통째로 바인딩</strong>하는 것입니다.</p>
+<h2>1. 설정 블록을 클래스에 바인딩</h2>
+<p>먼저 묶을 설정을 YAML에 정의합니다. <code>app.book</code> 접두사 아래 도서 도메인 관련 설정을 모읍니다.</p>
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="c1"># application.yml</span>
+<span class="nt">app</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">book</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">default-page-size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
+<span class="w">    </span><span class="nt">currency</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KRW</span>
+<span class="w">    </span><span class="nt">recommendation-enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">allowed-categories</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">소설</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">기술</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">역사</span>
+</pre></div>
+</div>
+<p>이제 이 블록을 받을 Kotlin 클래스를 만듭니다. <strong>권장 방식은 불변(immutable) 생성자 바인딩</strong> — <code>val</code>만 가진 <code>data class</code>입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.config</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.boot.context.properties.ConfigurationProperties</span>
+
+<span class="nd">@ConfigurationProperties</span><span class="p">(</span><span class="n">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;app.book&quot;</span><span class="p">)</span>
+<span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BookProperties</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">defaultPageSize</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">20</span><span class="p">,</span><span class="w">            </span><span class="c1">// 케밥 케이스 default-page-size 와 자동 매칭</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">currency</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;KRW&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">recommendationEnabled</span><span class="p">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">allowedCategories</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emptyList</span><span class="p">(),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>YAML의 케밥 케이스(<code>default-page-size</code>)가 클래스의 카멜 케이스(<code>defaultPageSize</code>) 프로퍼티로 <strong>느슨한 바인딩</strong>되어 자동 매칭됩니다(앞 문서 4절). <code>val</code>에 기본값을 주면 해당 설정이 누락돼도 안전합니다.</p>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>생성자 바인딩은 모든 프로퍼티가 <code>val</code>이라 <strong>불변</strong>이고, 객체 생성 시점에 모든 값이 채워져 일관성이 보장됩니다. 가변 <code>var</code> + setter 바인딩보다 항상 이쪽을 권장합니다.</p>
+</blockquote>
+<h2>2. 클래스 활성화하기</h2>
+<p><code>@ConfigurationProperties</code>를 붙이는 것만으로는 Bean으로 등록되지 않습니다. 활성화 방법이 두 가지 있습니다.</p>
+<p><strong>방식 A — <code>@EnableConfigurationProperties</code> (생성자 바인딩에 권장):</strong></p>
+<p>설정 클래스는 순수하게 두고, 별도 위치에서 활성화합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">com.example.bookapi.config.BookProperties</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.boot.autoconfigure.SpringBootApplication</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.boot.context.properties.EnableConfigurationProperties</span>
+
+<span class="nd">@SpringBootApplication</span>
+<span class="nd">@EnableConfigurationProperties</span><span class="p">(</span><span class="n">BookProperties</span><span class="o">::</span><span class="n">class</span><span class="p">)</span><span class="w"> </span><span class="c1">// ← 여기서 활성화</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookApiApplication</span>
+</pre></div>
+</div>
+<p><strong>방식 B — <code>@ConfigurationPropertiesScan</code>:</strong></p>
+<p>여러 properties 클래스가 있으면 패키지 스캔으로 한 번에 등록합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@SpringBootApplication</span>
+<span class="nd">@ConfigurationPropertiesScan</span><span class="w"> </span><span class="c1">// app 패키지 하위의 @ConfigurationProperties 자동 등록</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookApiApplication</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p>가변 <code>var</code> 클래스라면 클래스에 <code>@Component</code>를 직접 붙여 등록할 수도 있지만, 불변 생성자 바인딩 클래스는 <code>@Component</code>와 함께 쓸 수 없습니다. 생성자 바인딩에는 <strong>방식 A 또는 B</strong>를 사용하세요.</p>
+</blockquote>
+<h2>3. 서비스에서 주입해 사용하기</h2>
+<p>등록된 <code>BookProperties</code>는 다른 Bean처럼 생성자로 주입받아 씁니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.service</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">com.example.bookapi.config.BookProperties</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.data.domain.PageRequest</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.stereotype.Service</span>
+
+<span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookRepository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookProperties</span><span class="p">:</span><span class="w"> </span><span class="n">BookProperties</span><span class="p">,</span><span class="w"> </span><span class="c1">// ← 설정 묶음을 통째로 주입</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findAll</span><span class="p">(</span><span class="n">page</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">BookResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 설정에서 가져온 기본 페이지 크기 사용</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">pageable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PageRequest</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">page</span><span class="p">,</span><span class="w"> </span><span class="n">bookProperties</span><span class="p">.</span><span class="na">defaultPageSize</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">findAll</span><span class="p">(</span><span class="n">pageable</span><span class="p">).</span><span class="na">map</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">toResponse</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">validateCategory</span><span class="p">(</span><span class="n">category</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bookProperties</span><span class="p">.</span><span class="na">allowedCategories</span><span class="p">.</span><span class="na">isNotEmpty</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">            </span><span class="n">category</span><span class="w"> </span><span class="k">!in</span><span class="w"> </span><span class="n">bookProperties</span><span class="p">.</span><span class="na">allowedCategories</span>
+<span class="w">        </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="n">IllegalArgumentException</span><span class="p">(</span><span class="s">&quot;허용되지 않은 카테고리: </span><span class="si">$</span><span class="n">category</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code>@Value</code>로 흩어졌던 세 개의 주입이 <strong><code>bookProperties</code> 하나</strong>로 정리됐습니다. 오타 위험도 사라지고, IDE 자동완성으로 <code>bookProperties.</code> 만 치면 사용 가능한 설정이 다 뜹니다.</p>
+<h2>4. 설정값 검증하기</h2>
+<p>설정값도 잘못 들어올 수 있습니다(예: 페이지 크기에 음수). properties 클래스에 <strong><code>@Validated</code></strong> 와 Jakarta 제약 애너테이션을 붙이면, 애플리케이션 <strong>시작 시점에</strong> 설정을 검증할 수 있습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.config</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.validation.constraints.Min</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.validation.constraints.NotBlank</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.boot.context.properties.ConfigurationProperties</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.validation.annotation.Validated</span>
+
+<span class="nd">@Validated</span>
+<span class="nd">@ConfigurationProperties</span><span class="p">(</span><span class="n">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;app.book&quot;</span><span class="p">)</span>
+<span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BookProperties</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">Min</span><span class="p">(</span><span class="m">1</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">defaultPageSize</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">20</span><span class="p">,</span>
+
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">NotBlank</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">currency</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;KRW&quot;</span><span class="p">,</span>
+
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">recommendationEnabled</span><span class="p">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">allowedCategories</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emptyList</span><span class="p">(),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>여기서도 Kotlin의 <strong><code>@field:</code></strong> use-site target이 똑같이 필요합니다(01번 문서 3절 참고). 검증에 실패하면 애플리케이션이 시작되지 못하고 명확한 에러로 멈춥니다 — 잘못된 설정으로 운영에 배포되는 사고를 <strong>부팅 단계에서</strong> 막아 주는 셈입니다.</p>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>잘못된 설정은 런타임 한참 뒤가 아니라 시작 시점에 터지는 게 좋습니다. "빨리 실패하라(fail fast)" 원칙입니다.</p>
+</blockquote>
+<h2>5. <code>@Value</code> vs <code>@ConfigurationProperties</code></h2>
+<p>둘의 차이를 정리하면 다음과 같습니다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th><code>@Value</code></th>
+<th><code>@ConfigurationProperties</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>대상</td>
+<td>단일 값</td>
+<td>관련 설정 묶음 (계층 구조)</td>
+</tr>
+<tr>
+<td>타입 안전</td>
+<td>약함 (문자열 키 + 수동 변환)</td>
+<td>강함 (클래스 필드 타입)</td>
+</tr>
+<tr>
+<td>느슨한 바인딩</td>
+<td>미지원 (키 정확히 일치해야)</td>
+<td>지원 (케밥/카멜/환경변수)</td>
+</tr>
+<tr>
+<td>검증</td>
+<td>어려움</td>
+<td><code>@Validated</code> + 제약으로 쉬움</td>
+</tr>
+<tr>
+<td>복잡한 타입 (List, Map, 중첩)</td>
+<td>번거로움</td>
+<td>자연스럽게 바인딩</td>
+</tr>
+<tr>
+<td>IDE 자동완성/메타데이터</td>
+<td>약함</td>
+<td>강함 (메타데이터 생성 시)</td>
+</tr>
+<tr>
+<td>SpEL 표현식</td>
+<td>지원</td>
+<td>미지원</td>
+</tr>
+</tbody>
+</table>
+<p><strong>결론: 그룹화된 설정에는 <code>@ConfigurationProperties</code>를 쓰세요.</strong> <code>@Value</code>는 정말 단발성인 한 개 값, 또는 SpEL 표현식(<code>#{...}</code>)이 필요할 때만 제한적으로 사용합니다.</p>
+<h2>6. IDE 메타데이터 — configuration-processor</h2>
+<p><code>@ConfigurationProperties</code> 클래스에 대한 메타데이터를 생성하면, IDE가 <code>application.yml</code>을 편집할 때 <strong>자동완성과 문서 툴팁</strong>을 띄워 줍니다. 이를 위해 애너테이션 프로세서를 추가합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
+<span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// ...</span>
+<span class="w">    </span><span class="n">kapt</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-configuration-processor&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="c1">// 또는 KSP 사용 시:</span>
+<span class="w">    </span><span class="c1">// ksp(&quot;org.springframework.boot:spring-boot-configuration-processor&quot;)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Kotlin에서는 <code>annotationProcessor</code> 대신 <strong><code>kapt</code></strong> 또는 더 빠른 <strong><code>ksp</code></strong> 로 등록합니다(해당 Gradle 플러그인이 적용돼 있어야 합니다). 빌드하면 <code>META-INF/spring-configuration-metadata.json</code>이 생성되어, <code>app.book.default-page-size</code>를 타이핑할 때 IDE가 키와 타입, 기본값을 제안해 줍니다.</p>
+<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p>configuration-processor는 <strong>선택 사항</strong>입니다. 없어도 바인딩은 정상 동작하며, 오직 IDE 편의를 위한 것입니다. 빌드 속도가 신경 쓰이면 kapt보다 ksp를 권장합니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>이로써 Phase 4를 마칩니다. 입력 검증, 전역 예외 처리, 외부화된 설정과 타입 안전한 설정 바인딩까지 — API를 견고하게 만드는 기반을 모두 갖췄습니다. 다음 Phase 5부터는 Spring Boot 4의 실전 기능을 다룹니다. 첫 주제는 선언적 HTTP 클라이언트입니다.</p>
+<p>→ <a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

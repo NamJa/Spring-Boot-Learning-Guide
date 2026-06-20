@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Actuator와 관측성 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="02-security-basics.html">Spring Security 7 기초</a>
+<a href="03-actuator-observability.html" class="active">Actuator와 관측성</a>
+<a href="04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>Actuator와 관측성</h1>
+<p>운영 중인 서비스에 대해 가장 무서운 상황은 <strong>"잘 도는지 모르겠다"</strong> 입니다. 메모리는 괜찮은가? DB 연결은 살아 있나? 어제보다 요청이 느려졌나? 이런 질문에 답하지 못하는 서비스는 사실상 눈을 감고 운전하는 것과 같습니다.</p>
+<p><strong>Spring Boot Actuator</strong>는 이 문제를 위한 표준 도구입니다. 헬스 체크, 메트릭, 환경 정보 등을 <strong>즉시 사용 가능한 엔드포인트</strong>로 노출해 주고, <strong>Micrometer</strong>와 <strong>OpenTelemetry</strong>를 통해 메트릭·추적을 표준 관측 백엔드로 보냅니다.</p>
+<h2>1. Actuator 시작하기</h2>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
+<span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-actuator&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>추가 후 앱을 띄우면 <code>/actuator</code> 경로에 엔드포인트들이 생깁니다. 단, <strong>보안상 기본 노출은 <code>health</code>뿐</strong>입니다. 나머지는 명시적으로 열어야 합니다.</p>
+<table>
+<thead>
+<tr>
+<th>엔드포인트</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/actuator/health</code></td>
+<td>애플리케이션 및 의존성(DB, 디스크 등) 상태</td>
+</tr>
+<tr>
+<td><code>/actuator/info</code></td>
+<td>빌드·버전 등 사용자 정의 정보</td>
+</tr>
+<tr>
+<td><code>/actuator/metrics</code></td>
+<td>JVM·HTTP·DB 등 메트릭 목록과 값</td>
+</tr>
+<tr>
+<td><code>/actuator/env</code></td>
+<td>환경 프로퍼티 (민감 정보 주의)</td>
+</tr>
+<tr>
+<td><code>/actuator/loggers</code></td>
+<td>런타임 로그 레벨 조회/변경</td>
+</tr>
+<tr>
+<td><code>/actuator/prometheus</code></td>
+<td>Prometheus 포맷 메트릭 (스크레이프용)</td>
+</tr>
+</tbody>
+</table>
+<h2>2. 엔드포인트 노출 설정</h2>
+<p>무엇을 열지는 <code>application.yml</code>로 제어합니다. 운영에서는 <strong>꼭 필요한 것만</strong> 여는 것이 원칙입니다.</p>
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">management</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">endpoints</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">web</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">exposure</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">include</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">health, info, metrics, prometheus</span><span class="w">   </span><span class="c1"># 필요한 것만 노출</span>
+<span class="w">        </span><span class="c1"># exclude: env                                # 민감한 건 명시적 제외</span>
+<span class="w">  </span><span class="nt">endpoint</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">health</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">show-details</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">when-authorized</span><span class="w">   </span><span class="c1"># 헬스 상세는 인증 사용자에게만</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>Phase 5-2에서 <code>/actuator/health/**</code> 를 <code>permitAll</code>로 열어 둔 이유가 여기 있습니다. 쿠버네티스/Cloud Run의 프로브는 인증 없이 헬스를 찔러야 하기 때문입니다. 반대로 <code>env</code>, <code>loggers</code> 같은 민감 엔드포인트는 절대 공개하면 안 됩니다.</p>
+</blockquote>
+<h2>3. 헬스 체크 — 프로브와 커스텀 인디케이터</h2>
+<p><code>/actuator/health</code>는 단순 <code>{"status":"UP"}</code> 이 아니라, 등록된 <strong>HealthIndicator</strong>들을 종합한 결과입니다. DB가 죽으면 자동으로 <code>DOWN</code>이 됩니다.</p>
+<h3>Liveness / Readiness 프로브</h3>
+<p>쿠버네티스·Cloud Run은 두 종류의 프로브를 구분합니다. Spring Boot는 이를 그룹으로 지원합니다.</p>
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">management</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">endpoint</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">health</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">probes</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">   </span><span class="c1"># liveness/readiness 그룹 활성화</span>
+</pre></div>
+</div>
+<ul>
+<li><code>/actuator/health/liveness</code> → 프로세스가 살아 있는가? (실패 시 <strong>재시작</strong>)</li>
+<li><code>/actuator/health/readiness</code> → 트래픽을 받을 준비가 됐는가? (실패 시 <strong>트래픽 차단</strong>)</li>
+</ul>
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="c1"># 쿠버네티스 매니페스트 예시</span>
+<span class="nt">livenessProbe</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">httpGet</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> path</span><span class="p">:</span><span class="w"> </span><span class="nv">/actuator/health/liveness</span><span class="p p-Indicator">,</span><span class="nt"> port</span><span class="p">:</span><span class="w"> </span><span class="nv">8080</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="nt">readinessProbe</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">httpGet</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> path</span><span class="p">:</span><span class="w"> </span><span class="nv">/actuator/health/readiness</span><span class="p p-Indicator">,</span><span class="nt"> port</span><span class="p">:</span><span class="w"> </span><span class="nv">8080</span><span class="w"> </span><span class="p p-Indicator">}</span>
+</pre></div>
+</div>
+<h3>커스텀 헬스 인디케이터</h3>
+<p>외부 도서 메타데이터 API(Phase 5-1)가 우리 서비스의 핵심 의존성이라면, 그 상태도 헬스에 반영하고 싶을 수 있습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.health</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.boot.actuate.health.Health</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.boot.actuate.health.HealthIndicator</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.stereotype.Component</span>
+
+<span class="nd">@Component</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">MetadataApiHealthIndicator</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">metadataClient</span><span class="p">:</span><span class="w"> </span><span class="n">BookMetadataClient</span><span class="p">,</span>
+<span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">HealthIndicator</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">health</span><span class="p">():</span><span class="w"> </span><span class="n">Health</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">metadataClient</span><span class="p">.</span><span class="na">findByIsbn</span><span class="p">(</span><span class="s">&quot;PING&quot;</span><span class="p">)</span><span class="w">   </span><span class="c1">// 가벼운 핑 호출</span>
+<span class="w">            </span><span class="n">Health</span><span class="p">.</span><span class="na">up</span><span class="p">().</span><span class="na">withDetail</span><span class="p">(</span><span class="s">&quot;metadata-api&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;reachable&quot;</span><span class="p">).</span><span class="na">build</span><span class="p">()</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">ex</span><span class="p">:</span><span class="w"> </span><span class="n">Exception</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// DOWN을 반환하면 전체 health도 DOWN이 된다</span>
+<span class="w">            </span><span class="n">Health</span><span class="p">.</span><span class="na">down</span><span class="p">(</span><span class="n">ex</span><span class="p">).</span><span class="na">withDetail</span><span class="p">(</span><span class="s">&quot;metadata-api&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;unreachable&quot;</span><span class="p">).</span><span class="na">build</span><span class="p">()</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>빈 이름(<code>metadataApi</code>)이 헬스 응답의 컴포넌트 키가 됩니다.</p>
+<h2>4. Micrometer — 메트릭의 표준 추상화</h2>
+<p>Actuator의 메트릭은 <strong>Micrometer</strong>가 수집합니다. Micrometer는 "메트릭계의 SLF4J"로, 코드는 Micrometer API로 작성하고 <strong>백엔드(Prometheus, OTLP 등)는 의존성만 바꿔 끼웁니다.</strong></p>
+<p>JVM 메모리, GC, HTTP 요청 지연(<code>http.server.requests</code>), DataSource 커넥션 등 수많은 메트릭이 <strong>자동으로</strong> 수집됩니다.</p>
+<h3>커스텀 메트릭 — Counter와 Timer</h3>
+<p>도서 등록 횟수와 처리 시간을 직접 측정해 봅시다. <code>MeterRegistry</code>를 주입받아 사용합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.service</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">io.micrometer.core.instrument.Counter</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">io.micrometer.core.instrument.MeterRegistry</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">io.micrometer.core.instrument.Timer</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.stereotype.Service</span>
+
+<span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">,</span>
+<span class="w">    </span><span class="n">registry</span><span class="p">:</span><span class="w"> </span><span class="n">MeterRegistry</span><span class="p">,</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 도서 등록 누적 횟수</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">createdCounter</span><span class="p">:</span><span class="w"> </span><span class="n">Counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Counter</span><span class="p">.</span><span class="na">builder</span><span class="p">(</span><span class="s">&quot;books.created&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">description</span><span class="p">(</span><span class="s">&quot;등록된 도서 수&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">register</span><span class="p">(</span><span class="n">registry</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c1">// 등록 처리 시간 분포</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">createTimer</span><span class="p">:</span><span class="w"> </span><span class="n">Timer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Timer</span><span class="p">.</span><span class="na">builder</span><span class="p">(</span><span class="s">&quot;books.create.duration&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">description</span><span class="p">(</span><span class="s">&quot;도서 등록 처리 시간&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">register</span><span class="p">(</span><span class="n">registry</span><span class="p">)</span>
+
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">CreateBookRequest</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="n">createTimer</span><span class="p">.</span><span class="na">recordCallable</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">saved</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="na">toEntity</span><span class="p">())</span>
+<span class="w">            </span><span class="n">createdCounter</span><span class="p">.</span><span class="na">increment</span><span class="p">()</span>
+<span class="w">            </span><span class="n">saved</span><span class="p">.</span><span class="na">toResponse</span><span class="p">()</span>
+<span class="w">        </span><span class="p">}</span><span class="o">!!</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>이제 <code>/actuator/metrics/books.created</code> 에서 값을 확인할 수 있습니다.</p>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>더 간단하게는 메서드에 <code>@Timed</code>(<code>@Counted</code>) 애너테이션을 붙여 AOP로 측정할 수도 있습니다. 세밀한 제어가 필요하면 위처럼 직접 등록하세요.</p>
+</blockquote>
+<h2>5. Prometheus 노출</h2>
+<p>Prometheus로 메트릭을 수집하려면 레지스트리 의존성을 추가하고 엔드포인트를 엽니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
+<span class="n">runtimeOnly</span><span class="p">(</span><span class="s">&quot;io.micrometer:micrometer-registry-prometheus&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">management</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">endpoints</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">web</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">exposure</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">include</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">health, prometheus</span>
+</pre></div>
+</div>
+<p>그러면 Prometheus 서버가 <code>GET /actuator/prometheus</code> 를 스크레이프해 시계열로 저장하고, Grafana로 대시보드를 그릴 수 있습니다.</p>
+<h2>6. 관측성 — OpenTelemetry와 분산 추적</h2>
+<p>메트릭(무엇이 얼마나)만으로는 부족합니다. "이 느린 요청이 <strong>어디서</strong> 시간을 썼나"를 알려면 <strong>분산 추적(distributed tracing)</strong> 이 필요합니다. Spring Boot 4는 <strong>Micrometer Tracing</strong> + <strong>OpenTelemetry</strong>로 이를 표준 지원합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
+<span class="n">implementation</span><span class="p">(</span><span class="s">&quot;io.micrometer:micrometer-tracing-bridge-otel&quot;</span><span class="p">)</span><span class="w">     </span><span class="c1">// Micrometer ↔ OTel 연결</span>
+<span class="n">implementation</span><span class="p">(</span><span class="s">&quot;io.opentelemetry:opentelemetry-exporter-otlp&quot;</span><span class="p">)</span><span class="w">     </span><span class="c1">// OTLP로 추적 전송</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">management</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">tracing</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">sampling</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">probability</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span><span class="w">          </span><span class="c1"># 개발: 전부 추적 / 운영: 0.1 등으로 낮춤</span>
+<span class="w">  </span><span class="nt">otlp</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">tracing</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://otel-collector:4318/v1/traces</span>
+</pre></div>
+</div>
+<p>이렇게 하면 들어오는 HTTP 요청, DB 호출, 그리고 <code>RestClient</code>를 통한 외부 호출(Phase 5-1)에 <strong>자동으로 trace ID / span ID가 부여</strong>되고 OpenTelemetry Collector(→ Jaeger, Tempo, Zipkin 등)로 전송됩니다.</p>
+<h3>구조화 로깅과 trace 연계</h3>
+<p>Spring Boot 4는 <strong>구조화 로깅(structured logging)</strong> 도 기본 지원합니다. 로그를 JSON으로 출력하고, 위의 trace ID를 자동으로 끼워 넣으면 로그와 추적을 연결해 디버깅할 수 있습니다.</p>
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">logging</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">structured</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">format</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">console</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ecs</span><span class="w">   </span><span class="c1"># ECS(Elastic) 또는 logstash, gelf 등</span>
+</pre></div>
+</div>
+<figure class="diagram"><pre>관측성 3대 신호
+  Metrics  : 무엇이 얼마나? (Micrometer → Prometheus)
+  Traces   : 어디서 느린가? (Micrometer Tracing → OpenTelemetry)
+  Logs     : 정확히 무슨 일이? (구조화 로깅 + trace ID 연계)</pre></figure>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>셋을 trace ID 하나로 묶는 것이 핵심입니다. 메트릭에서 지연 급증을 발견 → 해당 trace를 추적에서 확인 → 같은 trace ID로 로그를 조회, 이 흐름이 운영 디버깅의 정석입니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>이제 우리 서비스는 외부와 통신하고, 보안이 적용되고, 관측 가능합니다. 마지막으로 이 모든 것을 <strong>배포 전에 검증</strong>하는 방법 — 테스트 전략을 다룹니다.</p>
+<p>→ <a href="04-testing.html">테스트 전략</a></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

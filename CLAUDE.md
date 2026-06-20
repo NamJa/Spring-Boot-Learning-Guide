@@ -4,19 +4,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-Documentation-only repository — a Korean-language tutorial for Kotlin developers learning the Spring Boot framework, from core concepts (IoC/DI, auto-configuration) through REST APIs, Spring Data JPA, validation/security/observability, and deployment (JAR / Docker / GraalVM native). No source code, build system, or tests.
+Documentation-only repository — a Korean-language tutorial for Kotlin developers learning the Spring Boot framework, from core concepts (IoC/DI, auto-configuration) through REST APIs, Spring Data JPA, validation/security/observability, and deployment (JAR / Docker / GraalVM native). No application source code or tests.
 
-Served as a **Docsify** static site (`docs/index.html` is the entry point).
+Served as a **generated static HTML site**. The Markdown files under `docs/` are the **source of truth**; `tools/build_site.py` converts each `*.md` → a sibling `*.html` (with `docs/README.md` → `docs/index.html`). Previously a Docsify runtime site; now pre-rendered to self-contained HTML (build-time Pygments highlighting, ASCII diagrams → styled "diagram cards", `> [!TIP]/[!WARNING]` → callouts, sidebar from `_sidebar.md`).
 
 ## Structure
 
-- `docs/phase-{0..7}-*/` — content broken into per-topic pages for Docsify navigation (Phase 7 = Google Cloud & Cloud Run 배포)
+- `docs/phase-{0..7}-*/` — content per-topic pages (Phase 7 = Google Cloud & Cloud Run 배포)
 - `docs/appendix-{a..d}-*/` — 심화 부록: A=JPA 심화, B=Querydsl, C=AOP/프록시 고급, D=Spring MVC 내부 원리 & SSR. Querydsl은 OpenFeign 포크(`io.github.openfeign.querydsl`, `:jakarta` classifier, Kotlin kapt) 기준.
-- `docs/_sidebar.md` — defines the sidebar navigation tree (update when adding/renaming pages)
-- `docs/README.md` — Docsify landing page (renders as the home page)
-- `docs/index.html` — Docsify config and plugins (theme, search, pagination, syntax highlighting)
+- `docs/_sidebar.md` — nav tree **source** (read by the build script; update when adding/renaming pages). Not served as a page.
+- `docs/README.md` → built to `docs/index.html` (home / GitHub Pages entry point).
+- `docs/assets/style.css` — **generated** shared stylesheet (theme, code blocks, diagram cards, callouts).
+- `tools/build_site.py` — the static-site generator.
+- **Generated `*.html` and `assets/style.css` are committed** (GitHub Pages serves them directly).
 
 Phase directories follow the pattern `phase-N-topic/NN-slug.md` with a `README.md` per phase.
+
+## Build (IMPORTANT)
+
+After editing ANY `.md` (or `_sidebar.md`, or `tools/build_site.py`), **regenerate the HTML** so the committed site stays in sync:
+
+```bash
+python3 -m venv .venv && . .venv/bin/activate   # first time only
+pip install markdown pygments                   # first time only
+python tools/build_site.py                       # rebuild all 68 pages + style.css
+```
+
+Then commit both the `.md` and the regenerated `.html`/`assets/style.css`. Never hand-edit the generated `.html` — edit the `.md` and rebuild.
 
 ## Content Conventions
 
@@ -26,12 +40,10 @@ Phase directories follow the pattern `phase-N-topic/NN-slug.md` with a `README.m
 
 ## Local Preview
 
-Docsify requires a local HTTP server. Any of these work from the repo root:
+The built site is plain static HTML — open `docs/index.html` directly, or serve it:
 
 ```bash
-npx docsify-cli serve docs
-# or
-python3 -m http.server 3000 --directory docs
+python3 -m http.server 3000 --directory docs   # then open http://localhost:3000/
 ```
 
 ## Language & Tech Baseline
@@ -40,8 +52,10 @@ python3 -m http.server 3000 --directory docs
 - All code examples use **Kotlin**.
 - Reference versions (verified 2026-06-20): **Spring Boot 4.1.0**, Spring Framework 7.0.8+, Kotlin 2.3.21, JDK 21 (17~26 supported), Gradle 8.14+/9.x, Tomcat 11.0.x. Keep version claims consistent with `docs/README.md`.
 
-## Docsify Conventions
+## Authoring Conventions
 
-- Sidebar is manually maintained in `docs/_sidebar.md` — it is **not** auto-generated
-- Syntax highlighting languages loaded: Kotlin, Bash, YAML, Docker, Groovy, JSON, SQL, properties, XML, HTTP
+- Sidebar is manually maintained in `docs/_sidebar.md` — the build reads it to render each page's nav.
+- Diagrams: write ASCII box/flow art in a **plain fenced block** (no language) — the build auto-detects box-drawing chars and renders it as a styled diagram card. Use ```` ```kotlin/yaml/bash/... ```` for real code (Pygments-highlighted at build time).
+- Callouts: `> [!TIP]`, `> [!WARNING]`, `> [!NOTE]`, `> [!IMPORTANT]` become styled callout boxes.
+- Internal links: write them to the `.md` files (e.g. `[x](../phase-3-data-jpa/01-jpa-concepts.md)`); the build rewrites `.md` → `.html` (and root `README.md` → `index.html`).
 - Plugins enabled: search, pagination, copy-code, tabs

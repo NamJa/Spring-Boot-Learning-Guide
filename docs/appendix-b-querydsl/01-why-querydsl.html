@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01. 왜 Querydsl인가 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="01-why-querydsl.html" class="active">왜 Querydsl인가</a>
+<a href="02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="03-basic-queries.html">기본 쿼리</a>
+<a href="04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>01. 왜 Querydsl인가</h1>
+<p>JPQL 문자열로도 대부분의 쿼리는 작성할 수 있습니다. 그런데도 수많은 실무 프로젝트가 Querydsl을 도입하는 이유는 무엇일까요? 이 페이지에서는 <strong>문자열 쿼리의 근본적 한계</strong>와 <strong>Querydsl이 해결하는 문제</strong>, 그리고 <strong>2026년 현재 Querydsl 프로젝트의 현황</strong>을 정리합니다.</p>
+<h2>1. 문자열 JPQL의 한계</h2>
+<p>부록 A-05에서 본 것처럼, JPQL은 <code>@Query</code>에 문자열로 작성합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;select b from Book b where b.author = :author and b.price &gt;= :minPrice&quot;</span><span class="p">)</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">findByAuthorAndMinPrice</span><span class="p">(</span><span class="n">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">minPrice</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>이 방식은 단순할 때는 잘 동작하지만, 몇 가지 구조적 약점이 있습니다.</p>
+<h3>1.1 컴파일 타임 검증이 불가능하다</h3>
+<p>문자열 쿼리는 <strong>컴파일러가 검사하지 못합니다.</strong> 다음 오류들은 모두 애플리케이션을 <strong>실행하기 전까지</strong> 발견되지 않습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 오타: &#39;titel&#39; — 컴파일 OK, 실행하면 그제서야 예외</span>
+<span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;select b from Book b where b.titel = :title&quot;</span><span class="p">)</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">findByTitle</span><span class="p">(</span><span class="n">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span>
+
+<span class="c1">// 존재하지 않는 필드 &#39;category&#39; — 역시 런타임에야 터진다</span>
+<span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;select b from Book b where b.category = :c&quot;</span><span class="p">)</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">byCategory</span><span class="p">(</span><span class="n">c</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>엔티티의 <code>price</code> 필드 이름을 <code>salePrice</code>로 리팩터링해도, IDE는 문자열 안의 <code>b.price</code>를 <strong>자동으로 바꿔 주지 않습니다.</strong> 즉, <strong>리팩터링 안전성이 없습니다.</strong></p>
+<h3>1.2 동적 쿼리 지옥</h3>
+<p>가장 큰 문제입니다. "검색 조건이 들어온 것만 적용"하는 화면을 상상해 봅시다. 제목·저자·최소가격이 모두 선택 입력이라면, 문자열 JPQL로는 이렇게 됩니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 안티패턴: 문자열을 손으로 조립</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="n">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="n">minPrice</span><span class="p">:</span><span class="w"> </span><span class="kt">Int?</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">jpql</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StringBuilder</span><span class="p">(</span><span class="s">&quot;select b from Book b where 1=1&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mutableMapOf</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kt">Any</span><span class="o">&gt;</span><span class="p">()</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="n">jpql</span><span class="p">.</span><span class="na">append</span><span class="p">(</span><span class="s">&quot; and b.title like :title&quot;</span><span class="p">);</span><span class="w">   </span><span class="n">params</span><span class="o">[</span><span class="s">&quot;title&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;%</span><span class="si">$</span><span class="n">title</span><span class="s">%&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">author</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w">   </span><span class="p">{</span><span class="w"> </span><span class="n">jpql</span><span class="p">.</span><span class="na">append</span><span class="p">(</span><span class="s">&quot; and b.author = :author&quot;</span><span class="p">);</span><span class="w">    </span><span class="n">params</span><span class="o">[</span><span class="s">&quot;author&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">author</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">minPrice</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">jpql</span><span class="p">.</span><span class="na">append</span><span class="p">(</span><span class="s">&quot; and b.price &gt;= :minPrice&quot;</span><span class="p">);</span><span class="w">  </span><span class="n">params</span><span class="o">[</span><span class="s">&quot;minPrice&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">minPrice</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// 띄어쓰기 하나만 빠져도 &#39;whereb.title&#39;이 되어 터진다. where 1=1 같은 꼼수도 필요.</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="n">jpql</span><span class="p">.</span><span class="na">toString</span><span class="p">(),</span><span class="w"> </span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
+<span class="w">    </span><span class="n">params</span><span class="p">.</span><span class="na">forEach</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">query</span><span class="p">.</span><span class="na">setParameter</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">query</span><span class="p">.</span><span class="na">resultList</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code>where 1=1</code> 트릭, 공백 누락 버그, 파라미터 바인딩 누락 — 조건이 5개, 10개로 늘어나면 유지보수가 사실상 불가능해집니다.</p>
+<h2>2. Querydsl의 강점</h2>
+<p>Querydsl은 동일한 검색을 <strong>타입 안전한 Kotlin 코드</strong>로 표현합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// Querydsl: 같은 동적 검색</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="n">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="n">minPrice</span><span class="p">:</span><span class="w"> </span><span class="kt">Int?</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QBook</span><span class="p">.</span><span class="na">book</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">queryFactory</span>
+<span class="w">        </span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">where</span><span class="p">(</span>
+<span class="w">            </span><span class="n">title</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">title</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">},</span><span class="w">     </span><span class="c1">// null이면 조건에서 자동 제외</span>
+<span class="w">            </span><span class="n">author</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+<span class="w">            </span><span class="n">minPrice</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">.</span><span class="na">goe</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>여기서 얻는 이점은 다음과 같습니다.</p>
+<ul>
+<li><strong>타입 안전성</strong>: <code>book.titel</code>이라고 쓰면 <strong>컴파일 에러</strong>입니다. 필드를 리팩터링하면 Q타입이 재생성되며 사용처도 함께 깨져 알 수 있습니다.</li>
+<li><strong>동적 쿼리의 우아함</strong>: <code>where(...)</code>에 넘긴 값이 <code>null</code>이면 Querydsl이 <strong>그 조건을 무시</strong>합니다. <code>1=1</code> 트릭도, 문자열 연결도 필요 없습니다. (이 권장 패턴은 <a href="04-dynamic-and-join.html">04 페이지</a>에서 깊이 다룹니다.)</li>
+<li><strong>IDE 지원</strong>: 자동완성·메서드 체이닝·인라인 문서가 모두 동작합니다.</li>
+<li><strong>재사용</strong>: 조건 생성 로직을 메서드로 빼서 여러 쿼리에서 공유할 수 있습니다.</li>
+</ul>
+<h3>2.1 무엇을 포기하는가</h3>
+<p>물론 비용도 있습니다. <strong>Q타입 생성을 위한 빌드 단계(애너테이션 프로세서)</strong> 가 추가되고, Kotlin에서는 <code>kapt</code> 때문에 빌드가 다소 느려집니다(<a href="02-setup-kotlin.html">02 페이지</a> 참고). 또한 아주 단순한 단건 조회까지 Querydsl로 쓰는 것은 과합니다 — 그건 Spring Data JPA의 파생 쿼리로 충분합니다.</p>
+<h2>3. 2026년 Querydsl 프로젝트 현황</h2>
+<p>여기는 <strong>버전·좌표 선택에 직결되는 중요한 부분</strong>입니다. 입문자가 가장 많이 혼동하는 지점이기도 합니다.</p>
+<p>원조 Querydsl(group id <strong><code>com.querydsl</code></strong>, 5.x 라인)은 사실상 <strong>유지보수가 멈춘 상태</strong>입니다. 최신 Jakarta·Spring Boot 3/4 환경과의 호환성 패치가 더디게 진행되면서, 커뮤니티는 새로운 메인테이너를 찾았습니다.</p>
+<p>그 결과 현재의 사실상 표준은 <strong>OpenFeign 조직이 관리하는 포크</strong>입니다.</p>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>원조 (레거시)</th>
+<th>OpenFeign 포크 (현행 표준)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Group ID</td>
+<td><code>com.querydsl</code></td>
+<td><strong><code>io.github.openfeign.querydsl</code></strong></td>
+</tr>
+<tr>
+<td>최신 라인</td>
+<td>5.x (정체)</td>
+<td><strong>7.x</strong> (활발히 유지보수)</td>
+</tr>
+<tr>
+<td>Jakarta 지원</td>
+<td>제한적</td>
+<td><code>:jakarta</code> classifier로 완전 지원</td>
+</tr>
+<tr>
+<td>Spring Boot 4</td>
+<td>권장하지 않음</td>
+<td>권장</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>인터넷의 옛 블로그·StackOverflow 답변은 대부분 <code>com.querydsl:querydsl-jpa:5.0.0</code>을 안내합니다. <strong>Spring Boot 4 + Jakarta 환경에서는 이 좌표를 쓰지 마세요.</strong> 본 부록은 <strong><code>io.github.openfeign.querydsl</code></strong> 좌표를 기준으로 합니다. 정확한 버전과 의존성은 <a href="02-setup-kotlin.html">02 페이지</a>에서 다룹니다.</p>
+</blockquote>
+<h2>4. 다른 대안과의 비교 — JPA Criteria API</h2>
+<p>표준 JPA에도 타입 안전 동적 쿼리 수단이 있습니다. 바로 <strong>Criteria API</strong>입니다. 하지만 코드가 극도로 장황합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// JPA Criteria: &quot;제목에 &#39;Spring&#39;이 포함된 책&quot;</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">cb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="na">criteriaBuilder</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">cq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cb</span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cq</span><span class="p">.</span><span class="na">from</span><span class="p">(</span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
+<span class="n">cq</span><span class="p">.</span><span class="na">select</span><span class="p">(</span><span class="n">root</span><span class="p">).</span><span class="na">where</span><span class="p">(</span><span class="n">cb</span><span class="p">.</span><span class="na">like</span><span class="p">(</span><span class="n">root</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;title&quot;</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;%Spring%&quot;</span><span class="p">))</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="n">cq</span><span class="p">).</span><span class="na">resultList</span>
+</pre></div>
+</div>
+<p>같은 일을 Querydsl로는 한 줄입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">queryFactory</span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">).</span><span class="na">where</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">title</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;Spring&quot;</span><span class="p">)).</span><span class="na">fetch</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>세 방식을 정리하면 다음과 같습니다.</p>
+<table>
+<thead>
+<tr>
+<th>방식</th>
+<th>타입 안전</th>
+<th>동적 쿼리</th>
+<th>가독성</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>JPQL 문자열</strong></td>
+<td>✗</td>
+<td>△ (문자열 조립)</td>
+<td>△</td>
+<td>표준, 학습 비용 낮음</td>
+</tr>
+<tr>
+<td><strong>JPA Criteria</strong></td>
+<td>○</td>
+<td>○</td>
+<td>✗ (매우 장황)</td>
+<td>표준이지만 실무 기피</td>
+</tr>
+<tr>
+<td><strong>Querydsl</strong></td>
+<td>○</td>
+<td>○ (우아함)</td>
+<td>○</td>
+<td>별도 라이브러리·빌드 설정 필요</td>
+</tr>
+</tbody>
+</table>
+<p>결론적으로, Querydsl은 "타입 안전성"과 "가독성 좋은 동적 쿼리"를 <strong>동시에</strong> 제공하는 거의 유일한 실용적 선택지입니다.</p>
+<h2>다음 단계</h2>
+<p>이제 <em>왜</em> 쓰는지를 이해했으니, <em>어떻게</em> 설정하는지로 넘어갑시다.</p>
+<p>→ <a href="02-setup-kotlin.html">02. Kotlin + Gradle 설정</a></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

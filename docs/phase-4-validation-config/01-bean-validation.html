@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bean Validation 입력 검증 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="01-bean-validation.html" class="active">Bean Validation 입력 검증</a>
+<a href="02-exception-handling.html">전역 예외 처리</a>
+<a href="03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>Bean Validation 입력 검증</h1>
+<p>지금까지의 <code>BookController</code>는 사용자가 보낸 데이터를 <strong>무조건 믿었습니다.</strong> 제목이 빈 문자열이든, 가격이 <code>-9999</code>든, ISBN이 <code>"hello"</code>든 그대로 받아 저장했죠. 실무에서는 절대 그래선 안 됩니다. 입력 검증은 보안과 데이터 무결성의 첫 번째 방어선입니다.</p>
+<p>물론 Service 안에서 <code>if (request.title.isBlank()) throw ...</code> 식으로 직접 검증할 수도 있습니다. 하지만 이런 코드는 금방 지저분해지고 중복됩니다. Spring은 <strong>선언적(declarative)</strong> 으로 검증 규칙을 애너테이션으로 표현하는 표준 방식 — <strong>Bean Validation (Jakarta Validation)</strong> — 을 제공합니다.</p>
+<h2>1. Bean Validation이란</h2>
+<p><strong>Bean Validation</strong>은 객체의 필드에 애너테이션으로 제약 조건(constraint)을 선언하면, 런타임에 그 규칙을 검사해 주는 <strong>Jakarta EE 표준 명세</strong>입니다. JPA가 그랬듯 이것 역시 명세일 뿐이고, 실제 구현체는 <strong>Hibernate Validator</strong>입니다(Hibernate ORM과는 별개의 라이브러리입니다).</p>
+<ul>
+<li><strong>명세</strong>: <code>jakarta.validation.*</code> — <code>@NotNull</code>, <code>@Size</code>, <code>@Valid</code> 등</li>
+<li><strong>구현체</strong>: Hibernate Validator</li>
+<li><strong>스타터</strong>: <code>spring-boot-starter-validation</code> — 위 둘을 묶어 가져오고 Spring MVC와 통합</li>
+</ul>
+<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p>과거 <code>javax.validation.*</code> 패키지는 Jakarta EE 이관으로 <strong><code>jakarta.validation.*</code></strong> 로 바뀌었습니다. Spring Boot 4.x는 전부 <code>jakarta</code> 네임스페이스를 씁니다.</p>
+</blockquote>
+<p>먼저 의존성을 추가합니다. Spring Boot 4.x에서는 web 스타터만으로는 검증이 자동 포함되지 않으므로 명시적으로 추가해야 합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
+<span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-web&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-validation&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// ← 추가</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h2>2. 주요 제약 애너테이션</h2>
+<p>자주 쓰는 <code>jakarta.validation.constraints.*</code> 애너테이션을 정리하면 다음과 같습니다.</p>
+<table>
+<thead>
+<tr>
+<th>애너테이션</th>
+<th>적용 대상</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@NotNull</code></td>
+<td>모든 타입</td>
+<td><code>null</code>이 아니어야 함 (빈 문자열은 통과)</td>
+</tr>
+<tr>
+<td><code>@NotEmpty</code></td>
+<td>String, Collection, Map, 배열</td>
+<td><code>null</code>도 아니고 비어 있지도 않음</td>
+</tr>
+<tr>
+<td><code>@NotBlank</code></td>
+<td>String</td>
+<td><code>null</code>/빈 문자열/공백만 있는 문자열 모두 거부</td>
+</tr>
+<tr>
+<td><code>@Size(min, max)</code></td>
+<td>String, Collection 등</td>
+<td>길이/크기 범위</td>
+</tr>
+<tr>
+<td><code>@Min</code> / <code>@Max</code></td>
+<td>숫자</td>
+<td>최소/최대값 (정수)</td>
+</tr>
+<tr>
+<td><code>@Positive</code> / <code>@PositiveOrZero</code></td>
+<td>숫자</td>
+<td>양수 / 0 이상</td>
+</tr>
+<tr>
+<td><code>@Negative</code> / <code>@NegativeOrZero</code></td>
+<td>숫자</td>
+<td>음수 / 0 이하</td>
+</tr>
+<tr>
+<td><code>@DecimalMin</code> / <code>@DecimalMax</code></td>
+<td>숫자</td>
+<td>소수 포함 경계값</td>
+</tr>
+<tr>
+<td><code>@Pattern(regexp)</code></td>
+<td>String</td>
+<td>정규식 일치</td>
+</tr>
+<tr>
+<td><code>@Email</code></td>
+<td>String</td>
+<td>이메일 형식</td>
+</tr>
+<tr>
+<td><code>@Past</code> / <code>@PastOrPresent</code></td>
+<td>날짜/시간</td>
+<td>과거 / 과거·현재</td>
+</tr>
+<tr>
+<td><code>@Future</code> / <code>@FutureOrPresent</code></td>
+<td>날짜/시간</td>
+<td>미래 / 미래·현재</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>문자열 필수값에는 거의 항상 <code>@NotBlank</code>를 쓰세요. <code>@NotNull</code>은 <code>""</code>(빈 문자열)을 통과시키고, <code>@NotEmpty</code>는 <code>" "</code>(공백)을 통과시킵니다. <code>@NotBlank</code>만이 셋 다 막습니다.</p>
+</blockquote>
+<h2>3. Kotlin의 함정 — <code>@field:</code> use-site target</h2>
+<p>여기서 Kotlin 개발자가 가장 자주 걸려 넘어지는 함정을 짚고 갑니다. 다음 코드는 <strong>검증이 동작하지 않습니다.</strong></p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// ❌ 잘못된 예 — @NotBlank가 무시될 수 있다</span>
+<span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">CreateBookRequest</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@NotBlank</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>이유는 Kotlin의 <strong>애너테이션 use-site target</strong> 때문입니다. Kotlin에서 <code>val title: String</code>을 생성자 프로퍼티로 선언하면, 컴파일러는 내부적으로 <strong>필드(field)</strong>, <strong>getter</strong>, <strong>생성자 파라미터(param)</strong> 를 동시에 만들어 냅니다. 그런데 애너테이션을 그냥 붙이면 Kotlin은 기본 규칙에 따라 <strong>생성자 파라미터에만</strong> 붙이는 경우가 있습니다.</p>
+<p>반면 Hibernate Validator는 기본적으로 <strong>필드(field)</strong> 에 붙은 제약을 읽습니다. 애너테이션이 엉뚱한 곳(param)에 붙으면 검증기가 못 보고 지나치는 것입니다. 그래서 <strong>명시적으로 <code>@field:</code> 라는 use-site target을 지정</strong>해 줘야 합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// ✅ 올바른 예 — @field: 로 필드에 명시</span>
+<span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">CreateBookRequest</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">NotBlank</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">NotBlank</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<figure class="diagram"><pre>@NotBlank val title  ──┐
+                       │  Kotlin이 생성하는 요소들
+                       ├──▶ constructor param   ← target 미지정 시 여기 붙을 수 있음
+                       ├──▶ private field        ← @field: 로 지정하면 여기 (검증기가 읽음)
+                       └──▶ getter               ← @get: 로 지정</pre></figure>
+<p>요점: <strong>Kotlin + Bean Validation에서는 제약 애너테이션 앞에 항상 <code>@field:</code>를 붙인다.</strong> 이것 하나만 기억해도 절반은 성공입니다.</p>
+<h2>4. CreateBookRequest에 검증 적용하기</h2>
+<p>이제 Phase 2에서 만든 DTO에 실제 규칙을 입혀 봅시다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.dto</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.validation.constraints.NotBlank</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.validation.constraints.PastOrPresent</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.validation.constraints.Pattern</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.validation.constraints.Positive</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.validation.constraints.Size</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">java.time.LocalDate</span>
+
+<span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">CreateBookRequest</span><span class="p">(</span>
+<span class="w">    </span><span class="c1">// 제목: 필수, 1~200자</span>
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">NotBlank</span><span class="p">(</span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;제목은 필수입니다&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">Size</span><span class="p">(</span><span class="n">max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">200</span><span class="p">,</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;제목은 200자를 넘을 수 없습니다&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+
+<span class="w">    </span><span class="c1">// 저자: 필수</span>
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">NotBlank</span><span class="p">(</span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;저자는 필수입니다&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+
+<span class="w">    </span><span class="c1">// ISBN-13: 하이픈 포함/미포함 13자리 숫자 패턴</span>
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">Pattern</span><span class="p">(</span>
+<span class="w">        </span><span class="n">regexp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;^(?:\\d[- ]?){12}\\d</span><span class="err">$</span><span class="s">&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;ISBN은 13자리 형식이어야 합니다&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+
+<span class="w">    </span><span class="c1">// 가격: 양수만 허용</span>
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">Positive</span><span class="p">(</span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;가격은 0보다 커야 합니다&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">price</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
+
+<span class="w">    </span><span class="c1">// 출판일: 미래일 수 없음 (오늘까지 허용)</span>
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">PastOrPresent</span><span class="p">(</span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;출판일은 미래일 수 없습니다&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">publishedAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code>UpdateBookRequest</code>도 같은 방식으로 적용합니다. 부분 수정(PATCH)이라 필드가 nullable이라면 <code>@field:NotBlank</code> 대신 nullable 타입에 제약을 거는데, 이때 <code>null</code>은 대부분의 제약을 <strong>통과</strong>한다는 점을 기억하세요(<code>@NotNull</code>만 막음). 즉 "값이 들어왔다면 검증, 안 들어왔으면 패스"가 자연스럽게 표현됩니다.</p>
+<h2>5. 컨트롤러에서 <code>@Valid</code>로 검증 트리거</h2>
+<p>DTO에 규칙을 선언만 한다고 검증이 자동으로 일어나지는 않습니다. 컨트롤러 메서드에서 <strong><code>@Valid</code></strong> 를 <code>@RequestBody</code> 앞에 붙여 검증을 발동시켜야 합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.controller</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">com.example.bookapi.dto.CreateBookRequest</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">com.example.bookapi.service.BookService</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.validation.Valid</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.http.HttpStatus</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.http.ResponseEntity</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.bind.annotation.*</span>
+
+<span class="nd">@RestController</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookController</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookService</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="p">,</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nd">@PostMapping</span>
+<span class="w">    </span><span class="nd">@ResponseStatus</span><span class="p">(</span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">CREATED</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span>
+<span class="w">        </span><span class="nd">@Valid</span><span class="w"> </span><span class="nd">@RequestBody</span><span class="w"> </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">CreateBookRequest</span><span class="p">,</span><span class="w"> </span><span class="c1">// ← @Valid 가 검증을 발동</span>
+<span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>이제 검증에 실패하면 Spring은 <strong><code>MethodArgumentNotValidException</code></strong> 을 던집니다. 별도 처리를 하지 않으면 Spring Boot 기본 동작에 따라 <strong>HTTP 400 Bad Request</strong> 가 응답됩니다. 다음 문서(<a href="02-exception-handling.html">전역 예외 처리</a>)에서 이 예외를 잡아 깔끔한 에러 JSON으로 바꾸는 법을 다룹니다.</p>
+<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p><code>@Valid</code>(<code>jakarta.validation</code>)와 <code>@Validated</code>(<code>org.springframework.validation</code>)는 비슷하지만 다릅니다. <code>@Valid</code>는 표준이고 중첩 객체 검증을 지원합니다. <code>@Validated</code>는 Spring 전용으로 <strong>검증 그룹(groups)</strong> 과 메서드 파라미터 검증을 지원합니다(아래 6, 7절).</p>
+</blockquote>
+<h2>6. 경로 변수 · 쿼리 파라미터 검증</h2>
+<p><code>@RequestBody</code> 객체가 아니라 단일 경로 변수나 쿼리 파라미터에 제약을 걸려면, 컨트롤러 <strong>클래스에 <code>@Validated</code></strong> 를 붙이고 파라미터에 직접 제약 애너테이션을 답니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.validation.annotation.Validated</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.validation.constraints.Min</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.validation.constraints.Positive</span>
+
+<span class="nd">@RestController</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span>
+<span class="nd">@Validated</span><span class="w"> </span><span class="c1">// ← 메서드 파라미터 레벨 검증 활성화</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookController</span><span class="p">(</span><span class="cm">/* ... */</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">&quot;/{id}&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findById</span><span class="p">(</span>
+<span class="w">        </span><span class="nd">@PathVariable</span><span class="w"> </span><span class="nd">@Positive</span><span class="w"> </span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">,</span><span class="w"> </span><span class="c1">// id는 양수여야 함</span>
+<span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+
+<span class="w">    </span><span class="nd">@GetMapping</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
+<span class="w">        </span><span class="nd">@RequestParam</span><span class="p">(</span><span class="n">defaultValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;0&quot;</span><span class="p">)</span><span class="w"> </span><span class="nd">@Min</span><span class="p">(</span><span class="m">0</span><span class="p">)</span><span class="w"> </span><span class="n">page</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
+<span class="w">        </span><span class="nd">@RequestParam</span><span class="p">(</span><span class="n">defaultValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;20&quot;</span><span class="p">)</span><span class="w"> </span><span class="nd">@Min</span><span class="p">(</span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="n">size</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
+<span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">BookResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">findAll</span><span class="p">(</span><span class="n">page</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>클래스에 <code>@Validated</code>가 없으면 <code>@PathVariable @Positive id</code>의 제약은 <strong>조용히 무시</strong>됩니다. 파라미터 레벨 검증 실패 시에는 <code>MethodArgumentNotValidException</code>이 아니라 <strong><code>HandlerMethodValidationException</code></strong> 이 던져집니다(Spring 6.1+). 예외 처리 시 둘 다 고려하세요.</p>
+</blockquote>
+<h2>7. 커스텀 검증기 만들기</h2>
+<p>표준 애너테이션으로 표현하기 어려운 규칙은 직접 만들 수 있습니다. 예로, ISBN-13의 <strong>체크섬(checksum)</strong> 까지 검증하는 <code>@Isbn</code> 애너테이션을 정의해 봅시다.</p>
+<p>먼저 애너테이션을 선언합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.validation</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.validation.Constraint</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.validation.Payload</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">kotlin.reflect.KClass</span>
+
+<span class="nd">@Target</span><span class="p">(</span><span class="n">AnnotationTarget</span><span class="p">.</span><span class="na">FIELD</span><span class="p">)</span>
+<span class="nd">@Retention</span><span class="p">(</span><span class="n">AnnotationRetention</span><span class="p">.</span><span class="na">RUNTIME</span><span class="p">)</span>
+<span class="nd">@Constraint</span><span class="p">(</span><span class="n">validatedBy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">IsbnValidator</span><span class="o">::</span><span class="n">class</span><span class="o">]</span><span class="p">)</span><span class="w"> </span><span class="c1">// ← 실제 검증 로직 연결</span>
+<span class="kd">annotation</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">Isbn</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">message</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;유효하지 않은 ISBN-13입니다&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">groups</span><span class="p">:</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">KClass</span><span class="o">&lt;*&gt;&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[]</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">payload</span><span class="p">:</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">KClass</span><span class="o">&lt;</span><span class="k">out</span><span class="w"> </span><span class="n">Payload</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[]</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code>message</code>, <code>groups</code>, <code>payload</code> 세 멤버는 Bean Validation 명세가 <strong>요구하는 필수 요소</strong>입니다. 빠뜨리면 안 됩니다.</p>
+<p>다음으로 <code>ConstraintValidator</code>를 구현합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.validation</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.validation.ConstraintValidator</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.validation.ConstraintValidatorContext</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">IsbnValidator</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ConstraintValidator</span><span class="o">&lt;</span><span class="n">Isbn</span><span class="p">,</span><span class="w"> </span><span class="kt">String</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">isValid</span><span class="p">(</span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="n">context</span><span class="p">:</span><span class="w"> </span><span class="n">ConstraintValidatorContext</span><span class="p">):</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// null은 통과시킨다 (필수 여부는 @NotBlank 가 따로 책임진다)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">digits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">value</span><span class="p">.</span><span class="na">filter</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">isDigit</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">digits</span><span class="p">.</span><span class="na">length</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="m">13</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span>
+
+<span class="w">        </span><span class="c1">// ISBN-13 체크섬: 가중치 1,3 을 번갈아 곱한 합이 10의 배수</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">digits</span><span class="p">.</span><span class="na">mapIndexed</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ch</span><span class="p">.</span><span class="na">digitToInt</span><span class="p">()</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">index</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="m">0</span><span class="p">)</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">3</span>
+<span class="w">        </span><span class="p">}.</span><span class="na">sum</span><span class="p">()</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="m">0</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>이제 DTO에서 <code>@field:Pattern</code> 대신 또는 함께 <code>@field:Isbn</code>을 사용할 수 있습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@field</span><span class="p">:</span><span class="n">Isbn</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+</pre></div>
+</div>
+<p>검증기 안에서 다른 Bean(예: DB 중복 체크용 Repository)을 주입받고 싶다면, <code>ConstraintValidator</code>도 Spring Bean으로 등록되므로 생성자 주입이 가능합니다.</p>
+<h2>8. 검증 그룹 (간단 소개)</h2>
+<p>같은 DTO를 상황마다 다르게 검증하고 싶을 때 <strong>검증 그룹</strong>을 씁니다. 예를 들어 "생성 시에는 id가 없어야 하고, 수정 시에는 id가 있어야 한다" 같은 경우입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">interface</span><span class="w"> </span><span class="nc">OnCreate</span>
+<span class="kd">interface</span><span class="w"> </span><span class="nc">OnUpdate</span>
+
+<span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BookForm</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">Null</span><span class="p">(</span><span class="n">groups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">OnCreate</span><span class="o">::</span><span class="n">class</span><span class="o">]</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">NotNull</span><span class="p">(</span><span class="n">groups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">OnUpdate</span><span class="o">::</span><span class="n">class</span><span class="o">]</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long?</span><span class="p">,</span>
+
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">NotBlank</span><span class="w"> </span><span class="c1">// 그룹 미지정 → 기본 그룹(Default)</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>컨트롤러에서는 <code>@Validated(OnCreate::class)</code> 처럼 그룹을 지정해 검증합니다(이때는 <code>@Valid</code>가 아니라 <code>@Validated</code>를 사용). 그룹은 강력하지만 복잡도를 키우므로, <strong>대부분의 경우 DTO를 생성용/수정용으로 분리하는 편이 더 단순</strong>합니다. 우리 예제처럼 <code>CreateBookRequest</code>와 <code>UpdateBookRequest</code>를 따로 두는 것이 그 예입니다.</p>
+<h2>다음 단계</h2>
+<p>검증에 실패하면 예외가 던져진다는 것을 확인했습니다. 이제 그 예외(와 그 밖의 모든 예외)를 한곳에서 잡아 일관된 에러 응답으로 바꾸는 방법을 배웁니다.</p>
+<p>→ <a href="02-exception-handling.html">전역 예외 처리</a></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

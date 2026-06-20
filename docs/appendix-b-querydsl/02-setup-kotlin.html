@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02. Kotlin + Gradle 설정 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="02-setup-kotlin.html" class="active">Kotlin + Gradle 설정</a>
+<a href="03-basic-queries.html">기본 쿼리</a>
+<a href="04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>02. Kotlin + Gradle 설정</h1>
+<p>Querydsl을 쓰려면 <strong>두 가지</strong>가 필요합니다. (1) 런타임/컴파일 의존성, 그리고 (2) 엔티티로부터 <strong>Q타입</strong>(예: <code>QBook</code>)을 생성하는 <strong>애너테이션 프로세서</strong>. Kotlin에서 애너테이션 프로세서는 <code>kapt</code>로 구동합니다. 이 페이지에서는 완전한 <code>build.gradle.kts</code> 설정과 Q타입 생성 확인 방법을 다룹니다.</p>
+<h2>1. 좌표와 버전 (2026-06-20 검증)</h2>
+<p>본 부록은 OpenFeign 포크를 사용합니다. 검증한 좌표는 다음과 같습니다.</p>
+<table>
+<thead>
+<tr>
+<th>용도</th>
+<th>좌표</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JPA 모듈</td>
+<td><code>io.github.openfeign.querydsl:querydsl-jpa:7.4.0:jakarta</code></td>
+<td>런타임/컴파일, <strong><code>:jakarta</code> classifier 필수</strong></td>
+</tr>
+<tr>
+<td>애너테이션 프로세서</td>
+<td><code>io.github.openfeign.querydsl:querydsl-apt:7.4.0:jakarta</code></td>
+<td>Q타입 생성, <strong><code>:jakarta</code> classifier 필수</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p><strong><code>:jakarta</code> classifier를 반드시 붙여야 합니다.</strong> Spring Boot 3/4는 <code>javax.persistence</code>가 아니라 <strong><code>jakarta.persistence</code></strong> 패키지를 씁니다. classifier 없는 기본 artifact는 옛 <code>javax</code>용이라, Q타입이 잘못 생성되거나 컴파일이 깨집니다.</p>
+</blockquote>
+<h2>2. 왜 KSP가 아니라 kapt인가</h2>
+<p>Kotlin 생태계는 애너테이션 처리에서 <code>kapt</code> → <strong>KSP</strong>(Kotlin Symbol Processing)로 이동하는 추세이고, KSP가 더 빠릅니다. 하지만 <strong>Querydsl은 KSP를 지원하지 않습니다.</strong> Q타입 생성은 Java 애너테이션 프로세서로 작성되어 있어, Kotlin에서는 <strong>반드시 <code>kapt</code></strong> 로 구동해야 합니다.</p>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p><code>kapt</code>는 현재 <strong>유지보수 모드(maintenance mode)</strong> 입니다. 신규 기능은 추가되지 않지만, Querydsl을 Kotlin에서 쓰는 <strong>유일하게 지원되는 경로</strong>이므로 그대로 사용합니다. "kapt가 deprecated 아니냐"는 걱정 때문에 KSP로 바꾸려 하지 마세요 — Querydsl에서는 동작하지 않습니다.</p>
+</blockquote>
+<h2>3. 완전한 build.gradle.kts 발췌</h2>
+<div class="code-block" data-lang="groovy"><span class="code-lang">groovy</span><div class="hl"><pre><span></span><span class="n">plugins</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="n">id</span><span class="o">(</span><span class="s2">&quot;org.springframework.boot&quot;</span><span class="o">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s2">&quot;4.1.0&quot;</span>
+<span class="w">    </span><span class="n">id</span><span class="o">(</span><span class="s2">&quot;io.spring.dependency-management&quot;</span><span class="o">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s2">&quot;1.1.7&quot;</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="o">(</span><span class="s2">&quot;jvm&quot;</span><span class="o">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s2">&quot;2.3.21&quot;</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="o">(</span><span class="s2">&quot;plugin.spring&quot;</span><span class="o">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s2">&quot;2.3.21&quot;</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="o">(</span><span class="s2">&quot;plugin.jpa&quot;</span><span class="o">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s2">&quot;2.3.21&quot;</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="o">(</span><span class="s2">&quot;kapt&quot;</span><span class="o">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s2">&quot;2.3.21&quot;</span><span class="w">          </span><span class="c1">// ← Querydsl Q타입 생성을 위한 kapt 플러그인</span>
+<span class="o">}</span>
+
+<span class="n">group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;com.example&quot;</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;0.0.1-SNAPSHOT&quot;</span>
+
+<span class="n">java</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="n">toolchain</span><span class="w"> </span><span class="o">{</span>
+<span class="w">        </span><span class="n">languageVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JavaLanguageVersion</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="mi">21</span><span class="o">)</span><span class="w">   </span><span class="c1">// JDK 21</span>
+<span class="w">    </span><span class="o">}</span>
+<span class="o">}</span>
+
+<span class="n">repositories</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="n">mavenCentral</span><span class="o">()</span>
+<span class="o">}</span>
+
+<span class="c1">// Querydsl 버전을 한 곳에서 관리 (2026-06-20 기준 최신 7.4.0)</span>
+<span class="n">val</span><span class="w"> </span><span class="n">querydslVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;7.4.0&quot;</span>
+
+<span class="n">dependencies</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">&quot;org.springframework.boot:spring-boot-starter-data-jpa&quot;</span><span class="o">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">&quot;org.springframework.boot:spring-boot-starter-web&quot;</span><span class="o">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">&quot;org.jetbrains.kotlin:kotlin-reflect&quot;</span><span class="o">)</span>
+
+<span class="w">    </span><span class="c1">// ── Querydsl (OpenFeign 포크) ──────────────────────────────</span>
+<span class="w">    </span><span class="c1">// JPA 모듈: :jakarta classifier 필수</span>
+<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">&quot;io.github.openfeign.querydsl:querydsl-jpa:$querydslVersion:jakarta&quot;</span><span class="o">)</span>
+<span class="w">    </span><span class="c1">// 애너테이션 프로세서: kapt로 구동, :jakarta classifier 필수</span>
+<span class="w">    </span><span class="n">kapt</span><span class="o">(</span><span class="s2">&quot;io.github.openfeign.querydsl:querydsl-apt:$querydslVersion:jakarta&quot;</span><span class="o">)</span>
+<span class="w">    </span><span class="c1">// (선택) jakarta 애너테이션 — @Generated 등 참조용</span>
+<span class="w">    </span><span class="n">kapt</span><span class="o">(</span><span class="s2">&quot;jakarta.annotation:jakarta.annotation-api&quot;</span><span class="o">)</span>
+<span class="w">    </span><span class="n">kapt</span><span class="o">(</span><span class="s2">&quot;jakarta.persistence:jakarta.persistence-api&quot;</span><span class="o">)</span>
+
+<span class="w">    </span><span class="n">runtimeOnly</span><span class="o">(</span><span class="s2">&quot;com.h2database:h2&quot;</span><span class="o">)</span>
+
+<span class="w">    </span><span class="n">testImplementation</span><span class="o">(</span><span class="s2">&quot;org.springframework.boot:spring-boot-starter-test&quot;</span><span class="o">)</span>
+<span class="o">}</span>
+
+<span class="n">tasks</span><span class="o">.</span><span class="na">withType</span><span class="o">&lt;</span><span class="n">Test</span><span class="o">&gt;</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="n">useJUnitPlatform</span><span class="o">()</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p><code>querydsl-jpa</code>는 <code>implementation</code>, <code>querydsl-apt</code>는 <code>kapt</code>로 선언한다는 점을 헷갈리지 마세요. <code>apt</code>를 <code>implementation</code>에 넣으면 Q타입이 <strong>생성되지 않고</strong>, <code>jpa</code>를 <code>kapt</code>에만 넣으면 런타임에 클래스를 찾지 못합니다.</p>
+</blockquote>
+<h2>4. JPAQueryFactory 빈 등록</h2>
+<p>Querydsl 쿼리는 <code>JPAQueryFactory</code>를 통해 실행합니다. 이 객체는 <code>EntityManager</code>가 필요하므로, 스프링 빈으로 등록해 어디서든 주입받게 합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.config</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">com.querydsl.jpa.impl.JPAQueryFactory</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.persistence.EntityManager</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Bean</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Configuration</span>
+
+<span class="nd">@Configuration</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">QuerydslConfig</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="c1">// EntityManager를 주입받아 JPAQueryFactory 빈을 생성한다.</span>
+<span class="w">    </span><span class="c1">// 이 팩토리가 모든 Querydsl 쿼리의 진입점이 된다.</span>
+<span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">jpaQueryFactory</span><span class="p">(</span><span class="n">entityManager</span><span class="p">:</span><span class="w"> </span><span class="n">EntityManager</span><span class="p">):</span><span class="w"> </span><span class="n">JPAQueryFactory</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">JPAQueryFactory</span><span class="p">(</span><span class="n">entityManager</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>패키지 이름은 <code>com.querydsl.jpa.impl.JPAQueryFactory</code>로 <strong>그대로</strong> 유지됩니다. group id는 <code>io.github.openfeign.querydsl</code>로 바뀌었지만, <strong>클래스의 패키지명(<code>com.querydsl.*</code>)은 호환성을 위해 그대로</strong>입니다. import 문에서 <code>io.github.openfeign</code>을 찾지 마세요.</p>
+</blockquote>
+<p>이렇게 등록하면 리포지토리나 서비스에서 생성자 주입으로 사용할 수 있습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Repository</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookQueryRepository</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">queryFactory</span><span class="p">:</span><span class="w"> </span><span class="n">JPAQueryFactory</span><span class="p">,</span><span class="w">   </span><span class="c1">// 빈 주입</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// ... 쿼리 메서드들</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h2>5. Q타입 생성 확인</h2>
+<p>설정이 끝나면 엔티티(<code>Book</code>)로부터 <code>QBook</code>이 생성되는지 확인해야 합니다.</p>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># kapt를 실행해 Q타입만 생성</span>
+./gradlew<span class="w"> </span>kaptKotlin
+
+<span class="c1"># 또는 전체 빌드</span>
+./gradlew<span class="w"> </span>build
+</pre></div>
+</div>
+<p>생성된 Q타입은 다음 경로에 위치합니다.</p>
+<figure class="diagram"><pre>build/
+└── generated/
+    └── source/
+        └── kapt/
+            └── main/
+                └── com/example/bookapi/
+                    └── QBook.java     ← 생성된 Q타입</pre></figure>
+<figure class="diagram"><pre>[프로젝트]
+   src/main/kotlin/.../Book.kt   (작성)
+            │  kapt + querydsl-apt
+            ▼
+   build/generated/source/kapt/main/.../QBook.java   (자동 생성)
+            │  컴파일
+            ▼
+   QBook.book  ← 코드에서 사용</pre></figure>
+<p><code>QBook</code>이 보이면 성공입니다. 코드에서는 보통 미리 만들어진 정적 인스턴스를 씁니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QBook</span><span class="p">.</span><span class="na">book</span><span class="w">          </span><span class="c1">// 권장: 기본 인스턴스 사용</span>
+<span class="c1">// val book = QBook(&quot;b&quot;)       // 별칭이 필요할 때(자기 조인 등)만 직접 생성</span>
+</pre></div>
+</div>
+<h2>6. Kotlin + kapt 주의점</h2>
+<table>
+<thead>
+<tr>
+<th>증상</th>
+<th>원인</th>
+<th>해결</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>QBook</code>을 못 찾음 (IDE 빨간 줄)</td>
+<td>빌드를 안 돌려 Q타입 미생성</td>
+<td><code>./gradlew kaptKotlin</code> 후 IDE의 Gradle 새로고침</td>
+</tr>
+<tr>
+<td>빌드가 느려짐</td>
+<td>kapt는 Java stub을 거쳐 처리 → 오버헤드</td>
+<td>개발 중엔 변경된 모듈만 빌드, CI에서 캐시 활용</td>
+</tr>
+<tr>
+<td>엔티티 수정 후 옛 필드가 남음</td>
+<td>이전 Q타입이 캐시됨</td>
+<td><code>./gradlew clean kaptKotlin</code>으로 재생성</td>
+</tr>
+<tr>
+<td>IDE가 생성 경로를 소스로 인식 못 함</td>
+<td>생성 디렉터리 미등록</td>
+<td>IntelliJ는 보통 자동 인식. 안 되면 Gradle 프로젝트 재import</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p><strong>IDE 인식 문제는 신규 도입 시 가장 흔한 막힘 지점입니다.</strong> <code>QBook</code>이 빨갛게 떠도 당황하지 말고, 먼저 빌드를 돌려 <code>build/generated/...</code>에 파일이 실제로 생겼는지 확인한 뒤 IDE를 새로고침하세요. 파일이 있는데 IDE만 못 보는 경우가 대부분입니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>설정이 끝났습니다. 이제 <code>QBook</code>으로 실제 쿼리를 작성해 봅시다.</p>
+<p>→ <a href="03-basic-queries.html">03. 기본 쿼리</a></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

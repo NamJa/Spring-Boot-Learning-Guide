@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>프록시와 즉시/지연 로딩, N+1 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="01-persistence-context.html">영속성 컨텍스트</a>
+<a href="02-associations.html">연관관계 매핑</a>
+<a href="03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="04-proxy-fetch.html" class="active">프록시와 N+1</a>
+<a href="05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>프록시와 즉시/지연 로딩, N+1</h1>
+<p>JPA 성능 문제의 90%는 이 한 장에 모여 있습니다. <strong>프록시</strong>가 무엇인지, <strong>지연 로딩</strong>이 어떻게 동작하는지를 이해하지 못하면, 어느 날 운영 로그에서 SQL 수천 개가 쏟아지는 <strong>N+1 문제</strong>를 마주하게 됩니다. <a href="02-associations.html">02장</a>에서 만든 <code>Book ↔ Review</code>, <code>Book → Category</code> 연관을 가지고 직접 재현하고 해결합니다.</p>
+<h2>1. 프록시(Proxy)란</h2>
+<p><code>em.find()</code>는 실제 엔티티를 DB에서 즉시 조회합니다. 반면 <strong><code>em.getReference()</code></strong> 는 <strong>프록시(proxy)</strong> 객체를 반환합니다. 프록시는 진짜 엔티티를 상속한 <strong>가짜 객체</strong>로, 껍데기만 있고 실제 데이터는 비어 있습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Transactional</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">proxyDemo</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">ref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="na">getReference</span><span class="p">(</span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">,</span><span class="w"> </span><span class="m">1L</span><span class="p">)</span><span class="w">  </span><span class="c1">// SELECT 안 나감! 프록시만 생성</span>
+<span class="w">    </span><span class="n">println</span><span class="p">(</span><span class="n">ref</span><span class="p">.</span><span class="na">javaClass</span><span class="p">)</span><span class="w">        </span><span class="c1">// class Book$HibernateProxy$xxxx — 진짜가 아님</span>
+<span class="w">    </span><span class="n">println</span><span class="p">(</span><span class="n">ref</span><span class="p">.</span><span class="na">id</span><span class="p">)</span><span class="w">               </span><span class="c1">// id는 알고 있으니 SELECT 없음</span>
+<span class="w">    </span><span class="n">println</span><span class="p">(</span><span class="n">ref</span><span class="p">.</span><span class="na">title</span><span class="p">)</span><span class="w">            </span><span class="c1">// ← 이 순간 실제 데이터 필요 → SELECT 발생 (초기화)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<figure class="diagram"><pre>getReference() ─▶ [ 프록시: id만 보유, target=null ]
+                          │ title 접근 (초기화 트리거)
+                          ▼
+                   SELECT … WHERE id=1  ─▶  target(진짜 Book) 채움
+                          │
+                          ▼
+                   이후 접근은 target에 위임</pre></figure>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>프록시 초기화는 <strong>영속성 컨텍스트(=트랜잭션)가 살아 있을 때만</strong> 가능합니다. 트랜잭션이 끝난 뒤 프록시의 필드에 접근하면 그 악명 높은 <strong><code>LazyInitializationException</code></strong> 이 터집니다(<a href="01-persistence-context.html">01장</a>에서 예고한 그 예외입니다). 지연 로딩이 곧 프록시 기반이라는 점이 핵심입니다.</p>
+</blockquote>
+<h2>2. FetchType — LAZY vs EAGER</h2>
+<p>연관관계를 "언제 로딩할지"를 결정하는 것이 <strong><code>FetchType</code></strong> 입니다.</p>
+<table>
+<thead>
+<tr>
+<th>FetchType</th>
+<th>의미</th>
+<th>동작</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LAZY</code> (지연)</td>
+<td>실제 사용할 때 로딩</td>
+<td>연관 객체 자리에 <strong>프록시</strong>를 넣어 둠</td>
+</tr>
+<tr>
+<td><code>EAGER</code> (즉시)</td>
+<td>조회 즉시 함께 로딩</td>
+<td>JOIN 또는 추가 SELECT로 같이 가져옴</td>
+</tr>
+</tbody>
+</table>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@ManyToOne</span><span class="p">(</span><span class="n">fetch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FetchType</span><span class="p">.</span><span class="na">LAZY</span><span class="p">)</span><span class="w">   </span><span class="c1">// book 조회 시 category는 프록시</span>
+<span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;category_id&quot;</span><span class="p">)</span>
+<span class="kd">var</span><span class="w"> </span><span class="nv">category</span><span class="p">:</span><span class="w"> </span><span class="n">Category? </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+</pre></div>
+</div>
+<p>각 연관의 <strong>기본 FetchType</strong>은 다음과 같습니다. 표를 외워 두세요.</p>
+<table>
+<thead>
+<tr>
+<th>애너테이션</th>
+<th style="text-align: center;">기본 FetchType</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@ManyToOne</code></td>
+<td style="text-align: center;"><strong>EAGER</strong> ⚠️</td>
+</tr>
+<tr>
+<td><code>@OneToOne</code></td>
+<td style="text-align: center;"><strong>EAGER</strong> ⚠️</td>
+</tr>
+<tr>
+<td><code>@OneToMany</code></td>
+<td style="text-align: center;">LAZY</td>
+</tr>
+<tr>
+<td><code>@ManyToMany</code></td>
+<td style="text-align: center;">LAZY</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p><strong>결론: 모든 연관관계를 <code>LAZY</code>로 명시하세요.</strong> <code>@ManyToOne</code>/<code>@OneToOne</code>은 기본이 EAGER라 위험합니다. EAGER는 어떤 SQL이 언제 나갈지 예측이 어렵고, 특히 JPQL과 만나면 그 자체로 N+1을 유발합니다. 필요한 시점에만 페치 조인으로 함께 가져오는 것이 정석입니다.</p>
+</blockquote>
+<h2>3. N+1 문제 재현</h2>
+<p><code>Book</code> 100권을 조회하면서 각 책의 <code>Category</code>를 출력한다고 합시다. <code>category</code>가 LAZY라면 어떻게 될까요?</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Transactional</span><span class="p">(</span><span class="n">readOnly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">nPlusOne</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">books</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">findAll</span><span class="p">()</span><span class="w">    </span><span class="c1">// (1) SELECT * FROM book  → 100건</span>
+<span class="w">    </span><span class="n">books</span><span class="p">.</span><span class="na">forEach</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">        </span><span class="n">println</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">category</span><span class="o">?.</span><span class="na">name</span><span class="p">)</span><span class="w">         </span><span class="c1">// (N) 각 book 마다 category SELECT!</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>SQL 로그를 보면 다음과 같습니다.</p>
+<div class="code-block" data-lang="sql"><span class="code-lang">sql</span><div class="hl"><pre><span></span><span class="c1">-- (1) 책 목록: 쿼리 1번</span>
+<span class="k">select</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">book</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="c1">-- (N) 첫 book의 category 프록시 초기화</span>
+<span class="k">select</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">category</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+<span class="c1">-- 두 번째 book</span>
+<span class="k">select</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">category</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">11</span><span class="p">;</span>
+<span class="c1">-- ... 책마다 한 번씩, 최악의 경우 100번 ...</span>
+</pre></div>
+</div>
+<p>즉, <strong>쿼리 1번(목록) + N번(연관 초기화) = N+1번</strong>의 쿼리가 나갑니다. 이것이 <strong>N+1 문제</strong>입니다.</p>
+<figure class="diagram"><pre>  findAll()  ─▶  1 쿼리  (Book 100건)
+                  │
+                  ├─ book[0].category → +1 쿼리
+                  ├─ book[1].category → +1 쿼리
+                  └─ ...               → +1 × 100
+                  ────────────────────────────
+                  합계: 1 + 100 = 101 쿼리</pre></figure>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>N+1은 <strong>EAGER로 바꿔도 해결되지 않습니다.</strong> EAGER로 바꾸면 단지 N개의 SELECT가 <code>findAll</code> "직후"에 나갈 뿐, 횟수는 그대로입니다(오히려 JPQL에서는 즉시 N+1을 유발). N+1의 본질은 fetch 시점이 아니라 <strong>"한 번에 가져오지 않는 것"</strong> 입니다.</p>
+</blockquote>
+<h2>4. 해결책 비교</h2>
+<h3>4-1. 페치 조인 (fetch join) — 가장 근본적</h3>
+<p>JPQL에서 <code>join fetch</code>로 연관을 <strong>한 방의 JOIN</strong>으로 함께 가져옵니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;select b from Book b join fetch b.category&quot;</span><span class="p">)</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">findAllWithCategory</span><span class="p">():</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="sql"><span class="code-lang">sql</span><div class="hl"><pre><span></span><span class="c1">-- 단 1쿼리로 끝</span>
+<span class="k">select</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">book</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="k">inner</span><span class="w"> </span><span class="k">join</span><span class="w"> </span><span class="n">category</span><span class="w"> </span><span class="k">c</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">category_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">c</span><span class="p">.</span><span class="n">id</span><span class="p">;</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>페치 조인에는 함정이 있습니다. <strong><code>@OneToMany</code>(컬렉션) 페치 조인은 결과 행이 뻥튀기</strong>됩니다(책 1권 × 리뷰 3개 = 3행). 중복 제거가 필요하고, 무엇보다 <strong>컬렉션 페치 조인과 페이징을 함께 쓰면</strong> Hibernate가 모든 데이터를 메모리에 올려 페이징하는 위험한 경고(<code>HHH000104</code>)를 냅니다. 컬렉션은 페치 조인 대신 아래 <code>@BatchSize</code>/<code>default_batch_fetch_size</code>로 푸는 것이 안전합니다.</p>
+</blockquote>
+<h3>4-2. @EntityGraph — 어노테이션으로 페치 조인</h3>
+<p>Spring Data JPA에서 JPQL 없이 페치 조인 효과를 냅니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@EntityGraph</span><span class="p">(</span><span class="n">attributePaths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s">&quot;category&quot;</span><span class="o">]</span><span class="p">)</span>
+<span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;select b from Book b&quot;</span><span class="p">)</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">findAllWithCategoryGraph</span><span class="p">():</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span>
+
+<span class="c1">// 메서드 이름 쿼리에도 적용 가능</span>
+<span class="nd">@EntityGraph</span><span class="p">(</span><span class="n">attributePaths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s">&quot;category&quot;</span><span class="o">]</span><span class="p">)</span>
+<span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findAll</span><span class="p">():</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<h3>4-3. @BatchSize — IN 절로 묶어 조회</h3>
+<p>연관 초기화를 <strong>N번이 아니라 <code>IN</code> 쿼리 몇 번</strong>으로 줄입니다. 컬렉션 N+1에 특히 유효합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@OneToMany</span><span class="p">(</span><span class="n">mappedBy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;book&quot;</span><span class="p">)</span>
+<span class="nd">@BatchSize</span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">100</span><span class="p">)</span><span class="w">         </span><span class="c1">// reviews를 100개씩 IN 절로 묶어 로딩</span>
+<span class="kd">var</span><span class="w"> </span><span class="nv">reviews</span><span class="p">:</span><span class="w"> </span><span class="n">MutableList</span><span class="o">&lt;</span><span class="n">Review</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mutableListOf</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="sql"><span class="code-lang">sql</span><div class="hl"><pre><span></span><span class="c1">-- N번이 아니라, 부족한 것을 IN 으로 한 번에</span>
+<span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">review</span><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">book_id</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="p">...,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
+</pre></div>
+</div>
+<h3>4-4. default_batch_fetch_size — 전역 설정 (실무 권장)</h3>
+<p>엔티티마다 <code>@BatchSize</code>를 붙이는 대신, <strong>전역 기본값</strong>을 설정합니다. 실무에서 가장 추천하는 기본기입니다.</p>
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">spring</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">jpa</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">hibernate</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">default_batch_fetch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span><span class="w">   </span><span class="c1"># 100~1000 권장</span>
+</pre></div>
+</div>
+<h3>해결책 요약</h3>
+<table>
+<thead>
+<tr>
+<th>방법</th>
+<th>적용</th>
+<th style="text-align: center;">페이징</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>페치 조인</strong></td>
+<td><code>@ManyToOne</code> 등 단건 연관</td>
+<td style="text-align: center;">O</td>
+<td>컬렉션엔 부적합</td>
+</tr>
+<tr>
+<td><strong><code>@EntityGraph</code></strong></td>
+<td>Spring Data 메서드</td>
+<td style="text-align: center;">O</td>
+<td>페치 조인의 선언적 버전</td>
+</tr>
+<tr>
+<td><strong><code>@BatchSize</code></strong></td>
+<td>특정 컬렉션/연관</td>
+<td style="text-align: center;">O</td>
+<td><code>IN</code> 절로 N→1~몇 회</td>
+</tr>
+<tr>
+<td><strong><code>default_batch_fetch_size</code></strong></td>
+<td>전역</td>
+<td style="text-align: center;">O</td>
+<td><strong>기본으로 켜 두기 권장</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>실전 전략: <strong>(1) 모든 연관 LAZY → (2) <code>default_batch_fetch_size</code>를 전역으로 켠다 → (3) 단건 연관은 필요 시 페치 조인/<code>@EntityGraph</code>로 명시 조회 → (4) 컬렉션은 배치 페치에 맡긴다.</strong> 이 조합이면 대부분의 N+1을 예측 가능하게 통제할 수 있습니다.</p>
+</blockquote>
+<h2>5. OSIV (Open Session In View)</h2>
+<p>Spring Boot는 기본으로 <strong>OSIV가 켜져 있습니다</strong>(<code>spring.jpa.open-in-view=true</code>). OSIV는 영속성 컨텍스트(Hibernate 세션)를 <strong>트랜잭션이 아니라 HTTP 요청 끝까지</strong> 살려 둡니다. 덕분에 컨트롤러나 뷰 렌더링 단계에서 지연 로딩을 해도 <code>LazyInitializationException</code>이 나지 않습니다.</p>
+<figure class="diagram"><pre>OSIV ON:  요청 시작 ─[영속성 컨텍스트 ──── 살아있음 ─────]─ 응답 종료
+                       └ 트랜잭션 ┘ └ 컨트롤러/뷰에서 지연 로딩 가능 ┘
+
+OSIV OFF: 요청 시작 ─[ ─트랜잭션=영속성 컨텍스트─ ]── 컨트롤러 → 응답 종료
+                                                  └ 여기서 지연 로딩하면 예외 ┘</pre></figure>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>OSIV ON (기본)</th>
+<th>OSIV OFF</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>장점</td>
+<td>컨트롤러/뷰에서 지연 로딩 편리</td>
+<td>DB 커넥션을 트랜잭션 동안만 점유</td>
+</tr>
+<tr>
+<td>단점</td>
+<td><strong>DB 커넥션을 요청 끝까지 점유</strong> → 고부하 시 커넥션 고갈</td>
+<td>서비스 계층에서 필요한 데이터를 <strong>미리 다 로딩</strong>해야 함</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>트래픽이 많은 실무 API 서버에서는 <strong>OSIV를 끄는 것을 권장</strong>합니다(<code>spring.jpa.open-in-view=false</code>). 커넥션 점유 시간이 길어지면 동시 요청이 몰릴 때 커넥션 풀이 고갈됩니다. 대신 <strong>서비스 계층(<code>@Transactional</code>) 안에서</strong> 필요한 연관을 페치 조인/배치로 모두 로딩한 뒤, <strong>DTO로 변환</strong>해 컨트롤러로 넘기는 패턴을 씁니다. <a href="../phase-3-data-jpa/04-transactions.html">Phase 3-4</a>에서 본 트랜잭션 경계 설계가 여기서 그대로 이어집니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>연관과 로딩 전략을 손에 쥐었으니, 이제 그것들을 직접 조회하는 언어 — <strong>JPQL</strong>로 마무리합니다. 페치 조인도 결국 JPQL 문법의 일부였습니다.</p>
+<p>→ <a href="05-jpql.html">JPQL</a></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

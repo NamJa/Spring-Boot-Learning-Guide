@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spring Security 7 기초 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="02-security-basics.html" class="active">Spring Security 7 기초</a>
+<a href="03-actuator-observability.html">Actuator와 관측성</a>
+<a href="04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>Spring Security 7 기초</h1>
+<p>지금까지 우리의 Book API는 <strong>누구나</strong> 도서를 조회하고, 등록하고, 삭제할 수 있었습니다. 운영 환경에서는 말이 안 되는 일입니다. 최소한 "조회는 누구나, 변경은 인증된 사용자만" 같은 정책이 필요합니다.</p>
+<p>이 문서에서는 <strong>Spring Security 7</strong> 의 핵심 개념과, Spring Boot 4 / Security 7에서 권장되는 <strong>컴포넌트 스타일 <code>SecurityFilterChain</code></strong> 구성을 Kotlin DSL로 다룹니다. 그리고 운영의 정석인 JWT / OAuth2 Resource Server로 가는 길을 짚어 줍니다.</p>
+<h2>1. 시작: 스타터만 추가하면 벌어지는 일</h2>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
+<span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-security&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>이 한 줄을 추가하고 앱을 띄우면 즉시 다음이 적용됩니다.</p>
+<ul>
+<li><strong>모든 엔드포인트가 인증을 요구</strong>합니다. <code>GET /api/books</code>조차 401이 납니다.</li>
+<li>사용자명 <code>user</code>와 <strong>무작위로 생성된 비밀번호</strong>가 부팅 로그에 출력됩니다.</li>
+</ul>
+<div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>  Using generated security password: 8e1c...  (이 값으로 HTTP Basic 인증 가능)</code></pre></div>
+<ul>
+<li>기본적으로 <strong>HTTP Basic</strong>과 <strong>폼 로그인</strong>이 켜집니다.</li>
+</ul>
+<p>즉 Spring Security는 "기본은 닫고, 필요한 곳만 연다"는 <strong>secure-by-default</strong> 철학입니다. 이제 이 기본값을 우리 정책으로 덮어써야 합니다.</p>
+<h2>2. <code>SecurityFilterChain</code> — 보안 설정의 중심</h2>
+<p>Spring Security 5.7부터 <code>WebSecurityConfigurerAdapter</code>를 상속하는 방식은 <strong>제거</strong>되었습니다. Security 7에서는 오직 <strong><code>SecurityFilterChain</code> 빈을 등록하는 컴포넌트 스타일</strong>만 사용합니다.</p>
+<figure class="diagram"><pre>요청 ──► [SecurityFilterChain]
+             ├─ CSRF 필터
+             ├─ 인증 필터 (Basic / 폼 / JWT ...)
+             ├─ 인가 필터 (authorizeHttpRequests)
+             └─ ...
+         ──► 디스패처 서블릿 ──► BookController</pre></figure>
+<p><code>SecurityFilterChain</code>은 "어떤 요청 경로에, 어떤 인증/인가 규칙을 적용할지"를 담은 필터 묶음입니다. 빈으로 등록하면 Spring Boot가 기본 체인 대신 우리 것을 씁니다.</p>
+<h2>3. Book API 보안 정책 구성 (Kotlin DSL)</h2>
+<p>요구사항을 정합시다.</p>
+<ul>
+<li><code>GET /api/books</code>, <code>GET /api/books/{id}</code> → <strong>누구나</strong> 허용</li>
+<li><code>POST</code>, <code>PUT</code>, <code>DELETE /api/books/**</code> → <strong>인증된 사용자만</strong></li>
+<li>그 외는 인증 요구</li>
+<li>REST API이므로 <strong>HTTP Basic</strong> 사용, <strong>CSRF는 비활성화</strong></li>
+</ul>
+<p>Kotlin에서는 <code>http.invoke { ... }</code> 형태의 <strong>Security Kotlin DSL</strong>을 쓰면 람다 빌더보다 훨씬 읽기 좋습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.config</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Bean</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Configuration</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.http.HttpMethod</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.security.config.annotation.web.builders.HttpSecurity</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.security.config.annotation.web.invoke</span><span class="w">   </span><span class="c1">// Kotlin DSL 확장 import (중요!)</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.security.web.SecurityFilterChain</span>
+
+<span class="nd">@Configuration</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">SecurityConfig</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">securityFilterChain</span><span class="p">(</span><span class="n">http</span><span class="p">:</span><span class="w"> </span><span class="n">HttpSecurity</span><span class="p">):</span><span class="w"> </span><span class="n">SecurityFilterChain</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">http</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// 순수 REST API → 세션 기반 CSRF 토큰 불필요</span>
+<span class="w">            </span><span class="n">csrf</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">disable</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">            </span><span class="n">authorizeHttpRequests</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="c1">// 조회는 누구나</span>
+<span class="w">                </span><span class="n">authorize</span><span class="p">(</span><span class="n">HttpMethod</span><span class="p">.</span><span class="na">GET</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/api/books/**&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">permitAll</span><span class="p">)</span>
+<span class="w">                </span><span class="c1">// 변경은 인증 필요</span>
+<span class="w">                </span><span class="n">authorize</span><span class="p">(</span><span class="n">HttpMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/api/books/**&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">authenticated</span><span class="p">)</span>
+<span class="w">                </span><span class="n">authorize</span><span class="p">(</span><span class="n">HttpMethod</span><span class="p">.</span><span class="na">PUT</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/api/books/**&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">authenticated</span><span class="p">)</span>
+<span class="w">                </span><span class="n">authorize</span><span class="p">(</span><span class="n">HttpMethod</span><span class="p">.</span><span class="na">DELETE</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/api/books/**&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">authenticated</span><span class="p">)</span>
+<span class="w">                </span><span class="c1">// Actuator 헬스 체크는 공개 (Phase 5-3 참고)</span>
+<span class="w">                </span><span class="n">authorize</span><span class="p">(</span><span class="s">&quot;/actuator/health/**&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">permitAll</span><span class="p">)</span>
+<span class="w">                </span><span class="c1">// 나머지는 모두 인증</span>
+<span class="w">                </span><span class="n">authorize</span><span class="p">(</span><span class="n">anyRequest</span><span class="p">,</span><span class="w"> </span><span class="n">authenticated</span><span class="p">)</span>
+<span class="w">            </span><span class="p">}</span>
+
+<span class="w">            </span><span class="n">httpBasic</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1">// HTTP Basic 인증 사용</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">http</span><span class="p">.</span><span class="na">build</span><span class="p">()</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p><code>import org.springframework.security.config.annotation.web.invoke</code> 를 빼먹으면 <code>http { ... }</code> 블록이 컴파일되지 않습니다. 이 확장 함수가 Kotlin DSL의 진입점입니다.</p>
+</blockquote>
+<h2>4. 사용자와 비밀번호 — <code>PasswordEncoder</code></h2>
+<p>부팅 때마다 바뀌는 무작위 비밀번호로는 개발조차 불편합니다. 인메모리 사용자를 정의하되, <strong>비밀번호는 절대 평문으로 저장하지 않습니다.</strong> 운영에서는 <strong>BCrypt</strong>가 표준입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.security.core.userdetails.User</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.security.core.userdetails.UserDetailsService</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.security.crypto.password.PasswordEncoder</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.security.provisioning.InMemoryUserDetailsManager</span>
+
+<span class="nd">@Configuration</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">UserConfig</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">passwordEncoder</span><span class="p">():</span><span class="w"> </span><span class="n">PasswordEncoder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BCryptPasswordEncoder</span><span class="p">()</span>
+
+<span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">userDetailsService</span><span class="p">(</span><span class="n">encoder</span><span class="p">:</span><span class="w"> </span><span class="n">PasswordEncoder</span><span class="p">):</span><span class="w"> </span><span class="n">UserDetailsService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">admin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">User</span><span class="p">.</span><span class="na">withUsername</span><span class="p">(</span><span class="s">&quot;admin&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">password</span><span class="p">(</span><span class="n">encoder</span><span class="p">.</span><span class="na">encode</span><span class="p">(</span><span class="s">&quot;admin-secret&quot;</span><span class="p">))</span><span class="w">  </span><span class="c1">// 저장 시 BCrypt 해시로 변환</span>
+<span class="w">            </span><span class="p">.</span><span class="na">roles</span><span class="p">(</span><span class="s">&quot;ADMIN&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">build</span><span class="p">()</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">InMemoryUserDetailsManager</span><span class="p">(</span><span class="n">admin</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>이제 <code>POST /api/books</code>를 호출하려면 <code>admin / admin-secret</code> 으로 Basic 인증해야 합니다.</p>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># 인증 없이 조회 (성공)</span>
+curl<span class="w"> </span>http://localhost:8080/api/books
+
+<span class="c1"># 인증 없이 등록 (401)</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/api/books<span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;{...}&#39;</span>
+
+<span class="c1"># 인증하여 등록 (성공)</span>
+curl<span class="w"> </span>-u<span class="w"> </span>admin:admin-secret<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/api/books<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;title&quot;:&quot;코틀린 인 액션&quot;,&quot;price&quot;:35000}&#39;</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>실무에서는 사용자가 DB에 있으므로 <code>UserDetailsService</code>를 직접 구현해 JPA 리포지토리에서 사용자를 읽어옵니다. 인메모리는 학습·데모용입니다.</p>
+</blockquote>
+<h2>5. CSRF — 언제 끄고 언제 켜는가</h2>
+<p>위에서 <code>csrf { disable() }</code> 했는데, 함부로 흉내 내면 안 되므로 원리를 짚습니다.</p>
+<p><strong>CSRF(Cross-Site Request Forgery)</strong> 는 브라우저가 자동으로 보내는 <strong>쿠키 기반 세션</strong>을 악용하는 공격입니다. CSRF 토큰은 이 자동 전송을 막는 방어 장치입니다.</p>
+<table>
+<thead>
+<tr>
+<th>상황</th>
+<th>CSRF</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>세션 쿠키 + 서버 렌더링 폼 (브라우저 앱)</td>
+<td><strong>켜야 함</strong> (기본값 유지)</td>
+</tr>
+<tr>
+<td>토큰(JWT 등)을 헤더로 보내는 순수 REST API</td>
+<td>비활성화 가능</td>
+</tr>
+</tbody>
+</table>
+<p>순수 REST API는 보통 쿠키 대신 <code>Authorization</code> 헤더로 인증하므로 CSRF 벡터가 없습니다. 그래서 끕니다. 하지만 <strong>쿠키로 세션을 유지하는 SPA</strong>라면 CSRF를 끄면 안 되고, <code>CookieCsrfTokenRepository</code>를 쓰는 편이 맞습니다.</p>
+<h2>6. 운영의 정석 — JWT / OAuth2 Resource Server (소개)</h2>
+<p>HTTP Basic은 학습엔 좋지만 운영 REST API의 표준은 아닙니다. 실무에서는 <strong>토큰 기반 인증</strong>이 정석입니다. 우리 API는 보통 <strong>OAuth2 Resource Server</strong> 역할을 합니다. 즉 인증 서버(Keycloak, Auth0, Cognito 등)가 발급한 <strong>JWT를 검증만</strong> 합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
+<span class="c1">// implementation(&quot;org.springframework.boot:spring-boot-starter-oauth2-resource-server&quot;)</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Bean</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">securityFilterChain</span><span class="p">(</span><span class="n">http</span><span class="p">:</span><span class="w"> </span><span class="n">HttpSecurity</span><span class="p">):</span><span class="w"> </span><span class="n">SecurityFilterChain</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">http</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">csrf</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">disable</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="n">authorizeHttpRequests</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">authorize</span><span class="p">(</span><span class="n">HttpMethod</span><span class="p">.</span><span class="na">GET</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/api/books/**&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">permitAll</span><span class="p">)</span>
+<span class="w">            </span><span class="n">authorize</span><span class="p">(</span><span class="n">anyRequest</span><span class="p">,</span><span class="w"> </span><span class="n">authenticated</span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="c1">// 들어오는 요청의 Bearer JWT를 검증</span>
+<span class="w">        </span><span class="n">oauth2ResourceServer</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">jwt</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">http</span><span class="p">.</span><span class="na">build</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">spring</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">security</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">oauth2</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">resourceserver</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">jwt</span><span class="p">:</span>
+<span class="w">          </span><span class="c1"># 인증 서버의 JWK 공개키 위치 — 이것만 주면 서명 검증을 자동으로 한다</span>
+<span class="w">          </span><span class="nt">issuer-uri</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://auth.example.com/realms/bookapp</span>
+</pre></div>
+</div>
+<p>이렇게 하면 우리 서비스는 비밀번호를 직접 다루지 않고, <strong>토큰의 서명·만료·스코프만</strong> 검증합니다. 권한은 JWT의 클레임(<code>scope</code>, <code>roles</code>)에서 매핑합니다. 전체 구현은 이 가이드의 범위를 넘지만, <strong>운영에서 가야 할 방향은 거의 항상 이쪽</strong>임을 기억하세요.</p>
+<h2>7. 메서드 수준 보안 (보너스)</h2>
+<p>URL 규칙 외에 메서드 단위로도 인가할 수 있습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Configuration</span>
+<span class="nd">@EnableMethodSecurity</span><span class="w">   </span><span class="c1">// @PreAuthorize 등 활성화</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">MethodSecurityConfig</span>
+
+<span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span><span class="cm">/* ... */</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nd">@PreAuthorize</span><span class="p">(</span><span class="s">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>서비스 계층 비즈니스 규칙과 가까운 곳에서 인가를 표현할 때 유용합니다.</p>
+<h2>다음 단계</h2>
+<p>API를 보호했으니, 이제 운영 중 시스템 내부에서 <strong>무슨 일이 벌어지는지 들여다볼</strong> 차례입니다. Actuator와 관측성으로 헬스 체크, 메트릭, 분산 추적을 다룹니다.</p>
+<p>→ <a href="03-actuator-observability.html">Actuator와 관측성</a></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

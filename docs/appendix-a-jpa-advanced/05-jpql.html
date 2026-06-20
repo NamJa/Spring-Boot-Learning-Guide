@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JPQL · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="01-persistence-context.html">영속성 컨텍스트</a>
+<a href="02-associations.html">연관관계 매핑</a>
+<a href="03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="04-proxy-fetch.html">프록시와 N+1</a>
+<a href="05-jpql.html" class="active">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>JPQL</h1>
+<p>Spring Data JPA의 메서드 이름 쿼리(<code>findByTitleAndAuthor</code>)는 편하지만, 조건이 복잡해지면 메서드 이름이 외계어처럼 길어집니다. 그 너머에는 <strong>JPQL(Jakarta Persistence Query Language)</strong> 이 있습니다. JPQL은 SQL과 닮았지만, <strong>테이블이 아니라 엔티티(객체)를 대상으로</strong> 질의한다는 점이 결정적으로 다릅니다.</p>
+<h2>1. JPQL 기본 — 객체를 대상으로 한 질의</h2>
+<p>SQL은 <code>book</code> 테이블을, JPQL은 <code>Book</code> <strong>엔티티</strong>를 조회합니다. 별칭(<code>b</code>)은 필수이며, <code>*</code> 대신 별칭 자체를 select합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Transactional</span><span class="p">(</span><span class="n">readOnly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">basicJpql</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 엔티티 b 를 그대로 조회</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">books</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="s">&quot;select b from Book b where b.price &gt;= 20000&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">resultList</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="sql"><span class="code-lang">sql</span><div class="hl"><pre><span></span><span class="c1">-- 실제로 번역되어 나가는 SQL</span>
+<span class="k">select</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">author</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">isbn</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">price</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">published_at</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">category_id</span>
+<span class="k">from</span><span class="w"> </span><span class="n">book</span><span class="w"> </span><span class="n">b</span>
+<span class="k">where</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">price</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">20000</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>JPQL의 식별자는 <strong>테이블/컬럼명이 아니라 엔티티 클래스명과 필드명</strong>입니다. <code>Book</code>(클래스명, 대소문자 구분), <code>b.price</code>(필드명)처럼 씁니다. Spring Data JPA에서는 <code>@Query</code>로 감싸 Repository 메서드로 노출합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">interface</span><span class="w"> </span><span class="nc">BookRepository</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">JpaRepository</span><span class="o">&lt;</span><span class="n">Book</span><span class="p">,</span><span class="w"> </span><span class="kt">Long</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;select b from Book b where b.author = :author and b.price &gt;= :min&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">min</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h2>2. 파라미터 바인딩</h2>
+<p>두 가지 방식이 있습니다. <strong>이름 기준(<code>:name</code>)</strong> 을 항상 권장합니다 — 가독성과 안전성 때문입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 이름 기준 (권장)</span>
+<span class="n">em</span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="s">&quot;select b from Book b where b.author = :author&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">setParameter</span><span class="p">(</span><span class="s">&quot;author&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;김영한&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">resultList</span>
+
+<span class="c1">// 위치 기준 (?1) — 순서가 바뀌면 깨지므로 비권장</span>
+<span class="n">em</span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="s">&quot;select b from Book b where b.author = ?1&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">setParameter</span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;김영한&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">resultList</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>파라미터를 <strong>문자열로 직접 이어 붙이지 마세요</strong>(<code>"... where b.author = '" + name + "'"</code>). SQL 인젝션 취약점이 생기고, 바인딩 캐시 이점도 잃습니다. 반드시 <code>setParameter</code>(또는 <code>@Query</code>의 <code>:param</code>)로 바인딩하세요.</p>
+</blockquote>
+<h2>3. 프로젝션 — 무엇을 select할 것인가</h2>
+<p><strong>프로젝션(projection)</strong> 은 select 절에 무엇을 담을지입니다. 세 종류가 있습니다.</p>
+<h3>3-1. 엔티티 프로젝션</h3>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 조회한 Book 은 전부 영속 상태로 관리됨 (변경 감지 대상)</span>
+<span class="s">&quot;select b from Book b&quot;</span>
+</pre></div>
+</div>
+<h3>3-2. 스칼라 프로젝션</h3>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 컬럼/표현식 — 영속성 컨텍스트가 관리하지 않음</span>
+<span class="s">&quot;select b.title, b.price from Book b&quot;</span><span class="w">   </span><span class="c1">// 결과: List&lt;Array&lt;Any&gt;&gt;</span>
+</pre></div>
+</div>
+<h3>3-3. DTO 프로젝션 — <code>new</code> 구문 (실무 핵심)</h3>
+<p>특정 필드만 골라 <strong>DTO로 직접 매핑</strong>합니다. 화면에 필요한 데이터만 가볍게 가져올 때 씁니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.dto</span>
+
+<span class="c1">// 생성자가 있는 일반 클래스 (Kotlin data class 가능)</span>
+<span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BookSummary</span><span class="p">(</span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">price</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Query</span><span class="p">(</span>
+<span class="w">    </span><span class="s">&quot;&quot;&quot;</span>
+<span class="s">    select new com.example.bookapi.dto.BookSummary(b.title, b.author, b.price)</span>
+<span class="s">    from Book b</span>
+<span class="s">    where b.price &gt;= :min</span>
+<span class="s">    &quot;&quot;&quot;</span>
+<span class="p">)</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">findSummaries</span><span class="p">(</span><span class="n">min</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">BookSummary</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p><code>new</code> 구문에는 <strong>DTO의 전체 패키지 경로(FQCN)</strong> 를 적어야 하고, <strong>생성자의 인자 순서·타입이 정확히 일치</strong>해야 합니다. 길고 깨지기 쉽죠. 이 불편함이 바로 <a href="../appendix-b-querydsl/README.html">부록 B Querydsl</a>에서 타입 안전 DTO 프로젝션으로 깔끔히 해결됩니다.</p>
+</blockquote>
+<h2>4. 페이징 — setFirstResult / setMaxResults</h2>
+<p>JPQL 페이징은 DB 방언(dialect)에 맞는 <code>LIMIT</code>/<code>OFFSET</code>을 JPA가 알아서 만들어 줍니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">em</span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="s">&quot;select b from Book b order by b.id desc&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">setFirstResult</span><span class="p">(</span><span class="m">20</span><span class="p">)</span><span class="w">   </span><span class="c1">// offset: 21번째부터</span>
+<span class="w">    </span><span class="p">.</span><span class="na">setMaxResults</span><span class="p">(</span><span class="m">10</span><span class="p">)</span><span class="w">    </span><span class="c1">// limit: 10개</span>
+<span class="w">    </span><span class="p">.</span><span class="na">resultList</span>
+</pre></div>
+</div>
+<p>Spring Data JPA에서는 <code>Pageable</code>이 이 둘을 대신 처리하므로 직접 쓸 일은 드뭅니다(<a href="../phase-3-data-jpa/03-repository.html">Phase 3-3</a>의 <code>Page&lt;Book&gt;</code> 참고). 원리는 위와 같습니다.</p>
+<h2>5. 조인 — 내부 / 외부 / 페치</h2>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 내부 조인 — 연관 경로로 조인</span>
+<span class="s">&quot;select b from Book b join b.category c where c.name = :name&quot;</span>
+
+<span class="c1">// 외부 조인 — category 가 없는 Book 도 포함</span>
+<span class="s">&quot;select b from Book b left join b.category c&quot;</span>
+
+<span class="c1">// 세타 조인(연관 없는 조인) — from 절에 나열</span>
+<span class="s">&quot;select b from Book b, Category c where b.title = c.name&quot;</span>
+</pre></div>
+</div>
+<p><strong>페치 조인(<code>join fetch</code>)</strong> 은 <a href="04-proxy-fetch.html">04장</a>에서 본 N+1 해결의 핵심입니다. 일반 조인과 달리 <strong>연관 엔티티까지 함께 영속 상태로 로딩</strong>합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 일반 조인: category 로 필터링만, b.category 는 여전히 프록시 (지연 로딩 대상)</span>
+<span class="s">&quot;select b from Book b join b.category c where c.name = &#39;소설&#39;&quot;</span>
+
+<span class="c1">// 페치 조인: b.category 까지 즉시 함께 로딩 → 이후 접근해도 추가 SELECT 없음</span>
+<span class="s">&quot;select b from Book b join fetch b.category&quot;</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>컬렉션(<code>@OneToMany</code>, 예: <code>b.reviews</code>) 페치 조인은 <strong>결과가 중복</strong>됩니다(책 1권에 리뷰 3개면 3행). <code>select distinct b ...</code>로 애플리케이션 레벨 중복을 제거하거나, 페이징이 필요하면 페치 조인 대신 <strong>배치 페치</strong>(<code>default_batch_fetch_size</code>)를 쓰세요(<a href="04-proxy-fetch.html">04장 4절</a>).</p>
+</blockquote>
+<h2>6. 벌크 연산 — executeUpdate와 영속성 컨텍스트</h2>
+<p>여러 행을 한 번에 수정/삭제할 때는 <strong>벌크 연산</strong>을 씁니다. 변경 감지는 엔티티를 하나씩 처리하므로, 수만 건을 한 번에 바꿀 땐 비효율적이기 때문입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Modifying</span><span class="w">          </span><span class="c1">// Spring Data JPA: UPDATE/DELETE JPQL 임을 표시</span>
+<span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;update Book b set b.price = b.price * 11 / 10 where b.publishedAt &lt; :date&quot;</span><span class="p">)</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">raisePriceForOldBooks</span><span class="p">(</span><span class="n">date</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">):</span><span class="w"> </span><span class="kt">Int</span><span class="w">   </span><span class="c1">// 반환: 영향받은 행 수</span>
+</pre></div>
+</div>
+<p>순수 <code>EntityManager</code>로는 <code>executeUpdate()</code>입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">val</span><span class="w"> </span><span class="nv">affected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="s">&quot;update Book b set b.price = b.price + 1000&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">executeUpdate</span><span class="p">()</span><span class="w">   </span><span class="c1">// DB에 직접 UPDATE, 한 방에 수천 건 처리</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>벌크 연산의 <strong>가장 위험한 함정</strong>: 벌크 연산은 영속성 컨텍스트(1차 캐시)를 <strong>거치지 않고 DB에 직접</strong> SQL을 날립니다. 그래서 <strong>벌크 연산 후의 1차 캐시는 DB와 어긋난</strong> 상태가 됩니다. 같은 트랜잭션에서 이미 조회한 엔티티는 옛날 값을 그대로 들고 있습니다.</p>
+<p><code>kotlin
+val book = em.find(Book::class.java, 1L)      // price=10000 (1차 캐시)
+em.createQuery("update Book b set b.price = 9999").executeUpdate()  // DB는 9999
+println(book.price)   // 여전히 10000! (1차 캐시는 안 바뀜)</code></p>
+<p><strong>해결: 벌크 연산 직후 <code>em.clear()</code>로 영속성 컨텍스트를 비우세요.</strong> 이후 다시 조회하면 DB의 최신 값을 가져옵니다. Spring Data JPA에서는 <code>@Modifying(clearAutomatically = true)</code>로 자동화할 수 있습니다.</p>
+</blockquote>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Modifying</span><span class="p">(</span><span class="n">clearAutomatically</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="n">flushAutomatically</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
+<span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;update Book b set b.price = b.price + 1000&quot;</span><span class="p">)</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">bumpAllPrices</span><span class="p">():</span><span class="w"> </span><span class="kt">Int</span>
+</pre></div>
+</div>
+<h2>7. 문자열 JPQL의 한계 — 그리고 Querydsl 예고</h2>
+<p>여기까지 JPQL의 힘을 봤지만, <strong>문자열로 쿼리를 쓴다는 사실 자체</strong>가 한계입니다.</p>
+<ul>
+<li><strong>타입 안전하지 않다.</strong> <code>b.pirce</code>(오타)라고 써도 컴파일은 통과하고, <strong>런타임에야</strong> 터집니다. 필드명 변경 시 IDE 리팩터링이 문자열 안까지 못 들어갑니다.</li>
+<li><strong>동적 쿼리가 지옥이다.</strong> "검색 조건이 입력된 것만 <code>where</code>에 추가"하는 화면을 만들려면, 문자열을 <code>if</code>로 이어 붙이고 <code>and</code>/공백/<code>where</code> 유무를 손으로 관리해야 합니다.</li>
+</ul>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 동적 쿼리를 문자열로 — 끔찍하다</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">sb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StringBuilder</span><span class="p">(</span><span class="s">&quot;select b from Book b where 1=1&quot;</span><span class="p">)</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">author</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="n">sb</span><span class="p">.</span><span class="na">append</span><span class="p">(</span><span class="s">&quot; and b.author = :author&quot;</span><span class="p">)</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">minPrice</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="n">sb</span><span class="p">.</span><span class="na">append</span><span class="p">(</span><span class="s">&quot; and b.price &gt;= :minPrice&quot;</span><span class="p">)</span>
+<span class="c1">// 공백 빠뜨리면 &quot;where1=1and...&quot; 로 깨지고, 파라미터 바인딩도 if 로 또 분기...</span>
+</pre></div>
+</div>
+<figure class="diagram"><pre>문자열 JPQL의 문제
+ ├─ 컴파일 시 검증 불가 → 오타가 런타임 예외로
+ ├─ 리팩터링 안전성 X   → 필드명 바꿔도 문자열은 그대로
+ └─ 동적 쿼리 = 문자열 조립 지옥</pre></figure>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>이 모든 문제를 <strong>컴파일 타임에 잡아 주는</strong> 타입 안전 쿼리 빌더가 <strong>Querydsl</strong>입니다. <code>book.author.eq(author)</code>처럼 메서드 체이닝으로 쿼리를 짜므로 오타는 컴파일 에러가 되고, 동적 쿼리는 <code>BooleanBuilder</code>로 우아하게 조립됩니다. 다음 부록에서 본격적으로 다룹니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>부록 A를 마쳤습니다. 영속성 컨텍스트부터 JPQL까지, JPA의 동작 원리를 한 바퀴 돌았습니다. 이제 그 마지막 한계 — <strong>문자열 쿼리의 타입 안전성과 동적 쿼리</strong> 문제를 정면으로 해결하는 Querydsl로 넘어갑니다.</p>
+<p>→ <a href="../appendix-b-querydsl/README.html">부록 B · Querydsl</a></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

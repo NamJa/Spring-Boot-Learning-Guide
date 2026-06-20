@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>상속 매핑과 값 타입 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="01-persistence-context.html">영속성 컨텍스트</a>
+<a href="02-associations.html">연관관계 매핑</a>
+<a href="03-inheritance-embedded.html" class="active">상속 매핑과 값 타입</a>
+<a href="04-proxy-fetch.html">프록시와 N+1</a>
+<a href="05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>상속 매핑과 값 타입</h1>
+<p>객체지향에는 있지만 관계형 DB에는 없는 두 가지가 <strong>상속</strong>과 <strong>값 타입</strong>입니다. 테이블에는 <code>extends</code>도 없고, "주소"처럼 여러 컬럼을 묶은 의미 단위도 없습니다. JPA는 이 간극을 상속 전략과 임베디드 타입으로 메웁니다.</p>
+<h2>1. 상속 매핑 전략 세 가지</h2>
+<p>"콘텐츠(Content)"라는 부모 아래 <code>Book</code>과 <code>Ebook</code>이 있다고 가정합시다. 이 상속 구조를 테이블로 어떻게 풀어낼지에 세 가지 전략이 있습니다.</p>
+<div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>        Content (공통: title, price)
+         /            \
+      Book           Ebook
+   (isbn 등)      (fileSize 등)</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>전략</th>
+<th>애너테이션</th>
+<th>테이블 구조</th>
+<th>장점</th>
+<th>단점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>단일 테이블</strong></td>
+<td><code>SINGLE_TABLE</code> (기본)</td>
+<td>부모·자식을 <strong>한 테이블</strong>에 다 담고 구분 컬럼으로 식별</td>
+<td>조인 없음, 조회 빠름, 단순</td>
+<td>자식 컬럼이 전부 <strong>nullable</strong>, 테이블 비대</td>
+</tr>
+<tr>
+<td><strong>조인</strong></td>
+<td><code>JOINED</code></td>
+<td>부모/자식마다 테이블, PK로 조인</td>
+<td><strong>정규화</strong>, 무결성, NULL 없음</td>
+<td>조회 시 <strong>JOIN</strong> 필요, INSERT 2회</td>
+</tr>
+<tr>
+<td><strong>구현 클래스마다</strong></td>
+<td><code>TABLE_PER_CLASS</code></td>
+<td>자식마다 독립 테이블(부모 컬럼 중복)</td>
+<td>부모 추상 클래스일 때 명확</td>
+<td>여러 자식 통합 조회 시 <code>UNION</code>, <strong>비권장</strong></td>
+</tr>
+</tbody>
+</table>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Entity</span>
+<span class="nd">@Inheritance</span><span class="p">(</span><span class="n">strategy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">InheritanceType</span><span class="p">.</span><span class="na">JOINED</span><span class="p">)</span>
+<span class="nd">@DiscriminatorColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;content_type&quot;</span><span class="p">)</span><span class="w">  </span><span class="c1">// 구분 컬럼 (SINGLE_TABLE에서 특히 중요)</span>
+<span class="kd">abstract</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">Content</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@Id</span><span class="w"> </span><span class="nd">@GeneratedValue</span><span class="p">(</span><span class="n">strategy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GenerationType</span><span class="p">.</span><span class="na">IDENTITY</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">price</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>
+<span class="p">)</span>
+
+<span class="nd">@Entity</span>
+<span class="nd">@DiscriminatorValue</span><span class="p">(</span><span class="s">&quot;BOOK&quot;</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">Book</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="w">    </span><span class="c1">// title, price, id는 부모에서 상속</span>
+<span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Content</span><span class="p">()</span>
+
+<span class="nd">@Entity</span>
+<span class="nd">@DiscriminatorValue</span><span class="p">(</span><span class="s">&quot;EBOOK&quot;</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">Ebook</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">fileSizeMb</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>
+<span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Content</span><span class="p">()</span>
+</pre></div>
+</div>
+<ul>
+<li><strong><code>@DiscriminatorColumn</code></strong> 은 한 행이 어느 자식 타입인지 구분하는 컬럼을 정의합니다. <code>SINGLE_TABLE</code>에서는 필수에 가깝습니다.</li>
+<li><strong><code>@DiscriminatorValue</code></strong> 는 각 자식이 그 컬럼에 넣을 값을 지정합니다.</li>
+</ul>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>전략 선택의 실전 가이드 — <strong>기본은 <code>SINGLE_TABLE</code></strong>(단순·빠름), 자식별 컬럼이 많고 NOT NULL 제약이 중요하면 <code>JOINED</code>. <code>TABLE_PER_CLASS</code>는 사실상 쓰지 마세요. 참고로 우리 <code>Book</code>은 상속이 필요 없는 단순 엔티티이므로, 실제 프로젝트에서는 상속을 도입하지 않습니다. 위 예제는 <strong>개념 학습용</strong>입니다.</p>
+</blockquote>
+<h2>2. @MappedSuperclass — 공통 매핑 정보 상속</h2>
+<p>모든 엔티티가 <code>createdAt</code>/<code>updatedAt</code> 같은 공통 필드를 가지는 경우, 상속 매핑(엔티티 간 상속)이 아니라 <strong><code>@MappedSuperclass</code></strong> 를 씁니다. 이것은 <strong>테이블을 만들지 않고</strong>, 단지 매핑 정보(컬럼 정의)만 자식에게 물려주는 부모입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">jakarta.persistence.*</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.data.annotation.CreatedDate</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.data.annotation.LastModifiedDate</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.data.jpa.domain.support.AuditingEntityListener</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">java.time.LocalDateTime</span>
+
+<span class="nd">@MappedSuperclass</span>
+<span class="nd">@EntityListeners</span><span class="p">(</span><span class="n">AuditingEntityListener</span><span class="o">::</span><span class="n">class</span><span class="p">)</span><span class="w">   </span><span class="c1">// Auditing 이벤트 수신</span>
+<span class="kd">abstract</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BaseEntity</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@CreatedDate</span>
+<span class="w">    </span><span class="nd">@Column</span><span class="p">(</span><span class="n">updatable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span><span class="w">          </span><span class="c1">// 생성 후 수정 금지</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">createdAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDateTime? </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+
+<span class="w">    </span><span class="nd">@LastModifiedDate</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">updatedAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDateTime? </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code>@MappedSuperclass</code>와 <code>@Inheritance</code>의 차이는 분명합니다.</p>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th><code>@Inheritance</code> (상속 매핑)</th>
+<th><code>@MappedSuperclass</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>부모도 테이블이 있나?</td>
+<td>O (조회·다형성 대상)</td>
+<td>X (컬럼 정보만 제공)</td>
+</tr>
+<tr>
+<td>부모로 조회 가능?</td>
+<td>O (<code>em.find(Content, id)</code>)</td>
+<td>X</td>
+</tr>
+<tr>
+<td>용도</td>
+<td>도메인 상속(is-a)</td>
+<td>공통 컬럼 재사용</td>
+</tr>
+</tbody>
+</table>
+<h2>3. JPA Auditing — 생성/수정 시각 자동 기록</h2>
+<p>위 <code>BaseEntity</code>의 <code>@CreatedDate</code>/<code>@LastModifiedDate</code>가 자동으로 채워지게 하려면, 설정 클래스에 <strong><code>@EnableJpaAuditing</code></strong> 한 줄이 필요합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Configuration</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.data.jpa.repository.config.EnableJpaAuditing</span>
+
+<span class="nd">@Configuration</span>
+<span class="nd">@EnableJpaAuditing</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">JpaConfig</span>
+</pre></div>
+</div>
+<p>이제 <code>Book</code>이 <code>BaseEntity</code>를 상속하면, <code>save</code> 시 <code>createdAt</code>이, 변경 시 <code>updatedAt</code>이 자동으로 채워집니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Entity</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">Book</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@Id</span><span class="w"> </span><span class="nd">@GeneratedValue</span><span class="p">(</span><span class="n">strategy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GenerationType</span><span class="p">.</span><span class="na">IDENTITY</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">price</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">publishedAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDate</span>
+<span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">BaseEntity</span><span class="p">()</span><span class="w">   </span><span class="c1">// createdAt / updatedAt 를 물려받음</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>생성자(<code>@CreatedBy</code>)/수정자(<code>@LastModifiedBy</code>)까지 기록하려면 <code>AuditorAware&lt;String&gt;</code> 빈을 등록해 현재 로그인 사용자를 반환하게 합니다. 보통 Spring Security의 <code>SecurityContext</code>에서 사용자명을 꺼내옵니다(<a href="../phase-5-production-features/README.html">Phase 5</a>의 보안과 연계).</p>
+</blockquote>
+<h2>4. 임베디드 값 타입 — @Embeddable / @Embedded</h2>
+<p><strong>값 타입(value type)</strong> 은 식별자가 없는, "값 그 자체"인 객체입니다. 엔티티가 식별자(<code>@Id</code>)로 구분되는 것과 대조적입니다. 예를 들어 "주소"는 그 자체로 의미 있는 묶음이지만, 독립적인 식별자가 필요 없습니다. 이런 묶음을 <strong>임베디드 타입</strong>으로 만들면, 여러 컬럼을 응집력 있는 객체로 다룰 수 있습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">jakarta.persistence.Embeddable</span>
+
+<span class="nd">@Embeddable</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">Address</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">city</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">street</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">zipcode</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="p">)</span>
+
+<span class="c1">// 금액을 의미 있는 타입으로 (price는 Int지만, 별도 금액 묶음 예시)</span>
+<span class="nd">@Embeddable</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">Money</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">amount</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w">        </span><span class="c1">// 원화 정수</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">currency</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;KRW&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Entity</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">Publisher</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@Id</span><span class="w"> </span><span class="nd">@GeneratedValue</span><span class="p">(</span><span class="n">strategy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GenerationType</span><span class="p">.</span><span class="na">IDENTITY</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">name</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span>
+
+<span class="w">    </span><span class="nd">@Embedded</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">address</span><span class="p">:</span><span class="w"> </span><span class="n">Address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Address</span><span class="p">(),</span><span class="w">      </span><span class="c1">// 컬럼: city, street, zipcode 로 풀림</span>
+
+<span class="w">    </span><span class="nd">@Embedded</span>
+<span class="w">    </span><span class="nd">@AttributeOverrides</span><span class="p">(</span>
+<span class="w">        </span><span class="n">AttributeOverride</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;amount&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">column</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;fee_amount&quot;</span><span class="p">)),</span>
+<span class="w">        </span><span class="n">AttributeOverride</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;currency&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">column</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;fee_currency&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">listingFee</span><span class="p">:</span><span class="w"> </span><span class="n">Money</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Money</span><span class="p">()</span><span class="w">        </span><span class="c1">// 같은 타입을 두 번 쓰면 컬럼명 충돌 → 오버라이드</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>생성되는 테이블은 다음과 같습니다. 값 타입은 <strong>별도 테이블이 아니라 소속 엔티티 테이블의 컬럼</strong>이 됩니다.</p>
+<div class="code-block" data-lang="sql"><span class="code-lang">sql</span><div class="hl"><pre><span></span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">publisher</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">id</span><span class="w">          </span><span class="nb">BIGINT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">name</span><span class="w">        </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+<span class="w">    </span><span class="n">city</span><span class="w">        </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span><span class="w">   </span><span class="c1">-- Address.city</span>
+<span class="w">    </span><span class="n">street</span><span class="w">      </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span><span class="w">   </span><span class="c1">-- Address.street</span>
+<span class="w">    </span><span class="n">zipcode</span><span class="w">     </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span><span class="w">   </span><span class="c1">-- Address.zipcode</span>
+<span class="w">    </span><span class="n">fee_amount</span><span class="w">  </span><span class="nb">INTEGER</span><span class="p">,</span><span class="w">        </span><span class="c1">-- Money.amount (오버라이드)</span>
+<span class="w">    </span><span class="n">fee_currency</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w">   </span><span class="c1">-- Money.currency (오버라이드)</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>값 타입은 <strong>불변(immutable)으로 다루는 것이 안전</strong>합니다. 여러 엔티티가 같은 값 타입 인스턴스를 <strong>공유(share)</strong> 하면, 한쪽을 바꿨을 때 다른 쪽까지 변경 감지로 함께 UPDATE되는 부작용이 생깁니다. 값을 바꿔야 한다면 인스턴스 자체를 <strong>새로 만들어 통째로 교체</strong>하세요. Kotlin에서는 <code>val</code> 위주로 설계하거나 <code>copy</code> 패턴을 쓰면 자연스럽습니다(단, JPA 매핑 제약상 <code>var</code>가 필요한 경우가 있으니 공유만 피하면 됩니다).</p>
+</blockquote>
+<h2>5. @Enumerated — Enum 매핑은 반드시 STRING</h2>
+<p>도메인에 자주 등장하는 <code>enum</code>을 매핑할 때 <strong><code>@Enumerated(EnumType.STRING)</code></strong> 을 쓰는 것은 거의 규칙입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">enum</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BookStatus</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">ON_SALE</span><span class="p">,</span><span class="w"> </span><span class="n">OUT_OF_STOCK</span><span class="p">,</span><span class="w"> </span><span class="n">DISCONTINUED</span><span class="w"> </span><span class="p">}</span>
+
+<span class="nd">@Entity</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">Book</span><span class="p">(</span>
+<span class="w">    </span><span class="c1">// ...</span>
+<span class="w">    </span><span class="nd">@Enumerated</span><span class="p">(</span><span class="n">EnumType</span><span class="p">.</span><span class="na">STRING</span><span class="p">)</span><span class="w">        </span><span class="c1">// ← 반드시 STRING</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">status</span><span class="p">:</span><span class="w"> </span><span class="n">BookStatus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BookStatus</span><span class="p">.</span><span class="na">ON_SALE</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>기본값인 <code>EnumType.ORDINAL</code>은 enum의 <strong>순서(0, 1, 2…)</strong> 를 정수로 저장하는데, 이것은 <strong>재앙의 씨앗</strong>입니다.</p>
+<figure class="diagram"><pre>ORDINAL 저장:  ON_SALE=0, OUT_OF_STOCK=1, DISCONTINUED=2
+
+── 나중에 enum 중간에 NEW 상수를 추가하면 ──
+enum { ON_SALE, NEW, OUT_OF_STOCK, DISCONTINUED }
+                 ▲ 삽입
+이제:  ON_SALE=0, NEW=1, OUT_OF_STOCK=2(!), DISCONTINUED=3
+       → 기존에 1로 저장된 행은 OUT_OF_STOCK 이었는데 이제 NEW 로 해석됨!</pre></figure>
+<table>
+<thead>
+<tr>
+<th>방식</th>
+<th>DB 저장 값</th>
+<th>enum 순서 변경 시</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ORDINAL</code> (기본)</td>
+<td>0, 1, 2…</td>
+<td><strong>데이터 의미가 깨짐</strong></td>
+</tr>
+<tr>
+<td><code>STRING</code> (권장)</td>
+<td><code>"ON_SALE"</code> 등 이름</td>
+<td>안전, 순서 무관</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p><code>@Enumerated</code>를 <strong>생략하면 기본이 <code>ORDINAL</code></strong> 입니다. 즉 아무 생각 없이 enum 필드를 두면 위험한 ORDINAL로 저장됩니다. enum 필드에는 <strong>항상 명시적으로 <code>@Enumerated(EnumType.STRING)</code></strong> 을 붙이세요. 저장 용량이 약간 늘어나는 대신 미래의 데이터 깨짐을 막습니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>엔티티 구조를 모두 다뤘으니, 이제 그 엔티티를 <strong>조회할 때</strong> 벌어지는 프록시·지연 로딩·N+1 문제로 들어갑니다. JPA 성능 학습의 핵심입니다.</p>
+<p>→ <a href="04-proxy-fetch.html">프록시와 지연 로딩, N+1</a></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

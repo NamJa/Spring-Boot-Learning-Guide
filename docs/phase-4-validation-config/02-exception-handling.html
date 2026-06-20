@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>전역 예외 처리 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="02-exception-handling.html" class="active">전역 예외 처리</a>
+<a href="03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>전역 예외 처리</h1>
+<p>지금 우리 API에서 예외가 발생하면 어떤 일이 벌어질까요? 존재하지 않는 도서를 조회해 <code>BookNotFoundException</code>이 던져지면, Spring Boot의 기본 에러 처리기가 작동해 다음과 같은 다소 투박한 JSON을 돌려줍니다.</p>
+<div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-06-20T01:30:00.123+00:00&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Internal Server Error&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/books/999&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>문제가 두 가지입니다. 첫째, <strong>상태 코드가 틀렸습니다</strong> — "도서를 못 찾음"은 500(서버 오류)이 아니라 404(찾을 수 없음)여야 합니다. 둘째, 클라이언트가 무엇이 잘못됐는지 알 수 있는 <strong>상세 정보가 부족</strong>합니다. 검증 실패 시에는 "어떤 필드가 왜 틀렸는지"를 알려줘야 하죠.</p>
+<p>이 문서에서는 <strong>모든 예외를 한곳에서</strong> 잡아 의미 있는 HTTP 상태와 일관된 본문으로 변환하는 방법을 배웁니다.</p>
+<h2>1. <code>@RestControllerAdvice</code>와 <code>@ExceptionHandler</code></h2>
+<p>Spring은 컨트롤러에서 던져진 예외를 가로채는 <strong><code>@ControllerAdvice</code></strong> (REST에서는 <code>@RestControllerAdvice</code>)를 제공합니다. 이 클래스 안에 <strong><code>@ExceptionHandler</code></strong> 메서드를 정의하면, 해당 예외 타입이 발생할 때마다 그 메서드가 호출됩니다.</p>
+<figure class="diagram"><pre>컨트롤러에서 예외 throw
+        │
+        ▼
+@RestControllerAdvice 가 가로챔
+        │
+        ├─ BookNotFoundException        → handleNotFound()      → 404
+        ├─ MethodArgumentNotValidException → handleValidation() → 400
+        └─ Exception (그 밖의 모든 것)    → handleGeneric()      → 500</pre></figure>
+<p><code>@RestControllerAdvice</code>는 <code>@ControllerAdvice</code> + <code>@ResponseBody</code>의 조합으로, 핸들러의 반환값을 자동으로 JSON 본문에 직렬화해 줍니다.</p>
+<h2>2. 일관된 에러 응답 DTO</h2>
+<p>먼저 모든 에러가 공유할 응답 형태를 정의합니다. 클라이언트는 어떤 에러든 같은 구조를 받게 되어 처리하기 편합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.controller</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">java.time.OffsetDateTime</span>
+
+<span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">ErrorResponse</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">timestamp</span><span class="p">:</span><span class="w"> </span><span class="n">OffsetDateTime</span><span class="p">,</span><span class="w">   </span><span class="c1">// 발생 시각</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">status</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span><span class="w">                 </span><span class="c1">// HTTP 상태 코드 (예: 404)</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">error</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w">               </span><span class="c1">// 상태 코드의 이름 (예: &quot;Not Found&quot;)</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">message</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w">             </span><span class="c1">// 사람이 읽을 메시지</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">path</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w">                </span><span class="c1">// 요청 경로</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">fieldErrors</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">FieldError</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emptyList</span><span class="p">(),</span><span class="w"> </span><span class="c1">// 검증 실패 시 필드별 상세</span>
+<span class="p">)</span>
+
+<span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">FieldError</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">field</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w">    </span><span class="c1">// 문제가 된 필드명 (예: &quot;title&quot;)</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">message</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w">  </span><span class="c1">// 그 필드의 에러 메시지</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<h2>3. ControllerAdvice 구현</h2>
+<p>이제 세 종류의 예외를 처리하는 어드바이스를 작성합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.controller</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">com.example.bookapi.exception.BookNotFoundException</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.servlet.http.HttpServletRequest</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.slf4j.LoggerFactory</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.http.HttpStatus</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.http.ResponseEntity</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.bind.MethodArgumentNotValidException</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.bind.annotation.ExceptionHandler</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.bind.annotation.RestControllerAdvice</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">java.time.OffsetDateTime</span>
+
+<span class="nd">@RestControllerAdvice</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">GlobalExceptionHandler</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">log</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LoggerFactory</span><span class="p">.</span><span class="na">getLogger</span><span class="p">(</span><span class="n">javaClass</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c1">// 1) 도메인 예외 → 404</span>
+<span class="w">    </span><span class="nd">@ExceptionHandler</span><span class="p">(</span><span class="n">BookNotFoundException</span><span class="o">::</span><span class="n">class</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">handleNotFound</span><span class="p">(</span>
+<span class="w">        </span><span class="n">ex</span><span class="p">:</span><span class="w"> </span><span class="n">BookNotFoundException</span><span class="p">,</span>
+<span class="w">        </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">HttpServletRequest</span><span class="p">,</span>
+<span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="o">&lt;</span><span class="n">ErrorResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">body</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ErrorResponse</span><span class="p">(</span>
+<span class="w">            </span><span class="n">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OffsetDateTime</span><span class="p">.</span><span class="na">now</span><span class="p">(),</span>
+<span class="w">            </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">NOT_FOUND</span><span class="p">.</span><span class="na">value</span><span class="p">(),</span>
+<span class="w">            </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">NOT_FOUND</span><span class="p">.</span><span class="na">reasonPhrase</span><span class="p">,</span>
+<span class="w">            </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ex</span><span class="p">.</span><span class="na">message</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;도서를 찾을 수 없습니다&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">requestURI</span><span class="p">,</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="p">.</span><span class="na">status</span><span class="p">(</span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">NOT_FOUND</span><span class="p">).</span><span class="na">body</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 2) @Valid 검증 실패 → 400 + 필드별 상세</span>
+<span class="w">    </span><span class="nd">@ExceptionHandler</span><span class="p">(</span><span class="n">MethodArgumentNotValidException</span><span class="o">::</span><span class="n">class</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">handleValidation</span><span class="p">(</span>
+<span class="w">        </span><span class="n">ex</span><span class="p">:</span><span class="w"> </span><span class="n">MethodArgumentNotValidException</span><span class="p">,</span>
+<span class="w">        </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">HttpServletRequest</span><span class="p">,</span>
+<span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="o">&lt;</span><span class="n">ErrorResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">fieldErrors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ex</span><span class="p">.</span><span class="na">bindingResult</span><span class="p">.</span><span class="na">fieldErrors</span><span class="p">.</span><span class="na">map</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">FieldError</span><span class="p">(</span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">field</span><span class="p">,</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">defaultMessage</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;유효하지 않은 값&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">body</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ErrorResponse</span><span class="p">(</span>
+<span class="w">            </span><span class="n">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OffsetDateTime</span><span class="p">.</span><span class="na">now</span><span class="p">(),</span>
+<span class="w">            </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">BAD_REQUEST</span><span class="p">.</span><span class="na">value</span><span class="p">(),</span>
+<span class="w">            </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">BAD_REQUEST</span><span class="p">.</span><span class="na">reasonPhrase</span><span class="p">,</span>
+<span class="w">            </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;입력 검증에 실패했습니다&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">requestURI</span><span class="p">,</span>
+<span class="w">            </span><span class="n">fieldErrors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fieldErrors</span><span class="p">,</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="p">.</span><span class="na">badRequest</span><span class="p">().</span><span class="na">body</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 3) 그 밖의 모든 예외 → 500 (스택트레이스는 로그로만, 응답엔 노출 금지)</span>
+<span class="w">    </span><span class="nd">@ExceptionHandler</span><span class="p">(</span><span class="n">Exception</span><span class="o">::</span><span class="n">class</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">handleGeneric</span><span class="p">(</span>
+<span class="w">        </span><span class="n">ex</span><span class="p">:</span><span class="w"> </span><span class="n">Exception</span><span class="p">,</span>
+<span class="w">        </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">HttpServletRequest</span><span class="p">,</span>
+<span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="o">&lt;</span><span class="n">ErrorResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">log</span><span class="p">.</span><span class="na">error</span><span class="p">(</span><span class="s">&quot;처리되지 않은 예외 발생&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ex</span><span class="p">)</span><span class="w"> </span><span class="c1">// 내부 상세는 서버 로그에만 남긴다</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">body</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ErrorResponse</span><span class="p">(</span>
+<span class="w">            </span><span class="n">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OffsetDateTime</span><span class="p">.</span><span class="na">now</span><span class="p">(),</span>
+<span class="w">            </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">INTERNAL_SERVER_ERROR</span><span class="p">.</span><span class="na">value</span><span class="p">(),</span>
+<span class="w">            </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">INTERNAL_SERVER_ERROR</span><span class="p">.</span><span class="na">reasonPhrase</span><span class="p">,</span>
+<span class="w">            </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;서버 내부 오류가 발생했습니다&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">requestURI</span><span class="p">,</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="p">.</span><span class="na">internalServerError</span><span class="p">().</span><span class="na">body</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>마지막 <code>Exception</code> 핸들러에서 <code>ex.message</code>나 스택트레이스를 <strong>응답 본문에 그대로 넣지 마세요.</strong> 내부 구현(테이블명, SQL, 파일 경로 등)이 외부에 노출되면 보안 위험입니다. 상세는 <strong>로그</strong>로만 남기고, 클라이언트에는 일반적인 메시지만 돌려줍니다.</p>
+</blockquote>
+<p>이제 검증 실패 시 응답은 다음과 같이 풍부해집니다.</p>
+<div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-06-20T01:30:00.123+09:00&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">400</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bad Request&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;입력 검증에 실패했습니다&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/books&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;fieldErrors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;field&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;title&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;제목은 필수입니다&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;field&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;price&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;가격은 0보다 커야 합니다&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h2>4. <code>@ResponseStatus</code> — 더 간단한 방식</h2>
+<p>예외 클래스 자체에 <strong><code>@ResponseStatus</code></strong> 를 붙이면, 어드바이스 없이도 해당 예외가 자동으로 지정된 상태 코드로 매핑됩니다. 도메인 예외에 잘 어울립니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.exception</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.http.HttpStatus</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.bind.annotation.ResponseStatus</span>
+
+<span class="nd">@ResponseStatus</span><span class="p">(</span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">NOT_FOUND</span><span class="p">)</span><span class="w"> </span><span class="c1">// 이 예외는 항상 404</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookNotFoundException</span><span class="p">(</span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">RuntimeException</span><span class="p">(</span><span class="s">&quot;ID가 </span><span class="si">${</span><span class="n">id</span><span class="si">}</span><span class="s">인 도서를 찾을 수 없습니다&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>다만 <code>@ResponseStatus</code>만 쓰면 응답 <strong>본문 형태를 커스터마이즈할 수 없습니다.</strong> 본문까지 일관되게 다루려면 결국 <code>@ExceptionHandler</code>가 필요합니다. 둘은 함께 쓸 수 있습니다.</p>
+<h2>5. <code>ProblemDetail</code> — RFC 9457 표준 (권장)</h2>
+<p>위에서 만든 <code>ErrorResponse</code>는 잘 동작하지만 <strong>우리만의 임의 형태</strong>입니다. API마다 에러 형태가 제각각이면 클라이언트가 매번 새로 적응해야 합니다. 그래서 IETF는 HTTP API 에러의 <strong>표준 형태</strong>를 정의했습니다 — <strong>RFC 9457 (Problem Details for HTTP APIs)</strong>.</p>
+<p>Spring Framework 6부터 이를 위한 <strong><code>ProblemDetail</code></strong> 클래스를 기본 제공합니다(Spring Boot 4.x에 포함). 표준 필드는 다음과 같습니다.</p>
+<table>
+<thead>
+<tr>
+<th>필드</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td>문제 유형을 식별하는 URI (기본 <code>about:blank</code>)</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>사람이 읽는 짧은 제목</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>HTTP 상태 코드</td>
+</tr>
+<tr>
+<td><code>detail</code></td>
+<td>이번 발생에 대한 구체적 설명</td>
+</tr>
+<tr>
+<td><code>instance</code></td>
+<td>문제가 발생한 리소스 URI</td>
+</tr>
+<tr>
+<td>(확장)</td>
+<td>임의의 커스텀 필드 추가 가능</td>
+</tr>
+</tbody>
+</table>
+<p><code>ProblemDetail</code>을 사용하도록 어드바이스를 다시 쓰면 다음과 같습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.controller</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">com.example.bookapi.exception.BookNotFoundException</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.http.HttpStatus</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.http.ProblemDetail</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.bind.MethodArgumentNotValidException</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.bind.annotation.ExceptionHandler</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.bind.annotation.RestControllerAdvice</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.context.request.WebRequest</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">java.net.URI</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">java.time.OffsetDateTime</span>
+
+<span class="nd">@RestControllerAdvice</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">ProblemDetailExceptionHandler</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@ExceptionHandler</span><span class="p">(</span><span class="n">BookNotFoundException</span><span class="o">::</span><span class="n">class</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">handleNotFound</span><span class="p">(</span><span class="n">ex</span><span class="p">:</span><span class="w"> </span><span class="n">BookNotFoundException</span><span class="p">):</span><span class="w"> </span><span class="n">ProblemDetail</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">problem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ProblemDetail</span><span class="p">.</span><span class="na">forStatusAndDetail</span><span class="p">(</span>
+<span class="w">            </span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">NOT_FOUND</span><span class="p">,</span>
+<span class="w">            </span><span class="n">ex</span><span class="p">.</span><span class="na">message</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;도서를 찾을 수 없습니다&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="na">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Book Not Found&quot;</span>
+<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">URI</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="s">&quot;https://api.example.com/problems/book-not-found&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="na">setProperty</span><span class="p">(</span><span class="s">&quot;timestamp&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">OffsetDateTime</span><span class="p">.</span><span class="na">now</span><span class="p">())</span><span class="w"> </span><span class="c1">// 확장 필드</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">problem</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@ExceptionHandler</span><span class="p">(</span><span class="n">MethodArgumentNotValidException</span><span class="o">::</span><span class="n">class</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">handleValidation</span><span class="p">(</span><span class="n">ex</span><span class="p">:</span><span class="w"> </span><span class="n">MethodArgumentNotValidException</span><span class="p">):</span><span class="w"> </span><span class="n">ProblemDetail</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">problem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ProblemDetail</span><span class="p">.</span><span class="na">forStatusAndDetail</span><span class="p">(</span>
+<span class="w">            </span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">BAD_REQUEST</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;입력 검증에 실패했습니다&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="na">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Validation Failed&quot;</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ex</span><span class="p">.</span><span class="na">bindingResult</span><span class="p">.</span><span class="na">fieldErrors</span><span class="p">.</span><span class="na">associate</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nb">it</span><span class="p">.</span><span class="na">field</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="p">(</span><span class="nb">it</span><span class="p">.</span><span class="na">defaultMessage</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;유효하지 않은 값&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="na">setProperty</span><span class="p">(</span><span class="s">&quot;errors&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">errors</span><span class="p">)</span><span class="w"> </span><span class="c1">// 필드별 에러를 확장 필드로</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">problem</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>핸들러가 <code>ProblemDetail</code>을 반환하면 Spring이 자동으로 적절한 상태 코드와 <code>application/problem+json</code> Content-Type으로 직렬화합니다. 응답 예시는 다음과 같습니다.</p>
+<div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://api.example.com/problems/book-not-found&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Book Not Found&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">404</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;detail&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ID가 999인 도서를 찾을 수 없습니다&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;instance&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/books/999&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-06-20T01:30:00.123+09:00&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>검증 실패는 다음과 같습니다.</p>
+<div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;about:blank&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Validation Failed&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">400</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;detail&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;입력 검증에 실패했습니다&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;instance&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/books&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;errors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;제목은 필수입니다&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;price&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;가격은 0보다 커야 합니다&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p><strong>신규 프로젝트라면 <code>ProblemDetail</code>을 권장합니다.</strong> 표준이라 클라이언트 라이브러리·문서화 도구(OpenAPI)와 호환이 좋고, 직접 DTO를 유지보수할 필요가 없습니다. 기존에 커스텀 <code>ErrorResponse</code>를 쓰던 프로젝트라도 점진적으로 옮겨가는 것을 고려하세요.</p>
+</blockquote>
+<h2>6. <code>ResponseEntityExceptionHandler</code> 상속</h2>
+<p>Spring MVC 내부 예외(잘못된 JSON 본문 → <code>HttpMessageNotReadableException</code>, 지원하지 않는 메서드 → <code>HttpRequestMethodNotSupportedException</code> 등)까지 일관되게 다루려면, 어드바이스가 <strong><code>ResponseEntityExceptionHandler</code></strong> 를 상속하면 됩니다. 이 추상 클래스는 표준 MVC 예외들을 이미 <code>ProblemDetail</code> 기반으로 처리하므로, 우리는 도메인 예외만 추가로 오버라이드/추가하면 됩니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler</span>
+
+<span class="nd">@RestControllerAdvice</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">GlobalExceptionHandler</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">ResponseEntityExceptionHandler</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// MVC 표준 예외(400, 405, 415 등)는 부모가 ProblemDetail 로 처리.</span>
+<span class="w">    </span><span class="c1">// 여기서는 도메인 예외만 추가한다.</span>
+<span class="w">    </span><span class="nd">@ExceptionHandler</span><span class="p">(</span><span class="n">BookNotFoundException</span><span class="o">::</span><span class="n">class</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">handleNotFound</span><span class="p">(</span><span class="n">ex</span><span class="p">:</span><span class="w"> </span><span class="n">BookNotFoundException</span><span class="p">):</span><span class="w"> </span><span class="n">ProblemDetail</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* ... */</span>
+<span class="w">        </span><span class="n">ProblemDetail</span><span class="p">.</span><span class="na">forStatusAndDetail</span><span class="p">(</span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">NOT_FOUND</span><span class="p">,</span><span class="w"> </span><span class="n">ex</span><span class="p">.</span><span class="na">message</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h2>다음 단계</h2>
+<p>이제 검증과 예외가 견고해졌습니다. 다음은 환경마다 다른 설정값(DB 주소, 비밀번호, 기능 플래그 등)을 코드 밖으로 빼내는 외부화된 설정과 프로파일을 다룹니다.</p>
+<p>→ <a href="03-profiles-config.html">외부화된 설정과 프로파일</a></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

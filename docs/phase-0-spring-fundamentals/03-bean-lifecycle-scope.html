@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bean 생명주기와 스코프 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="03-bean-lifecycle-scope.html" class="active">Bean 생명주기와 스코프</a>
+<a href="04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>Bean 생명주기와 스코프</h1>
+<p><a href="02-ioc-and-di.html">02번 문서</a>에서 컨테이너가 Bean을 만들고 연결한다는 것을 배웠습니다. 그렇다면 그 Bean은 <strong>정확히 언제 생성되고, 어떻게 초기화되며, 언제 사라질까요?</strong> 그리고 매번 새 객체가 만들어질까요, 아니면 하나를 공유할까요? 이 문서는 Bean의 생명주기와 스코프를 다룹니다. DB 커넥션 풀을 열고 닫거나, 캐시를 준비하고 비우는 등 <strong>리소스 관리</strong>에 직결되는 중요한 내용입니다.</p>
+<h2>1. Bean 생명주기 한눈에 보기</h2>
+<p>컨테이너는 Bean을 단순히 <code>new</code> 하는 게 아니라, 여러 단계를 거쳐 "쓸 준비가 된" 상태로 만듭니다.</p>
+<figure class="diagram"><pre>┌──────────────────────────────────────────────────────────────┐
+│                    Bean 생명주기                                │
+├──────────────────────────────────────────────────────────────┤
+│ 1. 인스턴스화 (Instantiation)                                  │
+│      생성자 호출 → 객체 생성, 의존성 주입(생성자 주입)            │
+│                          │                                     │
+│ 2. 프로퍼티 주입 (Populate)                                    │
+│      세터/필드 주입이 있다면 이 단계에서 채움                     │
+│                          │                                     │
+│ 3. Aware 콜백                                                  │
+│      BeanNameAware, ApplicationContextAware 등으로             │
+│      컨테이너 정보 주입                                          │
+│                          │                                     │
+│ 4. BeanPostProcessor (초기화 前)                               │
+│      postProcessBeforeInitialization                          │
+│                          │                                     │
+│ 5. 초기화 (Initialization)                                     │
+│      @PostConstruct → InitializingBean.afterPropertiesSet     │
+│      → @Bean(initMethod) 순으로 호출                           │
+│                          │                                     │
+│ 6. BeanPostProcessor (초기화 後)  ★ AOP 프록시가 여기서 입혀짐  │
+│      postProcessAfterInitialization                          │
+│                          │                                     │
+│ ============  Bean 사용 준비 완료 (Ready) ============         │
+│                          │                                     │
+│ 7. 소멸 (Destruction) — 컨테이너 종료 시                       │
+│      @PreDestroy → DisposableBean.destroy                     │
+│      → @Bean(destroyMethod) 순으로 호출                        │
+└──────────────────────────────────────────────────────────────┘</pre></figure>
+<blockquote>
+<p><strong>TIP</strong>: <code>@Transactional</code>, <code>@Async</code> 같은 AOP 기능이 6단계(초기화 후처리)에서 <strong>프록시로 감싸진다</strong>는 점이 핵심입니다. 그래서 <a href="01-what-is-spring.html">01번 문서</a>에서 말한 "내부 메서드 호출에는 트랜잭션이 안 걸리는 함정"이 생기는 것입니다.</p>
+</blockquote>
+<h2>2. 초기화 / 소멸 콜백</h2>
+<p>실무에서 가장 많이 쓰는 것은 <strong><code>@PostConstruct</code></strong>(초기화)와 <strong><code>@PreDestroy</code></strong>(소멸) 어노테이션입니다. <code>jakarta.annotation</code> 패키지에 있습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">jakarta.annotation.PostConstruct</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.annotation.PreDestroy</span>
+
+<span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookCacheService</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">cache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mutableMapOf</span><span class="o">&lt;</span><span class="kt">Long</span><span class="p">,</span><span class="w"> </span><span class="n">Book</span><span class="o">&gt;</span><span class="p">()</span>
+
+<span class="w">    </span><span class="nd">@PostConstruct</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">warmUp</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 모든 의존성 주입이 끝난 직후 1회 실행. 캐시 예열 등 준비 작업에 적합</span>
+<span class="w">        </span><span class="n">println</span><span class="p">(</span><span class="s">&quot;도서 캐시 예열 시작&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@PreDestroy</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">cleanUp</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 컨테이너 종료 직전 1회 실행. 리소스 정리에 적합</span>
+<span class="w">        </span><span class="n">cache</span><span class="p">.</span><span class="na">clear</span><span class="p">()</span>
+<span class="w">        </span><span class="n">println</span><span class="p">(</span><span class="s">&quot;도서 캐시 정리 완료&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote>
+<p><strong>WARNING</strong>: 생성자에서 무거운 초기화 작업을 하지 마세요. 생성자 시점에는 아직 모든 의존성이 완전히 준비됐다고 보장하기 어렵고, AOP 프록시도 입혀지기 전입니다. 초기화 로직은 <code>@PostConstruct</code>에 두는 것이 안전합니다.</p>
+</blockquote>
+<p><code>@Bean</code> 메서드로 등록하는 외부 객체는 어노테이션을 붙일 수 없으니, 다음처럼 메서드 이름을 지정합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Configuration</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">AppConfig</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nd">@Bean</span><span class="p">(</span><span class="n">initMethod</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;start&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">destroyMethod</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;stop&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">connectionPool</span><span class="p">():</span><span class="w"> </span><span class="n">ConnectionPool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ConnectionPool</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h2>3. Bean 스코프</h2>
+<p><strong>스코프(scope)</strong> 는 "이 Bean의 인스턴스를 몇 개 만들고 얼마나 오래 유지할지"를 결정합니다.</p>
+<table>
+<thead>
+<tr>
+<th>스코프</th>
+<th>인스턴스 수명</th>
+<th>사용 맥락</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>singleton</strong> (기본)</td>
+<td>컨테이너당 단 1개, 앱 전체에서 공유</td>
+<td>거의 모든 Bean (Service, Repository 등)</td>
+</tr>
+<tr>
+<td><strong>prototype</strong></td>
+<td>요청(주입/조회)할 때마다 새 인스턴스</td>
+<td>상태를 가지는 일회성 객체</td>
+</tr>
+<tr>
+<td><strong>request</strong></td>
+<td>HTTP 요청 1건마다 1개</td>
+<td>웹 요청별 데이터 보관</td>
+</tr>
+<tr>
+<td><strong>session</strong></td>
+<td>HTTP 세션마다 1개</td>
+<td>사용자 세션별 데이터</td>
+</tr>
+<tr>
+<td><strong>application</strong></td>
+<td>ServletContext당 1개</td>
+<td>웹 앱 전역 공유</td>
+</tr>
+</tbody>
+</table>
+<p><code>request</code>/<code>session</code>/<code>application</code>은 웹 환경(MVC/WebFlux)에서만 의미가 있습니다.</p>
+<h3>3.1 singleton — 기본값</h3>
+<p>별도 지정이 없으면 모든 Bean은 <strong>singleton</strong>입니다. 즉 <code>BookService</code>는 앱 전체에서 <strong>단 하나의 인스턴스</strong>가 공유됩니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">)</span><span class="w"> </span><span class="c1">// 기본 singleton</span>
+</pre></div>
+</div>
+<blockquote>
+<p><strong>WARNING</strong>: singleton Bean은 여러 스레드가 동시에 공유합니다. 따라서 <strong>가변 상태(mutable field)를 두면 동시성 버그</strong>가 생깁니다. <code>BookService</code>에 <code>var currentUser</code>처럼 요청별 상태를 두면 안 됩니다. Bean은 무상태(stateless)로 설계하세요.</p>
+</blockquote>
+<h3>3.2 prototype — 요청마다 새 객체</h3>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Component</span>
+<span class="nd">@Scope</span><span class="p">(</span><span class="s">&quot;prototype&quot;</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookImportJob</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 주입/조회할 때마다 매번 새 인스턴스가 생성됨</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">processedIds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mutableListOf</span><span class="o">&lt;</span><span class="kt">Long</span><span class="o">&gt;</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote>
+<p><strong>WARNING</strong>: singleton Bean이 prototype Bean을 생성자 주입으로 받으면, <strong>주입은 한 번만 일어나</strong> prototype의 의미가 깨집니다(매번 새로 받지 못함). 매 호출마다 새 인스턴스가 필요하면 <code>ObjectProvider&lt;BookImportJob&gt;</code>를 주입받아 <code>getObject()</code>로 그때그때 꺼내는 패턴을 씁니다.</p>
+</blockquote>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BatchService</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">jobProvider</span><span class="p">:</span><span class="w"> </span><span class="n">ObjectProvider</span><span class="o">&lt;</span><span class="n">BookImportJob</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">run</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">job</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jobProvider</span><span class="p">.</span><span class="na">getObject</span><span class="p">()</span><span class="w"> </span><span class="c1">// 호출할 때마다 새 prototype 인스턴스</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h3>3.3 request 스코프 예시</h3>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Component</span>
+<span class="nd">@Scope</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;request&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">proxyMode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ScopedProxyMode</span><span class="p">.</span><span class="na">TARGET_CLASS</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">RequestContext</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">requestId</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">UUID</span><span class="p">.</span><span class="na">randomUUID</span><span class="p">().</span><span class="na">toString</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>singleton인 Service가 request 스코프 Bean을 주입받아야 할 때, 수명이 더 짧은 Bean을 직접 주입하면 문제가 생깁니다. 그래서 <code>proxyMode</code>로 <strong>프록시를 주입</strong>해 두고, 실제 사용 시점에 현재 요청에 맞는 인스턴스로 연결합니다.</p>
+<h2>4. 지연 초기화 — @Lazy</h2>
+<p>singleton Bean은 기본적으로 <strong>앱 기동 시점에 모두 생성(eager)</strong> 됩니다. 기동 중 설정 오류를 빨리 발견할 수 있어 좋은 기본값입니다. 하지만 생성 비용이 큰데 자주 안 쓰는 Bean이라면 <code>@Lazy</code>로 <strong>실제 처음 사용될 때까지 생성을 미룰</strong> 수 있습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
+<span class="nd">@Lazy</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">HeavyReportService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">init</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">println</span><span class="p">(</span><span class="s">&quot;무거운 리포트 서비스 초기화&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c1">// 처음 사용될 때 출력됨</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>주입 지점에 붙이면 해당 의존성만 지연시킬 수도 있습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@Lazy</span><span class="w"> </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">reportService</span><span class="p">:</span><span class="w"> </span><span class="n">HeavyReportService</span><span class="p">,</span><span class="w"> </span><span class="c1">// 프록시로 주입, 실제 호출 때 초기화</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<p><strong>TIP</strong>: <code>application.yml</code>에 <code>spring.main.lazy-initialization=true</code>를 주면 전체 Bean을 지연 초기화할 수 있지만, 기동 시 오류를 늦게 발견하게 되므로 운영 환경에서는 신중히 사용하세요.</p>
+</blockquote>
+<h2>5. 생성 순서 제어 — @DependsOn</h2>
+<p>Bean 간 의존 관계가 코드에 드러나지 않지만(예: 정적 초기화, 외부 부수 효과) <strong>특정 Bean을 먼저 만들어야 할 때</strong> <code>@DependsOn</code>으로 순서를 강제합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
+<span class="nd">@DependsOn</span><span class="p">(</span><span class="s">&quot;schemaInitializer&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// schemaInitializer Bean을 먼저 생성한 뒤 이 Bean 생성</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<p><strong>TIP</strong>: <code>@DependsOn</code>은 최후의 수단입니다. 가능하면 명시적 의존성(생성자 주입)으로 순서가 자연스럽게 결정되도록 설계하는 것이 좋습니다. 의존 관계가 코드에 안 보이면 유지보수가 어려워집니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>➡️ <a href="04-auto-configuration.html">04. 자동 설정과 스타터</a> — <code>@SpringBootApplication</code>의 정체를 해부하고, 클래스패스만 보고 Bean을 알아서 만들어 주는 자동 설정의 원리를 파헤칩니다.</p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

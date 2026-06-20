@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>연관관계 매핑 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="01-persistence-context.html">영속성 컨텍스트</a>
+<a href="02-associations.html" class="active">연관관계 매핑</a>
+<a href="03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="04-proxy-fetch.html">프록시와 N+1</a>
+<a href="05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>연관관계 매핑</h1>
+<p>객체는 <strong>참조</strong>로 다른 객체를 가리키고(<code>book.category</code>), 테이블은 <strong>외래 키(FK)</strong> 로 다른 행을 가리킵니다(<code>book.category_id</code>). JPA 연관관계 매핑은 이 둘을 이어 붙이는 작업입니다. Phase 3에서는 단순 단방향 <code>@ManyToOne</code> 정도만 맛봤지만, 이번엔 방향·다중성·주인 개념을 제대로 분해합니다.</p>
+<p>교재 예제를 위해 두 엔티티를 새로 도입합니다. <code>Book</code>은 그대로 두고(price는 Int, author는 String 유지), 분류용 <code>Category</code>와 후기용 <code>Review</code>를 추가합니다.</p>
+<h2>1. 방향과 다중성</h2>
+<p>연관관계를 설계할 때 결정할 것은 두 가지입니다.</p>
+<ul>
+<li><strong>방향(direction)</strong>: 한쪽에서만 참조하면 <strong>단방향</strong>, 양쪽에서 서로 참조하면 <strong>양방향</strong>. (테이블은 FK 하나로 양쪽 조인이 가능하므로 방향 개념이 없다. 방향은 순수하게 <strong>객체 세계의 개념</strong>이다.)</li>
+<li><strong>다중성(multiplicity)</strong>: <code>@ManyToOne</code>, <code>@OneToMany</code>, <code>@OneToOne</code>, <code>@ManyToMany</code> 중 무엇인가.</li>
+</ul>
+<figure class="diagram"><pre>객체:   Book ───category──▶ Category      (단방향: Book만 Category를 안다)
+        Book ◀──reviews──── Review        (양방향: 서로 안다)
+
+테이블:  book(.., category_id FK) ──▶ category
+        review(.., book_id FK)   ──▶ book</pre></figure>
+<table>
+<thead>
+<tr>
+<th>다중성</th>
+<th>의미</th>
+<th>예제</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@ManyToOne</code></td>
+<td>다(N) 쪽 → 일(1) 쪽</td>
+<td>여러 Book → 하나의 Category</td>
+</tr>
+<tr>
+<td><code>@OneToMany</code></td>
+<td>일(1) 쪽 → 다(N) 쪽</td>
+<td>하나의 Book → 여러 Review</td>
+</tr>
+<tr>
+<td><code>@OneToOne</code></td>
+<td>일대일</td>
+<td>Book → BookDetail</td>
+</tr>
+<tr>
+<td><code>@ManyToMany</code></td>
+<td>다대다</td>
+<td>(지양 — 아래 참고)</td>
+</tr>
+</tbody>
+</table>
+<h2>2. @ManyToOne 단방향 — Book → Category</h2>
+<p>가장 단순하고 가장 많이 쓰는 형태입니다. FK가 있는 쪽(<code>book.category_id</code>)에 참조를 둡니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.domain</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">jakarta.persistence.*</span>
+
+<span class="nd">@Entity</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">Category</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@Id</span><span class="w"> </span><span class="nd">@GeneratedValue</span><span class="p">(</span><span class="n">strategy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GenerationType</span><span class="p">.</span><span class="na">IDENTITY</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">name</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Entity</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">Book</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@Id</span><span class="w"> </span><span class="nd">@GeneratedValue</span><span class="p">(</span><span class="n">strategy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GenerationType</span><span class="p">.</span><span class="na">IDENTITY</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w">           </span><span class="c1">// 그대로 String 유지</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">price</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span><span class="w">               </span><span class="c1">// 그대로 Int(원화) 유지</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">publishedAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">,</span>
+
+<span class="w">    </span><span class="nd">@ManyToOne</span><span class="p">(</span><span class="n">fetch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FetchType</span><span class="p">.</span><span class="na">LAZY</span><span class="p">)</span><span class="w">   </span><span class="c1">// 항상 LAZY 권장 (04장 참고)</span>
+<span class="w">    </span><span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;category_id&quot;</span><span class="p">)</span><span class="w">    </span><span class="c1">// FK 컬럼명 지정</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">category</span><span class="p">:</span><span class="w"> </span><span class="n">Category? </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<ul>
+<li><code>@JoinColumn</code>은 <strong>FK 컬럼</strong>을 지정합니다. 생략하면 <code>category_id</code>가 기본 추정됩니다.</li>
+<li><code>@ManyToOne</code>의 기본 fetch는 <code>EAGER</code>지만, <strong>반드시 <code>LAZY</code>로 바꾸는 것</strong>이 정석입니다(이유는 <a href="04-proxy-fetch.html">04장</a>).</li>
+</ul>
+<h2>3. 양방향과 연관관계의 주인 (mappedBy)</h2>
+<p>이제 <code>Category</code>에서 "이 카테고리에 속한 책 목록"을 보고 싶다고 합시다. 양방향으로 만들면 됩니다. 하지만 여기서 JPA의 가장 헷갈리는 개념 — <strong>연관관계의 주인(owner)</strong> 이 등장합니다.</p>
+<p>테이블에는 FK가 <strong>딱 하나</strong>뿐입니다(<code>book.category_id</code>). 그런데 객체에는 참조가 둘이 됩니다(<code>book.category</code>, <code>category.books</code>). 둘 중 <strong>어느 쪽이 FK를 관리할지</strong> JPA에게 알려줘야 합니다. 이때 규칙은 단순합니다.</p>
+<blockquote>
+<p><strong>FK가 있는 쪽(= 다(N) 쪽 = <code>@ManyToOne</code> 쪽)이 항상 연관관계의 주인이다.</strong> 반대쪽(<code>@OneToMany</code>)은 <code>mappedBy</code>로 "나는 주인이 아니라 거울일 뿐"이라고 선언한다.</p>
+</blockquote>
+<p><code>Book ↔ Review</code>로 양방향을 만들어 봅시다. FK는 <code>review.book_id</code>에 있으므로 <strong><code>Review</code>가 주인</strong>, <code>Book</code>은 거울입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Entity</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">Review</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@Id</span><span class="w"> </span><span class="nd">@GeneratedValue</span><span class="p">(</span><span class="n">strategy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GenerationType</span><span class="p">.</span><span class="na">IDENTITY</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">content</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">rating</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
+
+<span class="w">    </span><span class="nd">@ManyToOne</span><span class="p">(</span><span class="n">fetch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FetchType</span><span class="p">.</span><span class="na">LAZY</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;book_id&quot;</span><span class="p">)</span><span class="w">   </span><span class="c1">// ← 주인: 이쪽이 FK를 관리</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">book</span><span class="p">:</span><span class="w"> </span><span class="n">Book? </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Entity</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">Book</span><span class="p">(</span>
+<span class="w">    </span><span class="c1">// ... 위 필드들 ...</span>
+
+<span class="w">    </span><span class="nd">@OneToMany</span><span class="p">(</span><span class="n">mappedBy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;book&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cascade</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">CascadeType</span><span class="p">.</span><span class="na">ALL</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">orphanRemoval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">reviews</span><span class="p">:</span><span class="w"> </span><span class="n">MutableList</span><span class="o">&lt;</span><span class="n">Review</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mutableListOf</span><span class="p">()</span>
+<span class="w">    </span><span class="c1">//               ▲ &quot;Review.book 필드가 주인이다&quot; — 나는 읽기 전용 거울</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th style="text-align: center;">주인 (<code>Review.book</code>)</th>
+<th style="text-align: center;">거울 (<code>Book.reviews</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FK 관리(INSERT/UPDATE)</td>
+<td style="text-align: center;">O</td>
+<td style="text-align: center;">X (<code>mappedBy</code>)</td>
+</tr>
+<tr>
+<td>값 읽기(조회)</td>
+<td style="text-align: center;">O</td>
+<td style="text-align: center;">O</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p><strong>거울 쪽에만 값을 세팅하면 DB에 반영되지 않습니다.</strong> <code>book.reviews.add(review)</code>만 하고 <code>review.book = book</code>을 안 하면, FK(<code>book_id</code>)는 <code>null</code>로 저장됩니다. JPA는 <strong>주인 쪽 필드만 보고 FK를 결정</strong>하기 때문입니다. 초보자가 가장 많이 겪는 "값을 넣었는데 왜 null이지?" 버그가 여기서 나옵니다.</p>
+</blockquote>
+<h2>4. 연관관계 편의 메서드</h2>
+<p>위 함정을 막으려면 <strong>양쪽을 동시에 세팅</strong>해야 합니다. 매번 두 줄을 쓰는 대신, 주인이 아닌 쪽(또는 자연스러운 쪽)에 <strong>편의 메서드</strong>를 둡니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Entity</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">Book</span><span class="p">(</span>
+<span class="w">    </span><span class="c1">// ...</span>
+<span class="w">    </span><span class="nd">@OneToMany</span><span class="p">(</span><span class="n">mappedBy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;book&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cascade</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">CascadeType</span><span class="p">.</span><span class="na">ALL</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">orphanRemoval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">reviews</span><span class="p">:</span><span class="w"> </span><span class="n">MutableList</span><span class="o">&lt;</span><span class="n">Review</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mutableListOf</span><span class="p">()</span>
+<span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 연관관계 편의 메서드: 양쪽을 한 번에 일관되게 세팅</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">addReview</span><span class="p">(</span><span class="n">review</span><span class="p">:</span><span class="w"> </span><span class="n">Review</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">reviews</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">review</span><span class="p">)</span><span class="w">        </span><span class="c1">// 거울 쪽 컬렉션에 추가</span>
+<span class="w">        </span><span class="n">review</span><span class="p">.</span><span class="na">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="w">         </span><span class="c1">// 주인 쪽 FK 세팅 — 이게 핵심!</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">removeReview</span><span class="p">(</span><span class="n">review</span><span class="p">:</span><span class="w"> </span><span class="n">Review</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">reviews</span><span class="p">.</span><span class="na">remove</span><span class="p">(</span><span class="n">review</span><span class="p">)</span>
+<span class="w">        </span><span class="n">review</span><span class="p">.</span><span class="na">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 사용</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="m">1L</span><span class="p">).</span><span class="na">get</span><span class="p">()</span>
+<span class="n">book</span><span class="p">.</span><span class="na">addReview</span><span class="p">(</span><span class="n">Review</span><span class="p">(</span><span class="n">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;좋아요&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rating</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">5</span><span class="p">))</span>
+<span class="c1">// → book.reviews 에도 들어가고, review.book = book 도 세팅됨 → FK 정상 저장</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>편의 메서드는 <strong>한쪽에만</strong> 두세요(보통 호출 빈도가 높은 쪽). 양쪽에 다 두면 서로를 호출하다 무한 재귀에 빠질 위험이 있습니다. 또한 <code>toString()</code>/<code>equals()</code>/<code>hashCode()</code>에 <strong>양방향 연관 필드를 절대 포함하지 마세요</strong> — 순환 참조로 <code>StackOverflowError</code>가 납니다. Kotlin <code>data class</code>를 엔티티로 쓰지 말라는 <a href="../phase-3-data-jpa/02-entity-mapping.html">Phase 3-2</a>의 조언이 여기서도 유효합니다.</p>
+</blockquote>
+<h2>5. 외래 키 주인 결정 정리</h2>
+<figure class="diagram"><pre>       Book (1)                       Review (N)
+   ┌──────────────┐              ┌──────────────────┐
+   │ reviews       │◀─ mappedBy ─│ @ManyToOne book  │ ← 주인 (FK: book_id)
+   │ (@OneToMany)  │             │                  │
+   └──────────────┘              └──────────────────┘
+
+규칙: @ManyToOne(=N=FK 보유) 쪽이 주인.
+      @OneToMany 쪽은 mappedBy 로 주인 필드명을 가리킨다.</pre></figure>
+<p><code>@OneToMany</code>를 주인으로 만드는 것(즉 <code>@OneToMany</code>에 <code>@JoinColumn</code>을 직접 붙이는 것)도 문법적으로는 가능하지만, <strong>권장하지 않습니다.</strong> 일(1) 쪽에서 컬렉션을 수정할 때 엉뚱한 <code>UPDATE</code> SQL이 추가로 나가기 때문입니다. 항상 <strong>다(N) 쪽을 주인으로</strong> 두세요.</p>
+<h2>6. @OneToOne과 @ManyToMany</h2>
+<p><strong><code>@OneToOne</code></strong> 은 FK를 어느 테이블에 둘지 선택할 수 있습니다. 주 테이블(예: <code>book</code>)에 FK를 두면 조회가 편하고, 대상 테이블에 두면 <code>book</code> 테이블이 깔끔해집니다. 주 테이블에 두는 단방향을 기본으로 권장합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@OneToOne</span><span class="p">(</span><span class="n">fetch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FetchType</span><span class="p">.</span><span class="na">LAZY</span><span class="p">)</span>
+<span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;detail_id&quot;</span><span class="p">)</span>
+<span class="kd">var</span><span class="w"> </span><span class="nv">detail</span><span class="p">:</span><span class="w"> </span><span class="n">BookDetail? </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+</pre></div>
+</div>
+<p><strong><code>@ManyToMany</code>는 실무에서 지양합니다.</strong> 이유는 명확합니다.</p>
+<ul>
+<li>다대다는 JPA가 <strong>중간 연결 테이블(join table)</strong> 을 숨겨서 자동 생성하는데, 이 테이블에 <strong>추가 컬럼을 넣을 수 없습니다</strong>(예: 책-태그 관계에 "태그를 단 시각"을 기록 불가).</li>
+<li>어떤 SQL이 나갈지 예측이 어렵고, 운영 중 요구사항이 거의 항상 "연결 테이블에 컬럼 추가"로 진화합니다.</li>
+</ul>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>해법은 <strong>중간 엔티티를 직접 만드는 것</strong>입니다. <code>Book ↔ Tag</code>라면 <code>BookTag</code> 엔티티를 두고, 양쪽을 각각 <code>@ManyToOne</code>으로 연결합니다(= <code>@OneToMany</code> + <code>@ManyToOne</code> 두 쌍). 이렇게 하면 연결 테이블이 1급 엔티티가 되어 컬럼을 자유롭게 추가할 수 있습니다.</p>
+</blockquote>
+<h2>7. cascade와 orphanRemoval</h2>
+<p><strong><code>cascade</code>(영속성 전이)</strong> 는 "부모 엔티티의 영속성 동작을 자식에게 전파"하는 옵션입니다. 위 <code>Book.reviews</code>에 <code>cascade = [CascadeType.ALL]</code>을 줬으므로, <code>book</code>을 저장하면 그 안의 <code>reviews</code>도 함께 <code>persist</code>됩니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Book</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span>
+<span class="n">book</span><span class="p">.</span><span class="na">addReview</span><span class="p">(</span><span class="n">Review</span><span class="p">(</span><span class="n">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;굿&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rating</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">5</span><span class="p">))</span>
+<span class="n">bookRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">book</span><span class="p">)</span><span class="w">   </span><span class="c1">// book 저장 시 review도 자동 INSERT (cascade)</span>
+</pre></div>
+</div>
+<p><strong><code>orphanRemoval = true</code></strong> 는 "부모 컬렉션에서 빠진 자식을 고아로 보고 자동 삭제"합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">book</span><span class="p">.</span><span class="na">removeReview</span><span class="p">(</span><span class="n">someReview</span><span class="p">)</span><span class="w">   </span><span class="c1">// 컬렉션에서 제거</span>
+<span class="c1">// → orphanRemoval=true 이면 트랜잭션 커밋 시 DELETE FROM review ... 자동 실행</span>
+</pre></div>
+</div>
+<table>
+<thead>
+<tr>
+<th>옵션</th>
+<th>의미</th>
+<th>안전하게 쓰는 조건</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cascade = ALL</code></td>
+<td>모든 생명주기 전파</td>
+<td>자식이 <strong>이 부모에만 종속</strong>될 때</td>
+</tr>
+<tr>
+<td><code>orphanRemoval = true</code></td>
+<td>컬렉션 이탈 자식 삭제</td>
+<td>자식의 생명주기를 부모가 <strong>독점</strong>할 때</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p><code>cascade</code>와 <code>orphanRemoval</code>은 <strong>자식이 오직 한 부모에게만 속할 때</strong>만 켜세요. <code>Category</code>처럼 여러 <code>Book</code>이 공유하는 엔티티에 <code>cascade=ALL</code>을 걸면, 한 책을 지웠을 때 카테고리까지 삭제되어 다른 책들이 줄줄이 깨집니다. 그래서 우리는 <code>Book→Category</code>엔 cascade를 <strong>걸지 않았습니다.</strong> "리뷰는 책의 일부지만, 카테고리는 책의 일부가 아니다"라는 도메인 판단이 옵션 선택의 기준입니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>엔티티 간 수평 관계를 봤으니, 이번엔 <strong>상속 관계</strong>와 엔티티가 품는 <strong>값 타입</strong>을 다룹니다.</p>
+<p>→ <a href="03-inheritance-embedded.html">상속 매핑과 값 타입</a></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

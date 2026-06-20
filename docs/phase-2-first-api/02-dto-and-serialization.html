@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DTO와 JSON 직렬화 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="02-dto-and-serialization.html" class="active">DTO와 JSON 직렬화</a>
+<a href="03-rest-controller.html">@RestController 구현</a>
+<a href="04-service-layer.html">Service 계층과 DI</a>
+<a href="05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>DTO와 JSON 직렬화</h1>
+<p>REST API는 결국 <strong>JSON을 주고받는 일</strong>입니다. 클라이언트가 보낸 JSON을 Kotlin 객체로 바꾸고(역직렬화, deserialization), 응답할 Kotlin 객체를 다시 JSON으로 바꾸는(직렬화, serialization) 과정이 매 요청마다 일어납니다. Spring Boot는 이 변환을 <strong>Jackson</strong> 라이브러리로 자동 처리합니다. 이번 페이지에서는 그 변환의 단위가 되는 <strong>DTO</strong>를 정의합니다.</p>
+<h2>1. DTO란 무엇이고 왜 필요한가</h2>
+<p><strong>DTO(Data Transfer Object)</strong>는 계층 간 데이터 전달만을 목적으로 하는 객체입니다. 우리는 도메인 엔티티(Phase 3에서 만들 JPA <code>Book</code> 엔티티)와 <strong>별도의</strong> 요청/응답 DTO를 둡니다. 이유는 다음과 같습니다.</p>
+<table>
+<thead>
+<tr>
+<th>이유</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>노출 제어</strong></td>
+<td>엔티티의 모든 필드를 외부에 그대로 드러내면 보안·캡슐화에 취약합니다. DTO로 필요한 필드만 노출합니다.</td>
+</tr>
+<tr>
+<td><strong>요청과 응답의 차이</strong></td>
+<td>생성 요청에는 <code>id</code>가 없지만(서버가 생성), 응답에는 <code>id</code>가 있습니다. 같은 객체로 표현하기 어렵습니다.</td>
+</tr>
+<tr>
+<td><strong>변경 격리</strong></td>
+<td>DB 스키마(엔티티)가 바뀌어도 API 계약(DTO)은 유지할 수 있습니다.</td>
+</tr>
+<tr>
+<td><strong>검증 분리</strong></td>
+<td>입력 검증 규칙(Phase 4의 Bean Validation)을 요청 DTO에만 적용할 수 있습니다.</td>
+</tr>
+</tbody>
+</table>
+<p>그래서 우리는 세 종류의 DTO를 만듭니다.</p>
+<div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>응답용         BookResponse        (id 포함, 클라이언트에게 내보냄)
+생성 요청용     CreateBookRequest   (id 없음, 모든 필드 필수)
+수정 요청용     UpdateBookRequest   (id 없음, 수정할 필드)</code></pre></div>
+<h2>2. DTO 정의 — data class</h2>
+<p>Kotlin의 <code>data class</code>는 DTO에 완벽하게 들어맞습니다. <code>equals</code>, <code>hashCode</code>, <code>toString</code>, <code>copy</code>가 자동 생성되고, 프로퍼티 선언만으로 불변(immutable) 객체를 만들 수 있습니다.</p>
+<p><code>src/main/kotlin/com/example/bookapi/dto/BookDtos.kt</code>:</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.dto</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">java.time.LocalDate</span>
+
+<span class="c1">// 응답 DTO — 클라이언트에게 내보내는 형태</span>
+<span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BookResponse</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">price</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">publishedAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">// 생성 요청 DTO — POST 본문으로 받는 형태 (id 없음)</span>
+<span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">CreateBookRequest</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">price</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">publishedAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">// 수정 요청 DTO — PUT 본문으로 받는 형태 (id 없음)</span>
+<span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">UpdateBookRequest</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">price</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">publishedAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<p><strong>팁</strong>: 입력값 검증(빈 문자열 금지, 가격은 0 이상 등)은 Phase 4에서 <code>@field:NotBlank</code>, <code>@field:Positive</code> 같은 Bean Validation 애너테이션으로 추가합니다. 지금은 구조에만 집중합니다.</p>
+</blockquote>
+<h2>3. jackson-module-kotlin이 하는 일</h2>
+<p>순수 Jackson은 Java를 전제로 설계되어, <strong>기본 생성자</strong>와 <strong>세터(setter)</strong>가 있는 클래스를 가정합니다. 하지만 Kotlin data class는 기본 생성자가 없고, <code>val</code> 프로퍼티는 불변입니다. 그래서 <code>jackson-module-kotlin</code> 모듈이 필요합니다.</p>
+<p>이 모듈은 다음을 가능하게 합니다.</p>
+<ul>
+<li><strong>주 생성자 기반 역직렬화</strong>: 기본 생성자 없이도 JSON → data class 변환</li>
+<li><strong>기본 인자(default argument) 인식</strong>: JSON에 필드가 없으면 Kotlin 기본값 사용</li>
+<li><strong>null 안정성 존중</strong>: non-null(<code>String</code>) 프로퍼티에 JSON <code>null</code>이 들어오면 예외 발생, nullable(<code>String?</code>)은 허용</li>
+</ul>
+<p><code>spring-boot-starter-web</code>을 쓰는 Spring Boot 프로젝트에 <code>jackson-module-kotlin</code> 의존성이 클래스패스에 있으면, <strong>Spring Boot가 자동으로 등록</strong>합니다. 별도 설정 코드는 필요 없습니다. Phase 1에서 만든 <code>build.gradle.kts</code>에 다음이 포함되어 있는지 확인하세요.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-web&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;com.fasterxml.jackson.module:jackson-module-kotlin&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote>
+<p>Spring Initializr로 Kotlin 프로젝트를 생성하면 <code>jackson-module-kotlin</code>이 기본 포함됩니다.</p>
+</blockquote>
+<h2>4. LocalDate 직렬화 (JSR-310)</h2>
+<p><code>publishedAt: LocalDate</code>처럼 <code>java.time</code> 타입을 쓰면, Jackson의 <strong>JSR-310 모듈</strong>(<code>jackson-datatype-jsr310</code>)이 처리합니다. 이 역시 Spring Boot가 자동 등록합니다.</p>
+<p>기본 동작은 <strong>ISO-8601 문자열</strong>입니다.</p>
+<div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;publishedAt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-03-15&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>만약 이 모듈이 없으면 <code>LocalDate</code>가 <code>{"year":2024,"month":3,...}</code> 같은 숫자 배열로 깨져 나옵니다. Spring Boot는 기본적으로 <strong>타임스탬프(숫자) 대신 ISO 문자열</strong>을 쓰도록 설정해 두므로, 위와 같은 깔끔한 형태가 기본값입니다. 명시적으로 보장하려면 <code>application.yml</code>에 다음을 둘 수 있습니다.</p>
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">spring</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">jackson</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">write-dates-as-timestamps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">   </span><span class="c1"># 기본값. 날짜를 ISO 문자열로</span>
+</pre></div>
+</div>
+<h2>5. 필드 이름 전략 — camelCase vs snake_case</h2>
+<p>기본적으로 Kotlin 프로퍼티 이름이 그대로 JSON 키가 됩니다. <code>publishedAt</code>은 <code>"publishedAt"</code>으로 나갑니다. 만약 API 규약이 <strong>snake_case</strong>(<code>published_at</code>)라면 두 가지 방법이 있습니다.</p>
+<h3>방법 A — 전역 설정 (권장)</h3>
+<p><code>application.yml</code>에서 한 번에 적용합니다.</p>
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">spring</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">jackson</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">property-naming-strategy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SNAKE_CASE</span>
+</pre></div>
+</div>
+<p>이러면 모든 DTO의 키가 <code>published_at</code>, 입력도 <code>published_at</code>으로 통일됩니다.</p>
+<h3>방법 B — 클래스 단위 지정</h3>
+<p>특정 DTO만 다르게 하려면 <code>@JsonNaming</code>을 씁니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">com.fasterxml.jackson.databind.annotation.JsonNaming</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">com.fasterxml.jackson.databind.PropertyNamingStrategies</span>
+
+<span class="nd">@JsonNaming</span><span class="p">(</span><span class="n">PropertyNamingStrategies</span><span class="p">.</span><span class="na">SnakeCaseStrategy</span><span class="o">::</span><span class="n">class</span><span class="p">)</span>
+<span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BookResponse</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">publishedAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">,</span><span class="w">   </span><span class="c1">// → &quot;published_at&quot;</span>
+<span class="w">    </span><span class="c1">// ...</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<h3>방법 C — 필드 단위 지정</h3>
+<p>개별 필드만 이름을 바꾸려면 <code>@JsonProperty</code>를 씁니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BookResponse</span><span class="p">(</span>
+<span class="w">    </span><span class="nd">@JsonProperty</span><span class="p">(</span><span class="s">&quot;book_id&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">,</span>
+<span class="w">    </span><span class="c1">// ...</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<p><strong>팁</strong>: 본 가이드는 단순함을 위해 <strong>camelCase 기본값</strong>을 그대로 사용합니다. 팀 규약에 맞춰 위 방법 중 하나를 택하세요.</p>
+</blockquote>
+<h2>6. null 필드 제어</h2>
+<p>응답 JSON에 <code>null</code> 값을 포함할지 제외할지 정할 수 있습니다. 기본값은 <strong>항상 포함</strong>입니다.</p>
+<div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="c1">// default-property-inclusion 기본: null도 출력</span>
+<span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;코틀린&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;discount&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+<p><code>null</code> 필드를 응답에서 빼고 싶다면 전역 설정합니다.</p>
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">spring</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">jackson</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">default-property-inclusion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">non_null</span><span class="w">   </span><span class="c1"># null인 프로퍼티는 JSON에서 제외</span>
+</pre></div>
+</div>
+<p>이 설정을 켜면 위 응답에서 <code>"discount": null</code> 줄이 사라집니다. 우리 도서 DTO는 nullable 필드가 없으므로 당장 영향은 없지만, 선택적 필드가 생기면 유용합니다.</p>
+<h2>7. 직렬화 흐름 한눈에 보기</h2>
+<figure class="diagram"><pre>[POST /api/books 요청]
+   JSON 본문
+   { &quot;title&quot;: &quot;...&quot;, &quot;publishedAt&quot;: &quot;2024-03-15&quot; }
+        │
+        ▼  Jackson + jackson-module-kotlin (역직렬화)
+   CreateBookRequest(title=&quot;...&quot;, publishedAt=LocalDate(2024,3,15))
+        │
+        ▼  Service 처리 → 저장 → BookResponse 생성
+   BookResponse(id=1, title=&quot;...&quot;, publishedAt=...)
+        │
+        ▼  Jackson (직렬화)
+   JSON 응답
+   { &quot;id&quot;: 1, &quot;title&quot;: &quot;...&quot;, &quot;publishedAt&quot;: &quot;2024-03-15&quot; }</pre></figure>
+<p>이 변환은 컨트롤러의 <code>@RequestBody</code>/<code>@ResponseBody</code>(또는 <code>@RestController</code>)가 트리거합니다. 다음 페이지에서 바로 확인합니다.</p>
+<h2>다음 단계</h2>
+<p>데이터의 형태(DTO)를 정의했으니, 이제 이 DTO를 주고받는 HTTP 엔드포인트를 만들 차례입니다. <a href="03-rest-controller.html">@RestController 구현</a>으로 이동하세요.</p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

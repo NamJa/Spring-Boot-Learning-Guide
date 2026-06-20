@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 0. Spring 핵심 개념 다지기 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>Phase 0. Spring 핵심 개념 다지기</h1>
+<p>Spring Boot로 본격적인 코드를 작성하기 전에, <strong>Spring 생태계가 어떤 철학 위에서 동작하는지</strong> 먼저 이해하는 단계입니다. Spring은 단순한 웹 프레임워크가 아니라 <strong>IoC 컨테이너</strong>라는 강력한 핵심 위에 수많은 모듈이 쌓인 거대한 생태계입니다. 이 핵심을 모른 채 코드를 따라 치기만 하면, 조금만 상황이 달라져도 "왜 이게 동작하는지" 설명할 수 없게 됩니다.</p>
+<p>이미 Kotlin과 (자매 가이드의) Ktor에 익숙하다면 더욱 좋습니다. Ktor가 "필요한 것을 직접 명시적으로 조립하는" 미니멀리즘을 추구한다면, Spring은 "관례와 자동화로 빠르게 생산성을 끌어올리는" 정반대 철학을 가집니다. 이 차이를 이해하는 것이 Phase 0의 가장 큰 목표입니다.</p>
+<h2>이 Phase에서 배우는 것</h2>
+<ul>
+<li><strong>Spring과 Spring Boot의 관계</strong> — 무엇이 다르고, Spring Boot가 무엇을 자동화해 주는가</li>
+<li><strong>IoC 컨테이너와 의존성 주입(DI)</strong> — Spring을 떠받치는 가장 중요한 개념</li>
+<li><strong>Bean 생명주기와 스코프</strong> — 객체가 언제 만들어지고 언제 사라지는가</li>
+<li><strong>자동 설정(Auto-configuration)과 스타터</strong> — Spring Boot의 "마법"이 동작하는 원리</li>
+<li><strong>Spring MVC vs WebFlux</strong> — 두 가지 웹 스택 중 무엇을 선택할 것인가</li>
+</ul>
+<h2>왜 코딩 전에 개념부터 잡아야 하는가</h2>
+<p>Spring Boot는 <strong>수많은 것을 자동으로 해 줍니다</strong>. 이 자동화는 양날의 검입니다.</p>
+<ul>
+<li>잘 이해하면: 보일러플레이트 없이 빠르게 실무 수준의 애플리케이션을 만들 수 있습니다.</li>
+<li>모르면: 에러 메시지 하나를 해석하지 못하고, 자동 설정이 "왜 내가 원하는 Bean을 안 만들어 주는지" 디버깅에 며칠을 쓰게 됩니다.</li>
+</ul>
+<blockquote>
+<p><strong>TIP</strong>: Spring의 거의 모든 기능(트랜잭션, 보안, 캐시, AOP)은 결국 <strong>IoC 컨테이너가 Bean을 어떻게 관리하느냐</strong>로 귀결됩니다. 02번 문서의 DI 개념만 확실히 잡아도 이후 Phase가 훨씬 수월해집니다.</p>
+</blockquote>
+<h2>가이드 전체를 관통하는 예제</h2>
+<p>이 가이드는 처음부터 끝까지 <strong>도서(Book) 관리 REST API</strong>를 만들며 진행합니다.</p>
+<ul>
+<li>기본 패키지: <code>com.example.bookapi</code></li>
+<li>도메인 모델:</li>
+</ul>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">Book</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">price</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">publishedAt</span><span class="p">:</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">time</span><span class="p">.</span><span class="na">LocalDate</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Phase 0에서는 아직 이 도메인을 본격적으로 다루지 않지만, 개념 설명마다 이 예제를 끌어와 "실제로 어디에 쓰이는지" 감을 잡아 둡니다.</p>
+<h2>사용하는 버전 (2026-06-20 기준)</h2>
+<table>
+<thead>
+<tr>
+<th>구성요소</th>
+<th>버전</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spring Boot</td>
+<td><strong>4.1.0</strong> (GA 2026-06-10)</td>
+</tr>
+<tr>
+<td>Spring Framework</td>
+<td><strong>7.0.8+</strong></td>
+</tr>
+<tr>
+<td>Kotlin</td>
+<td><strong>2.3.21</strong> (Spring Boot BOM이 관리)</td>
+</tr>
+<tr>
+<td>JDK</td>
+<td>17 최소 ~ 26 지원 (본 가이드는 <strong>21 LTS</strong> 기준)</td>
+</tr>
+<tr>
+<td>Gradle</td>
+<td>8.14+ / 9.x</td>
+</tr>
+<tr>
+<td>Spring Security</td>
+<td>7.0</td>
+</tr>
+</tbody>
+</table>
+<h2>페이지 목록</h2>
+<ol start="0">
+<li><a href="00-server-side-intro.html">서버 사이드 개발 입문</a> — 서버가 무엇을 하는 소프트웨어인지, 클라이언트-서버 통신·REST·Stateless를 먼저 잡습니다. (서버가 처음이라면 여기부터)</li>
+<li><a href="01-what-is-spring.html">Spring &amp; Spring Boot 입문</a> — Spring Framework와 Spring Boot가 각각 무엇이고 어떻게 다른지, 생태계 전체 지도를 그립니다.</li>
+<li><a href="02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a> — Spring의 심장인 제어의 역전과 DI를 Kotlin 코드로 익힙니다.</li>
+<li><a href="03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a> — Bean이 생성-초기화-소멸되는 과정과 스코프를 다룹니다.</li>
+<li><a href="04-auto-configuration.html">자동 설정과 스타터</a> — <code>@SpringBootApplication</code>의 분해, 조건부 Bean, 스타터의 원리를 파헤칩니다.</li>
+<li><a href="05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a> — 두 웹 스택을 비교하고, 본 가이드가 MVC를 선택한 이유를 설명합니다.</li>
+</ol>
+<h2>다음 단계</h2>
+<p>➡️ <a href="01-what-is-spring.html">01. Spring &amp; Spring Boot 입문</a> — 먼저 "Spring이 도대체 무엇인가"라는 질문에 답하며 출발합니다.</p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

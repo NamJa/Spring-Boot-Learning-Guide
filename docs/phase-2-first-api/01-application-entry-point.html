@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>진입점 — @SpringBootApplication · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="01-application-entry-point.html" class="active">진입점 — @SpringBootApplication</a>
+<a href="02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="03-rest-controller.html">@RestController 구현</a>
+<a href="04-service-layer.html">Service 계층과 DI</a>
+<a href="05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>진입점 — @SpringBootApplication</h1>
+<p>모든 Spring Boot 애플리케이션에는 단 하나의 <strong>진입점(entry point)</strong> 클래스가 있습니다. Phase 1에서 프로젝트를 생성하면 <code>src/main/kotlin/com/example/bookapi/</code> 아래에 <code>BookApiApplication.kt</code> 파일이 자동으로 만들어집니다. 이 파일이 애플리케이션 전체의 출발점입니다.</p>
+<h2>1. 생성된 진입점 클래스</h2>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.boot.autoconfigure.SpringBootApplication</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.boot.runApplication</span>
+
+<span class="nd">@SpringBootApplication</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookApiApplication</span>
+
+<span class="kd">fun</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">runApplication</span><span class="o">&lt;</span><span class="n">BookApiApplication</span><span class="o">&gt;</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>코드는 단 몇 줄이지만, 이 안에 Spring Boot의 거의 모든 마법이 압축되어 있습니다. 하나씩 풀어 보겠습니다.</p>
+<h2>2. @SpringBootApplication 애너테이션</h2>
+<p><code>@SpringBootApplication</code>은 사실 세 개의 애너테이션을 합쳐 놓은 <strong>메타 애너테이션(composed annotation)</strong>입니다.</p>
+<table>
+<thead>
+<tr>
+<th>포함된 애너테이션</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@SpringBootConfiguration</code></td>
+<td>이 클래스가 Spring 설정(configuration) 클래스임을 표시 (<code>@Configuration</code>의 특수형)</td>
+</tr>
+<tr>
+<td><code>@EnableAutoConfiguration</code></td>
+<td><strong>자동 설정(auto-configuration)</strong> 활성화. 클래스패스에 있는 라이브러리를 보고 필요한 빈을 자동 등록</td>
+</tr>
+<tr>
+<td><code>@ComponentScan</code></td>
+<td>현재 패키지(<code>com.example.bookapi</code>)와 그 하위 패키지를 스캔하여 <code>@Component</code>, <code>@Service</code>, <code>@RestController</code> 등을 빈으로 등록</td>
+</tr>
+</tbody>
+</table>
+<p>여기서 가장 중요한 규칙: <strong>진입점 클래스는 프로젝트의 최상위 패키지에 두어야 합니다.</strong> <code>@ComponentScan</code>은 이 클래스가 위치한 패키지를 기준(base package)으로 하위를 탐색하기 때문입니다. <code>com.example.bookapi</code>에 두면 <code>com.example.bookapi.controller</code>, <code>com.example.bookapi.service</code> 등이 모두 스캔 대상이 됩니다.</p>
+<blockquote>
+<p><strong>자주 하는 실수</strong>: 컨트롤러를 진입점 패키지 바깥(예: <code>com.example.web</code>)에 두면 스캔되지 않아 404가 발생합니다. 새 클래스는 항상 <code>com.example.bookapi</code> 하위에 만드세요.</p>
+</blockquote>
+<h3>자동 설정이란?</h3>
+<p><code>@EnableAutoConfiguration</code>은 "클래스패스에 무엇이 있는가"를 보고 적절한 기본 설정을 알아서 적용합니다. 예를 들어,</p>
+<ul>
+<li><code>spring-boot-starter-web</code>이 있으면 → 내장 <strong>Tomcat</strong> 서버, <code>DispatcherServlet</code>, Jackson JSON 변환기 등을 자동 구성</li>
+<li><code>jackson-module-kotlin</code>이 있으면 → Kotlin data class를 위한 JSON 직렬화기를 자동 등록</li>
+</ul>
+<p>이 덕분에 우리는 XML 설정 한 줄 없이 곧바로 웹 서버를 띄울 수 있습니다.</p>
+<h2>3. runApplication — Kotlin다운 시작 방식</h2>
+<p><code>runApplication</code>은 Spring Boot가 Kotlin 사용자를 위해 제공하는 <strong>확장 함수</strong>입니다. Java에서는 보통 이렇게 씁니다.</p>
+<div class="code-block" data-lang="java"><span class="code-lang">java</span><div class="hl"><pre><span></span><span class="c1">// Java 스타일</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">SpringApplication</span><span class="p">.</span><span class="na">run</span><span class="p">(</span><span class="n">BookApiApplication</span><span class="p">.</span><span class="na">class</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Kotlin에서는 <code>runApplication</code>을 쓰면 클래스 참조(<code>::class.java</code>)를 명시할 필요 없이 <strong>타입 파라미터</strong>로 깔끔하게 표현됩니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">runApplication</span><span class="o">&lt;</span><span class="n">BookApiApplication</span><span class="o">&gt;</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code>*args</code>는 <strong>스프레드 연산자(spread operator)</strong>로, <code>Array&lt;String&gt;</code>을 가변 인자(vararg)로 풀어서 전달합니다. 이 인자는 커맨드라인 옵션(<code>--server.port=9090</code> 등)으로 활용됩니다.</p>
+<h2>4. 시작 시 무슨 일이 일어나는가</h2>
+<p><code>main</code>이 실행되면 다음 순서로 진행됩니다.</p>
+<figure class="diagram"><pre>runApplication&lt;BookApiApplication&gt;(*args)
+        │
+        ▼
+1. SpringApplication 객체 생성, 환경(Environment) 준비
+        │
+        ▼
+2. ApplicationContext(IoC 컨테이너) 생성
+        │
+        ▼
+3. @ComponentScan → 빈 정의 수집 (@Service, @RestController ...)
+        │
+        ▼
+4. @EnableAutoConfiguration → 내장 Tomcat, Jackson 등 자동 구성
+        │
+        ▼
+5. 모든 싱글톤 빈 생성 및 의존성 주입(DI)
+        │
+        ▼
+6. 내장 Tomcat 시작 → 8080 포트에서 요청 대기</pre></figure>
+<p>5단계가 끝나면 우리가 만든 <code>BookService</code>, <code>BookController</code> 같은 객체들이 컨테이너 안에 준비되고, 서로 의존성이 연결됩니다. 6단계에서 서버가 떠 실제로 HTTP 요청을 받을 수 있게 됩니다.</p>
+<h2>5. 시작 로그 읽기</h2>
+<p><code>./gradlew bootRun</code>으로 실행하면 콘솔에 다음과 비슷한 로그가 출력됩니다.</p>
+<div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>  .   ____          _            __ _ _
+ /\\ / ___&#x27;_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | &#x27;_ | &#x27;_| | &#x27;_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  &#x27;  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.0)
+
+... INFO ... Starting BookApiApplication using Java 21 ...
+... INFO ... Tomcat initialized with port 8080 (http)
+... INFO ... Starting service [Tomcat]
+... INFO ... Starting Servlet engine: [Apache Tomcat/11.0.x]
+... INFO ... Initializing Spring embedded WebApplicationContext
+... INFO ... Tomcat started on port 8080 (http) with context path &#x27;/&#x27;
+... INFO ... Started BookApiApplication in 1.234 seconds (process running for 1.567)</code></pre></div>
+<p>로그에서 확인할 핵심 정보입니다.</p>
+<ul>
+<li><strong>Spring Boot 버전</strong>: <code>v4.1.0</code></li>
+<li><strong>JDK 버전</strong>: <code>Java 21</code></li>
+<li><strong>내장 서버</strong>: <code>Apache Tomcat/11.0.x</code> (Servlet 6.1)</li>
+<li><strong>포트</strong>: <code>8080</code></li>
+<li><strong>마지막 줄</strong> <code>Started BookApiApplication in ...</code>: 정상 기동 완료 신호. 이 줄이 보이면 API를 호출할 준비가 된 것입니다.</li>
+</ul>
+<h2>6. SpringApplication 커스터마이징 (간단히)</h2>
+<p>대부분 기본값으로 충분하지만, 시작 동작을 바꾸고 싶다면 람다로 설정을 조정할 수 있습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">fun</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">runApplication</span><span class="o">&lt;</span><span class="n">BookApiApplication</span><span class="o">&gt;</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 시작 배너 끄기</span>
+<span class="w">        </span><span class="n">setBannerMode</span><span class="p">(</span><span class="n">Banner</span><span class="p">.</span><span class="na">Mode</span><span class="p">.</span><span class="na">OFF</span><span class="p">)</span>
+<span class="w">        </span><span class="c1">// 추가 프로파일 지정 등도 가능</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>포트나 애플리케이션 이름 같은 설정은 코드보다 <code>src/main/resources/application.yml</code>에 두는 것이 더 일반적입니다.</p>
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">server</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
+<span class="nt">spring</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">application</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">book-api</span>
+</pre></div>
+</div>
+<h2>7. Ktor의 embeddedServer와 비교</h2>
+<p>Ktor 경험이 있다면 이 구조가 낯설 수 있습니다. Ktor에서는 서버 엔진과 라우팅을 코드에서 명시적으로 조립합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// Ktor</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">embeddedServer</span><span class="p">(</span><span class="n">Netty</span><span class="p">,</span><span class="w"> </span><span class="n">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">8080</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">routing</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">get</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">call</span><span class="p">.</span><span class="na">respondText</span><span class="p">(</span><span class="s">&quot;...&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}.</span><span class="na">start</span><span class="p">(</span><span class="n">wait</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>Ktor</th>
+<th>Spring Boot</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>서버 시작</td>
+<td><code>embeddedServer(Netty, ...)</code> 명시적 조립</td>
+<td><code>runApplication</code> 한 줄, 나머지는 자동</td>
+</tr>
+<tr>
+<td>엔진 선택</td>
+<td>코드에서 직접 지정 (Netty 등)</td>
+<td>starter 의존성으로 결정 (기본 Tomcat)</td>
+</tr>
+<tr>
+<td>라우팅</td>
+<td><code>routing { }</code> DSL로 코드에 작성</td>
+<td><code>@RestController</code> 애너테이션으로 선언</td>
+</tr>
+<tr>
+<td>설정 방식</td>
+<td>코드 중심(명시적)</td>
+<td>애너테이션 + 자동 설정(관례 중심)</td>
+</tr>
+</tbody>
+</table>
+<p>핵심 차이는 <strong>명시(explicit) vs 관례(convention)</strong>입니다. Ktor는 모든 것을 코드로 보여 주는 대신 직접 조립해야 하고, Spring Boot는 관례와 자동 설정으로 보일러플레이트를 줄이는 대신 "어떤 마법이 일어나는지"를 이해하는 학습이 필요합니다. 이 가이드는 바로 그 마법을 한 겹씩 벗겨 나가는 과정입니다.</p>
+<h2>다음 단계</h2>
+<p>진입점을 이해했으니, 이제 API가 주고받을 데이터의 형태를 정의할 차례입니다. <a href="02-dto-and-serialization.html">DTO와 JSON 직렬화</a>로 이동하세요.</p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

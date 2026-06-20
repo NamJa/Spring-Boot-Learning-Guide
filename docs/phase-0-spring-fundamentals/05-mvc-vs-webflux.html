@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spring MVC vs WebFlux · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="05-mvc-vs-webflux.html" class="active">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>Spring MVC vs WebFlux</h1>
+<p>Spring으로 웹 애플리케이션을 만들 때 가장 먼저 마주치는 갈림길이 <strong>두 개의 웹 스택</strong> 중 무엇을 쓸 것인가입니다. 전통적인 <strong>Spring MVC</strong>(서블릿 기반, 동기/블로킹)와 비교적 새로운 <strong>Spring WebFlux</strong>(Reactor 기반, 비동기/논블로킹). 둘은 같은 어노테이션(<code>@RestController</code>, <code>@GetMapping</code>)을 쓰지만 <strong>내부 실행 모델이 근본적으로 다릅니다.</strong> 이 문서는 둘을 비교하고, 본 가이드의 선택을 분명히 합니다.</p>
+<h2>1. Spring MVC — 서블릿 기반 블로킹 모델</h2>
+<p><strong>Spring MVC</strong>는 Java <strong>서블릿(Servlet)</strong> 위에서 동작하는 전통적인 동기 웹 스택입니다.</p>
+<ul>
+<li>기반: 서블릿 컨테이너 — 본 가이드 기준 <strong>Tomcat 11.0.x (Servlet 6.1)</strong></li>
+<li>실행 모델: <strong>요청 1건당 스레드 1개(thread-per-request)</strong>. 스레드가 요청을 받아 처리가 끝날 때까지 점유하며, DB 호출이나 외부 API 응답을 <strong>기다리는 동안 그 스레드는 블로킹</strong>됩니다.</li>
+<li>프로그래밍 모델: 명령형(imperative). 위에서 아래로 읽히는 평범한 순차 코드.</li>
+</ul>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@RestController</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookController</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">service</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">&quot;/{id}&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getBook</span><span class="p">(</span><span class="nd">@PathVariable</span><span class="w"> </span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">):</span><span class="w"> </span><span class="n">Book</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 평범한 동기 코드. 반환 타입이 그냥 Book</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="n">BookNotFoundException</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<figure class="diagram"><pre>[Spring MVC — thread-per-request]
+
+요청 A ──▶ [Thread-1] ──DB 대기(블로킹)──▶ 응답 A
+요청 B ──▶ [Thread-2] ──DB 대기(블로킹)──▶ 응답 B
+요청 C ──▶ [Thread-3] ── ...
+
+스레드 풀이 가득 차면 이후 요청은 대기</pre></figure>
+<h2>2. Spring WebFlux — 리액티브 논블로킹 모델</h2>
+<p><strong>Spring WebFlux</strong>는 <strong>Reactor</strong>(본 가이드 기준 Reactor 2025.0)를 기반으로 한 리액티브 스택입니다.</p>
+<ul>
+<li>기반: 보통 <strong>Netty</strong>(논블로킹 서버). 서블릿 컨테이너 위에서도 동작 가능.</li>
+<li>실행 모델: <strong>이벤트 루프 + 논블로킹 I/O</strong>. 적은 수의 스레드가 많은 요청을 처리. I/O를 기다리는 동안 스레드를 놓아주고 다른 요청을 처리한 뒤, 결과가 준비되면 콜백으로 이어 갑니다.</li>
+<li>프로그래밍 모델: 반환 타입이 <strong><code>Mono&lt;T&gt;</code>(0~1개)</strong> 또는 <strong><code>Flux&lt;T&gt;</code>(0~N개)</strong> 라는 리액티브 스트림. 데이터가 "흘러가는" 선언적 파이프라인.</li>
+</ul>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@RestController</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">ReactiveBookController</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">service</span><span class="p">:</span><span class="w"> </span><span class="n">ReactiveBookService</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">&quot;/{id}&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getBook</span><span class="p">(</span><span class="nd">@PathVariable</span><span class="w"> </span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">):</span><span class="w"> </span><span class="n">Mono</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 반환 타입이 Mono&lt;Book&gt; — 값이 아니라 &quot;미래에 올 값의 스트림&quot;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<figure class="diagram"><pre>[WebFlux — event loop]
+
+요청 A,B,C... ──▶ [적은 수의 이벤트 루프 스레드]
+                        │
+              I/O 대기 시 스레드를 놓아줌(논블로킹)
+                        │
+              결과 준비되면 콜백으로 재개
+
+적은 스레드로 매우 많은 동시 연결 처리 가능</pre></figure>
+<h3>2.1 WebFlux에서의 Kotlin 코루틴</h3>
+<p><code>Mono</code>/<code>Flux</code>는 처음 보면 낯설지만, <strong>Kotlin을 쓰면 코루틴(suspend 함수)으로 훨씬 자연스럽게</strong> 작성할 수 있습니다. Spring은 <code>suspend</code> 함수와 <code>Flow</code>를 1급으로 지원해, <code>Mono</code>를 <code>suspend</code>로, <code>Flux</code>를 <code>Flow&lt;T&gt;</code>로 대체할 수 있습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@RestController</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">CoroutineBookController</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">service</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">&quot;/api/books/{id}&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getBook</span><span class="p">(</span><span class="nd">@PathVariable</span><span class="w"> </span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">):</span><span class="w"> </span><span class="n">Book? </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 코루틴 덕분에 논블로킹이지만 동기 코드처럼 읽힌다</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">listBooks</span><span class="p">():</span><span class="w"> </span><span class="n">Flow</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">findAll</span><span class="p">()</span><span class="w"> </span><span class="c1">// Flux 대신 Flow</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote>
+<p><strong>TIP</strong>: WebFlux를 쓰더라도 Kotlin 코루틴을 쓰면 콜백 지옥 없이 명령형처럼 읽히는 논블로킹 코드를 얻을 수 있습니다. Ktor가 처음부터 코루틴 기반인 것과 닮은 경험이지만, 위아래(컨트롤러부터 DB 드라이버까지) <strong>모든 계층이 논블로킹이어야</strong> 진가가 나옵니다.</p>
+</blockquote>
+<h2>3. 두 스택 비교</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>Spring MVC</th>
+<th>Spring WebFlux</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>기반</strong></td>
+<td>서블릿 (Tomcat 11, Servlet 6.1)</td>
+<td>Reactor / Netty</td>
+</tr>
+<tr>
+<td><strong>실행 모델</strong></td>
+<td>thread-per-request, 블로킹</td>
+<td>이벤트 루프, 논블로킹</td>
+</tr>
+<tr>
+<td><strong>반환 타입</strong></td>
+<td><code>Book</code>, <code>List&lt;Book&gt;</code> 등 일반 타입</td>
+<td><code>Mono&lt;T&gt;</code>, <code>Flux&lt;T&gt;</code>, 또는 <code>suspend</code>/<code>Flow</code></td>
+</tr>
+<tr>
+<td><strong>프로그래밍 스타일</strong></td>
+<td>명령형(쉬움)</td>
+<td>리액티브/함수형(러닝 커브 가파름)</td>
+</tr>
+<tr>
+<td><strong>블로킹 라이브러리 사용</strong></td>
+<td>자유로움 (JDBC, JPA 등 그대로)</td>
+<td>금지 — 한 곳만 블로킹해도 전체 성능 붕괴</td>
+</tr>
+<tr>
+<td><strong>데이터 접근</strong></td>
+<td>JPA, JDBC (블로킹)</td>
+<td>R2DBC, 리액티브 드라이버 필요</td>
+</tr>
+<tr>
+<td><strong>적합한 상황</strong></td>
+<td>일반적인 CRUD, 대부분의 비즈니스 앱</td>
+<td>초고동시성 I/O 바운드, 스트리밍, 게이트웨이</td>
+</tr>
+<tr>
+<td><strong>디버깅/스택트레이스</strong></td>
+<td>직관적</td>
+<td>비동기라 어려운 편</td>
+</tr>
+</tbody>
+</table>
+<h3>3.1 언제 무엇을 선택하는가</h3>
+<ul>
+<li><strong>Spring MVC를 선택</strong>: 대부분의 경우. CRUD 위주 비즈니스 애플리케이션, JPA/JDBC 같은 블로킹 데이터 접근을 쓰는 경우, 팀이 리액티브에 익숙하지 않은 경우. 코드가 단순하고 디버깅이 쉽습니다.</li>
+<li><strong>WebFlux를 선택</strong>: 수만 개의 동시 연결을 적은 스레드로 처리해야 하거나(API 게이트웨이, 채팅, SSE/스트리밍), 처리 전 구간이 논블로킹으로 정렬돼 있을 때.</li>
+</ul>
+<blockquote>
+<p><strong>WARNING</strong>: "WebFlux가 더 빠르다"는 단순한 오해입니다. 처리 파이프라인 <strong>어느 한 곳이라도 블로킹</strong>(예: WebFlux에서 일반 JPA 호출)하면 이벤트 루프 스레드가 막혀 오히려 MVC보다 나빠집니다. 모든 계층이 논블로킹일 때만 이점이 있습니다.</p>
+</blockquote>
+<h2>4. 가상 스레드(Virtual Threads) — MVC의 게임 체인저</h2>
+<p>JDK 21(본 가이드 표준)부터 정식 도입된 <strong>가상 스레드(Project Loom)</strong> 는 MVC의 약점을 크게 보완합니다. 가상 스레드는 OS 스레드보다 훨씬 가벼워 수십만 개를 만들 수 있고, 블로킹 호출 시 OS 스레드를 점유하지 않고 양보합니다.</p>
+<p>즉 <strong>익숙한 명령형 MVC 코드를 그대로 쓰면서도</strong>, 가상 스레드 덕분에 높은 동시성을 얻을 수 있습니다. Spring Boot에서 한 줄로 켭니다.</p>
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="c1"># application.yml</span>
+<span class="nt">spring</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">threads</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">virtual</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">   </span><span class="c1"># 요청 처리에 가상 스레드 사용 (JDK 21+)</span>
+</pre></div>
+</div>
+<blockquote>
+<p><strong>TIP</strong>: 가상 스레드 덕분에 "고동시성을 위해 반드시 WebFlux로 가야 한다"는 압박이 크게 줄었습니다. 명령형 코드의 단순함을 유지하면서 동시성을 끌어올릴 수 있어, 많은 신규 프로젝트가 <strong>MVC + 가상 스레드</strong> 조합을 선택합니다.</p>
+</blockquote>
+<h2>5. 본 가이드의 선택: Spring MVC</h2>
+<p>본 가이드는 처음부터 끝까지 <strong>Spring MVC</strong>를 사용합니다. 이유는 다음과 같습니다.</p>
+<ol>
+<li><strong>러닝 커브</strong> — Spring을 처음 배우는 단계에서 리액티브 스트림(<code>Mono</code>/<code>Flux</code>)의 복잡성까지 동시에 짊어지는 것은 비효율적입니다.</li>
+<li><strong>데이터 접근</strong> — 도서 API는 Spring Data <strong>JPA</strong>(블로킹)를 사용하며, 이는 MVC와 자연스럽게 맞물립니다.</li>
+<li><strong>현실성</strong> — 실무 비즈니스 애플리케이션의 절대다수가 MVC 기반입니다.</li>
+<li><strong>가상 스레드</strong> — JDK 21의 가상 스레드로 동시성 한계도 상당 부분 해소됩니다.</li>
+</ol>
+<p>WebFlux는 "이런 선택지가 있고 코루틴으로 우아하게 쓸 수 있다"는 것을 알아 두는 정도로 충분합니다. 필요해지면 그때 깊이 학습하면 됩니다.</p>
+<blockquote>
+<p><strong>Ktor와 비교</strong>: Ktor는 코루틴 기반 논블로킹이 기본이라 WebFlux의 코루틴 경험과 가깝습니다. 반면 본 가이드의 MVC 선택은 "동기 코드의 단순함 + 가상 스레드"라는, 최근 JVM 진영에서 다시 주목받는 실용적 방향입니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>➡️ <a href="../phase-1-project-setup/01-environment-setup.html">Phase 1로 이동</a> — 이제 개념 무장을 마쳤으니, 실제로 Spring Boot 4.1 프로젝트를 생성하고 도서 관리 API의 첫 코드를 작성합니다.</p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

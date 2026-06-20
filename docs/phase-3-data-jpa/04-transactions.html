@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>트랜잭션 관리 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="03-repository.html">Repository 인터페이스</a>
+<a href="04-transactions.html" class="active">트랜잭션 관리</a>
+<a href="05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>트랜잭션 관리</h1>
+<p>데이터베이스 작업의 신뢰성을 보장하는 핵심 개념이 <strong>트랜잭션(Transaction)</strong> 입니다. "여러 DB 작업을 하나의 원자적 단위로 묶어, 전부 성공하거나 전부 실패(롤백)하게 만드는 것"이죠. Spring에서는 <code>@Transactional</code> 애너테이션 하나로 이 경계를 선언적으로 지정합니다.</p>
+<h2>1. @Transactional 기본</h2>
+<p>서비스 메서드에 <code>@Transactional</code>을 붙이면, 그 메서드가 시작될 때 트랜잭션이 시작되고 정상 종료 시 커밋, 예외 발생 시 롤백됩니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.transaction.annotation.Transactional</span>
+
+<span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookRepository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@Transactional</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">transferStock</span><span class="p">(</span><span class="cm">/* ... */</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 이 안의 모든 DB 작업은 하나의 트랜잭션</span>
+<span class="w">        </span><span class="c1">// 중간에 예외가 나면 앞선 작업도 전부 롤백된다</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>import에 주의하세요. <strong>반드시 <code>org.springframework.transaction.annotation.Transactional</code></strong> 을 사용합니다. <code>jakarta.transaction.Transactional</code>도 있지만, Spring의 readOnly·propagation 등 풍부한 옵션을 쓰려면 Spring 버전을 써야 합니다.</p>
+</blockquote>
+<h2>2. 어디에 붙이는가 — 서비스 계층</h2>
+<p><code>@Transactional</code>은 <strong>서비스 계층(<code>@Service</code>)의 메서드</strong>에 붙이는 것이 정석입니다.</p>
+<ul>
+<li><strong>Repository</strong>: 한 메서드가 보통 쿼리 하나라 경계를 둘 의미가 적다.</li>
+<li><strong>Controller</strong>: 웹 계층은 트랜잭션 책임을 갖지 않는다. 영속성 컨텍스트가 웹 계층까지 열려 있으면 문제가 된다.</li>
+<li><strong>Service</strong>: 여러 Repository 호출을 하나의 업무 단위(유스케이스)로 묶는 자연스러운 위치.</li>
+</ul>
+<p>Phase 3-3에서 본 패턴이 모범 답안입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
+<span class="nd">@Transactional</span><span class="p">(</span><span class="n">readOnly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span><span class="w">   </span><span class="c1">// 클래스 기본값: 읽기 전용</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookRepository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findAll</span><span class="p">():</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">BookResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w">                          </span><span class="c1">// readOnly 적용</span>
+<span class="w">        </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">findAll</span><span class="p">().</span><span class="na">map</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">toResponse</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@Transactional</span><span class="w">                                               </span><span class="c1">// 쓰기 메서드만 개별 재정의</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">CreateBookRequest</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="na">toEntity</span><span class="p">()).</span><span class="na">toResponse</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h2>3. readOnly 최적화</h2>
+<p>조회만 하는 메서드에는 <strong><code>@Transactional(readOnly = true)</code></strong> 를 권장합니다.</p>
+<ul>
+<li>Hibernate가 <strong>변경 감지(dirty checking)용 스냅샷을 만들지 않아</strong> 메모리·CPU를 아낀다.</li>
+<li>flush 모드가 <code>MANUAL</code>이 되어 불필요한 flush가 일어나지 않는다.</li>
+<li>DB 드라이버/복제 환경에 따라 읽기 전용 커넥션·읽기 복제본으로 라우팅될 수 있다.</li>
+</ul>
+<p>위 예처럼 클래스에 <code>readOnly = true</code>를 기본으로 깔고, 쓰기 메서드에만 <code>@Transactional</code>을 다시 붙여 덮어쓰는 패턴이 흔합니다.</p>
+<p>쓰기 트랜잭션의 진가는 <strong>변경 감지(dirty checking)</strong> 와 만날 때 드러납니다. <code>update</code>는 <code>save()</code>를 호출하지 않고도 동작합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Transactional</span><span class="w">   </span><span class="c1">// 쓰기: 영속성 컨텍스트가 열려 있어야 변경 감지가 작동</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">UpdateBookRequest</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">findByIdOrNull</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="n">BookNotFoundException</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="w">    </span><span class="n">book</span><span class="p">.</span><span class="na">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">title</span>
+<span class="w">    </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">author</span>
+<span class="w">    </span><span class="n">book</span><span class="p">.</span><span class="na">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">isbn</span>
+<span class="w">    </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">price</span>
+<span class="w">    </span><span class="n">book</span><span class="p">.</span><span class="na">publishedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">publishedAt</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">toResponse</span><span class="p">()</span><span class="w">   </span><span class="c1">// save() 없이도 트랜잭션 커밋 시 UPDATE가 자동으로 나간다</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>조회한 <code>book</code>은 <strong>영속 상태</strong>이므로, 필드를 바꾸기만 하면 트랜잭션이 끝나는 순간 Hibernate가 변경을 감지해 <code>UPDATE</code> SQL을 발행합니다. 이 마법은 <code>@Transactional</code>로 영속성 컨텍스트가 살아 있는 동안에만 작동합니다(7절 참고).</p>
+<h2>4. 전파(Propagation)와 격리(Isolation)</h2>
+<h3>전파 — 이미 트랜잭션이 있을 때 어떻게 할까</h3>
+<p><code>@Transactional</code> 메서드가 다른 <code>@Transactional</code> 메서드를 호출할 때의 동작을 정합니다.</p>
+<table>
+<thead>
+<tr>
+<th>전파 옵션</th>
+<th>동작</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>REQUIRED</code> (기본값)</td>
+<td>기존 트랜잭션이 있으면 참여, 없으면 새로 시작</td>
+</tr>
+<tr>
+<td><code>REQUIRES_NEW</code></td>
+<td>항상 새 트랜잭션 시작 (기존 것은 잠시 보류)</td>
+</tr>
+<tr>
+<td><code>SUPPORTS</code></td>
+<td>있으면 참여, 없으면 트랜잭션 없이 실행</td>
+</tr>
+<tr>
+<td><code>MANDATORY</code></td>
+<td>반드시 기존 트랜잭션이 있어야 함 (없으면 예외)</td>
+</tr>
+<tr>
+<td><code>NEVER</code></td>
+<td>트랜잭션이 있으면 예외</td>
+</tr>
+<tr>
+<td><code>NESTED</code></td>
+<td>중첩 트랜잭션 (savepoint 기반)</td>
+</tr>
+</tbody>
+</table>
+<p>대부분의 경우 기본값 <code>REQUIRED</code>로 충분합니다. "로그 기록처럼 본 작업이 롤백돼도 별도로 남기고 싶다" 같은 특수한 경우에 <code>REQUIRES_NEW</code>를 씁니다.</p>
+<h3>격리 수준(Isolation)</h3>
+<p>동시에 실행되는 트랜잭션들이 서로의 변경을 얼마나 볼 수 있는지를 정합니다.</p>
+<table>
+<thead>
+<tr>
+<th>격리 수준</th>
+<th>막아 주는 문제</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>READ_UNCOMMITTED</code></td>
+<td>(가장 약함) 거의 막지 못함</td>
+</tr>
+<tr>
+<td><code>READ_COMMITTED</code></td>
+<td>Dirty Read 방지 (PostgreSQL 기본)</td>
+</tr>
+<tr>
+<td><code>REPEATABLE_READ</code></td>
+<td>+ Non-repeatable Read 방지</td>
+</tr>
+<tr>
+<td><code>SERIALIZABLE</code></td>
+<td>(가장 강함) 모든 문제 방지, 성능 비용 큼</td>
+</tr>
+<tr>
+<td><code>DEFAULT</code></td>
+<td>DB 기본값 사용</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>격리 수준은 대부분 <strong>DB 기본값(<code>DEFAULT</code>)</strong> 을 그대로 두는 것이 좋습니다. 동시성 문제를 명확히 이해하고 필요할 때만 조정하세요. 섣불리 <code>SERIALIZABLE</code>을 쓰면 성능이 크게 떨어집니다.</p>
+</blockquote>
+<h2>5. 롤백 규칙 — Kotlin은 모두 unchecked</h2>
+<p>Spring의 기본 롤백 규칙은 Java를 전제로 합니다.</p>
+<ul>
+<li><strong>unchecked 예외</strong>(<code>RuntimeException</code>과 그 하위, <code>Error</code>): 롤백 <strong>O</strong></li>
+<li><strong>checked 예외</strong>(<code>Exception</code>의 하위 중 RuntimeException이 아닌 것): 롤백 <strong>X</strong> (커밋됨!)</li>
+</ul>
+<p>그런데 <strong>Kotlin에는 checked 예외라는 개념이 없습니다.</strong> 모든 예외가 사실상 unchecked처럼 동작합니다. 따라서 Kotlin에서는 "예외가 던져지면 일반적으로 롤백된다"고 이해하면 대체로 맞습니다.</p>
+<p>특정 예외에 대한 동작을 명시하고 싶으면 옵션으로 지정합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Transactional</span><span class="p">(</span><span class="n">rollbackFor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">Exception</span><span class="o">::</span><span class="n">class</span><span class="o">]</span><span class="p">)</span><span class="w">   </span><span class="c1">// 모든 예외에 롤백 (명시적으로)</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">doSomething</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
+
+<span class="nd">@Transactional</span><span class="p">(</span><span class="n">noRollbackFor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">IllegalStateException</span><span class="o">::</span><span class="n">class</span><span class="o">]</span><span class="p">)</span><span class="w">  </span><span class="c1">// 이 예외는 롤백 안 함</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">doAnother</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>트랜잭션 안에서 예외를 <code>try-catch</code>로 삼켜 버리면(다시 던지지 않으면) <strong>롤백이 일어나지 않습니다.</strong> 예외를 잡아 로깅만 하고 정상 흐름으로 돌려보내면, 앞선 DB 변경이 그대로 커밋되어 데이터 정합성이 깨질 수 있습니다.</p>
+</blockquote>
+<h2>6. 프록시 기반 AOP의 함정</h2>
+<p><code>@Transactional</code>은 <strong>프록시(proxy) 기반 AOP</strong>로 동작합니다. Spring은 <code>BookService</code>를 감싸는 프록시 객체를 만들어, 메서드 호출을 가로채 트랜잭션을 시작·커밋합니다.</p>
+<figure class="diagram"><pre>호출자 → [ 프록시 ] → (트랜잭션 시작) → 실제 BookService.create() → (커밋)</pre></figure>
+<p>여기서 두 가지를 반드시 알아야 합니다.</p>
+<h3>(1) 클래스가 open이어야 한다 — kotlin-spring 플러그인</h3>
+<p>프록시(특히 CGLIB 프록시)는 대상 클래스를 <strong>상속</strong>해서 만듭니다. 그런데 <strong>Kotlin의 클래스와 메서드는 기본적으로 <code>final</code></strong> 이라 상속할 수 없습니다. 그대로 두면 프록시 생성이 실패하거나 트랜잭션이 적용되지 않습니다.</p>
+<p>이 문제를 해결해 주는 것이 <a href="../phase-1-project-setup/04-build-gradle-kts.html">Phase 1에서 추가한</a> <strong><code>kotlin("plugin.spring")</code></strong> 플러그인입니다. 이 플러그인(내부적으로 all-open 플러그인)은 <code>@Service</code>, <code>@Component</code>, <code>@Transactional</code> 등 Spring 애너테이션이 붙은 클래스를 <strong>자동으로 <code>open</code></strong> 하게 만들어, 프록시가 상속할 수 있게 합니다. 덕분에 우리는 <code>open</code> 키워드를 직접 붙이지 않아도 됩니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// kotlin-spring 플러그인이 없으면 이렇게 직접 open을 붙여야 한다</span>
+<span class="kd">open</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span><span class="cm">/* ... */</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nd">@Transactional</span>
+<span class="w">    </span><span class="kd">open</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">CreateBookRequest</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* ... */</span>
+<span class="p">}</span>
+<span class="c1">// 플러그인이 있으면 open 없이 위 BookService 그대로 동작</span>
+</pre></div>
+</div>
+<h3>(2) 자기 호출(self-invocation)은 프록시를 타지 않는다</h3>
+<p>같은 클래스 안에서 메서드가 <strong>다른 메서드를 직접 호출</strong>하면, 그 호출은 프록시를 거치지 않습니다. 호출이 <code>this</code>를 통해 실제 객체로 바로 가기 때문입니다. 결과적으로 호출된 메서드의 <code>@Transactional</code>이 무시됩니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookRepository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">importBooks</span><span class="p">(</span><span class="n">books</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">books</span><span class="p">.</span><span class="na">forEach</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">saveOne</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1">// ❌ this.saveOne() → 프록시 우회, 트랜잭션 적용 안 됨!</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nd">@Transactional</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">saveOne</span><span class="p">(</span><span class="n">book</span><span class="p">:</span><span class="w"> </span><span class="n">Book</span><span class="p">):</span><span class="w"> </span><span class="n">Book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>해결책은 트랜잭션이 필요한 메서드를 <strong>다른 빈으로 분리</strong>하거나, 진입점 메서드에 <code>@Transactional</code>을 붙이는 것입니다. 자기 자신을 주입받아 프록시로 호출하는 방법도 있지만 권장되지 않습니다.</p>
+<h2>7. LazyInitializationException과 영속성 컨텍스트 경계</h2>
+<p><a href="01-jpa-concepts.html">Phase 3-1</a>에서 영속성 컨텍스트는 <strong>트랜잭션이 살아 있는 동안만</strong> 동작한다고 했습니다. <code>@Transactional</code>은 바로 이 경계를 결정합니다.</p>
+<p>지연 로딩(<code>FetchType.LAZY</code>) 연관 객체는 "접근하는 순간" DB에서 가져옵니다. 그런데 트랜잭션이 이미 끝나 영속성 컨텍스트가 닫힌 뒤에 접근하면, 가져올 방법이 없어 <strong><code>LazyInitializationException</code></strong> 이 발생합니다.</p>
+<figure class="diagram"><pre>[ 트랜잭션 안 ] book.author 접근 → OK (DB 조회 가능)
+─────────────── 트랜잭션 종료, 컨텍스트 닫힘 ───────────────
+[ Controller에서 ] book.author 접근 → ❌ LazyInitializationException</pre></figure>
+<p>이를 피하는 방법:</p>
+<ul>
+<li>트랜잭션 <strong>안에서</strong> 필요한 연관 데이터를 미리 로딩해 둔다(fetch join / <code>@EntityGraph</code>).</li>
+<li>서비스 계층에서 <strong>DTO로 변환</strong>한 뒤 Controller로 반환한다(영속 객체를 웹 계층까지 끌고 가지 않는다).</li>
+<li>조회 메서드에 <code>@Transactional(readOnly = true)</code>를 붙여 경계를 명확히 한다.</li>
+</ul>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>"조회 메서드는 <code>@Transactional(readOnly = true)</code>, 변경 메서드는 <code>@Transactional</code>"을 서비스 계층의 기본 습관으로 삼으세요. 그리고 <strong>Entity 대신 DTO를 반환</strong>하면 LazyInitializationException과 직렬화 문제를 한꺼번에 피할 수 있습니다.</p>
+</blockquote>
+<h2>다음 단계</h2>
+<p>이제 실제로 애플리케이션이 붙을 데이터베이스를 설정할 차례입니다. 개발용 H2와 운영용 PostgreSQL을 프로필로 분리하고, <code>ddl-auto</code>와 마이그레이션 전략을 정리합니다.</p>
+<p>→ <a href="05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a></p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>

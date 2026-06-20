@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>서버 사이드 개발 입문 · Spring Boot 학습 가이드</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+<a href="../index.html">🏠 홈</a>
+<div class="nav-section">Phase 0: Spring 핵심 개념</div>
+<a href="00-server-side-intro.html" class="active">서버 사이드 개발 입문</a>
+<a href="01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+<a href="02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+<a href="03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+<a href="04-auto-configuration.html">자동 설정과 스타터</a>
+<a href="05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+<div class="nav-section">Phase 1: 프로젝트 설정</div>
+<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+<div class="nav-section">Phase 2: 첫 번째 REST API</div>
+<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+<div class="nav-section">부록 A: JPA 심화</div>
+<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+<div class="nav-section">부록 B: Querydsl</div>
+<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+<div class="nav-section">부록 C: AOP / 프록시 고급</div>
+<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+</nav></aside>
+  <main class="content">
+<h1>서버 사이드 개발 입문</h1>
+<blockquote>
+<p>Kotlin은 알지만 서버는 처음인 분들을 위한 출발점입니다. Spring을 배우기 전에 "서버가 무엇을 하는 소프트웨어인가"부터 정리합니다.</p>
+</blockquote>
+<h2>1. 서버 사이드 개발이란?</h2>
+<p>여러분이 그동안 만들어 온 프로그램(안드로이드 앱, CLI 도구, 데스크톱 앱 등)은 대부분 <strong>한 명의 사용자</strong>, 한 대의 기기에서 동작합니다. 반면 <strong>서버</strong>는 다음과 같은 소프트웨어입니다.</p>
+<ul>
+<li><strong>수많은 클라이언트의 요청을 동시에</strong> 처리한다 (모바일 앱, 웹 브라우저, 다른 서버 등).</li>
+<li><strong>UI가 없다.</strong> 화면 대신 HTTP 요청을 받아 데이터를 돌려준다.</li>
+<li><strong>24시간 365일 실행</strong>된다. 사용자가 켜고 끄는 것이 아니라 항상 떠 있다.</li>
+</ul>
+<figure class="diagram"><pre>┌──────────────────────────────────────────────────────────┐
+│                    클라이언트 vs 서버                       │
+├────────────────────────┬─────────────────────────────────┤
+│      클라이언트 앱       │            서버 (Spring Boot)    │
+├────────────────────────┼─────────────────────────────────┤
+│ 사용자 1명 / 1기기       │ 동시에 수천~수만 클라이언트       │
+│ UI/화면 중심            │ 데이터·비즈니스 로직 중심          │
+│ 실행/종료 생명주기 있음   │ 항상 실행 중 (always running)     │
+│ 로컬 저장 (파일/SQLite)  │ DB 서버 (PostgreSQL, MySQL …)    │
+│ 기기 리소스 제한         │ 서버 리소스 (CPU/RAM/네트워크)    │
+│ 앱 스토어/실행파일로 배포 │ JAR / Docker / 클라우드로 배포    │
+└────────────────────────┴─────────────────────────────────┘</pre></figure>
+<p>이 가이드에서 우리는 <strong>도서(Book) 관리 REST API</strong> 서버를 Kotlin + Spring Boot로 만들면서 이 개념들을 하나씩 체득합니다.</p>
+<hr />
+<h2>2. 클라이언트-서버 통신 구조</h2>
+<p>클라이언트가 네트워크 라이브러리(예: Retrofit, Ktor Client, <code>fetch</code>)로 API를 호출할 때, 그 <strong>반대편에서 요청을 받아 응답을 만드는 쪽</strong>이 바로 우리가 만들 서버입니다.</p>
+<figure class="diagram"><pre>┌─────────────┐          HTTP Request            ┌─────────────────┐
+│             │  ──────────────────────────────&gt;  │                 │
+│  클라이언트   │  GET /api/books/42               │  Spring Boot    │
+│  (앱/웹/etc) │  Host: api.example.com           │  서버 (4.1.0)   │
+│             │  Authorization: Bearer xxx       │                 │
+│             │                                  │  @RestController │
+│             │          HTTP Response           │                 │
+│             │  &lt;──────────────────────────────  │                 │
+│             │  200 OK                          │                 │
+│             │  Content-Type: application/json  │                 │
+│             │  {&quot;id&quot;:42,&quot;title&quot;:&quot;이펙티브 코틀린&quot;} │                 │
+└─────────────┘                                  └─────────────────┘</pre></figure>
+<h3>HTTP Request의 구성요소</h3>
+<figure class="diagram"><pre>POST /api/books HTTP/1.1              ← 메서드 + 경로 + 프로토콜 버전
+Host: api.example.com                 ← 헤더 시작
+Content-Type: application/json        ← 요청 바디의 형식
+Authorization: Bearer eyJhbGci...     ← 인증 토큰
+Content-Length: 73                    ← 바디 길이
+                                      ← 빈 줄 (헤더와 바디 구분)
+{&quot;title&quot;:&quot;이펙티브 코틀린&quot;,&quot;author&quot;:&quot;마르친 모스칼라&quot;,&quot;price&quot;:36000}  ← 바디(JSON)</pre></figure>
+<table>
+<thead>
+<tr>
+<th>구성요소</th>
+<th>설명</th>
+<th>Spring에서 다루는 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Method</strong></td>
+<td>GET, POST, PUT, DELETE …</td>
+<td><code>@GetMapping</code>, <code>@PostMapping</code> …</td>
+</tr>
+<tr>
+<td><strong>Path(URL)</strong></td>
+<td>리소스의 위치</td>
+<td><code>@RequestMapping("/api/books")</code></td>
+</tr>
+<tr>
+<td><strong>Headers</strong></td>
+<td>메타데이터(인증·타입 등)</td>
+<td><code>@RequestHeader</code></td>
+</tr>
+<tr>
+<td><strong>Body</strong></td>
+<td>전송할 데이터</td>
+<td><code>@RequestBody</code></td>
+</tr>
+</tbody>
+</table>
+<h3>HTTP Response의 구성요소</h3>
+<figure class="diagram"><pre>HTTP/1.1 201 Created                  ← 상태 코드
+Content-Type: application/json        ← 응답 바디의 형식
+Location: /api/books/43               ← 생성된 리소스 위치
+                                      ← 빈 줄
+{&quot;id&quot;:43,&quot;title&quot;:&quot;이펙티브 코틀린&quot;, ...}  ← 응답 바디</pre></figure>
+<table>
+<thead>
+<tr>
+<th>구성요소</th>
+<th>설명</th>
+<th>Spring에서 다루는 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Status Code</strong></td>
+<td>200·201·404·500 …</td>
+<td><code>ResponseEntity</code>, <code>@ResponseStatus</code></td>
+</tr>
+<tr>
+<td><strong>Headers</strong></td>
+<td>응답 메타데이터</td>
+<td><code>ResponseEntity.headers(...)</code></td>
+</tr>
+<tr>
+<td><strong>Body</strong></td>
+<td>응답 데이터</td>
+<td>반환 객체를 Jackson이 JSON으로 직렬화</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>핵심</strong>: 클라이언트 라이브러리가 숨겨주던 HTTP의 세부 사항(메서드·경로·헤더·상태 코드)을, 서버에서는 <strong>직접 설계하고 다루게</strong> 됩니다. Spring Boot는 이 작업을 애너테이션으로 간결하게 만들어 줍니다.</p>
+</blockquote>
+<hr />
+<h2>3. REST API 기초</h2>
+<p><strong>REST</strong>(Representational State Transfer)는 HTTP를 활용한 API 설계 관례입니다. "리소스(자원)"를 URL로 표현하고, "행위"를 HTTP 메서드로 표현합니다.</p>
+<h3>CRUD와 HTTP 메서드 대응</h3>
+<table>
+<thead>
+<tr>
+<th>작업</th>
+<th>HTTP 메서드</th>
+<th>URL 예시</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>C</strong>reate (생성)</td>
+<td>POST</td>
+<td><code>/api/books</code></td>
+<td>새 도서 생성</td>
+</tr>
+<tr>
+<td><strong>R</strong>ead (목록)</td>
+<td>GET</td>
+<td><code>/api/books</code></td>
+<td>도서 목록 조회</td>
+</tr>
+<tr>
+<td><strong>R</strong>ead (단건)</td>
+<td>GET</td>
+<td><code>/api/books/42</code></td>
+<td>특정 도서 조회</td>
+</tr>
+<tr>
+<td><strong>U</strong>pdate (수정)</td>
+<td>PUT</td>
+<td><code>/api/books/42</code></td>
+<td>도서 전체 수정</td>
+</tr>
+<tr>
+<td><strong>U</strong>pdate (부분)</td>
+<td>PATCH</td>
+<td><code>/api/books/42</code></td>
+<td>도서 일부 수정</td>
+</tr>
+<tr>
+<td><strong>D</strong>elete (삭제)</td>
+<td>DELETE</td>
+<td><code>/api/books/42</code></td>
+<td>도서 삭제</td>
+</tr>
+</tbody>
+</table>
+<h3>URL 설계 규칙</h3>
+<figure class="diagram"><pre>https://api.example.com/api/books/{id}/reviews/{reviewId}
+│                       │   │     │      │
+│                       │   │     │      └─ 하위 리소스(복수형 명사)
+│                       │   │     └─ 리소스 식별자 (Path Variable)
+│                       │   └─ 리소스 이름 (복수형 명사)
+│                       └─ API 접두사 (버전을 넣기도 함: /api/v1)
+└─ 베이스 URL</pre></figure>
+<p>원칙: <strong>URL에는 명사(리소스)를, 행위는 HTTP 메서드로.</strong> <code>GET /api/getBooks</code> 같은 동사형 URL은 REST 관점에서 지양합니다.</p>
+<h3>실제 요청/응답 예시</h3>
+<p><strong>도서 목록 조회 (GET)</strong></p>
+<div class="code-block" data-lang="http"><span class="code-lang">http</span><div class="hl"><pre><span></span><span class="nf">GET</span> <span class="nn">/api/books?page=0&amp;size=20</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">api.example.com</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;코틀린 인 액션&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;author&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;드미트리 제메로프&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;price&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">38000</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;이펙티브 코틀린&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;author&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;마르친 모스칼라&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;price&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">36000</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;totalElements&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;page&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>도서 생성 (POST)</strong></p>
+<div class="code-block" data-lang="http"><span class="code-lang">http</span><div class="hl"><pre><span></span><span class="nf">POST</span> <span class="nn">/api/books</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">api.example.com</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span><span class="w"> </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;코틀린 코루틴&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;author&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;마르친 모스칼라&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;price&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">33000</span><span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="http"><span class="code-lang">http</span><div class="hl"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Location</span><span class="o">:</span> <span class="l">/api/books/3</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;코틀린 코루틴&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;author&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;마르친 모스칼라&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;price&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">33000</span><span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+<hr />
+<h2>4. Stateless — 서버는 기본적으로 상태를 기억하지 않는다</h2>
+<p>서버는 각 요청을 <strong>독립적으로</strong> 처리합니다. 이전 요청을 기억하지 않으므로, 같은 클라이언트가 두 번 요청해도 서버 입장에서는 별개의 요청입니다.</p>
+<figure class="diagram"><pre>요청 1: GET /api/me  (헤더에 토큰 포함)  → &quot;토큰 확인 후 사용자 정보 응답&quot;
+요청 2: GET /api/me  (헤더에 토큰 포함)  → &quot;토큰 확인 후 사용자 정보 응답&quot;
+                                          (요청 1의 기억은 없음)</pre></figure>
+<p>이 "기억 없음"을 보완하는 방법:</p>
+<table>
+<thead>
+<tr>
+<th>방법</th>
+<th>설명</th>
+<th>이 가이드에서 다루는 곳</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>JWT 토큰</strong></td>
+<td>클라이언트가 매 요청마다 토큰 전송 (<code>Authorization: Bearer …</code>)</td>
+<td>Phase 5 (보안)</td>
+</tr>
+<tr>
+<td><strong>Session</strong></td>
+<td>서버가 세션 ID 발급, 서버/Redis에 상태 보관</td>
+<td>Phase 5 (보안)</td>
+</tr>
+<tr>
+<td><strong>Database</strong></td>
+<td>영구 데이터는 DB에 저장</td>
+<td>Phase 3 (JPA)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>왜 Stateless가 좋은가?</strong> 서버가 상태를 들고 있지 않으면, 인스턴스를 여러 개로 <strong>수평 확장</strong>하기 쉽습니다. 어떤 인스턴스가 요청을 받아도 결과가 같기 때문입니다. Phase 7에서 Cloud Run이 인스턴스를 0개에서 N개로 자동 확장할 수 있는 것도 이 성질 덕분입니다.</p>
+</blockquote>
+<hr />
+<h2>5. 클라이언트 코드의 "반대편" — 한눈에 보는 대응표</h2>
+<p>클라이언트에서 API를 <strong>호출</strong>하던 코드와, 서버에서 그 요청을 <strong>처리</strong>하는 Spring 코드를 나란히 놓고 보면 직관적으로 이해됩니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// === 클라이언트 (예: Retrofit) — 호출하는 쪽 ===</span>
+<span class="kd">interface</span><span class="w"> </span><span class="nc">BookApi</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nd">@GET</span><span class="p">(</span><span class="s">&quot;/api/books/{id}&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getBook</span><span class="p">(</span><span class="nd">@Path</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span>
+
+<span class="w">    </span><span class="nd">@POST</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">suspend</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">createBook</span><span class="p">(</span><span class="nd">@Body</span><span class="w"> </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">CreateBookRequest</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// === 서버 (Spring Boot) — 요청을 받는 쪽 ===</span>
+<span class="nd">@RestController</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookController</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookService</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">&quot;/{id}&quot;</span><span class="p">)</span><span class="w">                              </span><span class="c1">// @GET(&quot;/api/books/{id}&quot;)의 반대편</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getBook</span><span class="p">(</span><span class="nd">@PathVariable</span><span class="w"> </span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="n">bookService</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+
+<span class="w">    </span><span class="nd">@PostMapping</span><span class="w">                                      </span><span class="c1">// @POST(&quot;/api/books&quot;)의 반대편</span>
+<span class="w">    </span><span class="nd">@ResponseStatus</span><span class="p">(</span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">CREATED</span><span class="p">)</span><span class="w">               </span><span class="c1">// 201 Created</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">createBook</span><span class="p">(</span><span class="nd">@RequestBody</span><span class="w"> </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">CreateBookRequest</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="n">bookService</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<h3>종합 대응표</h3>
+<table>
+<thead>
+<tr>
+<th>클라이언트 (호출)</th>
+<th>Spring 서버 (처리)</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@GET("/path")</code></td>
+<td><code>@GetMapping("/path")</code></td>
+<td>GET 요청</td>
+</tr>
+<tr>
+<td><code>@POST("/path")</code></td>
+<td><code>@PostMapping("/path")</code></td>
+<td>POST 요청</td>
+</tr>
+<tr>
+<td><code>@PUT</code> / <code>@DELETE</code></td>
+<td><code>@PutMapping</code> / <code>@DeleteMapping</code></td>
+<td>수정/삭제</td>
+</tr>
+<tr>
+<td><code>@Path("id")</code></td>
+<td><code>@PathVariable id</code></td>
+<td>경로 변수</td>
+</tr>
+<tr>
+<td><code>@Query("key")</code></td>
+<td><code>@RequestParam key</code></td>
+<td>쿼리 파라미터</td>
+</tr>
+<tr>
+<td><code>@Header("Auth")</code></td>
+<td><code>@RequestHeader("Auth")</code></td>
+<td>헤더 읽기</td>
+</tr>
+<tr>
+<td><code>@Body request</code></td>
+<td><code>@RequestBody request</code></td>
+<td>요청 바디 → 객체 역직렬화</td>
+</tr>
+<tr>
+<td>응답 객체 자동 파싱</td>
+<td>반환 객체 자동 직렬화(Jackson)</td>
+<td>응답 바디</td>
+</tr>
+<tr>
+<td><code>Response&lt;T&gt;</code> / 상태 코드</td>
+<td><code>ResponseEntity&lt;T&gt;</code> / <code>@ResponseStatus</code></td>
+<td>상태 코드 제어</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>좋은 소식</strong>: 서버를 만든다고 새 언어를 배울 필요가 없습니다. Kotlin 문법, 코루틴, 데이터 클래스, 빌더/DSL 같은 실력이 그대로 적용됩니다. 새로 배우는 것은 "프레임워크가 요청을 처리하는 방식" — 즉 Spring의 IoC/DI, 자동 설정, 그리고 웹 계층 애너테이션입니다.</p>
+</blockquote>
+<hr />
+<h2>6. 이 가이드에서 만들 것</h2>
+<p>우리는 다음 순서로 <strong>도서 관리 REST API</strong>를 키워 나갑니다.</p>
+<div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>Phase 0  서버·Spring 핵심 개념 이해 (지금 여기)
+Phase 1  프로젝트 생성 &amp; 빌드 설정
+Phase 2  인메모리 저장소로 첫 REST API 완성
+Phase 3  Spring Data JPA로 실제 DB 연동
+Phase 4  입력 검증 · 예외 처리 · 환경별 설정
+Phase 5  HTTP 클라이언트 · 보안 · 관측성 · 테스트
+Phase 6  JAR · Docker · 네이티브 이미지로 빌드
+Phase 7  Google Cloud Run으로 실제 배포</code></pre></div>
+<hr />
+<h2>다음 단계</h2>
+<p>서버 사이드 개발의 큰 그림을 잡았습니다. 다음 문서 <a href="01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>에서 Spring이 정확히 무엇이고, Spring Boot가 무엇을 더해 주는지 알아봅니다.</p>
+  </main>
+</div>
+<label for="navtoggle" class="scrim"></label>
+</body>
+</html>
