@@ -231,10 +231,7 @@
 </blockquote>
 <h2>3. 프로파일(Profiles)</h2>
 <p>환경마다 다른 설정이 필요할 때 <strong>프로파일</strong>을 사용합니다. <code>application-{프로파일}.yml</code> 파일을 만들면, 해당 프로파일이 활성일 때 기본 <code>application.yml</code> 위에 <strong>덮어쓰기(override)</strong> 됩니다.</p>
-<figure class="diagram"><pre>src/main/resources/
-├── application.yml          # 공통 설정 (항상 적용)
-├── application-dev.yml      # dev 프로파일
-└── application-prod.yml     # prod 프로파일</pre></figure>
+<figure class="filetree"><div class="ft-root">📦 src/main/resources/</div><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">⚙️</span><span class="ft-name">application.yml</span><span class="ft-cmt">공통 설정 (항상 적용)</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">⚙️</span><span class="ft-name">application-dev.yml</span><span class="ft-cmt">dev 프로파일</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">⚙️</span><span class="ft-name">application-prod.yml</span><span class="ft-cmt">prod 프로파일</span></span></li></ul></figure>
 <p><strong>application-dev.yml</strong> 예시:</p>
 <div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">logging</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">level</span><span class="p">:</span>

@@ -134,6 +134,21 @@ a:hover{text-decoration:underline}
 .content table.gen-table caption{caption-side:top;font-weight:800;color:var(--ink);
   text-align:center;padding:9px 12px;background:linear-gradient(135deg,var(--green),var(--green-d));
   color:#fff;border-radius:10px 10px 0 0;font-size:14.5px}
+/* file tree (ASCII directory tree -> nested HTML) */
+.filetree{margin:1.4em 0;font-family:var(--mono);font-size:13.5px;background:#fbfdfb;
+  border:1px solid #dde6dd;border-radius:12px;padding:15px 18px;overflow-x:auto;
+  box-shadow:0 1px 2px rgba(0,0,0,.04),0 10px 28px -20px rgba(40,90,30,.55)}
+.ft-root{font-weight:800;color:#16320f;margin-bottom:8px;font-size:14px}
+.filetree ul{list-style:none;margin:0;padding-left:18px}
+.filetree>ul{padding-left:2px}
+.filetree ul ul{border-left:1px dashed #c2d6bb;margin-left:9px;padding-left:14px}
+.filetree li{position:relative;padding:2.5px 0;line-height:1.6}
+.ft-row{display:inline-flex;align-items:baseline;gap:5px}
+.ft-icon{width:1.5em;display:inline-block;text-align:center}
+.ft-name{color:#2c3a2a}
+.ft-dir>.ft-row .ft-name{font-weight:700;color:#16320f}
+.ft-cmt{color:#8a9783;margin-left:10px;font-family:var(--font);font-size:.9em}
+.ft-cmt::before{content:"# ";opacity:.45}
 /* tables */
 .content table{border-collapse:collapse;width:100%;margin:1.2em 0;font-size:14.5px;
   display:block;overflow-x:auto;border:1px solid var(--line);border-radius:10px}

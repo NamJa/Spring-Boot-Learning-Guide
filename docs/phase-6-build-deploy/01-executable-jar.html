@@ -151,15 +151,7 @@ book-api-0.0.1-SNAPSHOT-plain.jar<span class="w">  </span><span class="c1"># pla
 </div>
 <h2>실행 가능 jar의 내부 구조 (layered jar)</h2>
 <p>Spring Boot 4의 실행 가능 jar는 <strong>layered jar</strong>로 만들어집니다. 이는 jar 내부 콘텐츠를 <strong>변경 빈도</strong>에 따라 여러 계층으로 나눈 구조입니다. <code>jar tf</code>로 들여다보면 다음과 같은 레이아웃이 보입니다.</p>
-<figure class="diagram"><pre>book-api-0.0.1-SNAPSHOT.jar
-├── META-INF/
-│   └── MANIFEST.MF              ← Main-Class: ...JarLauncher
-├── org/springframework/boot/loader/   ← 스프링 부트 로더 (jar 안의 jar를 푸는 코드)
-└── BOOT-INF/
-    ├── classes/                 ← 우리가 작성한 com.example.bookapi 코드
-    ├── lib/                     ← 모든 의존성 jar (spring, jackson, hibernate ...)
-    ├── classpath.idx
-    └── layers.idx               ← 레이어 정의 (아래 4개 레이어)</pre></figure>
+<figure class="filetree"><div class="ft-root">📦 book-api-0.0.1-SNAPSHOT.jar</div><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">META-INF</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">MANIFEST.MF</span><span class="ft-cmt">Main-Class: ...JarLauncher</span></span></li></ul></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">org/springframework/boot/loader</span><span class="ft-cmt">스프링 부트 로더 (jar 안의 jar를 푸는 코드)</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">BOOT-INF</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">classes</span><span class="ft-cmt">우리가 작성한 com.example.bookapi 코드</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">lib</span><span class="ft-cmt">모든 의존성 jar (spring, jackson, hibernate ...)</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">classpath.idx</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">layers.idx</span><span class="ft-cmt">레이어 정의 (아래 4개 레이어)</span></span></li></ul></li></ul></figure>
 <p><code>layers.idx</code>가 정의하는 <strong>4개의 레이어</strong>는 변경 빈도가 낮은 것부터 높은 순서입니다.</p>
 <figure class="layer-stack">
 <div class="layer" style="--i:0;--n:4">

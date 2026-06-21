@@ -140,13 +140,7 @@
 <li><strong>템플릿 위치</strong> — 기본 prefix <code>classpath:/templates/</code>, suffix <code>.html</code>. 즉 <code>"books/list"</code> → <code>src/main/resources/templates/books/list.html</code>.</li>
 <li><strong>인코딩</strong> UTF-8, 정적 리소스는 <code>src/main/resources/static/</code>.</li>
 </ul>
-<figure class="diagram"><pre>src/main/resources/
-├── templates/          ← Thymeleaf HTML (서버가 렌더링)
-│   └── books/
-│       ├── list.html
-│       ├── detail.html
-│       └── form.html
-└── static/             ← CSS/JS/이미지 (그대로 서빙)</pre></figure>
+<figure class="filetree"><div class="ft-root">📦 src/main/resources/</div><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">templates</span><span class="ft-cmt">Thymeleaf HTML (서버가 렌더링)</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">books</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">list.html</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">detail.html</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">form.html</span></span></li></ul></li></ul></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">static</span><span class="ft-cmt">CSS/JS/이미지 (그대로 서빙)</span></span></li></ul></figure>
 <blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>개발 중 템플릿을 고쳤는데 화면이 안 바뀐다면 캐시 때문입니다. 운영에서는 캐시가 켜져 있어야 하지만, 로컬에서는 꺼 두면 편합니다.
 <code>yaml
 spring:

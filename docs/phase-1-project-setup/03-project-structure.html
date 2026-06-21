@@ -87,29 +87,7 @@
 <h1>프로젝트 구조 해부</h1>
 <p>Initializr가 만들어 준 프로젝트는 표준 Gradle 레이아웃을 따릅니다. Kotlin/Gradle에 익숙하다면 대부분 눈에 익겠지만, Spring 특유의 파일도 있습니다. 이 페이지에서는 <strong>각 파일과 디렉터리의 역할</strong>을 짚고, 앞으로 가이드에서 사용할 <strong>패키지 구성 전략</strong>을 정합니다.</p>
 <h2>1. 전체 디렉터리 트리</h2>
-<figure class="diagram"><pre>book-api/
-├── build.gradle.kts                # 빌드 스크립트: 플러그인, 의존성, 컴파일러 옵션
-├── settings.gradle.kts             # 루트 프로젝트 이름과 포함 모듈 정의
-├── gradlew                         # Gradle Wrapper 실행 스크립트 (macOS/Linux)
-├── gradlew.bat                     # Gradle Wrapper 실행 스크립트 (Windows)
-├── gradle/
-│   └── wrapper/
-│       ├── gradle-wrapper.jar          # 래퍼 실행 코드
-│       └── gradle-wrapper.properties   # 사용할 Gradle 버전 고정
-├── .gitignore
-└── src/
-    ├── main/
-    │   ├── kotlin/
-    │   │   └── com/example/bookapi/
-    │   │       └── BookApiApplication.kt   # @SpringBootApplication 진입점
-    │   └── resources/
-    │       ├── application.properties      # 외부 설정
-    │       ├── static/                     # JS/CSS/이미지 등 정적 파일
-    │       └── templates/                  # 서버 사이드 템플릿 (Thymeleaf 등)
-    └── test/
-        └── kotlin/
-            └── com/example/bookapi/
-                └── BookApiApplicationTests.kt   # 통합 테스트 골격</pre></figure>
+<figure class="filetree"><div class="ft-root">📦 book-api/</div><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">🐘</span><span class="ft-name">build.gradle.kts</span><span class="ft-cmt">빌드 스크립트: 플러그인, 의존성, 컴파일러 옵션</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">🐘</span><span class="ft-name">settings.gradle.kts</span><span class="ft-cmt">루트 프로젝트 이름과 포함 모듈 정의</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📜</span><span class="ft-name">gradlew</span><span class="ft-cmt">Gradle Wrapper 실행 스크립트 (macOS/Linux)</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">gradlew.bat</span><span class="ft-cmt">Gradle Wrapper 실행 스크립트 (Windows)</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">gradle</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">wrapper</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📦</span><span class="ft-name">gradle-wrapper.jar</span><span class="ft-cmt">래퍼 실행 코드</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">⚙️</span><span class="ft-name">gradle-wrapper.properties</span><span class="ft-cmt">사용할 Gradle 버전 고정</span></span></li></ul></li></ul></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">.gitignore</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">src</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">main</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">kotlin</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">com/example/bookapi</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookApiApplication.kt</span><span class="ft-cmt">@SpringBootApplication 진입점</span></span></li></ul></li></ul></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">resources</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">⚙️</span><span class="ft-name">application.properties</span><span class="ft-cmt">외부 설정</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">static</span><span class="ft-cmt">JS/CSS/이미지 등 정적 파일</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">templates</span><span class="ft-cmt">서버 사이드 템플릿 (Thymeleaf 등)</span></span></li></ul></li></ul></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">test</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">kotlin</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">com/example/bookapi</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookApiApplicationTests.kt</span><span class="ft-cmt">통합 테스트 골격</span></span></li></ul></li></ul></li></ul></li></ul></li></ul></figure>
 <h2>2. 핵심 파일/폴더 설명</h2>
 <table>
 <thead>
@@ -184,28 +162,14 @@
 <p>소스가 늘어나면 패키지를 어떻게 나눌지 정해야 합니다. 두 가지 대표 전략이 있습니다.</p>
 <h3>계층형 (Package-by-Layer)</h3>
 <p>기술적 역할(controller/service/repository)로 나눕니다.</p>
-<figure class="diagram"><pre>com.example.bookapi
-├── controller     # 모든 컨트롤러
-├── service        # 모든 서비스
-├── repository     # 모든 리포지토리
-├── domain         # 모든 엔티티
-└── dto            # 모든 DTO</pre></figure>
+<figure class="filetree"><div class="ft-root">📦 com.example.bookapi</div><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">controller</span><span class="ft-cmt">모든 컨트롤러</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">service</span><span class="ft-cmt">모든 서비스</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">repository</span><span class="ft-cmt">모든 리포지토리</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">domain</span><span class="ft-cmt">모든 엔티티</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">dto</span><span class="ft-cmt">모든 DTO</span></span></li></ul></figure>
 <ul>
 <li><strong>장점</strong>: 직관적이고 작은 프로젝트에서 익히기 쉽습니다.</li>
 <li><strong>단점</strong>: 하나의 기능을 고치려면 여러 패키지를 오가야 합니다. 규모가 커질수록 응집도가 떨어집니다.</li>
 </ul>
 <h3>기능형 (Package-by-Feature)</h3>
 <p>도메인 기능(book, member ...)으로 먼저 나누고, 그 안에서 계층을 둡니다.</p>
-<figure class="diagram"><pre>com.example.bookapi
-├── book
-│   ├── BookController.kt
-│   ├── BookService.kt
-│   ├── BookRepository.kt
-│   ├── Book.kt
-│   └── dto/
-└── member
-    ├── MemberController.kt
-    └── ...</pre></figure>
+<figure class="filetree"><div class="ft-root">📦 com.example.bookapi</div><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">book</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookController.kt</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookService.kt</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookRepository.kt</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">Book.kt</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">dto</span></span></li></ul></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">member</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">MemberController.kt</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">...</span></span></li></ul></li></ul></figure>
 <ul>
 <li><strong>장점</strong>: 기능 단위로 응집되어 변경/삭제가 쉽고, 모듈화·마이크로서비스 분리에 유리합니다.</li>
 <li><strong>단점</strong>: 초보자에게는 계층 위치가 한눈에 안 들어올 수 있습니다.</li>
@@ -243,24 +207,7 @@
 </table>
 <h2>4. 이 가이드가 사용할 구조</h2>
 <p>학습 흐름을 명확히 보여주기 위해, 이 가이드는 <strong>계층형을 기본</strong>으로 하되 계층별 패키지를 명시적으로 둡니다. 도서(book) 한 도메인에 집중하므로 계층형이 따라가기 쉽습니다.</p>
-<figure class="diagram"><pre>com.example.bookapi
-├── BookApiApplication.kt        # 진입점
-├── controller                   # REST 컨트롤러
-│   └── BookController.kt
-├── service                      # 비즈니스 로직
-│   └── BookService.kt
-├── repository                   # 데이터 접근(JPA Repository)
-│   └── BookRepository.kt
-├── domain                       # JPA 엔티티
-│   └── Book.kt
-├── dto                          # 요청/응답 DTO
-│   ├── CreateBookRequest.kt
-│   ├── UpdateBookRequest.kt
-│   └── BookResponse.kt
-├── exception                    # 커스텀 예외
-│   └── BookNotFoundException.kt
-└── config                       # 설정 클래스(@Configuration)
-    └── ...</pre></figure>
+<figure class="filetree"><div class="ft-root">📦 com.example.bookapi</div><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookApiApplication.kt</span><span class="ft-cmt">진입점</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">controller</span><span class="ft-cmt">REST 컨트롤러</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookController.kt</span></span></li></ul></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">service</span><span class="ft-cmt">비즈니스 로직</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookService.kt</span></span></li></ul></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">repository</span><span class="ft-cmt">데이터 접근(JPA Repository)</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookRepository.kt</span></span></li></ul></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">domain</span><span class="ft-cmt">JPA 엔티티</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">Book.kt</span></span></li></ul></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">dto</span><span class="ft-cmt">요청/응답 DTO</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">CreateBookRequest.kt</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">UpdateBookRequest.kt</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookResponse.kt</span></span></li></ul></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">exception</span><span class="ft-cmt">커스텀 예외</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookNotFoundException.kt</span></span></li></ul></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">config</span><span class="ft-cmt">설정 클래스(@Configuration)</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">...</span></span></li></ul></li></ul></figure>
 <p>각 계층의 책임은 다음과 같습니다.</p>
 <table>
 <thead>

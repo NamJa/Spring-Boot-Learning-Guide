@@ -288,11 +288,88 @@ def try_layer_stack(code):
     out.append("</figure>")
     return "\n".join(out)
 
+KNOWN_FILES = {"gradlew", "gradlew.bat", "mvnw", "mvnw.cmd", "dockerfile", ".dockerignore",
+               ".gitignore", ".gitattributes", "makefile", "procfile", "license", ".env",
+               ".nojekyll", ".gcloudignore"}
+def _tree_icon(name, is_dir):
+    if is_dir:
+        return "📁"
+    n = name.lower()
+    if n in ("gradlew", "mvnw"): return "📜"
+    if n == "dockerfile": return "🐳"
+    if n.endswith((".gradle.kts", ".gradle", ".kts")): return "🐘"
+    if n.endswith((".yml", ".yaml", ".properties", ".conf", ".xml")): return "⚙️"
+    if n.endswith(".jar"): return "📦"
+    if n.endswith(".md"): return "📝"
+    if n.endswith((".kt", ".java")): return "📄"
+    if n.endswith(".sql"): return "🗃️"
+    if "." not in n.strip("/"): return "📁"
+    return "📄"
+
+def _tree_split(text):
+    cm = re.search(r"\s*(#|←)\s*", text)
+    sp = re.search(r"\s{2,}", text)
+    cut = None
+    if cm and sp: cut = min(cm.start(), sp.start())
+    elif cm: cut = cm.start()
+    elif sp: cut = sp.start()
+    name = (text[:cut] if cut is not None else text).strip()
+    comment = re.sub(r"^[#←\s]+", "", text[cut:]).strip() if cut is not None else ""
+    return name, comment
+
+def try_file_tree(code):
+    """ASCII directory tree (├──/└── + file/dir names) -> nested HTML tree."""
+    raw = [l for l in code.split("\n") if l.strip() != ""]
+    if len(raw) < 3 or any(c in code for c in "▶►◀◄"):
+        return None
+    tree_lines = [l for l in raw if re.search(r"[├└]──", l)]
+    if len(tree_lines) < 2:
+        return None
+    root = raw[0].strip() if not re.search(r"[├└]──", raw[0]) else None
+    nodes, names = [], []
+    for l in tree_lines:
+        m = re.search(r"[├└]──", l)
+        depth = m.start() // 4
+        name, comment = _tree_split(l[m.start():].lstrip("├└─ ").rstrip())
+        bare = name.strip("/").lower()
+        is_dir = name.endswith("/") or ("." not in name.strip("/") and bare not in KNOWN_FILES)
+        nodes.append((depth, name.rstrip("/"), comment, is_dir))
+        names.append(name)
+    # must look like real file/dir names (no spaces / <> / parens)
+    filelike = sum(1 for n in names if re.fullmatch(r"[\w.\-/@+]+", n))
+    if filelike < max(2, int(len(names) * 0.7)):
+        return None
+    rootnode = {"name": root or "", "dir": True, "comment": "", "children": []}
+    last_at = {}
+    for (d, name, comment, is_dir) in nodes:
+        node = {"name": name, "dir": is_dir, "comment": comment, "children": []}
+        parent = last_at.get(d - 1, rootnode)
+        parent["children"].append(node)
+        last_at[d] = node
+        for k in [k for k in last_at if k > d]:
+            del last_at[k]
+    def render_ul(children):
+        if not children:
+            return ""
+        out = ["<ul>"]
+        for c in children:
+            cls = "ft-dir" if c["dir"] else "ft-file"
+            cmt = '<span class="ft-cmt">%s</span>' % html.escape(c["comment"]) if c["comment"] else ""
+            out.append('<li class="%s"><span class="ft-row"><span class="ft-icon">%s</span>'
+                       '<span class="ft-name">%s</span>%s</span>%s</li>'
+                       % (cls, _tree_icon(c["name"], c["dir"]), html.escape(c["name"]), cmt,
+                          render_ul(c["children"])))
+        out.append("</ul>")
+        return "".join(out)
+    head = '<div class="ft-root">📦 %s</div>' % html.escape(rootnode["name"]) if rootnode["name"] else ""
+    return '<figure class="filetree">%s%s</figure>' % (head, render_ul(rootnode["children"]))
+
 def render_code(lang, code):
     label = (lang or "text").lower()
     if is_diagram(lang, code):
         block = (try_step_flow(code) or try_linear_flow(code)
-                 or try_ascii_table(code) or try_layer_stack(code))
+                 or try_ascii_table(code) or try_layer_stack(code)
+                 or try_file_tree(code))
         if block:
             return block
         return ('<figure class="diagram"><pre>%s</pre></figure>'
@@ -583,6 +660,21 @@ a:hover{text-decoration:underline}
 .content table.gen-table caption{caption-side:top;font-weight:800;color:var(--ink);
   text-align:center;padding:9px 12px;background:linear-gradient(135deg,var(--green),var(--green-d));
   color:#fff;border-radius:10px 10px 0 0;font-size:14.5px}
+/* file tree (ASCII directory tree -> nested HTML) */
+.filetree{margin:1.4em 0;font-family:var(--mono);font-size:13.5px;background:#fbfdfb;
+  border:1px solid #dde6dd;border-radius:12px;padding:15px 18px;overflow-x:auto;
+  box-shadow:0 1px 2px rgba(0,0,0,.04),0 10px 28px -20px rgba(40,90,30,.55)}
+.ft-root{font-weight:800;color:#16320f;margin-bottom:8px;font-size:14px}
+.filetree ul{list-style:none;margin:0;padding-left:18px}
+.filetree>ul{padding-left:2px}
+.filetree ul ul{border-left:1px dashed #c2d6bb;margin-left:9px;padding-left:14px}
+.filetree li{position:relative;padding:2.5px 0;line-height:1.6}
+.ft-row{display:inline-flex;align-items:baseline;gap:5px}
+.ft-icon{width:1.5em;display:inline-block;text-align:center}
+.ft-name{color:#2c3a2a}
+.ft-dir>.ft-row .ft-name{font-weight:700;color:#16320f}
+.ft-cmt{color:#8a9783;margin-left:10px;font-family:var(--font);font-size:.9em}
+.ft-cmt::before{content:"# ";opacity:.45}
 /* tables */
 .content table{border-collapse:collapse;width:100%;margin:1.2em 0;font-size:14.5px;
   display:block;overflow-x:auto;border:1px solid var(--line);border-radius:10px}

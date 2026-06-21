@@ -262,29 +262,7 @@ unzip<span class="w"> </span>book-api.zip<span class="w"> </span>-d<span class="
 </blockquote>
 <h2>5. 생성된 파일 트리</h2>
 <p>압축을 풀면 다음과 같은 구조가 나옵니다.</p>
-<figure class="diagram"><pre>book-api/
-├── build.gradle.kts                # 빌드 스크립트 (Kotlin DSL)
-├── settings.gradle.kts             # 프로젝트 이름/모듈 정의
-├── gradlew                         # Gradle Wrapper (Unix)
-├── gradlew.bat                     # Gradle Wrapper (Windows)
-├── gradle/
-│   └── wrapper/
-│       ├── gradle-wrapper.jar
-│       └── gradle-wrapper.properties
-├── .gitignore
-├── src/
-│   ├── main/
-│   │   ├── kotlin/
-│   │   │   └── com/example/bookapi/
-│   │   │       └── BookApiApplication.kt   # 애플리케이션 진입점
-│   │   └── resources/
-│   │       ├── application.properties      # 기본 설정 파일
-│   │       ├── static/                     # 정적 리소스
-│   │       └── templates/                  # 템플릿 (사용 시)
-│   └── test/
-│       └── kotlin/
-│           └── com/example/bookapi/
-│               └── BookApiApplicationTests.kt</pre></figure>
+<figure class="filetree"><div class="ft-root">📦 book-api/</div><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">🐘</span><span class="ft-name">build.gradle.kts</span><span class="ft-cmt">빌드 스크립트 (Kotlin DSL)</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">🐘</span><span class="ft-name">settings.gradle.kts</span><span class="ft-cmt">프로젝트 이름/모듈 정의</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📜</span><span class="ft-name">gradlew</span><span class="ft-cmt">Gradle Wrapper (Unix)</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">gradlew.bat</span><span class="ft-cmt">Gradle Wrapper (Windows)</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">gradle</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">wrapper</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📦</span><span class="ft-name">gradle-wrapper.jar</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">⚙️</span><span class="ft-name">gradle-wrapper.properties</span></span></li></ul></li></ul></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">.gitignore</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">src</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">main</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">kotlin</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">com/example/bookapi</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookApiApplication.kt</span><span class="ft-cmt">애플리케이션 진입점</span></span></li></ul></li></ul></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">resources</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">⚙️</span><span class="ft-name">application.properties</span><span class="ft-cmt">기본 설정 파일</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">static</span><span class="ft-cmt">정적 리소스</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">templates</span><span class="ft-cmt">템플릿 (사용 시)</span></span></li></ul></li></ul></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">test</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">kotlin</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">com/example/bookapi</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookApiApplicationTests.kt</span></span></li></ul></li></ul></li></ul></li></ul></li></ul></figure>
 <h2>6. 첫 실행 확인</h2>
 <p>프로젝트 루트에서 다음을 실행하면 내장 Tomcat(11.0.x, Servlet 6.1)에서 애플리케이션이 뜹니다.</p>
 <div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>./gradlew<span class="w"> </span>bootRun

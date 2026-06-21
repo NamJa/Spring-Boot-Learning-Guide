@@ -158,12 +158,7 @@ OpenJDK 64-Bit Server VM Temurin-21.0.7+6 (build 21.0.7+6-LTS, mixed mode, shari
 <p>설치 후 첫 실행 시, 위에서 설치한 JDK 21을 프로젝트 SDK로 지정할 수 있습니다. (<code>File &gt; Project Structure &gt; SDKs</code>)</p>
 <h2>3. Gradle Wrapper — 전역 설치가 필요 없는 이유</h2>
 <p>Spring Initializr가 생성한 프로젝트에는 <strong>Gradle Wrapper</strong>가 포함됩니다. 따라서 <strong>Gradle을 시스템에 전역으로 설치할 필요가 없습니다.</strong></p>
-<figure class="diagram"><pre>book-api/
-├── gradlew              # macOS/Linux 실행 스크립트
-├── gradlew.bat          # Windows 실행 스크립트
-└── gradle/wrapper/
-    ├── gradle-wrapper.jar
-    └── gradle-wrapper.properties   # 사용할 Gradle 버전을 고정</pre></figure>
+<figure class="filetree"><div class="ft-root">📦 book-api/</div><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📜</span><span class="ft-name">gradlew</span><span class="ft-cmt">macOS/Linux 실행 스크립트</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">gradlew.bat</span><span class="ft-cmt">Windows 실행 스크립트</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">gradle/wrapper</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📦</span><span class="ft-name">gradle-wrapper.jar</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">⚙️</span><span class="ft-name">gradle-wrapper.properties</span><span class="ft-cmt">사용할 Gradle 버전을 고정</span></span></li></ul></li></ul></figure>
 <p><code>gradle-wrapper.properties</code>에 명시된 버전을 래퍼가 자동으로 내려받아 실행합니다. 덕분에 <strong>팀원 모두가 동일한 Gradle 버전</strong>을 사용하게 됩니다.</p>
 <div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># 전역 gradle 대신 항상 ./gradlew 사용</span>
 ./gradlew<span class="w"> </span>--version<span class="w">      </span><span class="c1"># 사용 중인 Gradle 버전 확인</span>
