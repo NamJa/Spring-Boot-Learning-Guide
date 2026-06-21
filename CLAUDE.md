@@ -55,7 +55,8 @@ python3 -m http.server 3000 --directory docs   # then open http://localhost:3000
 ## Authoring Conventions
 
 - Sidebar is manually maintained in `docs/_sidebar.md` — the build reads it to render each page's nav.
-- Diagrams: write ASCII box/flow art in a **plain fenced block** (no language) — the build auto-detects box-drawing chars and renders it as a styled diagram card. Use ```` ```kotlin/yaml/bash/... ```` for real code (Pygments-highlighted at build time).
+- Diagrams: write ASCII box/flow art in a **plain fenced block** (no language). The build auto-detects: a single-box numbered-step diagram or a linear `│`/`▼` chain becomes an HTML **stepper flowchart** (`try_step_flow`/`try_linear_flow`); anything else renders as a styled **diagram card**. Use ```` ```kotlin/yaml/bash/... ```` for real code (Pygments-highlighted at build time).
+- **Branch flowcharts** (decision `──No──▶`/`──Yes──▶` or fan-out `├─ … →`) are too irregular to auto-parse, so they are hand-authored as **inline HTML** directly in the `.md` using the `flowchart branch-flow` / `flowchart decision-flow` classes (see `.fc-fork`/`.fc-branches`/`.fc-decision`/`.fc-exit`/`.fc-status` in the generated `style.css`). Markdown passes the raw HTML through. When adding such a diagram, write the HTML block (no blank lines inside the `<figure>`).
 - Callouts: `> [!TIP]`, `> [!WARNING]`, `> [!NOTE]`, `> [!IMPORTANT]` become styled callout boxes.
 - Internal links: write them to the `.md` files (e.g. `[x](../phase-3-data-jpa/01-jpa-concepts.md)`); the build rewrites `.md` → `.html` (and root `README.md` → `index.html`).
 - Plugins enabled: search, pagination, copy-code, tabs

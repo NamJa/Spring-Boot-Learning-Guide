@@ -114,15 +114,17 @@ DispatcherServlet은 어떤 컨트롤러도 직접 알지 못합니다. 대신 *
 
 찾아낸 핸들러는 형태가 다양할 수 있습니다(애너테이션 방식 메서드, 함수형 핸들러 등). DispatcherServlet은 이 다양성을 직접 다루지 않고, **그 핸들러를 실행하는 방법을 아는 `HandlerAdapter`** 에게 다시 위임합니다. 애너테이션 컨트롤러는 `RequestMappingHandlerAdapter`가 담당하며, 바로 이 어댑터가 **아규먼트 리졸버와 리턴값 핸들러를 호출**합니다.
 
-```
-DispatcherServlet
-   │  "이 핸들러 실행 좀"
-   ▼
-HandlerAdapter.handle(req, res, handler)
-   ├─ 아규먼트 리졸버: HTTP 요청 → 메서드 파라미터로 변환
-   ├─ 실제 컨트롤러 메서드 호출
-   └─ 리턴값 핸들러: 반환값 → 응답으로 변환
-```
+<figure class="flowchart branch-flow">
+<ol class="fc-steps">
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">DispatcherServlet</div><div class="fc-desc">"이 핸들러 실행 좀"</div></div></li>
+<li class="fc-step fc-fork"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head"><code>HandlerAdapter.handle(req, res, handler)</code></div></div></li>
+</ol>
+<ul class="fc-branches">
+<li class="fc-branch"><span class="fc-seg"><strong>아규먼트 리졸버</strong> — HTTP 요청 → 메서드 파라미터로 변환</span></li>
+<li class="fc-branch"><span class="fc-seg"><strong>실제 컨트롤러 메서드</strong> 호출</span></li>
+<li class="fc-branch"><span class="fc-seg"><strong>리턴값 핸들러</strong> — 반환값 → 응답으로 변환</span></li>
+</ul>
+</figure>
 
 이 **"인터페이스로 확장 지점을 열어 두고 구현을 바꿔 끼운다"** 는 설계가 Spring MVC의 유연함의 원천입니다. WebFlux로 가도 흐름의 골격은 똑같습니다([Phase 0-05](../phase-0-spring-fundamentals/05-mvc-vs-webflux.md)).
 

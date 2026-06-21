@@ -172,13 +172,18 @@
 <p>반환값에는 핸들러뿐 아니라 <strong>적용할 인터셉터 목록</strong>도 포함됩니다(이게 <code>HandlerExecutionChain</code>이며, <a href="03-filter-interceptor.html">3번 문서</a>의 인터셉터와 직결됩니다).</p>
 <h3>HandlerAdapter — "어떻게 호출할지"</h3>
 <p>찾아낸 핸들러는 형태가 다양할 수 있습니다(애너테이션 방식 메서드, 함수형 핸들러 등). DispatcherServlet은 이 다양성을 직접 다루지 않고, <strong>그 핸들러를 실행하는 방법을 아는 <code>HandlerAdapter</code></strong> 에게 다시 위임합니다. 애너테이션 컨트롤러는 <code>RequestMappingHandlerAdapter</code>가 담당하며, 바로 이 어댑터가 <strong>아규먼트 리졸버와 리턴값 핸들러를 호출</strong>합니다.</p>
-<figure class="diagram"><pre>DispatcherServlet
-   │  &quot;이 핸들러 실행 좀&quot;
-   ▼
-HandlerAdapter.handle(req, res, handler)
-   ├─ 아규먼트 리졸버: HTTP 요청 → 메서드 파라미터로 변환
-   ├─ 실제 컨트롤러 메서드 호출
-   └─ 리턴값 핸들러: 반환값 → 응답으로 변환</pre></figure>
+<figure class="flowchart branch-flow">
+<ol class="fc-steps">
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">DispatcherServlet</div><div class="fc-desc">"이 핸들러 실행 좀"</div></div></li>
+<li class="fc-step fc-fork"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head"><code>HandlerAdapter.handle(req, res, handler)</code></div></div></li>
+</ol>
+<ul class="fc-branches">
+<li class="fc-branch"><span class="fc-seg"><strong>아규먼트 리졸버</strong> — HTTP 요청 → 메서드 파라미터로 변환</span></li>
+<li class="fc-branch"><span class="fc-seg"><strong>실제 컨트롤러 메서드</strong> 호출</span></li>
+<li class="fc-branch"><span class="fc-seg"><strong>리턴값 핸들러</strong> — 반환값 → 응답으로 변환</span></li>
+</ul>
+</figure>
+
 <p>이 <strong>"인터페이스로 확장 지점을 열어 두고 구현을 바꿔 끼운다"</strong> 는 설계가 Spring MVC의 유연함의 원천입니다. WebFlux로 가도 흐름의 골격은 똑같습니다(<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Phase 0-05</a>).</p>
 <h2>5. HttpMessageConverter — JSON 변환의 정체</h2>
 <p>Phase 2에서 객체가 "그냥" JSON이 되던 그 마법의 정체가 바로 <strong><code>HttpMessageConverter</code></strong> 입니다. <code>@ResponseBody</code>(또는 <code>@RestController</code>)가 붙은 메서드의 반환값을 처리하는 리턴값 핸들러가, 등록된 컨버터 중 적절한 것을 골라 <strong>객체 ↔ HTTP 본문 바이트</strong> 변환을 수행합니다.</p>

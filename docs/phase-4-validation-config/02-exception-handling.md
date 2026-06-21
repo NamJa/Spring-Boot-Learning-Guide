@@ -19,16 +19,17 @@
 
 Spring은 컨트롤러에서 던져진 예외를 가로채는 **`@ControllerAdvice`** (REST에서는 `@RestControllerAdvice`)를 제공합니다. 이 클래스 안에 **`@ExceptionHandler`** 메서드를 정의하면, 해당 예외 타입이 발생할 때마다 그 메서드가 호출됩니다.
 
-```
-컨트롤러에서 예외 throw
-        │
-        ▼
-@RestControllerAdvice 가 가로챔
-        │
-        ├─ BookNotFoundException        → handleNotFound()      → 404
-        ├─ MethodArgumentNotValidException → handleValidation() → 400
-        └─ Exception (그 밖의 모든 것)    → handleGeneric()      → 500
-```
+<figure class="flowchart branch-flow">
+<ol class="fc-steps">
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">컨트롤러에서 예외 throw</div></div></li>
+<li class="fc-step fc-fork"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head"><code>@RestControllerAdvice</code> 가 가로챔</div></div></li>
+</ol>
+<ul class="fc-branches">
+<li class="fc-branch"><code>BookNotFoundException</code><span class="fc-arrow">→</span><span class="fc-seg">handleNotFound()</span><span class="fc-status s-404">404</span></li>
+<li class="fc-branch"><code>MethodArgumentNotValidException</code><span class="fc-arrow">→</span><span class="fc-seg">handleValidation()</span><span class="fc-status s-400">400</span></li>
+<li class="fc-branch"><code>Exception</code> <span class="fc-seg">(그 밖의 모든 것)</span><span class="fc-arrow">→</span><span class="fc-seg">handleGeneric()</span><span class="fc-status s-500">500</span></li>
+</ul>
+</figure>
 
 `@RestControllerAdvice`는 `@ControllerAdvice` + `@ResponseBody`의 조합으로, 핸들러의 반환값을 자동으로 JSON 본문에 직렬화해 줍니다.
 

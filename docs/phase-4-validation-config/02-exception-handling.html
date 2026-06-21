@@ -98,14 +98,18 @@
 <p>이 문서에서는 <strong>모든 예외를 한곳에서</strong> 잡아 의미 있는 HTTP 상태와 일관된 본문으로 변환하는 방법을 배웁니다.</p>
 <h2>1. <code>@RestControllerAdvice</code>와 <code>@ExceptionHandler</code></h2>
 <p>Spring은 컨트롤러에서 던져진 예외를 가로채는 <strong><code>@ControllerAdvice</code></strong> (REST에서는 <code>@RestControllerAdvice</code>)를 제공합니다. 이 클래스 안에 <strong><code>@ExceptionHandler</code></strong> 메서드를 정의하면, 해당 예외 타입이 발생할 때마다 그 메서드가 호출됩니다.</p>
-<figure class="diagram"><pre>컨트롤러에서 예외 throw
-        │
-        ▼
-@RestControllerAdvice 가 가로챔
-        │
-        ├─ BookNotFoundException        → handleNotFound()      → 404
-        ├─ MethodArgumentNotValidException → handleValidation() → 400
-        └─ Exception (그 밖의 모든 것)    → handleGeneric()      → 500</pre></figure>
+<figure class="flowchart branch-flow">
+<ol class="fc-steps">
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">컨트롤러에서 예외 throw</div></div></li>
+<li class="fc-step fc-fork"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head"><code>@RestControllerAdvice</code> 가 가로챔</div></div></li>
+</ol>
+<ul class="fc-branches">
+<li class="fc-branch"><code>BookNotFoundException</code><span class="fc-arrow">→</span><span class="fc-seg">handleNotFound()</span><span class="fc-status s-404">404</span></li>
+<li class="fc-branch"><code>MethodArgumentNotValidException</code><span class="fc-arrow">→</span><span class="fc-seg">handleValidation()</span><span class="fc-status s-400">400</span></li>
+<li class="fc-branch"><code>Exception</code> <span class="fc-seg">(그 밖의 모든 것)</span><span class="fc-arrow">→</span><span class="fc-seg">handleGeneric()</span><span class="fc-status s-500">500</span></li>
+</ul>
+</figure>
+
 <p><code>@RestControllerAdvice</code>는 <code>@ControllerAdvice</code> + <code>@ResponseBody</code>의 조합으로, 핸들러의 반환값을 자동으로 JSON 본문에 직렬화해 줍니다.</p>
 <h2>2. 일관된 에러 응답 DTO</h2>
 <p>먼저 모든 에러가 공유할 응답 형태를 정의합니다. 클라이언트는 어떤 에러든 같은 구조를 받게 되어 처리하기 편합니다.</p>

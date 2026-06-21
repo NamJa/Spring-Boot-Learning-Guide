@@ -185,13 +185,18 @@
 </pre></div>
 </div>
 <p>즉, <strong>쿼리 1번(목록) + N번(연관 초기화) = N+1번</strong>의 쿼리가 나갑니다. 이것이 <strong>N+1 문제</strong>입니다.</p>
-<figure class="diagram"><pre>  findAll()  ─▶  1 쿼리  (Book 100건)
-                  │
-                  ├─ book[0].category → +1 쿼리
-                  ├─ book[1].category → +1 쿼리
-                  └─ ...               → +1 × 100
-                  ────────────────────────────
-                  합계: 1 + 100 = 101 쿼리</pre></figure>
+<figure class="flowchart branch-flow">
+<ol class="fc-steps">
+<li class="fc-step fc-fork"><span class="fc-num">1</span><div class="fc-body"><div class="fc-head"><code>findAll()</code> → 1 쿼리</div><div class="fc-desc">Book 100건 조회</div></div></li>
+</ol>
+<ul class="fc-branches">
+<li class="fc-branch"><code>book[0].category</code><span class="fc-arrow">→</span><span class="fc-status fc-cost">+1 쿼리</span></li>
+<li class="fc-branch"><code>book[1].category</code><span class="fc-arrow">→</span><span class="fc-status fc-cost">+1 쿼리</span></li>
+<li class="fc-branch"><span class="fc-seg">… book[2] ~ book[99]</span><span class="fc-arrow">→</span><span class="fc-status fc-cost">+1 × 100</span></li>
+</ul>
+<div class="fc-sum">합계 = 1 + 100 = <strong>101 쿼리</strong><span class="fc-badge-warn">N+1 문제</span></div>
+</figure>
+
 <blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>N+1은 <strong>EAGER로 바꿔도 해결되지 않습니다.</strong> EAGER로 바꾸면 단지 N개의 SELECT가 <code>findAll</code> "직후"에 나갈 뿐, 횟수는 그대로입니다(오히려 JPQL에서는 즉시 N+1을 유발). N+1의 본질은 fetch 시점이 아니라 <strong>"한 번에 가져오지 않는 것"</strong> 입니다.</p>
 </blockquote>
 <h2>4. 해결책 비교</h2>

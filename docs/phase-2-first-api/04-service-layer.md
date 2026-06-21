@@ -179,15 +179,16 @@ class BookService {
 
 이제 두 계층이 완성되어 다음과 같이 연결됩니다.
 
-```
-BookController.getOne(id)
-        │  bookService.findById(id) 호출
-        ▼
-BookService.findById(id)
-        │  store[id] 조회
-        ├── 있음 → BookResponse 반환 → 컨트롤러가 200 OK
-        └── 없음 → BookNotFoundException → @ResponseStatus로 404
-```
+<figure class="flowchart branch-flow">
+<ol class="fc-steps">
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head"><code>BookController.getOne(id)</code></div><div class="fc-desc"><code>bookService.findById(id)</code> 호출</div></div></li>
+<li class="fc-step fc-fork"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head"><code>BookService.findById(id)</code></div><div class="fc-desc"><code>store[id]</code> 조회</div></div></li>
+</ol>
+<ul class="fc-branches">
+<li class="fc-branch"><span class="fc-tag t-yes">있음</span><span class="fc-arrow">→</span><span class="fc-seg"><code>BookResponse</code> 반환</span><span class="fc-status s-200">200 OK</span></li>
+<li class="fc-branch"><span class="fc-tag t-no">없음</span><span class="fc-arrow">→</span><span class="fc-seg"><code>BookNotFoundException</code></span><span class="fc-status s-404">404</span></li>
+</ul>
+</figure>
 
 컨트롤러는 "어떻게 저장되는지" 전혀 모릅니다. 그저 서비스에게 시키고, 결과를 HTTP 응답으로 포장할 뿐입니다. 이것이 계층 분리의 힘입니다.
 

@@ -68,25 +68,15 @@ class BookJsonAutoConfiguration {
 
 핵심은 **`@ConditionalOnMissingBean`** 입니다. "기본값은 우리가 줄게. 하지만 네가 직접 만들면 네 것을 쓸게"라는 철학이 여기서 구현됩니다. 이것이 Spring Boot가 "관례를 따르면 자동, 원하면 언제든 재정의 가능"한 이유입니다.
 
-```
-클래스패스 스캔
-      │
-      ▼
-.imports의 자동설정 후보 목록 로드
-      │
-      ▼
-각 후보의 @Conditional 평가
-      │
-   조건 만족? ──No──▶ 건너뜀
-      │ Yes
-      ▼
-사용자가 같은 Bean 등록했나? (@ConditionalOnMissingBean)
-      │
-   이미 있음 ──Yes──▶ 사용자 Bean 우선 (자동설정 양보)
-      │ No
-      ▼
-자동설정 Bean 등록
-```
+<figure class="flowchart decision-flow">
+<ol class="fc-steps">
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">클래스패스 스캔</div></div></li>
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head"><code>.imports</code>의 자동설정 후보 목록 로드</div></div></li>
+<li class="fc-step fc-decision"><span class="fc-num fc-q">?</span><div class="fc-body"><div class="fc-head">각 후보의 <code>@Conditional</code> 평가 — 조건 만족?</div><div class="fc-exit"><span class="fc-tag t-no">No</span> → 건너뜀 (후보 제외)</div><div class="fc-exit"><span class="fc-tag t-yes">Yes</span> ↓ 다음 단계로</div></div></li>
+<li class="fc-step fc-decision"><span class="fc-num fc-q">?</span><div class="fc-body"><div class="fc-head">사용자가 같은 Bean을 등록했나? <code>@ConditionalOnMissingBean</code></div><div class="fc-exit"><span class="fc-tag t-yes">Yes</span> → 사용자 Bean 우선 (자동설정 양보)</div><div class="fc-exit"><span class="fc-tag t-no">No</span> ↓ 자동설정 적용</div></div></li>
+<li class="fc-step fc-final"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">자동설정 Bean 등록</div></div></li>
+</ol>
+</figure>
 
 ## 3. 스타터(Starter)란
 
