@@ -104,19 +104,30 @@
 <blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p>과거에는 <code>javax.persistence.*</code> 패키지를 사용했지만, Jakarta EE로 이관되면서 <strong><code>jakarta.persistence.*</code></strong> 로 바뀌었습니다. Spring Boot 4.x / Spring Framework 7.x는 전부 <code>jakarta</code> 네임스페이스를 사용합니다. 오래된 예제에서 <code>javax</code>를 보면 구버전이라고 생각하세요.</p>
 </blockquote>
 <p>계층을 그림으로 표현하면 다음과 같습니다. 위쪽이 우리가 직접 다루는 추상화, 아래로 갈수록 실제 DB에 가까워집니다.</p>
-<figure class="diagram"><pre>┌──────────────────────────────────────────┐
-│   우리 코드 (BookRepository, BookService)   │
-├──────────────────────────────────────────┤
-│   Spring Data JPA                          │  ← Repository 추상화, 쿼리 메서드 자동 생성
-├──────────────────────────────────────────┤
-│   JPA (Jakarta Persistence) 명세            │  ← @Entity, EntityManager 등 표준 인터페이스
-├──────────────────────────────────────────┤
-│   Hibernate (JPA 구현체)                    │  ← 실제 SQL 생성·실행, 영속성 컨텍스트 관리
-├──────────────────────────────────────────┤
-│   JDBC                                      │  ← 표준 Java DB 연결 API
-├──────────────────────────────────────────┤
-│   Database (H2 / PostgreSQL)                │
-└──────────────────────────────────────────┘</pre></figure>
+<figure class="layer-stack">
+<div class="layer" style="--i:0;--n:6">
+<div class="layer-head">우리 코드 (BookRepository, BookService)</div>
+</div>
+<div class="layer" style="--i:1;--n:6">
+<div class="layer-head">Spring Data JPA</div>
+<div class="layer-sub">← Repository 추상화, 쿼리 메서드 자동 생성</div>
+</div>
+<div class="layer" style="--i:2;--n:6">
+<div class="layer-head">JPA (Jakarta Persistence) 명세</div>
+<div class="layer-sub">← @Entity, EntityManager 등 표준 인터페이스</div>
+</div>
+<div class="layer" style="--i:3;--n:6">
+<div class="layer-head">Hibernate (JPA 구현체)</div>
+<div class="layer-sub">← 실제 SQL 생성·실행, 영속성 컨텍스트 관리</div>
+</div>
+<div class="layer" style="--i:4;--n:6">
+<div class="layer-head">JDBC</div>
+<div class="layer-sub">← 표준 Java DB 연결 API</div>
+</div>
+<div class="layer" style="--i:5;--n:6">
+<div class="layer-head">Database (H2 / PostgreSQL)</div>
+</div>
+</figure>
 <p>요점은 <strong>Spring Data JPA를 사용한다고 해서 JPA와 Hibernate를 안 쓰는 게 아니라는 것</strong>입니다. 우리는 가장 위층의 편리한 추상화를 사용하지만, 그 아래에서는 여전히 JPA 명세에 따라 Hibernate가 SQL을 만들어 JDBC로 DB에 보냅니다.</p>
 <h2>3. 영속성 컨텍스트와 EntityManager</h2>
 <p>JPA의 핵심 개념 중 가장 중요한 것이 <strong>영속성 컨텍스트(Persistence Context)</strong> 입니다. 이것은 "Entity 객체를 보관하는 1차 캐시이자 작업 공간"이라고 생각하면 됩니다. 이 컨텍스트를 관리하는 주체가 <strong><code>EntityManager</code></strong> 입니다.</p>

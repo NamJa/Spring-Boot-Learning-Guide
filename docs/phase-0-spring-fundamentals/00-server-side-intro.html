@@ -95,18 +95,17 @@
 <li><strong>UI가 없다.</strong> 화면 대신 HTTP 요청을 받아 데이터를 돌려준다.</li>
 <li><strong>24시간 365일 실행</strong>된다. 사용자가 켜고 끄는 것이 아니라 항상 떠 있다.</li>
 </ul>
-<figure class="diagram"><pre>┌──────────────────────────────────────────────────────────┐
-│                    클라이언트 vs 서버                       │
-├────────────────────────┬─────────────────────────────────┤
-│      클라이언트 앱       │            서버 (Spring Boot)    │
-├────────────────────────┼─────────────────────────────────┤
-│ 사용자 1명 / 1기기       │ 동시에 수천~수만 클라이언트       │
-│ UI/화면 중심            │ 데이터·비즈니스 로직 중심          │
-│ 실행/종료 생명주기 있음   │ 항상 실행 중 (always running)     │
-│ 로컬 저장 (파일/SQLite)  │ DB 서버 (PostgreSQL, MySQL …)    │
-│ 기기 리소스 제한         │ 서버 리소스 (CPU/RAM/네트워크)    │
-│ 앱 스토어/실행파일로 배포 │ JAR / Docker / 클라우드로 배포    │
-└────────────────────────┴─────────────────────────────────┘</pre></figure>
+<table class="gen-table">
+<caption>클라이언트 vs 서버</caption>
+<thead><tr><th>클라이언트 앱</th><th>서버 (Spring Boot)</th></tr></thead>
+<tbody>
+<tr><td>사용자 1명 / 1기기</td><td>동시에 수천~수만 클라이언트</td></tr>
+<tr><td>UI/화면 중심</td><td>데이터·비즈니스 로직 중심</td></tr>
+<tr><td>실행/종료 생명주기 있음</td><td>항상 실행 중 (always running)</td></tr>
+<tr><td>로컬 저장 (파일/SQLite)</td><td>DB 서버 (PostgreSQL, MySQL …)</td></tr>
+<tr><td>기기 리소스 제한</td><td>서버 리소스 (CPU/RAM/네트워크)</td></tr>
+<tr><td>앱 스토어/실행파일로 배포</td><td>JAR / Docker / 클라우드로 배포</td></tr>
+</tbody></table>
 <p>이 가이드에서 우리는 <strong>도서(Book) 관리 REST API</strong> 서버를 Kotlin + Spring Boot로 만들면서 이 개념들을 하나씩 체득합니다.</p>
 <hr />
 <h2>2. 클라이언트-서버 통신 구조</h2>

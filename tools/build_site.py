@@ -184,12 +184,117 @@ def try_linear_flow(code):
         return None
     return _render_flow(None, nodes)
 
+_BORDER_LINE = re.compile(r"^[\s┌┐└┘├┤┬┴┼─═╔╗╚╝║╠╣╬╦╩]+$")
+def _is_border(line):
+    return bool(_BORDER_LINE.match(line)) and ("─" in line or "═" in line)
+
+def _cells_and_note(line):
+    """Split a box row into (cells, trailing-note). The first │ is the left
+    border, the last │ is the right border; text after the right border is an
+    out-of-box annotation (e.g. '← 설명'), NOT a real column."""
+    parts = re.split(r"[│┃]", line)
+    if len(parts) < 2:
+        return [], None
+    cells = [p.strip() for p in parts[1:-1]]
+    note = parts[-1].strip()
+    return cells, (note or None)
+
+def _single_box(lines):
+    top, bot = lines[0].strip(), lines[-1].strip()
+    if not (re.match(r"^[┌╔]", top) and re.search(r"[┐╗]$", top) and re.match(r"^[└╚]", bot)):
+        return None
+    joined = "\n".join(lines)
+    # a real single box has exactly one top-left corner; >1 => side-by-side boxes
+    if joined.count("┌") + joined.count("╔") != 1:
+        return None
+    inner = lines[1:-1]
+    if any(re.match(r"^\s*[┌└]", l) for l in inner):  # reopened => box chain
+        return None
+    return inner
+
+def try_ascii_table(code):
+    """Single box whose rows have │-separated columns -> real HTML table."""
+    lines = [l for l in code.split("\n") if l.strip() != ""]
+    if len(lines) < 3:
+        return None
+    inner = _single_box(lines)
+    if inner is None:
+        return None
+    rows = []
+    for l in inner:
+        if _is_border(l):
+            continue
+        cells, _ = _cells_and_note(l)
+        if any(c for c in cells):
+            rows.append(cells)
+    if len(rows) < 2 or max(len(r) for r in rows) < 2:
+        return None
+    caption, idx = None, 0
+    if len(rows[0]) == 1:
+        caption, idx = rows[0][0], 1
+    if idx >= len(rows):
+        return None
+    header = rows[idx]
+    body = rows[idx + 1:]
+    ncol = len(header)
+    out = ['<table class="gen-table">']
+    if caption:
+        out.append("<caption>%s</caption>" % html.escape(caption))
+    out.append("<thead><tr>" + "".join("<th>%s</th>" % html.escape(c) for c in header) + "</tr></thead>")
+    out.append("<tbody>")
+    for r in body:
+        cells = r + [""] * (ncol - len(r)) if len(r) < ncol else r[:ncol]
+        out.append("<tr>" + "".join("<td>%s</td>" % html.escape(c) for c in cells) + "</tr>")
+    out.append("</tbody></table>")
+    return "\n".join(out)
+
+def try_layer_stack(code):
+    """Single box with ├──┤ dividers and single-column sections -> stacked bands."""
+    lines = [l for l in code.split("\n") if l.strip() != ""]
+    if len(lines) < 4 or any(c in code for c in "┬┼┴"):
+        return None
+    inner = _single_box(lines)
+    if inner is None:
+        return None
+    if not any(re.match(r"^\s*[├╠][─═]+[┤╣]\s*$", l) for l in inner):
+        return None
+    sections, cur = [], []
+    for l in inner:
+        if re.match(r"^\s*[├╠][─═]+[┤╣]\s*$", l):
+            if cur:
+                sections.append(cur); cur = []
+        elif _is_border(l):
+            continue
+        else:
+            cells, note = _cells_and_note(l)
+            if len(cells) > 1:
+                return None  # multi-column -> it's a table, not a layer stack
+            if cells and cells[0]:
+                cur.append(cells[0])
+            if note:
+                cur.append(note)
+    if cur:
+        sections.append(cur)
+    if len(sections) < 2:
+        return None
+    n = len(sections)
+    out = ['<figure class="layer-stack">']
+    for i, sec in enumerate(sections):
+        out.append('<div class="layer" style="--i:%d;--n:%d">' % (i, n))
+        out.append('<div class="layer-head">%s</div>' % html.escape(sec[0]))
+        if len(sec) > 1:
+            out.append('<div class="layer-sub">%s</div>' % html.escape(" ".join(sec[1:])))
+        out.append("</div>")
+    out.append("</figure>")
+    return "\n".join(out)
+
 def render_code(lang, code):
     label = (lang or "text").lower()
     if is_diagram(lang, code):
-        flow = try_step_flow(code) or try_linear_flow(code)
-        if flow:
-            return flow
+        block = (try_step_flow(code) or try_linear_flow(code)
+                 or try_ascii_table(code) or try_layer_stack(code))
+        if block:
+            return block
         return ('<figure class="diagram"><pre>%s</pre></figure>'
                 % html.escape(code))
     if label in PLAIN or lang == "":
@@ -464,6 +569,20 @@ a:hover{text-decoration:underline}
 .fc-exit{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px;font-size:13.5px;color:#3a4250}
 .fc-tag{font-weight:800;font-size:11.5px;padding:2px 10px;border-radius:999px;color:#fff;white-space:nowrap}
 .t-yes{background:#2da44e}.t-no{background:#cf222e}
+/* layer stack (single box + ├──┤ dividers) */
+.layer-stack{margin:1.5em 0;max-width:560px;border-radius:14px;overflow:hidden;
+  border:1px solid #cfe0c8;box-shadow:0 10px 30px -18px rgba(40,90,30,.55)}
+.layer{padding:15px 18px;text-align:center;border-bottom:1px solid rgba(255,255,255,.7);
+  background:hsl(96 38% calc(95% - var(--i) * (42% / var(--n))))}
+.layer:last-child{border-bottom:none}
+.layer-head{font-weight:800;color:#16320f;font-size:15px}
+.layer:nth-child(n+4) .layer-head{color:#16320f}
+.layer-sub{margin-top:3px;font-size:13px;color:#3c5733;opacity:.95}
+/* generated table (ascii grid -> HTML table) */
+.content table.gen-table{margin:1.3em 0}
+.content table.gen-table caption{caption-side:top;font-weight:800;color:var(--ink);
+  text-align:center;padding:9px 12px;background:linear-gradient(135deg,var(--green),var(--green-d));
+  color:#fff;border-radius:10px 10px 0 0;font-size:14.5px}
 /* tables */
 .content table{border-collapse:collapse;width:100%;margin:1.2em 0;font-size:14.5px;
   display:block;overflow-x:auto;border:1px solid var(--line);border-radius:10px}

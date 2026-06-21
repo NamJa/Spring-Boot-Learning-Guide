@@ -161,15 +161,20 @@ book-api-0.0.1-SNAPSHOT-plain.jar<span class="w">  </span><span class="c1"># pla
     ├── classpath.idx
     └── layers.idx               ← 레이어 정의 (아래 4개 레이어)</pre></figure>
 <p><code>layers.idx</code>가 정의하는 <strong>4개의 레이어</strong>는 변경 빈도가 낮은 것부터 높은 순서입니다.</p>
-<figure class="diagram"><pre>┌─────────────────────────────────────────────┐
-│ dependencies          (가장 안 바뀜, 외부 정식 릴리스 의존성) │
-├─────────────────────────────────────────────┤
-│ spring-boot-loader    (스프링 부트 버전 올릴 때만 바뀜)        │
-├─────────────────────────────────────────────┤
-│ snapshot-dependencies (SNAPSHOT 의존성, 가끔 바뀜)         │
-├─────────────────────────────────────────────┤
-│ application           (우리 코드, 가장 자주 바뀜)            │
-└─────────────────────────────────────────────┘</pre></figure>
+<figure class="layer-stack">
+<div class="layer" style="--i:0;--n:4">
+<div class="layer-head">dependencies          (가장 안 바뀜, 외부 정식 릴리스 의존성)</div>
+</div>
+<div class="layer" style="--i:1;--n:4">
+<div class="layer-head">spring-boot-loader    (스프링 부트 버전 올릴 때만 바뀜)</div>
+</div>
+<div class="layer" style="--i:2;--n:4">
+<div class="layer-head">snapshot-dependencies (SNAPSHOT 의존성, 가끔 바뀜)</div>
+</div>
+<div class="layer" style="--i:3;--n:4">
+<div class="layer-head">application           (우리 코드, 가장 자주 바뀜)</div>
+</div>
+</figure>
 <h3>왜 레이어가 Docker 캐싱에 중요한가</h3>
 <p>Docker 이미지는 <strong>레이어 단위로 캐싱</strong>됩니다. 만약 jar 전체를 한 덩어리로 이미지에 복사하면, <strong>한 줄만 고쳐도</strong> 수백 MB짜리 의존성까지 통째로 새 레이어가 됩니다. 매 배포마다 이미지 push/pull이 무거워지죠.</p>
 <p>layered jar를 이용하면 변경 빈도가 다른 콘텐츠를 <strong>별도의 Docker 레이어</strong>로 분리할 수 있습니다.</p>

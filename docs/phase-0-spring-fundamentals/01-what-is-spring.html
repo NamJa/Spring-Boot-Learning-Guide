@@ -149,17 +149,22 @@
 </tbody>
 </table>
 <p>핵심 한 문장: <strong>Spring Boot는 새로운 프레임워크가 아니라, Spring Framework를 "관례에 따라 자동으로 설정해 주는" 도구</strong>입니다.</p>
-<figure class="diagram"><pre>┌─────────────────────────────────────────┐
-│        내 애플리케이션 (BookApi)          │
-├─────────────────────────────────────────┤
-│   Spring Boot 4.1                        │
-│   (자동 설정 · 스타터 · 내장 서버)         │
-├─────────────────────────────────────────┤
-│   Spring Framework 7                     │
-│   (IoC 컨테이너 · AOP · MVC · TX ...)     │
-├─────────────────────────────────────────┤
-│   JVM (JDK 21)                           │
-└─────────────────────────────────────────┘</pre></figure>
+<figure class="layer-stack">
+<div class="layer" style="--i:0;--n:4">
+<div class="layer-head">내 애플리케이션 (BookApi)</div>
+</div>
+<div class="layer" style="--i:1;--n:4">
+<div class="layer-head">Spring Boot 4.1</div>
+<div class="layer-sub">(자동 설정 · 스타터 · 내장 서버)</div>
+</div>
+<div class="layer" style="--i:2;--n:4">
+<div class="layer-head">Spring Framework 7</div>
+<div class="layer-sub">(IoC 컨테이너 · AOP · MVC · TX ...)</div>
+</div>
+<div class="layer" style="--i:3;--n:4">
+<div class="layer-head">JVM (JDK 21)</div>
+</div>
+</figure>
 <h3>2.1 Spring Boot 4.1의 주요 신규 기능</h3>
 <p>본 가이드 시점의 Spring Boot 4.1 / Spring Framework 7에서 주목할 변화들입니다. 지금은 "이런 게 있구나" 정도만 알아 두고, 해당 Phase에서 자세히 다룹니다.</p>
 <ul>
