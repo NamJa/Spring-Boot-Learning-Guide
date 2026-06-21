@@ -174,13 +174,12 @@
 </blockquote>
 <h2>3. 프록시 생성 시점</h2>
 <p>AOP 프록시는 <strong>컴파일 타임이 아니라, 스프링 컨테이너가 빈을 초기화하는 시점</strong>에 만들어집니다.</p>
-<figure class="diagram"><pre>빈 인스턴스 생성 → 의존성 주입 → BeanPostProcessor 동작
-                                    │
-                                    └─ AnnotationAwareAspectJAutoProxyCreator
-                                       : 포인트컷에 매칭되면 원본을 프록시로 교체
-                                    │
-                                    ▼
-                  컨테이너에는 &#x27;프록시&#x27;가 빈으로 등록됨</pre></figure>
+<figure class="flowchart">
+<ol class="fc-steps">
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">빈 인스턴스 생성 → 의존성 주입 → BeanPostProcessor 동작</div></div></li>
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">└─ AnnotationAwareAspectJAutoProxyCreator : 포인트컷에 매칭되면 원본을 프록시로 교체</div></div></li>
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">컨테이너에는 &#x27;프록시&#x27;가 빈으로 등록됨</div></div></li>
+</ol></figure>
 <p>핵심은 <strong>컨테이너에 등록되는 빈 자체가 프록시로 바꿔치기된다</strong>는 점입니다. 그래서 다른 빈이 <code>BookService</code>를 주입받으면 실제로는 프록시를 받습니다. (이 교체를 담당하는 게 <code>AnnotationAwareAspectJAutoProxyCreator</code>라는 <code>BeanPostProcessor</code>입니다.)</p>
 <h2>4. <code>@Transactional</code>이 AOP로 동작하는 원리</h2>
 <p>이제 부록 개요에서 한 약속을 갚을 차례입니다. <code>@Transactional</code>은 사실 <strong>스프링이 미리 등록해 둔 트랜잭션 Aspect</strong>입니다.</p>

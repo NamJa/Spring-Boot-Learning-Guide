@@ -151,25 +151,16 @@
 <p><code>*args</code>는 <strong>스프레드 연산자(spread operator)</strong>로, <code>Array&lt;String&gt;</code>을 가변 인자(vararg)로 풀어서 전달합니다. 이 인자는 커맨드라인 옵션(<code>--server.port=9090</code> 등)으로 활용됩니다.</p>
 <h2>4. 시작 시 무슨 일이 일어나는가</h2>
 <p><code>main</code>이 실행되면 다음 순서로 진행됩니다.</p>
-<figure class="diagram"><pre>runApplication&lt;BookApiApplication&gt;(*args)
-        │
-        ▼
-1. SpringApplication 객체 생성, 환경(Environment) 준비
-        │
-        ▼
-2. ApplicationContext(IoC 컨테이너) 생성
-        │
-        ▼
-3. @ComponentScan → 빈 정의 수집 (@Service, @RestController ...)
-        │
-        ▼
-4. @EnableAutoConfiguration → 내장 Tomcat, Jackson 등 자동 구성
-        │
-        ▼
-5. 모든 싱글톤 빈 생성 및 의존성 주입(DI)
-        │
-        ▼
-6. 내장 Tomcat 시작 → 8080 포트에서 요청 대기</pre></figure>
+<figure class="flowchart">
+<ol class="fc-steps">
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">runApplication&lt;BookApiApplication&gt;(*args)</div></div></li>
+<li class="fc-step"><span class="fc-num">1</span><div class="fc-body"><div class="fc-head">SpringApplication 객체 생성, 환경(Environment) 준비</div></div></li>
+<li class="fc-step"><span class="fc-num">2</span><div class="fc-body"><div class="fc-head">ApplicationContext(IoC 컨테이너) 생성</div></div></li>
+<li class="fc-step"><span class="fc-num">3</span><div class="fc-body"><div class="fc-head">@ComponentScan → 빈 정의 수집 (@Service, @RestController ...)</div></div></li>
+<li class="fc-step"><span class="fc-num">4</span><div class="fc-body"><div class="fc-head">@EnableAutoConfiguration → 내장 Tomcat, Jackson 등 자동 구성</div></div></li>
+<li class="fc-step"><span class="fc-num">5</span><div class="fc-body"><div class="fc-head">모든 싱글톤 빈 생성 및 의존성 주입(DI)</div></div></li>
+<li class="fc-step"><span class="fc-num">6</span><div class="fc-body"><div class="fc-head">내장 Tomcat 시작 → 8080 포트에서 요청 대기</div></div></li>
+</ol></figure>
 <p>5단계가 끝나면 우리가 만든 <code>BookService</code>, <code>BookController</code> 같은 객체들이 컨테이너 안에 준비되고, 서로 의존성이 연결됩니다. 6단계에서 서버가 떠 실제로 HTTP 요청을 받을 수 있게 됩니다.</p>
 <h2>5. 시작 로그 읽기</h2>
 <p><code>./gradlew bootRun</code>으로 실행하면 콘솔에 다음과 비슷한 로그가 출력됩니다.</p>

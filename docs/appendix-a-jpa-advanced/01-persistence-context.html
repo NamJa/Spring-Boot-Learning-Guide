@@ -88,19 +88,12 @@
 <p>JPA를 한 문장으로 요약하면 <strong>"영속성 컨텍스트라는 중간 캐시를 통해 객체와 DB를 동기화하는 기술"</strong> 입니다. Phase 3에서 우리는 <code>BookRepository.save()</code>를 호출하면 데이터가 저장된다는 사실만 알고 넘어갔습니다. 하지만 그 <code>save()</code>가 실제로 <code>INSERT</code>를 즉시 날리는지, 변경된 엔티티는 어떻게 <code>UPDATE</code>로 이어지는지 — 이 모든 것의 중심에 <strong>영속성 컨텍스트(Persistence Context)</strong> 가 있습니다.</p>
 <h2>1. EntityManager와 영속성 컨텍스트</h2>
 <p><strong>영속성 컨텍스트</strong>는 "엔티티를 보관하는 논리적인 작업 공간"입니다. 눈에 보이는 객체가 아니라, <code>EntityManager</code> 내부에 존재하는 관리 영역입니다. 우리가 <code>EntityManager</code>를 통해 엔티티를 저장하거나 조회하면, 그 엔티티는 영속성 컨텍스트에 담겨 관리됩니다.</p>
-<figure class="diagram"><pre>   애플리케이션 코드
-        │  persist(book) / find(...)
-        ▼
- ┌──────────────────────────────┐
- │       EntityManager          │
- │  ┌────────────────────────┐  │
- │  │   영속성 컨텍스트        │  │   ← 1차 캐시, 쓰기 지연 SQL 저장소
- │  │   [ Book@1, Book@2 ]   │  │
- │  └────────────────────────┘  │
- └──────────────────────────────┘
-        │  flush (SQL 전송)
-        ▼
-       Database</pre></figure>
+<figure class="flowchart">
+<ol class="fc-steps">
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">애플리케이션 코드 │  persist(book) / find(...)</div></div></li>
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">│       EntityManager │  │   영속성 컨텍스트        │  │   ← 1차 캐시, 쓰기 지연 SQL 저장소 │  │   [ Book@1, Book@2 ]   │ │  flush (SQL 전송)</div></div></li>
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">Database</div></div></li>
+</ol></figure>
 <p>Spring Data JPA를 쓰면 <code>EntityManager</code>를 직접 만질 일이 거의 없습니다. <code>JpaRepository</code>가 내부적으로 <code>EntityManager</code>를 위임받아 사용하기 때문입니다. 하지만 원리를 익히려면 <code>EntityManager</code>의 메서드를 직접 보는 편이 명확합니다.</p>
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">jakarta.persistence.EntityManager</span>
 <span class="k">import</span><span class="w"> </span><span class="nn">jakarta.persistence.PersistenceContext</span>

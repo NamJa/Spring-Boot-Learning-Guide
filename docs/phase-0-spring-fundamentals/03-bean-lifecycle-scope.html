@@ -88,35 +88,18 @@
 <p><a href="02-ioc-and-di.html">02번 문서</a>에서 컨테이너가 Bean을 만들고 연결한다는 것을 배웠습니다. 그렇다면 그 Bean은 <strong>정확히 언제 생성되고, 어떻게 초기화되며, 언제 사라질까요?</strong> 그리고 매번 새 객체가 만들어질까요, 아니면 하나를 공유할까요? 이 문서는 Bean의 생명주기와 스코프를 다룹니다. DB 커넥션 풀을 열고 닫거나, 캐시를 준비하고 비우는 등 <strong>리소스 관리</strong>에 직결되는 중요한 내용입니다.</p>
 <h2>1. Bean 생명주기 한눈에 보기</h2>
 <p>컨테이너는 Bean을 단순히 <code>new</code> 하는 게 아니라, 여러 단계를 거쳐 "쓸 준비가 된" 상태로 만듭니다.</p>
-<figure class="diagram"><pre>┌──────────────────────────────────────────────────────────────┐
-│                    Bean 생명주기                                │
-├──────────────────────────────────────────────────────────────┤
-│ 1. 인스턴스화 (Instantiation)                                  │
-│      생성자 호출 → 객체 생성, 의존성 주입(생성자 주입)            │
-│                          │                                     │
-│ 2. 프로퍼티 주입 (Populate)                                    │
-│      세터/필드 주입이 있다면 이 단계에서 채움                     │
-│                          │                                     │
-│ 3. Aware 콜백                                                  │
-│      BeanNameAware, ApplicationContextAware 등으로             │
-│      컨테이너 정보 주입                                          │
-│                          │                                     │
-│ 4. BeanPostProcessor (초기화 前)                               │
-│      postProcessBeforeInitialization                          │
-│                          │                                     │
-│ 5. 초기화 (Initialization)                                     │
-│      @PostConstruct → InitializingBean.afterPropertiesSet     │
-│      → @Bean(initMethod) 순으로 호출                           │
-│                          │                                     │
-│ 6. BeanPostProcessor (초기화 後)  ★ AOP 프록시가 여기서 입혀짐  │
-│      postProcessAfterInitialization                          │
-│                          │                                     │
-│ ============  Bean 사용 준비 완료 (Ready) ============         │
-│                          │                                     │
-│ 7. 소멸 (Destruction) — 컨테이너 종료 시                       │
-│      @PreDestroy → DisposableBean.destroy                     │
-│      → @Bean(destroyMethod) 순으로 호출                        │
-└──────────────────────────────────────────────────────────────┘</pre></figure>
+<figure class="flowchart">
+<div class="fc-title">Bean 생명주기</div>
+<ol class="fc-steps">
+<li class="fc-step"><span class="fc-num">1</span><div class="fc-body"><div class="fc-head">인스턴스화 (Instantiation)</div><div class="fc-desc">생성자 호출 → 객체 생성, 의존성 주입(생성자 주입)</div></div></li>
+<li class="fc-step"><span class="fc-num">2</span><div class="fc-body"><div class="fc-head">프로퍼티 주입 (Populate)</div><div class="fc-desc">세터/필드 주입이 있다면 이 단계에서 채움</div></div></li>
+<li class="fc-step"><span class="fc-num">3</span><div class="fc-body"><div class="fc-head">Aware 콜백</div><div class="fc-desc">BeanNameAware, ApplicationContextAware 등으로 컨테이너 정보 주입</div></div></li>
+<li class="fc-step"><span class="fc-num">4</span><div class="fc-body"><div class="fc-head">BeanPostProcessor (초기화 前)</div><div class="fc-desc">postProcessBeforeInitialization</div></div></li>
+<li class="fc-step"><span class="fc-num">5</span><div class="fc-body"><div class="fc-head">초기화 (Initialization)</div><div class="fc-desc">@PostConstruct → InitializingBean.afterPropertiesSet → @Bean(initMethod) 순으로 호출</div></div></li>
+<li class="fc-step fc-hot"><span class="fc-num">6</span><div class="fc-body"><div class="fc-head">BeanPostProcessor (초기화 後)</div><div class="fc-desc">postProcessAfterInitialization</div><div class="fc-note">AOP 프록시가 여기서 입혀짐</div></div></li>
+<li class="fc-milestone"><span>Bean 사용 준비 완료 (Ready)</span></li>
+<li class="fc-step"><span class="fc-num">7</span><div class="fc-body"><div class="fc-head">소멸 (Destruction) — 컨테이너 종료 시</div><div class="fc-desc">@PreDestroy → DisposableBean.destroy → @Bean(destroyMethod) 순으로 호출</div></div></li>
+</ol></figure>
 <blockquote>
 <p><strong>TIP</strong>: <code>@Transactional</code>, <code>@Async</code> 같은 AOP 기능이 6단계(초기화 후처리)에서 <strong>프록시로 감싸진다</strong>는 점이 핵심입니다. 그래서 <a href="01-what-is-spring.html">01번 문서</a>에서 말한 "내부 메서드 호출에는 트랜잭션이 안 걸리는 함정"이 생기는 것입니다.</p>
 </blockquote>

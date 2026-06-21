@@ -93,10 +93,11 @@
 <li><strong>서블릿(Servlet)</strong>: HTTP 요청 하나를 처리하는 Java 객체. <code>service(request, response)</code> 메서드가 핵심이며, 컨테이너가 요청마다 이를 호출합니다.</li>
 <li><strong>서블릿 컨테이너(Tomcat)</strong>: 소켓 연결, 스레드 풀, HTTP 파싱, 서블릿 생명주기를 책임집니다. 요청이 오면 <code>HttpServletRequest</code>/<code>HttpServletResponse</code> 객체를 만들어 서블릿에 넘깁니다.</li>
 </ul>
-<figure class="diagram"><pre>[브라우저] --HTTP--&gt; [Tomcat: 소켓 + 스레드풀 + HTTP 파싱]
-                          │  HttpServletRequest / HttpServletResponse 생성
-                          ▼
-                     [서블릿.service(req, res)]</pre></figure>
+<figure class="flowchart">
+<ol class="fc-steps">
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">[브라우저] --HTTP--&gt; [Tomcat: 소켓 + 스레드풀 + HTTP 파싱] │  HttpServletRequest / HttpServletResponse 생성</div></div></li>
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">[서블릿.service(req, res)]</div></div></li>
+</ol></figure>
 <p>옛날에는 URL 패턴마다 서블릿을 하나씩 만들고 <code>web.xml</code>에 일일이 등록했습니다. Spring MVC는 이 방식을 버리고 <strong>단 하나의 서블릿</strong>으로 모든 요청을 받습니다. 그게 DispatcherServlet입니다.</p>
 <blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p>패키지는 <code>jakarta.servlet.*</code> 입니다. 예전 <code>javax.servlet</code>은 Jakarta EE로 넘어오며 이름이 바뀌었습니다. 예제에서 <code>javax</code>가 보이면 구버전입니다.</p>
 </blockquote>

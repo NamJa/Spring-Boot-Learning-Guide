@@ -36,9 +36,160 @@ def is_diagram(lang, code):
         return False
     return any(ch in BOX for ch in code)
 
+def _strip_borders(line):
+    s = line
+    if s[:1] in "│┃":
+        s = s[1:]
+    s = re.sub(r"[│┃]\s*$", "", s)
+    return s
+
+def try_step_flow(code):
+    """Convert a single-outer-box vertical step diagram into an HTML stepper
+    flowchart. Returns HTML or None (None => caller falls back to diagram card)."""
+    raw = [l.rstrip() for l in code.split("\n")]
+    lines = [l for l in raw if l.strip() != ""]
+    if len(lines) < 4:
+        return None
+    if not re.match(r"^[┌╔]", lines[0]) or not re.search(r"[┐╗]$", lines[0]):
+        return None
+    if not re.match(r"^[└╚]", lines[-1]):
+        return None
+    inner = lines[1:-1]
+    # a reopened box (┌ / └ inside) means this is a box-CHAIN, not a single box
+    if any(re.match(r"^\s*[┌└]", l) for l in inner):
+        return None
+    title, body_start = None, 0
+    for i, l in enumerate(inner):
+        if re.match(r"^\s*[├╠][─═]+[┤╣]\s*$", l):
+            title = " ".join(_strip_borders(x).strip() for x in inner[:i]).strip()
+            body_start = i + 1
+            break
+    body = inner[body_start:]
+
+    def inner_text(l):
+        return _strip_borders(l).strip()
+
+    def is_conn(l):
+        c = inner_text(l)
+        return c == "" or re.fullmatch(r"[│┃▼|]+", c) is not None
+    # require at least one *drawn* connector (│ or ▼), not just blank lines
+    if not any(re.fullmatch(r"[│┃▼|]+", inner_text(l)) for l in body):
+        return None
+
+    nodes, buf = [], []
+    def flush():
+        tl = [b for b in buf if b.strip() != ""]
+        buf.clear()
+        if not tl:
+            return
+        first = tl[0].strip()
+        mm = re.match(r"^=+\s*(.*?)\s*=+$", first)
+        if mm and len(tl) == 1:
+            nodes.append({"type": "milestone", "text": mm.group(1)}); return
+        m = re.match(r"^(\d+)\.\s*(.*)$", first)
+        num = m.group(1) if m else None
+        head = m.group(2) if m else first
+        note = None
+        if "★" in head:
+            head, note = [p.strip() for p in head.split("★", 1)]
+        desc = " ".join(t.strip() for t in tl[1:]).strip()
+        if note is None and "★" in desc:
+            desc, note = [p.strip() for p in desc.split("★", 1)]
+        nodes.append({"type": "step", "num": num, "head": head, "desc": desc, "note": note})
+
+    for l in body:
+        if is_conn(l):
+            flush()
+        else:
+            buf.append(_strip_borders(l))
+    flush()
+
+    if len([n for n in nodes if n["type"] != "milestone"]) < 2:
+        return None
+    return _render_flow(title, nodes)
+
+def _render_flow(title, nodes):
+    out = ['<figure class="flowchart">']
+    if title:
+        out.append('<div class="fc-title">%s</div>' % html.escape(title))
+    out.append('<ol class="fc-steps">')
+    for n in nodes:
+        if n["type"] == "milestone":
+            out.append('<li class="fc-milestone"><span>%s</span></li>' % html.escape(n["text"]))
+            continue
+        cls = "fc-step" + (" fc-hot" if n.get("note") else "")
+        badge = ('<span class="fc-num">%s</span>' % html.escape(n["num"])) if n.get("num") \
+                else '<span class="fc-num fc-dot"></span>'
+        b = '<div class="fc-head">%s</div>' % html.escape(n["head"])
+        if n.get("desc"):
+            b += '<div class="fc-desc">%s</div>' % html.escape(n["desc"])
+        if n.get("note"):
+            b += '<div class="fc-note">%s</div>' % html.escape(n["note"])
+        out.append('<li class="%s">%s<div class="fc-body">%s</div></li>' % (cls, badge, b))
+    out.append("</ol></figure>")
+    return "\n".join(out)
+
+_BORDERONLY = re.compile(r"^[┌┐└┘├┤┬┴┼─═╔╗╚╝║│\s]+$")
+def try_linear_flow(code):
+    """Vertical chains WITHOUT an outer box: plain-text step chains and simple
+    box-chains connected by │/▼. Rejects branches/trees/horizontal arrows."""
+    raw = [l.rstrip() for l in code.split("\n")]
+    lines = [l for l in raw if l.strip() != ""]
+    if len(lines) < 3:
+        return None
+    joined = "\n".join(lines)
+    if "▼" not in joined:
+        return None
+    # reject trees/branches/section dividers and horizontal arrows
+    if any(ch in joined for ch in "├┤┬┴┼►▶◀◄"):
+        return None
+
+    def is_conn(l):
+        return re.fullmatch(r"[│┃▼|]+", l.strip()) is not None
+
+    def node_text(grp):
+        parts = []
+        for l in grp:
+            if _BORDERONLY.match(l) and l.strip():   # pure box border line -> skip
+                continue
+            parts.append(_strip_borders(l).strip())
+        return " ".join(p for p in parts if p).strip()
+
+    groups, buf = [], []
+    for l in lines:
+        if is_conn(l):
+            if buf:
+                groups.append(buf); buf = []
+        else:
+            buf.append(l)
+    if buf:
+        groups.append(buf)
+
+    nodes = []
+    for g in groups:
+        t = node_text(g)
+        if not t:
+            continue
+        mm = re.match(r"^=+\s*(.*?)\s*=+$", t)
+        if mm:
+            nodes.append({"type": "milestone", "text": mm.group(1)}); continue
+        m = re.match(r"^(\d+)\.\s*(.*)$", t)
+        num = m.group(1) if m else None
+        head = m.group(2) if m else t
+        note = None
+        if "★" in head:
+            head, note = [p.strip() for p in head.split("★", 1)]
+        nodes.append({"type": "step", "num": num, "head": head, "desc": "", "note": note})
+    if len([n for n in nodes if n["type"] != "milestone"]) < 2:
+        return None
+    return _render_flow(None, nodes)
+
 def render_code(lang, code):
     label = (lang or "text").lower()
     if is_diagram(lang, code):
+        flow = try_step_flow(code) or try_linear_flow(code)
+        if flow:
+            return flow
         return ('<figure class="diagram"><pre>%s</pre></figure>'
                 % html.escape(code))
     if label in PLAIN or lang == "":
@@ -254,6 +405,37 @@ a:hover{text-decoration:underline}
   box-shadow:0 1px 2px rgba(0,0,0,.04),0 10px 30px -18px rgba(40,90,30,.5);overflow-x:auto}
 .diagram pre{margin:0;font-family:var(--mono);font-size:13px;line-height:1.32;color:#2c3a2a;
   white-space:pre;font-variant-ligatures:none;text-rendering:optimizeLegibility}
+/* flowchart (vertical stepper, generated from single-box step diagrams) */
+.flowchart{margin:1.5em 0;max-width:680px}
+.fc-title{display:block;text-align:center;font-weight:800;color:#fff;font-size:15px;
+  background:linear-gradient(135deg,var(--green),var(--green-d));padding:9px 18px;
+  border-radius:999px;margin:0 auto 20px;box-shadow:0 6px 16px -6px rgba(90,148,51,.6);width:fit-content}
+.fc-steps{list-style:none;margin:0;padding:0;position:relative}
+.fc-step,.fc-milestone{position:relative;padding-bottom:26px}
+.fc-step{display:grid;grid-template-columns:34px 1fr;gap:16px;align-items:start}
+/* vertical spine + arrowhead between nodes */
+.fc-steps>li:not(:last-child)::before{content:"";position:absolute;left:16px;top:30px;bottom:-2px;
+  width:2px;background:linear-gradient(var(--green),rgba(109,179,63,.35))}
+.fc-steps>li:not(:last-child)::after{content:"";position:absolute;left:11px;bottom:8px;
+  width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;
+  border-top:8px solid var(--green)}
+.fc-num{grid-row:1;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-d));
+  color:#fff;font-weight:800;font-size:15px;display:grid;place-items:center;z-index:1;
+  box-shadow:0 3px 8px -2px rgba(90,148,51,.55)}
+.fc-num.fc-dot{background:#cdd6cd;width:16px;height:16px;margin:9px}
+.fc-body{background:#fff;border:1px solid #dde6dd;border-radius:11px;padding:11px 15px;
+  box-shadow:0 1px 2px rgba(0,0,0,.04),0 10px 28px -20px rgba(40,90,30,.55)}
+.fc-head{font-weight:700;font-size:15px;color:var(--ink)}
+.fc-desc{margin-top:4px;color:var(--muted);font-size:14px;line-height:1.6}
+.fc-note{margin-top:9px;font-size:13px;color:#9a6700;background:#fff8e6;border-left:3px solid #e3a008;
+  border-radius:6px;padding:5px 10px}
+.fc-note::before{content:"★ ";color:#e3a008}
+.fc-hot .fc-body{border-color:#f0d48a;box-shadow:0 0 0 3px rgba(227,160,8,.12),0 10px 28px -20px rgba(150,100,0,.5)}
+.fc-milestone{text-align:center}
+.fc-milestone>span{display:inline-block;background:linear-gradient(135deg,#eafbf0,#d6f5e1);
+  color:#1a7f37;font-weight:800;font-size:13.5px;padding:7px 18px;border-radius:999px;
+  border:1px solid #b7e6c6;box-shadow:0 4px 12px -6px rgba(26,127,55,.4)}
+.fc-milestone>span::before{content:"✓ "}
 /* tables */
 .content table{border-collapse:collapse;width:100%;margin:1.2em 0;font-size:14.5px;
   display:block;overflow-x:auto;border:1px solid var(--line);border-radius:10px}

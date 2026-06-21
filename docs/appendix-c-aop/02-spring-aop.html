@@ -95,12 +95,11 @@
 </div>
 <p>이 스타터는 AspectJ의 <strong>애너테이션(<code>@Aspect</code>, <code>@Around</code> 등)</strong> 과 위빙(weaving) 도구를 가져옵니다. 다만 Spring AOP는 컴파일/로드 타임 위빙이 아니라, [앞에서 본] <strong>런타임 프록시 기반</strong>으로 동작한다는 점을 기억하세요. (AspectJ는 문법만 빌려 쓰는 것)</p>
 <h2>2. AOP 핵심 용어</h2>
-<figure class="diagram"><pre>  ┌──────────────────── Aspect (관점) ────────────────────┐
-  │   Pointcut(어디에)  +  Advice(무엇을 언제)               │
-  └────────────────────────────────────────────────────────┘
-                          │ 적용
-                          ▼
-   BookService.create(...)   ← Join Point(적용 가능 지점)</pre></figure>
+<figure class="flowchart">
+<ol class="fc-steps">
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">┌──────────────────── Aspect (관점) ────────────────────┐ │   Pointcut(어디에)  +  Advice(무엇을 언제) │ 적용</div></div></li>
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">BookService.create(...)   ← Join Point(적용 가능 지점)</div></div></li>
+</ol></figure>
 <table>
 <thead>
 <tr>
