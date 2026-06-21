@@ -59,4 +59,29 @@ python3 -m http.server 3000 --directory docs   # then open http://localhost:3000
 - **Branch flowcharts** (decision `──No──▶`/`──Yes──▶` or fan-out `├─ … →`) are too irregular to auto-parse, so they are hand-authored as **inline HTML** directly in the `.md` using the `flowchart branch-flow` / `flowchart decision-flow` classes (see `.fc-fork`/`.fc-branches`/`.fc-decision`/`.fc-exit`/`.fc-status` in the generated `style.css`). Markdown passes the raw HTML through. When adding such a diagram, write the HTML block (no blank lines inside the `<figure>`).
 - Callouts: `> [!TIP]`, `> [!WARNING]`, `> [!NOTE]`, `> [!IMPORTANT]` become styled callout boxes.
 - Internal links: write them to the `.md` files (e.g. `[x](../phase-3-data-jpa/01-jpa-concepts.md)`); the build rewrites `.md` → `.html` (and root `README.md` → `index.html`).
-- Plugins enabled: search, pagination, copy-code, tabs
+
+## Verifying links
+
+The build does not fail on broken links, so after a rebuild verify every internal `.html` link resolves (404s are easy to introduce when renaming pages or editing `_sidebar.md`):
+
+```bash
+cd docs && python3 - <<'PY'
+import re, os, glob
+broken = total = 0
+for f in glob.glob("**/*.html", recursive=True):
+    d = os.path.dirname(f); txt = open(f, encoding="utf-8").read()
+    for m in re.finditer(r'href="([^"]+)"', txt):
+        h = m.group(1)
+        if h.startswith(("http://","https://","#","mailto:")) or h.startswith("@{"): continue
+        total += 1
+        if not os.path.isfile(os.path.normpath(os.path.join(d, h.split("#")[0]))):
+            broken += 1; print("BROKEN", f, "->", h)
+print(f"links {total}  broken {broken}")
+PY
+```
+
+(`@{...}` is a Thymeleaf URL expression that appears inside code examples — not a real link.)
+
+## Deployment
+
+GitHub Pages serves the site from the **`main` branch `/docs` folder** (repo `NamJa/Spring-Boot-Learning-Guide`, live at https://namja.github.io/Spring-Boot-Learning-Guide/). Pushing to `main` triggers a rebuild automatically — there is no Actions workflow; Pages serves the committed `docs/*.html` directly. `docs/.nojekyll` disables Jekyll so underscore/`assets` paths are served as-is. Commit the regenerated HTML or the live site will be stale.
