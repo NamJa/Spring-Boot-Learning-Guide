@@ -106,10 +106,21 @@ plugins {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-h2console")  // H2 웹 콘솔(개발용)
     runtimeOnly("com.h2database:h2")             // 개발용 인메모리 DB
     // 운영용 PostgreSQL은 Phase 3-5에서 추가
 }
+
+// kotlin("plugin.jpa")가 함께 넣어 주는 블록 (Initializr 기본 출력)
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
+}
 ```
+
+> [!NOTE]
+> 이 스타터가 가져오는 구현체는 **Hibernate ORM 7.4.1**(Spring Boot 4.1.0 관리 버전)이고, 커넥션 풀은 HikariCP 7.0입니다. Spring Data JPA는 Spring Data 2026.0.0 릴리스 트레인에 속합니다.
 
 > [!WARNING]
 > `kotlin("plugin.jpa")` 플러그인을 빼먹으면 `@Entity` 클래스가 동작하지 않습니다. JPA 명세는 Entity에 **인자 없는 기본 생성자(no-arg constructor)** 를 요구하는데, Kotlin은 기본 생성자를 자동으로 만들지 않기 때문입니다. 이 플러그인이 컴파일 시점에 no-arg 생성자를 합성해 줍니다. 자세한 내용은 다음 문서에서 다룹니다.

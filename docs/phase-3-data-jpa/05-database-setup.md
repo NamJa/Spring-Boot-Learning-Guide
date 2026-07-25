@@ -4,7 +4,10 @@ Entity, Repository, 트랜잭션까지 준비했으니 마지막으로 **실제 
 
 ## 1. H2 개발 환경 설정
 
-H2는 자바로 작성된 경량 DB로, **인메모리 모드**로 띄우면 별도 설치 없이 즉시 사용할 수 있어 개발·테스트에 이상적입니다. 의존성은 [Phase 3-1](01-jpa-concepts.md)에서 이미 `runtimeOnly("com.h2database:h2")`로 추가했습니다.
+H2는 자바로 작성된 경량 DB로, **인메모리 모드**로 띄우면 별도 설치 없이 즉시 사용할 수 있어 개발·테스트에 이상적입니다. 의존성은 [Phase 3-1](01-jpa-concepts.md)에서 이미 `runtimeOnly("com.h2database:h2")`(드라이버)와 `implementation("org.springframework.boot:spring-boot-h2console")`(웹 콘솔)로 추가했습니다.
+
+> [!WARNING]
+> Spring Boot 3까지는 `h2` 의존성만 있으면 `spring.h2.console.enabled=true`로 콘솔이 켜졌습니다. **Spring Boot 4에서는 콘솔 지원이 `spring-boot-h2console` 모듈로 분리**되었으므로, 이 의존성이 없으면 아래 `spring.h2.console` 설정이 아무 일도 하지 않습니다. Initializr에서 H2를 고르면 자동으로 함께 추가됩니다.
 
 `src/main/resources/application.yml`에 기본(개발) 설정을 작성합니다.
 
@@ -30,7 +33,7 @@ spring:
 ```
 
 > [!NOTE]
-> **Dialect(방언)는 직접 지정하지 않아도 됩니다.** Hibernate 6+는 datasource URL을 보고 H2/PostgreSQL 등에 맞는 `Dialect`를 **자동 감지**합니다. 옛날 예제처럼 `spring.jpa.database-platform`을 손으로 적던 시절은 지났습니다.
+> **Dialect(방언)는 직접 지정하지 않아도 됩니다.** Hibernate 6 이후(본 가이드는 **7.4**)는 datasource URL을 보고 H2/PostgreSQL 등에 맞는 `Dialect`를 **자동 감지**합니다. 옛날 예제처럼 `spring.jpa.database-platform`을 손으로 적던 시절은 지났습니다.
 
 앱을 실행한 뒤 브라우저에서 `http://localhost:8080/h2-console`에 접속하면 데이터를 직접 조회할 수 있습니다. 접속 시 **JDBC URL**을 위 `url`과 똑같이(`jdbc:h2:mem:bookdb`) 입력해야 같은 인메모리 DB에 붙습니다.
 
@@ -45,9 +48,12 @@ spring:
 // build.gradle.kts
 dependencies {
     runtimeOnly("com.h2database:h2")          // 개발/테스트용
-    runtimeOnly("org.postgresql:postgresql")  // 운영용 PostgreSQL 드라이버
+    runtimeOnly("org.postgresql:postgresql")  // 운영용 PostgreSQL 드라이버 (BOM 관리 버전 42.7.11)
 }
 ```
+
+> [!NOTE]
+> 2026-07-25 기준 PostgreSQL 서버의 최신 메이저는 **18**입니다(도커 태그 `postgres:18`). 드라이버 버전(42.7.x)은 서버 메이저 버전과 별개로 관리되며, Spring Boot BOM이 관리하는 버전을 그대로 쓰면 됩니다.
 
 이제 `prod` 프로필용 설정 파일 `src/main/resources/application-prod.yml`을 만듭니다. 민감 정보(접속 URL·비밀번호)는 파일에 박지 않고 **환경 변수**로 주입합니다.
 
@@ -105,7 +111,7 @@ java -jar bookapi.jar --spring.profiles.active=prod
 
 `ddl-auto`로 스키마를 자동 생성하는 방식은 편하지만 운영에는 부적합합니다. "지난주에 어떤 컬럼을 추가했는지", "이 변경을 롤백하려면 어떻게 하는지" 같은 **이력과 통제**가 없기 때문입니다. 운영에서는 **스키마 마이그레이션 도구**로 변경을 버전 관리합니다.
 
-- **Flyway**: SQL 파일(`V1__init.sql`, `V2__add_column.sql` …)을 버전 순서대로 적용. 단순하고 직관적이라 입문에 적합.
+- **Flyway**: SQL 파일(`V1__init.sql`, `V2__add_column.sql` …)을 버전 순서대로 적용. 단순하고 직관적이라 입문에 적합. (Spring Boot 4.1 관리 버전은 Flyway 12.4)
 - **Liquibase**: XML/YAML/JSON/SQL로 변경을 기술. DB 독립적 추상화가 강력하고 롤백 기능이 풍부.
 
 Flyway를 쓰려면 의존성을 추가하고(`org.flywaydb:flyway-core` 등), `src/main/resources/db/migration/`에 버전 스크립트를 두면 됩니다. 그러면 `ddl-auto`는 `validate`로 두고, 스키마는 전적으로 마이그레이션 스크립트가 책임집니다.

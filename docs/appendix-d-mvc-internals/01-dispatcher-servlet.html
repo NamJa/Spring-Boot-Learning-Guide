@@ -88,7 +88,7 @@
 <p>Phase 2에서 우리는 <code>@RestController</code>에 <code>@GetMapping("/api/books")</code>를 붙이고, 메서드가 <code>List&lt;BookResponse&gt;</code>를 반환하면 그것이 JSON으로 바뀌어 클라이언트에게 도착하는 것을 봤습니다. 하지만 <strong>그 사이에 무슨 일이 벌어졌는지</strong>는 묻지 않았습니다. HTTP 요청 바이트가 어떻게 Kotlin 객체가 되고, 반환된 객체가 어떻게 다시 JSON 바이트가 될까요?</p>
 <p>이 문서는 그 블랙박스를 엽니다. 핵심에는 <strong>DispatcherServlet</strong> 이라는 단 하나의 서블릿이 있습니다.</p>
 <h2>1. 서블릿과 서블릿 컨테이너</h2>
-<p>웹 애플리케이션이 HTTP 요청을 받으려면 누군가 80/8080 포트를 열고, TCP 연결을 받고, HTTP 메시지를 파싱해야 합니다. Java 진영에서 이 저수준 작업을 표준화한 것이 <strong>서블릿(Servlet) 스펙</strong> 이고, 그 구현체가 <strong>서블릿 컨테이너</strong> 입니다. Spring Boot가 내장으로 들고 다니는 <strong>Tomcat 11.0.x</strong> 가 바로 그 서블릿 컨테이너이며, <strong>Servlet 6.1 스펙</strong>을 구현합니다.</p>
+<p>웹 애플리케이션이 HTTP 요청을 받으려면 누군가 80/8080 포트를 열고, TCP 연결을 받고, HTTP 메시지를 파싱해야 합니다. Java 진영에서 이 저수준 작업을 표준화한 것이 <strong>서블릿(Servlet) 스펙</strong> 이고, 그 구현체가 <strong>서블릿 컨테이너</strong> 입니다. Spring Boot가 내장으로 들고 다니는 <strong>Tomcat 11.0.22</strong> 가 바로 그 서블릿 컨테이너이며, <strong>Servlet 6.1 스펙</strong>을 구현합니다.</p>
 <ul>
 <li><strong>서블릿(Servlet)</strong>: HTTP 요청 하나를 처리하는 Java 객체. <code>service(request, response)</code> 메서드가 핵심이며, 컨테이너가 요청마다 이를 호출합니다.</li>
 <li><strong>서블릿 컨테이너(Tomcat)</strong>: 소켓 연결, 스레드 풀, HTTP 파싱, 서블릿 생명주기를 책임집니다. 요청이 오면 <code>HttpServletRequest</code>/<code>HttpServletResponse</code> 객체를 만들어 서블릿에 넘깁니다.</li>

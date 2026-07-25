@@ -77,8 +77,10 @@ readinessProbe:
 ```kotlin
 package com.example.bookapi.health
 
-import org.springframework.boot.actuate.health.Health
-import org.springframework.boot.actuate.health.HealthIndicator
+// ⚠️ Spring Boot 4에서 헬스 API 패키지가 옮겨졌다
+// (Boot 3: org.springframework.boot.actuate.health.*)
+import org.springframework.boot.health.contributor.Health
+import org.springframework.boot.health.contributor.HealthIndicator
 import org.springframework.stereotype.Component
 
 @Component
@@ -100,9 +102,12 @@ class MetadataApiHealthIndicator(
 
 빈 이름(`metadataApi`)이 헬스 응답의 컴포넌트 키가 됩니다.
 
+> [!WARNING]
+> Spring Boot 4는 헬스 관련 코드를 **`spring-boot-health` 모듈**로 분리했습니다. 그래서 `Health`·`HealthIndicator`·`HealthContributor`의 패키지가 `org.springframework.boot.actuate.health` → **`org.springframework.boot.health.contributor`** 로 바뀌었습니다. Boot 3 예제를 복사하면 임포트를 찾을 수 없다는 컴파일 에러가 납니다. (`DiskSpaceHealthIndicator` 등 기본 구현체는 `org.springframework.boot.health.application` 패키지입니다.)
+
 ## 4. Micrometer — 메트릭의 표준 추상화
 
-Actuator의 메트릭은 **Micrometer**가 수집합니다. Micrometer는 "메트릭계의 SLF4J"로, 코드는 Micrometer API로 작성하고 **백엔드(Prometheus, OTLP 등)는 의존성만 바꿔 끼웁니다.**
+Actuator의 메트릭은 **Micrometer**(본 가이드 기준 1.17.0)가 수집합니다. Micrometer는 "메트릭계의 SLF4J"로, 코드는 Micrometer API로 작성하고 **백엔드(Prometheus, OTLP 등)는 의존성만 바꿔 끼웁니다.**
 
 JVM 메모리, GC, HTTP 요청 지연(`http.server.requests`), DataSource 커넥션 등 수많은 메트릭이 **자동으로** 수집됩니다.
 
@@ -168,7 +173,7 @@ management:
 
 ## 6. 관측성 — OpenTelemetry와 분산 추적
 
-메트릭(무엇이 얼마나)만으로는 부족합니다. "이 느린 요청이 **어디서** 시간을 썼나"를 알려면 **분산 추적(distributed tracing)** 이 필요합니다. Spring Boot 4는 **Micrometer Tracing** + **OpenTelemetry**로 이를 표준 지원합니다.
+메트릭(무엇이 얼마나)만으로는 부족합니다. "이 느린 요청이 **어디서** 시간을 썼나"를 알려면 **분산 추적(distributed tracing)** 이 필요합니다. Spring Boot 4는 **Micrometer Tracing**(1.7.0) + **OpenTelemetry**로 이를 표준 지원하며, 4.1에서 OpenTelemetry 지원이 한 차례 더 갱신됐습니다.
 
 ```kotlin
 // build.gradle.kts

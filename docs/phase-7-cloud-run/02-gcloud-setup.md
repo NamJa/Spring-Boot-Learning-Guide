@@ -7,14 +7,14 @@ Cloud Run에 배포하려면 GCP를 명령줄에서 조작하는 도구인 **`gc
 macOS에서는 **Homebrew**로 설치하는 것이 가장 깔끔합니다.
 
 ```bash
-# Google Cloud SDK 설치
-brew install --cask google-cloud-sdk
+# Google Cloud CLI 설치 (구 cask 이름 google-cloud-sdk 도 별칭으로 동작)
+brew install --cask gcloud-cli
 
 # 설치 확인
 gcloud --version
 ```
 
-`gcloud --version`을 실행했을 때 `Google Cloud SDK 5xx.x.x` 같은 버전 정보가 나오면 성공입니다.
+`gcloud --version`을 실행했을 때 `Google Cloud SDK 5xx.x.x` 같은 버전 정보가 나오면 성공입니다. (2026-07-25 기준 최신은 **577.0.0**이며, `gcloud components update`로 갱신합니다.)
 
 > **Linux/Windows 사용자**: Homebrew가 없다면 공식 설치 스크립트를 사용하세요. 이 가이드는 macOS + zsh 기준으로 설명합니다.
 

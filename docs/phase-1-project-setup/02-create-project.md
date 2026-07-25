@@ -10,9 +10,9 @@ https://start.spring.io/ 에 접속해 다음과 같이 설정합니다.
 | --- | --- | --- |
 | **Project** | Gradle - Kotlin | Kotlin DSL 빌드 스크립트(`build.gradle.kts`) |
 | **Language** | Kotlin | |
-| **Spring Boot** | 4.1.0 | 2026-06-10 GA |
+| **Spring Boot** | 4.1.0 | 2026-06-10 GA (2026-07-25 기준 최신) |
 | **Packaging** | Jar | 내장 Tomcat 포함 실행 가능 Jar |
-| **Java** | 21 | JDK 21 LTS |
+| **Java** | 21 | JDK 21 LTS. Initializr 기본값은 17이므로 **직접 21을 고르세요** |
 | **Group** | `com.example` | |
 | **Artifact** | `book-api` | |
 | **Name** | `book-api` | |
@@ -24,13 +24,15 @@ https://start.spring.io/ 에 접속해 다음과 같이 설정합니다.
 
 오른쪽 **ADD DEPENDENCIES** 버튼으로 다음을 추가합니다.
 
-| 의존성 | 스타터 아티팩트 | 역할 |
+| 의존성 | 생성되는 아티팩트 | 역할 |
 | --- | --- | --- |
-| **Spring Web** | `spring-boot-starter-web` | REST API, 내장 Tomcat, Jackson |
-| **Spring Data JPA** | `spring-boot-starter-data-jpa` | JPA/Hibernate ORM |
+| **Spring Web** | `spring-boot-starter-webmvc` | REST API, 내장 Tomcat, Jackson 3 |
+| **Spring Data JPA** | `spring-boot-starter-data-jpa` | JPA/Hibernate ORM (+ `kotlin("plugin.jpa")` 플러그인) |
 | **Validation** | `spring-boot-starter-validation` | Bean Validation(`@Valid` 등) |
-| **H2 Database** | `h2` | 인메모리 DB (학습용) |
+| **H2 Database** | `h2` + `spring-boot-h2console` | 인메모리 DB와 웹 콘솔 (학습용) |
 | **Spring Boot Actuator** | `spring-boot-starter-actuator` | 헬스 체크, 메트릭 등 운영 엔드포인트 |
+
+> ⚠️ Initializr 화면의 이름(**Spring Web**)은 그대로지만, Spring Boot 4에서 실제로 생성되는 의존성은 **`spring-boot-starter-webmvc`** 입니다. 화면 이름과 아티팩트 이름이 다르므로 검색할 때 혼동하지 마세요. 테스트 의존성도 기술별 `spring-boot-starter-<기술>-test`로 함께 생성됩니다.
 
 > 💡 **Spring Security**는 인증/인가를 다루는 뒤쪽 단계에서 추가합니다. 지금 넣으면 모든 엔드포인트에 기본 인증이 걸려 학습 흐름이 복잡해지므로 일단 제외합니다.
 
@@ -80,7 +82,7 @@ IntelliJ IDEA에도 Initializr가 내장되어 있어, 브라우저를 거치지
 4. **Next** → 위 표의 의존성(Web, Spring Data JPA, Validation, H2, Actuator) 선택
 5. **Create**
 
-> ⚠️ 내장 마법사는 내부적으로 start.spring.io API를 호출하므로 인터넷 연결이 필요합니다. 또한 IntelliJ가 제안하는 기본 Spring Boot 버전이 4.1.0이 아닐 수 있으니, 목록에서 **4.1.0**을 직접 선택하세요.
+> ⚠️ 내장 마법사는 내부적으로 start.spring.io API를 호출하므로 인터넷 연결이 필요합니다. 또한 IntelliJ가 제안하는 기본 Spring Boot 버전이 4.1.0이 아닐 수 있고, Initializr의 Java 기본값은 **17**이므로, 목록에서 **4.1.0**과 **21**을 직접 선택하세요.
 
 ## 5. 생성된 파일 트리
 
@@ -114,7 +116,7 @@ book-api/
 
 ## 6. 첫 실행 확인
 
-프로젝트 루트에서 다음을 실행하면 내장 Tomcat(11.0.x, Servlet 6.1)에서 애플리케이션이 뜹니다.
+프로젝트 루트에서 다음을 실행하면 내장 Tomcat(11.0.22, Servlet 6.1)에서 애플리케이션이 뜹니다.
 
 ```bash
 ./gradlew bootRun

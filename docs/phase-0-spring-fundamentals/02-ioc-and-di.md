@@ -171,7 +171,7 @@ class BookController(private val service: BookService) { /* ... */ }
 
 ### 4.2 `@Configuration` + `@Bean` (자바/코틀린 설정)
 
-내가 직접 만들 수 없는 **외부 라이브러리 객체**(예: `ObjectMapper`, `RestClient`)를 Bean으로 등록할 때 사용합니다.
+내가 직접 만들 수 없는 **외부 라이브러리 객체**(예: `JsonMapper`, `RestClient`)를 Bean으로 등록할 때 사용합니다.
 
 ```kotlin
 @Configuration

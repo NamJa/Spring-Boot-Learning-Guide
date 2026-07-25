@@ -6,7 +6,7 @@ Phase 2에서 우리는 `@RestController`에 `@GetMapping("/api/books")`를 붙�
 
 ## 1. 서블릿과 서블릿 컨테이너
 
-웹 애플리케이션이 HTTP 요청을 받으려면 누군가 80/8080 포트를 열고, TCP 연결을 받고, HTTP 메시지를 파싱해야 합니다. Java 진영에서 이 저수준 작업을 표준화한 것이 **서블릿(Servlet) 스펙** 이고, 그 구현체가 **서블릿 컨테이너** 입니다. Spring Boot가 내장으로 들고 다니는 **Tomcat 11.0.x** 가 바로 그 서블릿 컨테이너이며, **Servlet 6.1 스펙**을 구현합니다.
+웹 애플리케이션이 HTTP 요청을 받으려면 누군가 80/8080 포트를 열고, TCP 연결을 받고, HTTP 메시지를 파싱해야 합니다. Java 진영에서 이 저수준 작업을 표준화한 것이 **서블릿(Servlet) 스펙** 이고, 그 구현체가 **서블릿 컨테이너** 입니다. Spring Boot가 내장으로 들고 다니는 **Tomcat 11.0.22** 가 바로 그 서블릿 컨테이너이며, **Servlet 6.1 스펙**을 구현합니다.
 
 - **서블릿(Servlet)**: HTTP 요청 하나를 처리하는 Java 객체. `service(request, response)` 메서드가 핵심이며, 컨테이너가 요청마다 이를 호출합니다.
 - **서블릿 컨테이너(Tomcat)**: 소켓 연결, 스레드 풀, HTTP 파싱, 서블릿 생명주기를 책임집니다. 요청이 오면 `HttpServletRequest`/`HttpServletResponse` 객체를 만들어 서블릿에 넘깁니다.

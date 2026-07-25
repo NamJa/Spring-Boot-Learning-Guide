@@ -116,7 +116,7 @@ select b.*, c.* from book b inner join category c on b.category_id = c.id;
 ```
 
 > [!WARNING]
-> 페치 조인에는 함정이 있습니다. **`@OneToMany`(컬렉션) 페치 조인은 결과 행이 뻥튀기**됩니다(책 1권 × 리뷰 3개 = 3행). 중복 제거가 필요하고, 무엇보다 **컬렉션 페치 조인과 페이징을 함께 쓰면** Hibernate가 모든 데이터를 메모리에 올려 페이징하는 위험한 경고(`HHH000104`)를 냅니다. 컬렉션은 페치 조인 대신 아래 `@BatchSize`/`default_batch_fetch_size`로 푸는 것이 안전합니다.
+> 페치 조인에는 함정이 있습니다. **`@OneToMany`(컬렉션) 페치 조인은 결과 행이 뻥튀기**됩니다(책 1권 × 리뷰 3개 = 3행). 중복 제거가 필요하고, 무엇보다 **컬렉션 페치 조인과 페이징을 함께 쓰면** Hibernate가 모든 데이터를 메모리에 올려 페이징하며 `firstResult/maxResults specified with collection fetch; applying in memory` 경고를 냅니다(로그 코드는 버전마다 다릅니다 — Hibernate 7.4에서는 `HHH90003004`). 컬렉션은 페치 조인 대신 아래 `@BatchSize`/`default_batch_fetch_size`로 푸는 것이 안전합니다.
 
 ### 4-2. @EntityGraph — 어노테이션으로 페치 조인
 

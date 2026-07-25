@@ -73,11 +73,14 @@ spring:
         format_sql: true      # SQL을 보기 좋게 정렬
     open-in-view: false       # OSIV 비활성화 (권장)
 
-  # --- Jackson(JSON) ---
+  # --- Jackson(JSON) — Boot 4는 Jackson 3 ---
   jackson:
     serialization:
       indent-output: true     # 응답 JSON 들여쓰기 (개발 가독성)
     default-property-inclusion: non_null   # null 필드는 응답에서 제외
+    datatype:
+      datetime:
+        write-dates-as-timestamps: false   # 날짜를 ISO 문자열로 (Jackson 3 기본값)
 
 # --- 로깅 레벨 ---
 logging:
@@ -95,7 +98,7 @@ logging:
 | `spring.application.name` | 앱 이름(로그/액추에이터/추적에 사용) |
 | `spring.datasource.*` | DB 연결 정보. 여기선 H2 인메모리 |
 | `DB_CLOSE_DELAY=-1` | 마지막 연결이 끊겨도 인메모리 DB를 유지 |
-| `spring.h2.console` | 브라우저로 DB를 들여다보는 콘솔 (`/h2-console`) |
+| `spring.h2.console` | 브라우저로 DB를 들여다보는 콘솔 (`/h2-console`). **Boot 4에서는 `spring-boot-h2console` 의존성이 있어야 동작** |
 | `spring.jpa.hibernate.ddl-auto` | 스키마 자동 관리 전략 |
 | `spring.jpa.show-sql` | 실행 SQL 콘솔 출력 |
 | `spring.jpa.open-in-view` | OSIV. `false`가 성능/예측성 측면에서 권장 |

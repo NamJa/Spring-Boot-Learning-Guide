@@ -128,10 +128,10 @@ curl<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;htt
 sdk<span class="w"> </span>list<span class="w"> </span>java<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">&#39;21\.&#39;</span>
 
 <span class="c1"># 3. Temurin(Eclipse Adoptium) 21 설치 — 식별자는 목록에서 확인 후 사용</span>
-sdk<span class="w"> </span>install<span class="w"> </span>java<span class="w"> </span><span class="m">21</span>.0.7-tem
+sdk<span class="w"> </span>install<span class="w"> </span>java<span class="w"> </span><span class="m">21</span>.0.11-tem
 
 <span class="c1"># 4. 기본 JDK로 지정</span>
-sdk<span class="w"> </span>default<span class="w"> </span>java<span class="w"> </span><span class="m">21</span>.0.7-tem
+sdk<span class="w"> </span>default<span class="w"> </span>java<span class="w"> </span><span class="m">21</span>.0.11-tem
 </pre></div>
 </div>
 <h3>설치 확인</h3>
@@ -139,10 +139,11 @@ sdk<span class="w"> </span>default<span class="w"> </span>java<span class="w"> <
 </pre></div>
 </div>
 <p>다음과 비슷한 출력이 나오면 성공입니다.</p>
-<div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>openjdk version &quot;21.0.7&quot; 2025-04-15 LTS
-OpenJDK Runtime Environment Temurin-21.0.7+6 (build 21.0.7+6-LTS)
-OpenJDK 64-Bit Server VM Temurin-21.0.7+6 (build 21.0.7+6-LTS, mixed mode, sharing)</code></pre></div>
+<div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>openjdk version &quot;21.0.11&quot; 2026-04-21 LTS
+OpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)</code></pre></div>
 <blockquote>
+<p>💡 패치 번호는 분기별 보안 업데이트(CPU)마다 올라갑니다. 2026-07-25 기준 Temurin 21의 최신 태그는 <strong>21.0.12+8</strong>(2026-07 CPU)이지만, macOS(Apple Silicon) 바이너리와 SDKMAN 인덱스에는 아직 반영되지 않아 실제로 설치되는 것은 <strong>21.0.11-tem</strong>(2026-04 CPU)입니다. 항상 <code>sdk list java | grep '21\.'</code>로 그 시점에 설치 가능한 최신 식별자를 확인해 쓰면 됩니다.</p>
 <p>⚠️ Windows에서는 SDKMAN! 대신 <a href="https://adoptium.net/">Adoptium</a>에서 MSI 인스톨러를 받거나, WSL2에서 위 명령을 그대로 사용하면 됩니다.</p>
 </blockquote>
 <h2>2. IntelliJ IDEA 설치</h2>
@@ -167,7 +168,7 @@ OpenJDK 64-Bit Server VM Temurin-21.0.7+6 (build 21.0.7+6-LTS, mixed mode, shari
 </pre></div>
 </div>
 <blockquote>
-<p>💡 이 가이드는 <strong>Gradle 8.14+ / 9.x</strong> 를 기준으로 합니다. Initializr가 생성하는 래퍼 버전을 그대로 사용하면 됩니다. Maven(3.6.3+)도 가능하지만 이 가이드는 Gradle - Kotlin DSL을 사용합니다.</p>
+<p>💡 이 가이드는 <strong>Gradle 9.x</strong> 를 기준으로 합니다(2026-07-25 기준 Initializr가 넣어 주는 래퍼는 <strong>9.5.1</strong>, Gradle 최신 릴리스는 <strong>9.6.1</strong>). 래퍼 버전을 그대로 사용하면 되고, 8.14+에서도 동작합니다. Maven(3.6.3+)도 가능하지만 이 가이드는 Gradle - Kotlin DSL을 사용합니다.</p>
 </blockquote>
 <h2>4. 보조 도구 (선택)</h2>
 <p>당장은 필요 없지만 이후 단계에서 유용한 도구들입니다.</p>
@@ -198,7 +199,7 @@ http<span class="w"> </span>GET<span class="w"> </span>:8080/api/books
 <tr>
 <td>JDK 21</td>
 <td><code>java -version</code></td>
-<td><code>21.x</code> LTS</td>
+<td><code>21.x</code> LTS (설치본 21.0.11, 최신 태그 21.0.12)</td>
 </tr>
 <tr>
 <td>IntelliJ IDEA</td>
@@ -208,7 +209,7 @@ http<span class="w"> </span>GET<span class="w"> </span>:8080/api/books
 <tr>
 <td>Gradle Wrapper</td>
 <td><code>./gradlew --version</code></td>
-<td>8.14+ / 9.x (프로젝트 생성 후)</td>
+<td>9.x (Initializr 기본 9.5.1)</td>
 </tr>
 <tr>
 <td>curl/HTTPie</td>

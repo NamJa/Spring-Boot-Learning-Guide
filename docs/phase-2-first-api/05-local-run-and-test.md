@@ -16,7 +16,7 @@
 
 ```
 ... INFO ... Tomcat started on port 8080 (http) with context path '/'
-... INFO ... Started BookApiApplication in 1.234 seconds (process running for 1.567)
+... INFO ... Started BookApiApplicationKt in 1.234 seconds (process running for 1.567)
 ```
 
 - 포트는 기본 **8080**입니다. 바꾸려면 `application.yml`에 `server.port: 9090` 등을 지정합니다.
@@ -175,7 +175,7 @@ curl -i -X POST http://localhost:8080/api/books \
 HTTP/1.1 400 Bad Request
 ```
 
-`jackson-module-kotlin`이 non-null 프로퍼티에 `null`이 들어온 것을 감지해 거부합니다.
+`jackson-module-kotlin`(Jackson 3용, `tools.jackson.module`)이 non-null 프로퍼티에 `null`이 들어온 것을 감지해 거부합니다.
 
 ### 415 Unsupported Media Type — Content-Type 누락
 
@@ -216,8 +216,8 @@ dependencies {
 | `Web server failed to start` | 포트 충돌 또는 빈 생성 실패 | 위 포트 확인, 그리고 아래 행들 점검 |
 | 404가 계속 발생 | 컨트롤러가 컴포넌트 스캔 밖에 위치 | 클래스를 `com.example.bookapi` 하위 패키지로 이동 |
 | `No qualifying bean of type 'BookService'` | `@Service` 누락 또는 패키지 위치 오류 | `BookService`에 `@Service`가 있는지, 패키지가 진입점 하위인지 확인 |
-| `LocalDate` 직렬화 오류 | JSR-310 모듈 누락 | `spring-boot-starter-web` 의존성 확인(보통 자동 포함) |
-| `Cannot construct instance of CreateBookRequest` | `jackson-module-kotlin` 누락 | 의존성에 `jackson-module-kotlin` 추가 |
+| `LocalDate` 직렬화 오류 | JSR-310 모듈 누락 | `spring-boot-starter-webmvc` 의존성 확인(보통 자동 포함) |
+| `Cannot construct instance of CreateBookRequest` | Kotlin 모듈 누락 또는 **Jackson 2용 좌표 사용** | 의존성에 `tools.jackson.module:jackson-module-kotlin` 추가 (Boot 4는 Jackson 3) |
 | `Whitelabel Error Page` 표시 | 매핑되지 않은 경로 접근 | URL 경로/메서드 확인 (`/api/books` 오타 등) |
 
 8080 포트를 점유한 프로세스를 찾고 종료하는 예시(macOS/Linux):

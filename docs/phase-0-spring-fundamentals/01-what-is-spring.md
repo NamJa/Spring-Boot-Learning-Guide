@@ -45,8 +45,8 @@ Spring Framework는 강력하지만, 옛날에는 설정이 **악명 높게 번�
 | 기능 | 설명 |
 | --- | --- |
 | **자동 설정 (Auto-configuration)** | 클래스패스에 무엇이 있는지 보고 합리적인 기본 Bean들을 자동 등록. JPA가 있으면 DataSource·EntityManager를 알아서 구성 |
-| **스타터 (Starters)** | `spring-boot-starter-web` 한 줄로 웹 개발에 필요한 의존성 묶음을 한꺼번에 가져옴 |
-| **내장 서버 (Embedded server)** | Tomcat/Jetty/Netty를 jar 안에 내장. 별도 WAS 설치·배포 없이 `java -jar`로 실행 |
+| **스타터 (Starters)** | `spring-boot-starter-webmvc` 한 줄로 웹 개발에 필요한 의존성 묶음을 한꺼번에 가져옴 |
+| **내장 서버 (Embedded server)** | Tomcat/Jetty/Netty를 jar 안에 내장. 별도 WAS 설치·배포 없이 `java -jar`로 실행 (기본 Tomcat 11.0.22) |
 | **No XML** | 모든 설정을 어노테이션과 `application.yml`로. XML 설정 파일 불필요 |
 | **Production-ready** | Actuator로 헬스 체크, 메트릭, 모니터링 엔드포인트를 즉시 제공 |
 | **의견이 반영된(opinionated) 기본값** | 검증된 버전 조합, 합리적 기본 설정을 BOM(Bill of Materials)으로 제공 |
@@ -71,11 +71,20 @@ Spring Framework는 강력하지만, 옛날에는 설정이 **악명 높게 번�
 
 본 가이드 시점의 Spring Boot 4.1 / Spring Framework 7에서 주목할 변화들입니다. 지금은 "이런 게 있구나" 정도만 알아 두고, 해당 Phase에서 자세히 다룹니다.
 
+- **Jackson 3가 기본** — JSON 처리 엔진이 `com.fasterxml.jackson`에서 **`tools.jackson`** 으로 옮겨졌고, 가변 `ObjectMapper` 대신 불변 **`JsonMapper`** 를 씁니다. ([Phase 2-2](../phase-2-first-api/02-dto-and-serialization.md))
 - **JSpecify 기반 널 안전성 어노테이션** — Kotlin의 nullable 타입과 더 잘 맞물리도록 표준화된 `@Nullable`/`@NonNull` 메타데이터를 도입.
-- **선언적 HTTP 클라이언트** — 인터페이스에 `@HttpExchange`만 붙이고 `RestClient` 위에 `@ImportHttpServices`로 등록하면 구현 없이 HTTP 호출 가능 (Feign과 유사).
-- **새 스타터** — `spring-boot-starter-restclient`, `spring-boot-starter-webclient`로 HTTP 클라이언트 의존성을 명확히 분리.
+- **선언적 HTTP 클라이언트** — 인터페이스에 `@HttpExchange`만 붙이고 `@ImportHttpServices`로 등록하면 구현 없이 HTTP 호출 가능 (Feign과 유사). ([Phase 5-1](../phase-5-production-features/01-http-interface-client.md))
+- **모듈화된 스타터** — `spring-boot-starter-web` → **`spring-boot-starter-webmvc`**, `spring-boot-starter-aop` → **`spring-boot-starter-aspectj`** 처럼 이름이 기술 단위로 정리되고, `spring-boot-starter-restclient`·`spring-boot-starter-webclient`로 HTTP 클라이언트 의존성이 분리됐습니다. 테스트도 `spring-boot-starter-<기술>-test`로 쪼개졌습니다.
 - **회복탄력성(resilience)** — `@Retryable`(재시도), `@ConcurrencyLimit`(동시성 제한)을 코어에 내장.
 - **API 버저닝** — `/api/v1` 같은 버전 라우팅을 프레임워크 차원에서 지원.
+
+4.0에서 4.1로 올라오며 추가된 것들도 짚어 둡니다.
+
+- **gRPC 지원** — gRPC 서버/클라이언트 자동 구성, `@GrpcAdvice`(공통 예외 처리), 관측(Observation) 인터셉터 제공.
+- **SSRF 완화** — HTTP 클라이언트에 `InetAddressFilter`를 걸어 특정 주소로의 외부 호출을 차단할 수 있습니다.
+- **`@Async` 컨텍스트 전파** — 별도 스레드로 넘어가는 메서드에도 컨텍스트가 자동 전파됩니다([부록 C-3](../appendix-c-aop/03-pitfalls-and-internals.md)의 ThreadLocal 함정이 완화됩니다).
+- **지연 DataSource 커넥션** — 실제 쿼리 시점까지 커넥션 획득을 미룹니다.
+- **Log4j 로그 파일 로테이션** — 크기·시간·크기+시간·cron 네 가지 전략 지원.
 
 ## 3. Spring 생태계 지도
 
@@ -86,7 +95,7 @@ Spring Framework는 강력하지만, 옛날에는 설정이 **악명 높게 번�
 | **Spring Framework** | IoC/AOP/MVC 등 핵심. 모든 것의 기반 |
 | **Spring Boot** | 자동 설정·스타터로 빠른 부트스트랩 |
 | **Spring Data** | JPA/JDBC/MongoDB/Redis 등 데이터 접근 추상화. Repository 인터페이스만 선언하면 구현 생성 |
-| **Spring Security** | 인증·인가, OAuth2, JWT 등 보안 (본 가이드 기준 7.0) |
+| **Spring Security** | 인증·인가, OAuth2, JWT 등 보안 (본 가이드 기준 7.1.0) |
 | **Spring Web (MVC)** | 서블릿 기반 동기 웹 스택 |
 | **Spring WebFlux** | Reactor 기반 리액티브(비동기) 웹 스택 |
 | **Spring Cloud** | 마이크로서비스(설정 서버, 서비스 디스커버리, 게이트웨이) |

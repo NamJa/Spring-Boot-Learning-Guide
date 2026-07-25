@@ -7,9 +7,13 @@
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-aop")
+    // Spring Boot 4: spring-boot-starter-aop → spring-boot-starter-aspectj 로 이름이 바뀌었다
+    implementation("org.springframework.boot:spring-boot-starter-aspectj")
 }
 ```
+
+> [!WARNING]
+> Spring Boot 4.1에는 **`spring-boot-starter-aop`가 더 이상 배포되지 않습니다.** AOP 스타터의 새 이름은 **`spring-boot-starter-aspectj`** 입니다. Boot 3 예제를 그대로 쓰면 의존성 해석 단계에서 실패합니다.
 
 이 스타터는 AspectJ의 **애너테이션(`@Aspect`, `@Around` 등)** 과 위빙(weaving) 도구를 가져옵니다. 다만 Spring AOP는 컴파일/로드 타임 위빙이 아니라, [앞에서 본] **런타임 프록시 기반**으로 동작한다는 점을 기억하세요. (AspectJ는 문법만 빌려 쓰는 것)
 

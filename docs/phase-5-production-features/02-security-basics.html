@@ -87,6 +87,8 @@
 <h1>Spring Security 7 기초</h1>
 <p>지금까지 우리의 Book API는 <strong>누구나</strong> 도서를 조회하고, 등록하고, 삭제할 수 있었습니다. 운영 환경에서는 말이 안 되는 일입니다. 최소한 "조회는 누구나, 변경은 인증된 사용자만" 같은 정책이 필요합니다.</p>
 <p>이 문서에서는 <strong>Spring Security 7</strong> 의 핵심 개념과, Spring Boot 4 / Security 7에서 권장되는 <strong>컴포넌트 스타일 <code>SecurityFilterChain</code></strong> 구성을 Kotlin DSL로 다룹니다. 그리고 운영의 정석인 JWT / OAuth2 Resource Server로 가는 길을 짚어 줍니다.</p>
+<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p>Spring Boot 4.1.0이 관리하는 Spring Security 버전은 <strong>7.1.0</strong>(2026-06 GA)입니다. 7.0 대비 다요소 인가(<code>AllRequiredFactorsAuthorizationManager.anyOf()</code>), CORS 프리플라이트 전용 필터(<code>PreFlightRequestFilter</code>) 지원, <code>InetAddressMatcher</code> 같은 항목이 추가됐지만, 아래에서 다루는 <code>SecurityFilterChain</code> 구성 방식은 7.0과 동일합니다.</p>
+</blockquote>
 <h2>1. 시작: 스타터만 추가하면 벌어지는 일</h2>
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
 <span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>

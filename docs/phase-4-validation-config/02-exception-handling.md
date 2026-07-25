@@ -4,7 +4,7 @@
 
 ```json
 {
-  "timestamp": "2026-06-20T01:30:00.123+00:00",
+  "timestamp": "2026-07-25T01:30:00.123+00:00",
   "status": 500,
   "error": "Internal Server Error",
   "path": "/api/books/999"
@@ -141,7 +141,7 @@ class GlobalExceptionHandler {
 
 ```json
 {
-  "timestamp": "2026-06-20T01:30:00.123+09:00",
+  "timestamp": "2026-07-25T01:30:00.123+09:00",
   "status": 400,
   "error": "Bad Request",
   "message": "입력 검증에 실패했습니다",
@@ -239,7 +239,7 @@ class ProblemDetailExceptionHandler {
   "status": 404,
   "detail": "ID가 999인 도서를 찾을 수 없습니다",
   "instance": "/api/books/999",
-  "timestamp": "2026-06-20T01:30:00.123+09:00"
+  "timestamp": "2026-07-25T01:30:00.123+09:00"
 }
 ```
 

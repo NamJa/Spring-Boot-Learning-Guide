@@ -12,7 +12,7 @@ Phase 3에서 도입한 `prod` 프로파일을 복습합니다. 운영 값은 �
 # application-prod.yml (발췌)
 server:
   port: ${PORT:8080}          # 플랫폼이 PORT를 주면 그걸, 없으면 8080
-  shutdown: graceful          # 그레이스풀 셧다운
+  shutdown: graceful          # Boot 4 기본값(명시해도 무해). 끄려면 immediate
 
 spring:
   datasource:
@@ -84,7 +84,7 @@ gcloud run deploy book-api \
 | **시크릿 외부화** | DB 비밀번호·API 키를 이미지/코드에 넣지 않음 | 시크릿 매니저 → 환경변수 주입 |
 | **헬스 프로브** | 플랫폼이 liveness/readiness로 트래픽 라우팅·재시작 판단 | `management.endpoint.health.probes.enabled=true`, `/actuator/health/{liveness,readiness}` |
 | **구조적 JSON 로깅** | 로그 수집기가 파싱 가능하도록 | `logging.structured.format.console=ecs` (Spring Boot 4 내장 구조적 로깅) |
-| **그레이스풀 셧다운** | 종료 시 진행 중 요청을 마저 처리 | `server.shutdown=graceful`, `spring.lifecycle.timeout-per-shutdown-phase=30s` |
+| **그레이스풀 셧다운** | 종료 시 진행 중 요청을 마저 처리 | **Boot 4는 기본 활성화**. 대기 시간만 `spring.lifecycle.timeout-per-shutdown-phase=30s`로 조정 |
 | **리소스 제한** | OOM·노이지 네이버 방지 | 컨테이너 `--memory`/`--cpu`, JVM `-XX:MaxRAMPercentage` |
 | **관측성/메트릭** | 지표 스크랩으로 모니터링·알람 | `/actuator/prometheus` 노출, 스크랩 설정 |
 | **DB 마이그레이션** | 배포 전 스키마 정합성 | Flyway가 기동 시 또는 배포 전 단계에서 실행, `ddl-auto=validate` |
@@ -114,7 +114,9 @@ readinessProbe:
 
 ### 그레이스풀 셧다운
 
-`server.shutdown=graceful`을 켜면, 종료 신호(SIGTERM)를 받았을 때 새 요청 수신을 멈추고 **진행 중인 요청을 정해진 시간까지 마저 처리**한 뒤 종료합니다. 롤링 업데이트 중 사용자가 끊김을 겪지 않게 해 주는 필수 설정입니다.
+종료 신호(SIGTERM)를 받으면 새 요청 수신을 멈추고 **진행 중인 요청을 정해진 시간까지 마저 처리**한 뒤 종료하는 동작입니다. 롤링 업데이트 중 사용자가 끊김을 겪지 않게 해 줍니다.
+
+**Spring Boot 4에서는 내장 서버 3종(Tomcat·Jetty·Netty) 모두 그레이스풀 셧다운이 기본으로 켜져 있습니다.** 따라서 예전처럼 `server.shutdown=graceful`을 추가할 필요가 없고(넣어도 무해), 오히려 끄고 싶을 때 `server.shutdown=immediate`를 지정합니다. 대기 시간은 `spring.lifecycle.timeout-per-shutdown-phase`(기본 30초)로 조정합니다.
 
 ## 운영 (Operations)
 

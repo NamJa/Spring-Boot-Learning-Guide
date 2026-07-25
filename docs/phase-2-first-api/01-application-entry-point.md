@@ -38,8 +38,8 @@ fun main(args: Array<String>) {
 
 `@EnableAutoConfiguration`은 "클래스패스에 무엇이 있는가"를 보고 적절한 기본 설정을 알아서 적용합니다. 예를 들어,
 
-- `spring-boot-starter-web`이 있으면 → 내장 **Tomcat** 서버, `DispatcherServlet`, Jackson JSON 변환기 등을 자동 구성
-- `jackson-module-kotlin`이 있으면 → Kotlin data class를 위한 JSON 직렬화기를 자동 등록
+- `spring-boot-starter-webmvc`가 있으면 → 내장 **Tomcat** 서버, `DispatcherServlet`, Jackson 3 JSON 변환기 등을 자동 구성
+- `tools.jackson.module:jackson-module-kotlin`이 있으면 → Kotlin data class를 위한 JSON 직렬화기를 자동 등록
 
 이 덕분에 우리는 XML 설정 한 줄 없이 곧바로 웹 서버를 띄울 수 있습니다.
 
@@ -104,22 +104,22 @@ runApplication<BookApiApplication>(*args)
 
  :: Spring Boot ::                (v4.1.0)
 
-... INFO ... Starting BookApiApplication using Java 21 ...
+... INFO ... Starting BookApiApplicationKt using Java 21 ...
 ... INFO ... Tomcat initialized with port 8080 (http)
 ... INFO ... Starting service [Tomcat]
-... INFO ... Starting Servlet engine: [Apache Tomcat/11.0.x]
+... INFO ... Starting Servlet engine: [Apache Tomcat/11.0.22]
 ... INFO ... Initializing Spring embedded WebApplicationContext
 ... INFO ... Tomcat started on port 8080 (http) with context path '/'
-... INFO ... Started BookApiApplication in 1.234 seconds (process running for 1.567)
+... INFO ... Started BookApiApplicationKt in 1.234 seconds (process running for 1.567)
 ```
 
 로그에서 확인할 핵심 정보입니다.
 
 - **Spring Boot 버전**: `v4.1.0`
 - **JDK 버전**: `Java 21`
-- **내장 서버**: `Apache Tomcat/11.0.x` (Servlet 6.1)
+- **내장 서버**: `Apache Tomcat/11.0.22` (Servlet 6.1)
 - **포트**: `8080`
-- **마지막 줄** `Started BookApiApplication in ...`: 정상 기동 완료 신호. 이 줄이 보이면 API를 호출할 준비가 된 것입니다.
+- **마지막 줄** `Started BookApiApplicationKt in ...`: 정상 기동 완료 신호. 이 줄이 보이면 API를 호출할 준비가 된 것입니다. (Kotlin은 최상위 `fun main`이 `BookApiApplicationKt` 클래스로 컴파일되므로 로그에 `...Kt`가 붙습니다.)
 
 ## 6. SpringApplication 커스터마이징 (간단히)
 

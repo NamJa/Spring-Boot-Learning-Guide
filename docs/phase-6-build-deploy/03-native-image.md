@@ -35,7 +35,7 @@ Spring Boot는 자체 **AOT 엔진**을 통해 빈 정의, 프록시, 설정을 
 
 ## 프로젝트 설정
 
-GraalVM Community **25**를 설치하고, `build.gradle.kts`에 **Native Build Tools 1.1.1** 플러그인을 추가합니다.
+GraalVM Community **25**를 설치하고, `build.gradle.kts`에 **Native Build Tools 1.1.1** 플러그인을 추가합니다. 이 버전은 Spring Boot 4.1.0이 BOM에서 관리하는 값(`native-build-tools-plugin.version`)이므로, 특별한 이유가 없다면 그대로 쓰는 것이 가장 안전합니다.
 
 ```kotlin
 // build.gradle.kts
@@ -44,10 +44,13 @@ plugins {
     kotlin("plugin.spring") version "2.3.21"
     id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
-    // GraalVM 네이티브 빌드 도구
+    // GraalVM 네이티브 빌드 도구 (Spring Boot 4.1.0 관리 버전)
     id("org.graalvm.buildtools.native") version "1.1.1"
 }
 ```
+
+> [!NOTE]
+> Native Build Tools 자체는 더 빠르게 릴리스됩니다(2026-07-25 기준 업스트림 최신은 1.1.6). Spring Boot 플러그인이 검증한 버전과 어긋나면 AOT 처리 단계에서 예상치 못한 문제가 생길 수 있으니, 올릴 때는 Spring Boot 릴리스 노트에서 관리 버전을 함께 확인하세요.
 
 Spring Boot 플러그인이 적용되면 AOT 처리(`processAot`)와 네이티브 컴파일 태스크가 자동 구성됩니다. GraalVM JDK가 활성 JDK인지 확인합니다.
 
@@ -102,8 +105,14 @@ class NativeHintsConfig
 // 2) 더 세밀한 제어가 필요하면 RuntimeHintsRegistrar 구현
 class BookRuntimeHints : RuntimeHintsRegistrar {
     override fun registerHints(hints: RuntimeHints, classLoader: ClassLoader?) {
-        // 리플렉션 힌트
-        hints.reflection().registerType(Book::class.java) { it.withMembers(*MemberCategory.values()) }
+        // 리플렉션 힌트 — 필요한 MemberCategory만 골라 지정한다
+        hints.reflection().registerType(Book::class.java) {
+            it.withMembers(
+                MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+                MemberCategory.INVOKE_DECLARED_METHODS,
+                MemberCategory.ACCESS_DECLARED_FIELDS,
+            )
+        }
         // 리소스 힌트 (네이티브 이미지에 포함시킬 리소스)
         hints.resources().registerPattern("db/migration/*.sql")
     }
@@ -114,6 +123,9 @@ class BookRuntimeHints : RuntimeHintsRegistrar {
 @ImportRuntimeHints(BookRuntimeHints::class)
 class HintsConfig
 ```
+
+> [!NOTE]
+> 옛 예제의 `withMembers(*MemberCategory.values())`(모든 카테고리 한 번에)는 Spring Framework 7에서 **`PUBLIC_FIELDS`/`DECLARED_FIELDS`와 `INTROSPECT_*` 상수가 제거 예정(deprecated for removal)** 이라 경고를 뿜고 향후 깨집니다. 필드 접근은 `ACCESS_*` 상수로 대체됐고, introspection 계열은 타입에 리플렉션 힌트를 등록하면 자동 포함되므로 별도 지정이 필요 없습니다. 위처럼 **필요한 카테고리만 명시**하세요.
 
 > [!WARNING]
 > 네이티브에서 `ClassNotFoundException`이나 `Jackson`/리플렉션 관련 오류가 난다면 거의 항상 **힌트 누락**이 원인입니다. 동일한 코드가 JVM jar에서는 잘 돌아가더라도 네이티브에서는 closed-world 분석에 걸리지 않은 타입이 빠질 수 있습니다.

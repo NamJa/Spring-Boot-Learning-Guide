@@ -132,8 +132,8 @@
 <h3>자동 설정이란?</h3>
 <p><code>@EnableAutoConfiguration</code>은 "클래스패스에 무엇이 있는가"를 보고 적절한 기본 설정을 알아서 적용합니다. 예를 들어,</p>
 <ul>
-<li><code>spring-boot-starter-web</code>이 있으면 → 내장 <strong>Tomcat</strong> 서버, <code>DispatcherServlet</code>, Jackson JSON 변환기 등을 자동 구성</li>
-<li><code>jackson-module-kotlin</code>이 있으면 → Kotlin data class를 위한 JSON 직렬화기를 자동 등록</li>
+<li><code>spring-boot-starter-webmvc</code>가 있으면 → 내장 <strong>Tomcat</strong> 서버, <code>DispatcherServlet</code>, Jackson 3 JSON 변환기 등을 자동 구성</li>
+<li><code>tools.jackson.module:jackson-module-kotlin</code>이 있으면 → Kotlin data class를 위한 JSON 직렬화기를 자동 등록</li>
 </ul>
 <p>이 덕분에 우리는 XML 설정 한 줄 없이 곧바로 웹 서버를 띄울 수 있습니다.</p>
 <h2>3. runApplication — Kotlin다운 시작 방식</h2>
@@ -173,20 +173,20 @@
 
  :: Spring Boot ::                (v4.1.0)
 
-... INFO ... Starting BookApiApplication using Java 21 ...
+... INFO ... Starting BookApiApplicationKt using Java 21 ...
 ... INFO ... Tomcat initialized with port 8080 (http)
 ... INFO ... Starting service [Tomcat]
-... INFO ... Starting Servlet engine: [Apache Tomcat/11.0.x]
+... INFO ... Starting Servlet engine: [Apache Tomcat/11.0.22]
 ... INFO ... Initializing Spring embedded WebApplicationContext
 ... INFO ... Tomcat started on port 8080 (http) with context path &#x27;/&#x27;
-... INFO ... Started BookApiApplication in 1.234 seconds (process running for 1.567)</code></pre></div>
+... INFO ... Started BookApiApplicationKt in 1.234 seconds (process running for 1.567)</code></pre></div>
 <p>로그에서 확인할 핵심 정보입니다.</p>
 <ul>
 <li><strong>Spring Boot 버전</strong>: <code>v4.1.0</code></li>
 <li><strong>JDK 버전</strong>: <code>Java 21</code></li>
-<li><strong>내장 서버</strong>: <code>Apache Tomcat/11.0.x</code> (Servlet 6.1)</li>
+<li><strong>내장 서버</strong>: <code>Apache Tomcat/11.0.22</code> (Servlet 6.1)</li>
 <li><strong>포트</strong>: <code>8080</code></li>
-<li><strong>마지막 줄</strong> <code>Started BookApiApplication in ...</code>: 정상 기동 완료 신호. 이 줄이 보이면 API를 호출할 준비가 된 것입니다.</li>
+<li><strong>마지막 줄</strong> <code>Started BookApiApplicationKt in ...</code>: 정상 기동 완료 신호. 이 줄이 보이면 API를 호출할 준비가 된 것입니다. (Kotlin은 최상위 <code>fun main</code>이 <code>BookApiApplicationKt</code> 클래스로 컴파일되므로 로그에 <code>...Kt</code>가 붙습니다.)</li>
 </ul>
 <h2>6. SpringApplication 커스터마이징 (간단히)</h2>
 <p>대부분 기본값으로 충분하지만, 시작 동작을 바꾸고 싶다면 람다로 설정을 조정할 수 있습니다.</p>

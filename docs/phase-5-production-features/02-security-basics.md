@@ -4,6 +4,9 @@
 
 이 문서에서는 **Spring Security 7** 의 핵심 개념과, Spring Boot 4 / Security 7에서 권장되는 **컴포넌트 스타일 `SecurityFilterChain`** 구성을 Kotlin DSL로 다룹니다. 그리고 운영의 정석인 JWT / OAuth2 Resource Server로 가는 길을 짚어 줍니다.
 
+> [!NOTE]
+> Spring Boot 4.1.0이 관리하는 Spring Security 버전은 **7.1.0**(2026-06 GA)입니다. 7.0 대비 다요소 인가(`AllRequiredFactorsAuthorizationManager.anyOf()`), CORS 프리플라이트 전용 필터(`PreFlightRequestFilter`) 지원, `InetAddressMatcher` 같은 항목이 추가됐지만, 아래에서 다루는 `SecurityFilterChain` 구성 방식은 7.0과 동일합니다.
+
 ## 1. 시작: 스타터만 추가하면 벌어지는 일
 
 ```kotlin

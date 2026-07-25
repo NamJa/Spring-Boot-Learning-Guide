@@ -31,16 +31,17 @@ REST만 다루면 `@GetMapping`을 붙인 메서드가 "마법처럼" JSON을 �
 
 ## 3. 기준 스택
 
-이 부록의 모든 코드는 다음 버전에서 검증되었습니다(2026-06-20 기준).
+이 부록의 모든 코드는 다음 버전에서 검증되었습니다(2026-07-25 기준).
 
 | 항목 | 버전 |
 |------|------|
 | Spring Boot | 4.1.0 |
-| Spring Framework | 7.0.8+ |
+| Spring Framework | 7.0.8 |
 | Kotlin | 2.3.21 |
 | JDK | 21 |
-| Tomcat (내장) | 11.0.x (Servlet 6.1) |
+| Tomcat (내장) | **11.0.22** (Servlet 6.1) |
 | Thymeleaf | 3.1.5 (`spring-boot-starter-thymeleaf`) |
+| Spring Security | 7.1.0 (필터 체인 설명 부분) |
 
 > [!WARNING]
 > 화면 템플릿 기술로 **JSP는 다루지 않습니다.** JSP는 실행 가능한 jar([Phase 6-1](../phase-6-build-deploy/01-executable-jar.md))와 궁합이 나쁘고(내장 Tomcat에서 제약이 많음), 현대 Spring SSR에서는 권장되지 않는 레거시입니다. 이 부록은 그 대안이자 사실상 표준인 **Thymeleaf**를 사용합니다.

@@ -40,7 +40,7 @@
 ## 3. 이 부록의 구성
 
 1. **[01. 프록시와 동적 프록시](01-proxy-and-decorator.md)** — 횡단 관심사 문제, 프록시·데코레이터 패턴, JDK 동적 프록시 vs CGLIB, Kotlin의 `final` 문제와 all-open 플러그인.
-2. **[02. Spring AOP 실전](02-spring-aop.md)** — `spring-boot-starter-aop`, `@Aspect`, 포인트컷 표현식, 어드바이스 5종, 실행 시간 측정과 커스텀 애너테이션 로깅 실습.
+2. **[02. Spring AOP 실전](02-spring-aop.md)** — `spring-boot-starter-aspectj`(구 `-aop`), `@Aspect`, 포인트컷 표현식, 어드바이스 5종, 실행 시간 측정과 커스텀 애너테이션 로깅 실습.
 3. **[03. 함정과 내부 동작](03-pitfalls-and-internals.md)** — 자기 호출 우회, `final`/`open` 함정, `@Transactional`의 내부 원리, AOP 적용 순서, ThreadLocal.
 
 ## 4. 선수 지식

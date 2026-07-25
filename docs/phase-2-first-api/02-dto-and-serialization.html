@@ -157,24 +157,95 @@
 <blockquote>
 <p><strong>팁</strong>: 입력값 검증(빈 문자열 금지, 가격은 0 이상 등)은 Phase 4에서 <code>@field:NotBlank</code>, <code>@field:Positive</code> 같은 Bean Validation 애너테이션으로 추가합니다. 지금은 구조에만 집중합니다.</p>
 </blockquote>
-<h2>3. jackson-module-kotlin이 하는 일</h2>
-<p>순수 Jackson은 Java를 전제로 설계되어, <strong>기본 생성자</strong>와 <strong>세터(setter)</strong>가 있는 클래스를 가정합니다. 하지만 Kotlin data class는 기본 생성자가 없고, <code>val</code> 프로퍼티는 불변입니다. 그래서 <code>jackson-module-kotlin</code> 모듈이 필요합니다.</p>
+<h2>3. Spring Boot 4의 JSON 엔진은 Jackson <strong>3</strong></h2>
+<p>여기서 Boot 3 예제와 갈리는 가장 큰 지점을 짚습니다. <strong>Spring Boot 4의 기본 JSON 엔진은 Jackson 3</strong>입니다. Jackson 2와 무엇이 다른지 먼저 표로 봅니다.</p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>Jackson 2 (Boot 3까지)</th>
+<th><strong>Jackson 3 (Boot 4)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>패키지</td>
+<td><code>com.fasterxml.jackson.*</code></td>
+<td><strong><code>tools.jackson.*</code></strong></td>
+</tr>
+<tr>
+<td>Kotlin 모듈 좌표</td>
+<td><code>com.fasterxml.jackson.module:jackson-module-kotlin</code></td>
+<td><strong><code>tools.jackson.module:jackson-module-kotlin</code></strong></td>
+</tr>
+<tr>
+<td>매퍼</td>
+<td>가변 <code>ObjectMapper</code></td>
+<td><strong>불변 <code>JsonMapper</code></strong> (빌더로 생성)</td>
+</tr>
+<tr>
+<td>애너테이션</td>
+<td><code>com.fasterxml.jackson.annotation.*</code></td>
+<td><strong>그대로</strong> (<code>@JsonProperty</code> 등은 패키지 유지)</td>
+</tr>
+<tr>
+<td>날짜 기본 직렬화</td>
+<td>타임스탬프(숫자)</td>
+<td><strong>ISO-8601 문자열</strong></td>
+</tr>
+<tr>
+<td>프로퍼티 정렬</td>
+<td>선언 순서</td>
+<td><strong>알파벳순</strong>(<code>SORT_PROPERTIES_ALPHABETICALLY</code> 기본 true)</td>
+</tr>
+<tr>
+<td>커스터마이즈 훅</td>
+<td><code>Jackson2ObjectMapperBuilderCustomizer</code></td>
+<td><strong><code>JsonMapperBuilderCustomizer</code></strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>애너테이션(<code>@JsonProperty</code>, <code>@JsonInclude</code> 등)만 <code>com.fasterxml.jackson.annotation</code>에 남아 있고 <strong>나머지는 전부 <code>tools.jackson</code></strong> 입니다. 그래서 "임포트 일부는 <code>com.fasterxml</code>, 일부는 <code>tools.jackson</code>"이라는, 처음 보면 어색한 조합이 정상입니다.</p>
+<p>[!NOTE]
+<strong>응답 JSON의 키 순서</strong>: Jackson 3는 프로퍼티를 알파벳순으로 정렬하는 것이 기본이므로, 실제 응답은 <code>{"author":…,"id":…,"isbn":…,"price":…,"publishedAt":…,"title":…}</code> 순서로 나옵니다. 본 가이드의 예시 JSON은 읽기 쉽도록 선언 순서(<code>id</code> → <code>title</code> → …)로 표기했습니다. JSON 객체의 키 순서는 의미가 없으므로 클라이언트 동작에는 영향이 없지만, 응답 문자열을 그대로 비교하는 테스트를 쓴다면 주의하세요. 선언 순서를 유지하고 싶으면 <code>spring.jackson.mapper.sort-properties-alphabetically: false</code> 로 끌 수 있습니다.</p>
+</blockquote>
+<h3>jackson-module-kotlin이 하는 일</h3>
+<p>순수 Jackson은 Java를 전제로 설계되어, <strong>기본 생성자</strong>와 <strong>세터(setter)</strong> 가 있는 클래스를 가정합니다. 하지만 Kotlin data class는 기본 생성자가 없고, <code>val</code> 프로퍼티는 불변입니다. 그래서 <code>jackson-module-kotlin</code> 모듈이 필요합니다.</p>
 <p>이 모듈은 다음을 가능하게 합니다.</p>
 <ul>
 <li><strong>주 생성자 기반 역직렬화</strong>: 기본 생성자 없이도 JSON → data class 변환</li>
 <li><strong>기본 인자(default argument) 인식</strong>: JSON에 필드가 없으면 Kotlin 기본값 사용</li>
 <li><strong>null 안정성 존중</strong>: non-null(<code>String</code>) 프로퍼티에 JSON <code>null</code>이 들어오면 예외 발생, nullable(<code>String?</code>)은 허용</li>
 </ul>
-<p><code>spring-boot-starter-web</code>을 쓰는 Spring Boot 프로젝트에 <code>jackson-module-kotlin</code> 의존성이 클래스패스에 있으면, <strong>Spring Boot가 자동으로 등록</strong>합니다. 별도 설정 코드는 필요 없습니다. Phase 1에서 만든 <code>build.gradle.kts</code>에 다음이 포함되어 있는지 확인하세요.</p>
+<p><code>spring-boot-starter-webmvc</code>를 쓰는 Spring Boot 프로젝트에 이 모듈이 클래스패스에 있으면 <strong>Spring Boot가 자동으로 등록</strong>합니다. 별도 설정 코드는 필요 없습니다. Phase 1에서 만든 <code>build.gradle.kts</code>에 다음이 포함되어 있는지 확인하세요.</p>
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-web&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;com.fasterxml.jackson.module:jackson-module-kotlin&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-webmvc&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;tools.jackson.module:jackson-module-kotlin&quot;</span><span class="p">)</span><span class="w">   </span><span class="c1">// ← Jackson 3용</span>
 <span class="w">    </span><span class="c1">// ...</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <blockquote>
-<p>Spring Initializr로 Kotlin 프로젝트를 생성하면 <code>jackson-module-kotlin</code>이 기본 포함됩니다.</p>
+<p>Spring Initializr로 Kotlin + Spring Boot 4 프로젝트를 생성하면 <code>tools.jackson.module:jackson-module-kotlin</code>이 기본 포함됩니다.</p>
+</blockquote>
+<h3>매퍼를 직접 커스터마이즈할 때</h3>
+<p><code>ObjectMapper</code>를 빈으로 등록해 설정을 바꾸던 Boot 3 패턴은, 불변 <code>JsonMapper</code>와 커스터마이저로 바뀌었습니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Bean</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Configuration</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">tools.jackson.databind.SerializationFeature</span>
+
+<span class="nd">@Configuration</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">JacksonConfig</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 자동 구성된 JsonMapper의 빌더에 설정만 얹는다 (매퍼 전체를 대체하지 않는다)</span>
+<span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">jsonMapperCustomizer</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JsonMapperBuilderCustomizer</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">-&gt;</span>
+<span class="w">        </span><span class="n">builder</span><span class="p">.</span><span class="na">enable</span><span class="p">(</span><span class="n">SerializationFeature</span><span class="p">.</span><span class="na">INDENT_OUTPUT</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>기존 Jackson 2 코드를 급하게 옮기기 어렵다면 <code>spring.jackson.use-jackson2-defaults=true</code>로 <strong>Boot 3 시절의 기본값</strong>(날짜 타임스탬프, 선언 순서 등)을 되살릴 수 있습니다. Jackson 2 자체를 계속 쓰려면 <code>spring-boot-starter-jackson</code>을 제외하고 <code>spring-boot-jackson2</code> 모듈을 쓰며 <code>spring.jackson2.*</code> 프로퍼티로 설정합니다. 다만 신규 프로젝트라면 Jackson 3 기본값을 그대로 받아들이는 편이 낫습니다.</p>
 </blockquote>
 <h2>4. LocalDate 직렬화 (JSR-310)</h2>
 <p><code>publishedAt: LocalDate</code>처럼 <code>java.time</code> 타입을 쓰면, Jackson의 <strong>JSR-310 모듈</strong>(<code>jackson-datatype-jsr310</code>)이 처리합니다. 이 역시 Spring Boot가 자동 등록합니다.</p>
@@ -184,13 +255,16 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>만약 이 모듈이 없으면 <code>LocalDate</code>가 <code>{"year":2024,"month":3,...}</code> 같은 숫자 배열로 깨져 나옵니다. Spring Boot는 기본적으로 <strong>타임스탬프(숫자) 대신 ISO 문자열</strong>을 쓰도록 설정해 두므로, 위와 같은 깔끔한 형태가 기본값입니다. 명시적으로 보장하려면 <code>application.yml</code>에 다음을 둘 수 있습니다.</p>
+<p>만약 이 모듈이 없으면 <code>LocalDate</code>가 <code>{"year":2024,"month":3,...}</code> 같은 숫자 배열로 깨져 나옵니다. Jackson 3는 <strong>날짜를 ISO 문자열로 쓰는 것이 기본값</strong>이라 위와 같은 깔끔한 형태가 그대로 나옵니다. 명시적으로 보장하려면 <code>application.yml</code>에 다음을 둡니다.</p>
 <div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">spring</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">jackson</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">serialization</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">write-dates-as-timestamps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">   </span><span class="c1"># 기본값. 날짜를 ISO 문자열로</span>
+<span class="w">    </span><span class="nt">datatype</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">datetime</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">write-dates-as-timestamps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">   </span><span class="c1"># 기본값. 날짜를 ISO 문자열로</span>
 </pre></div>
 </div>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>Boot 3 예제의 <strong><code>spring.jackson.serialization.write-dates-as-timestamps</code></strong> 는 Boot 4에서 동작하지 않습니다. Jackson 3에서 날짜·시간 관련 기능이 <code>SerializationFeature</code>에서 <strong><code>DateTimeFeature</code></strong> 로 분리되었고, 대응하는 프로퍼티 경로도 <code>spring.jackson.datatype.datetime.*</code>으로 바뀌었습니다. (<code>indent-output</code> 같은 나머지 직렬화 옵션은 여전히 <code>spring.jackson.serialization.*</code> 입니다.)</p>
+</blockquote>
 <h2>5. 필드 이름 전략 — camelCase vs snake_case</h2>
 <p>기본적으로 Kotlin 프로퍼티 이름이 그대로 JSON 키가 됩니다. <code>publishedAt</code>은 <code>"publishedAt"</code>으로 나갑니다. 만약 API 규약이 <strong>snake_case</strong>(<code>published_at</code>)라면 두 가지 방법이 있습니다.</p>
 <h3>방법 A — 전역 설정 (권장)</h3>
@@ -203,8 +277,8 @@
 <p>이러면 모든 DTO의 키가 <code>published_at</code>, 입력도 <code>published_at</code>으로 통일됩니다.</p>
 <h3>방법 B — 클래스 단위 지정</h3>
 <p>특정 DTO만 다르게 하려면 <code>@JsonNaming</code>을 씁니다.</p>
-<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">com.fasterxml.jackson.databind.annotation.JsonNaming</span>
-<span class="k">import</span><span class="w"> </span><span class="nn">com.fasterxml.jackson.databind.PropertyNamingStrategies</span>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">tools.jackson.databind.annotation.JsonNaming</span><span class="w">        </span><span class="c1">// Jackson 3 → tools.jackson</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">tools.jackson.databind.PropertyNamingStrategies</span>
 
 <span class="nd">@JsonNaming</span><span class="p">(</span><span class="n">PropertyNamingStrategies</span><span class="p">.</span><span class="na">SnakeCaseStrategy</span><span class="o">::</span><span class="n">class</span><span class="p">)</span>
 <span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BookResponse</span><span class="p">(</span>
@@ -215,8 +289,10 @@
 </pre></div>
 </div>
 <h3>방법 C — 필드 단위 지정</h3>
-<p>개별 필드만 이름을 바꾸려면 <code>@JsonProperty</code>를 씁니다.</p>
-<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BookResponse</span><span class="p">(</span>
+<p>개별 필드만 이름을 바꾸려면 <code>@JsonProperty</code>를 씁니다. <strong>애너테이션은 Jackson 3에서도 <code>com.fasterxml.jackson.annotation</code> 패키지 그대로</strong>입니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">com.fasterxml.jackson.annotation.JsonProperty</span><span class="w">   </span><span class="c1">// 애너테이션은 패키지 유지</span>
+
+<span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BookResponse</span><span class="p">(</span>
 <span class="w">    </span><span class="nd">@JsonProperty</span><span class="p">(</span><span class="s">&quot;book_id&quot;</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">,</span>
 <span class="w">    </span><span class="c1">// ...</span>
@@ -227,7 +303,7 @@
 <p><strong>팁</strong>: 본 가이드는 단순함을 위해 <strong>camelCase 기본값</strong>을 그대로 사용합니다. 팀 규약에 맞춰 위 방법 중 하나를 택하세요.</p>
 </blockquote>
 <h2>6. null 필드 제어</h2>
-<p>응답 JSON에 <code>null</code> 값을 포함할지 제외할지 정할 수 있습니다. 기본값은 <strong>항상 포함</strong>입니다.</p>
+<p>응답 JSON에 <code>null</code> 값을 포함할지 제외할지 정할 수 있습니다. 기본값은 <strong>항상 포함</strong>입니다. (이 프로퍼티는 Jackson 3에서도 이름이 그대로입니다.)</p>
 <div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="c1">// default-property-inclusion 기본: null도 출력</span>
 <span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;코틀린&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;discount&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">}</span>
 </pre></div>
@@ -243,7 +319,7 @@
 <figure class="flowchart">
 <ol class="fc-steps">
 <li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">[POST /api/books 요청] JSON 본문 { &quot;title&quot;: &quot;...&quot;, &quot;publishedAt&quot;: &quot;2024-03-15&quot; }</div></div></li>
-<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">▼  Jackson + jackson-module-kotlin (역직렬화) CreateBookRequest(title=&quot;...&quot;, publishedAt=LocalDate(2024,3,15))</div></div></li>
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">▼  Jackson 3 + jackson-module-kotlin (역직렬화) CreateBookRequest(title=&quot;...&quot;, publishedAt=LocalDate(2024,3,15))</div></div></li>
 <li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">▼  Service 처리 → 저장 → BookResponse 생성 BookResponse(id=1, title=&quot;...&quot;, publishedAt=...)</div></div></li>
 <li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">▼  Jackson (직렬화) JSON 응답 { &quot;id&quot;: 1, &quot;title&quot;: &quot;...&quot;, &quot;publishedAt&quot;: &quot;2024-03-15&quot; }</div></div></li>
 </ol></figure>

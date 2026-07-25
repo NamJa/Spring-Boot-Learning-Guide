@@ -59,12 +59,15 @@ META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
 @AutoConfiguration
 class BookJsonAutoConfiguration {
 
+    // Spring Boot 4의 JSON 엔진은 Jackson 3 → 패키지가 tools.jackson.*
     @Bean
-    @ConditionalOnClass(name = ["com.fasterxml.jackson.databind.ObjectMapper"])
-    @ConditionalOnMissingBean // 사용자가 ObjectMapper Bean을 안 만들었을 때만!
-    fun objectMapper(): ObjectMapper = ObjectMapper().findAndRegisterModules()
+    @ConditionalOnClass(name = ["tools.jackson.databind.json.JsonMapper"])
+    @ConditionalOnMissingBean // 사용자가 JsonMapper Bean을 안 만들었을 때만!
+    fun jsonMapper(): JsonMapper = JsonMapper.builder().findAndAddModules().build()
 }
 ```
+
+> **WARNING**: Spring Boot 3 예제에서 흔히 보이는 `com.fasterxml.jackson.databind.ObjectMapper`는 Jackson **2**의 클래스입니다. Spring Boot 4는 **Jackson 3**(`tools.jackson.*`)을 기본으로 쓰고, 가변 `ObjectMapper` 대신 **불변 `JsonMapper`** 를 씁니다. 자세한 내용은 [Phase 2-2](../phase-2-first-api/02-dto-and-serialization.md)에서 다룹니다.
 
 핵심은 **`@ConditionalOnMissingBean`** 입니다. "기본값은 우리가 줄게. 하지만 네가 직접 만들면 네 것을 쓸게"라는 철학이 여기서 구현됩니다. 이것이 Spring Boot가 "관례를 따르면 자동, 원하면 언제든 재정의 가능"한 이유입니다.
 
@@ -80,16 +83,18 @@ class BookJsonAutoConfiguration {
 
 ## 3. 스타터(Starter)란
 
-**스타터**는 특정 기능에 필요한 의존성들을 미리 묶어 둔 **편의용 의존성 패키지**입니다. 버전 충돌 걱정 없이 한 줄로 필요한 라이브러리 묶음을 가져옵니다. 예를 들어 `spring-boot-starter-web` 하나를 추가하면 Spring MVC, 내장 Tomcat, Jackson(JSON), 검증 기본기 등이 함께 따라옵니다.
+**스타터**는 특정 기능에 필요한 의존성들을 미리 묶어 둔 **편의용 의존성 패키지**입니다. 버전 충돌 걱정 없이 한 줄로 필요한 라이브러리 묶음을 가져옵니다. 예를 들어 `spring-boot-starter-webmvc` 하나를 추가하면 Spring MVC, 내장 Tomcat, Jackson(JSON) 등이 함께 따라옵니다.
 
 ```groovy
 // build.gradle.kts (Gradle Kotlin DSL)
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
 }
 ```
+
+> **WARNING**: Spring Boot 4에서 스타터 이름이 정리됐습니다. `spring-boot-starter-web` → **`spring-boot-starter-webmvc`**, `spring-boot-starter-aop` → **`spring-boot-starter-aspectj`** 등입니다. 구 이름 중 일부는 아직 남아 있지만 **deprecated**이며 향후 제거될 예정이므로, 새 프로젝트는 새 이름을 쓰세요. 테스트도 `spring-boot-starter-<기술>-test` 형태로 쪼개졌고, 이들은 모두 `spring-boot-starter-test`를 전이 의존성으로 가져옵니다.
 
 > **TIP**: 버전 번호를 적지 않은 것에 주목하세요. Spring Boot **BOM(Bill of Materials)** 이 검증된 버전 조합을 관리하므로, 스타터를 추가할 때 버전을 신경 쓸 필요가 없습니다. 이것이 "의견이 반영된(opinionated)" 기본값의 한 예입니다.
 
@@ -97,16 +102,19 @@ dependencies {
 
 | 스타터 | 제공 기능 |
 | --- | --- |
-| `spring-boot-starter-web` | Spring MVC, 내장 Tomcat, Jackson — 가장 기본 |
-| `spring-boot-starter-data-jpa` | Spring Data JPA, Hibernate, 트랜잭션 |
-| `spring-boot-starter-security` | Spring Security 7.0 기반 인증/인가 |
-| `spring-boot-starter-validation` | Bean Validation(Jakarta Validation) |
+| `spring-boot-starter-webmvc` | Spring MVC, 내장 Tomcat, Jackson 3 — 가장 기본 (구 `-web`) |
+| `spring-boot-starter-data-jpa` | Spring Data JPA, Hibernate 7, 트랜잭션 |
+| `spring-boot-starter-security` | Spring Security 7.1 기반 인증/인가 |
+| `spring-boot-starter-validation` | Bean Validation(Jakarta Validation) — **web 스타터에 포함되지 않으니 직접 추가** |
 | `spring-boot-starter-actuator` | 헬스 체크·메트릭 등 운영 엔드포인트 |
-| `spring-boot-starter-test` | JUnit 5, Mockito, AssertJ, Spring Test |
+| `spring-boot-starter-aspectj` | Spring AOP / AspectJ (구 `-aop`) |
 | `spring-boot-starter-restclient` | 동기 HTTP 클라이언트(`RestClient`) — 4.x 신규 |
 | `spring-boot-starter-webclient` | 리액티브 HTTP 클라이언트(`WebClient`) — 4.x 신규 |
+| `spring-boot-h2console` | H2 웹 콘솔 (4.x에서 별도 모듈로 분리) |
+| `spring-boot-starter-webmvc-test` | MockMvc·`RestTestClient`·JUnit 6·AssertJ·Mockito (내부적으로 `spring-boot-starter-test` 포함) |
+| `spring-boot-starter-data-jpa-test` | `@DataJpaTest` 등 JPA 슬라이스 테스트 |
 
-> 본 가이드의 도서 API는 `web`, `data-jpa`, `validation`, `security`, `actuator`, `test` 정도를 사용하게 됩니다. 외부 API 연동이 필요해지면 `restclient`를 추가합니다.
+> 본 가이드의 도서 API는 `webmvc`, `data-jpa`, `validation`, `security`, `actuator`, 그리고 기술별 `-test` 스타터를 사용하게 됩니다. 외부 API 연동이 필요해지면 `restclient`를 추가합니다.
 
 ## 4. 자동 설정 들여다보기
 
@@ -150,16 +158,22 @@ Negative matches:   (조건 불충족으로 적용 안 된 자동설정)
 자동 설정이 만든 기본 Bean이 마음에 들지 않으면, 방법은 간단합니다. **같은 타입의 Bean을 직접 등록**하면 됩니다. `@ConditionalOnMissingBean` 덕분에 자동 설정이 알아서 양보합니다.
 
 ```kotlin
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.databind.SerializationFeature
+
 @Configuration
 class JacksonConfig {
-    // 이 Bean을 직접 등록하면 자동설정의 기본 ObjectMapper는 적용되지 않는다
+    // 이 Bean을 직접 등록하면 자동설정의 기본 JsonMapper는 적용되지 않는다
     @Bean
-    fun objectMapper(): ObjectMapper =
-        ObjectMapper()
-            .registerModule(JavaTimeModule()) // LocalDate 직렬화를 위한 커스터마이징
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+    fun jsonMapper(): JsonMapper =
+        JsonMapper.builder()
+            .findAndAddModules()                     // java.time·Kotlin 모듈 등록
+            .enable(SerializationFeature.INDENT_OUTPUT)
+            .build()                                 // Jackson 3의 매퍼는 불변 → 빌더로 생성
 }
 ```
+
+> **TIP**: 매퍼를 통째로 대체하기보다, 자동 구성이 만든 매퍼의 **빌더에 설정만 얹는** `JsonMapperBuilderCustomizer` 쪽이 안전합니다(Boot 3의 `Jackson2ObjectMapperBuilderCustomizer`에 해당). 예시는 [Phase 2-2](../phase-2-first-api/02-dto-and-serialization.md)에 있습니다.
 
 또는 프로퍼티로 동작을 바꾸거나, 특정 자동 설정을 통째로 제외할 수도 있습니다.
 

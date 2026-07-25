@@ -203,7 +203,7 @@
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>여기서도 Kotlin의 <strong><code>@field:</code></strong> use-site target이 똑같이 필요합니다(01번 문서 3절 참고). 검증에 실패하면 애플리케이션이 시작되지 못하고 명확한 에러로 멈춥니다 — 잘못된 설정으로 운영에 배포되는 사고를 <strong>부팅 단계에서</strong> 막아 주는 셈입니다.</p>
+<p>여기서도 Kotlin의 애너테이션 use-site target 이야기가 그대로 적용됩니다(01번 문서 3절). Initializr 기본 설정(<code>-Xannotation-default-target=param-property</code>)이면 <code>@field:</code> 없이도 동작하지만, 본 가이드는 일관성을 위해 <code>@field:</code>를 명시합니다. 검증에 실패하면 애플리케이션이 시작되지 못하고 명확한 에러로 멈춥니다 — 잘못된 설정으로 운영에 배포되는 사고를 <strong>부팅 단계에서</strong> 막아 주는 셈입니다.</p>
 <blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>잘못된 설정은 런타임 한참 뒤가 아니라 시작 시점에 터지는 게 좋습니다. "빨리 실패하라(fail fast)" 원칙입니다.</p>
 </blockquote>
 <h2>5. <code>@Value</code> vs <code>@ConfigurationProperties</code></h2>
@@ -258,16 +258,20 @@
 <h2>6. IDE 메타데이터 — configuration-processor</h2>
 <p><code>@ConfigurationProperties</code> 클래스에 대한 메타데이터를 생성하면, IDE가 <code>application.yml</code>을 편집할 때 <strong>자동완성과 문서 툴팁</strong>을 띄워 줍니다. 이를 위해 애너테이션 프로세서를 추가합니다.</p>
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
+<span class="n">plugins</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;kapt&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span><span class="w">   </span><span class="c1">// kapt 플러그인 적용 필요</span>
+<span class="p">}</span>
+
 <span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// ...</span>
 <span class="w">    </span><span class="n">kapt</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-configuration-processor&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="c1">// 또는 KSP 사용 시:</span>
-<span class="w">    </span><span class="c1">// ksp(&quot;org.springframework.boot:spring-boot-configuration-processor&quot;)</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>Kotlin에서는 <code>annotationProcessor</code> 대신 <strong><code>kapt</code></strong> 또는 더 빠른 <strong><code>ksp</code></strong> 로 등록합니다(해당 Gradle 플러그인이 적용돼 있어야 합니다). 빌드하면 <code>META-INF/spring-configuration-metadata.json</code>이 생성되어, <code>app.book.default-page-size</code>를 타이핑할 때 IDE가 키와 타입, 기본값을 제안해 줍니다.</p>
-<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p>configuration-processor는 <strong>선택 사항</strong>입니다. 없어도 바인딩은 정상 동작하며, 오직 IDE 편의를 위한 것입니다. 빌드 속도가 신경 쓰이면 kapt보다 ksp를 권장합니다.</p>
+<p>Kotlin에서는 <code>annotationProcessor</code> 대신 <strong><code>kapt</code></strong> 로 등록합니다. 빌드하면 <code>META-INF/spring-configuration-metadata.json</code>이 생성되어, <code>app.book.default-page-size</code>를 타이핑할 때 IDE가 키와 타입을 제안해 줍니다.</p>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p><strong><code>ksp(...)</code>로는 동작하지 않습니다.</strong> <code>spring-boot-configuration-processor</code>는 Java 애너테이션 프로세서(<code>javax.annotation.processing.Processor</code>)만 등록하고 KSP의 <code>SymbolProcessorProvider</code>는 제공하지 않으므로, KSP 설정에 넣으면 <strong>아무 메타데이터도 생성되지 않고 조용히 넘어갑니다.</strong> Spring Boot 공식 문서도 Kotlin에서는 <code>kapt</code>를 안내합니다.</p>
+<p>[!NOTE]
+configuration-processor는 <strong>선택 사항</strong>입니다. 없어도 바인딩은 정상 동작하며, 오직 IDE 편의를 위한 것입니다. 다만 kapt가 제공하는 모델의 한계로 <strong>기본값 탐지와 deprecated 표시 같은 일부 기능은 Kotlin에서 동작하지 않습니다</strong>(공식 문서에 명시된 제약입니다).</p>
 </blockquote>
 <h2>다음 단계</h2>
 <p>이로써 Phase 4를 마칩니다. 입력 검증, 전역 예외 처리, 외부화된 설정과 타입 안전한 설정 바인딩까지 — API를 견고하게 만드는 기반을 모두 갖췄습니다. 다음 Phase 5부터는 Spring Boot 4의 실전 기능을 다룹니다. 첫 주제는 선언적 HTTP 클라이언트입니다.</p>

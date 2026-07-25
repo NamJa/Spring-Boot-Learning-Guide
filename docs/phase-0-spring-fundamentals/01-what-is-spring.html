@@ -128,11 +128,11 @@
 </tr>
 <tr>
 <td><strong>스타터 (Starters)</strong></td>
-<td><code>spring-boot-starter-web</code> 한 줄로 웹 개발에 필요한 의존성 묶음을 한꺼번에 가져옴</td>
+<td><code>spring-boot-starter-webmvc</code> 한 줄로 웹 개발에 필요한 의존성 묶음을 한꺼번에 가져옴</td>
 </tr>
 <tr>
 <td><strong>내장 서버 (Embedded server)</strong></td>
-<td>Tomcat/Jetty/Netty를 jar 안에 내장. 별도 WAS 설치·배포 없이 <code>java -jar</code>로 실행</td>
+<td>Tomcat/Jetty/Netty를 jar 안에 내장. 별도 WAS 설치·배포 없이 <code>java -jar</code>로 실행 (기본 Tomcat 11.0.22)</td>
 </tr>
 <tr>
 <td><strong>No XML</strong></td>
@@ -168,11 +168,20 @@
 <h3>2.1 Spring Boot 4.1의 주요 신규 기능</h3>
 <p>본 가이드 시점의 Spring Boot 4.1 / Spring Framework 7에서 주목할 변화들입니다. 지금은 "이런 게 있구나" 정도만 알아 두고, 해당 Phase에서 자세히 다룹니다.</p>
 <ul>
+<li><strong>Jackson 3가 기본</strong> — JSON 처리 엔진이 <code>com.fasterxml.jackson</code>에서 <strong><code>tools.jackson</code></strong> 으로 옮겨졌고, 가변 <code>ObjectMapper</code> 대신 불변 <strong><code>JsonMapper</code></strong> 를 씁니다. (<a href="../phase-2-first-api/02-dto-and-serialization.html">Phase 2-2</a>)</li>
 <li><strong>JSpecify 기반 널 안전성 어노테이션</strong> — Kotlin의 nullable 타입과 더 잘 맞물리도록 표준화된 <code>@Nullable</code>/<code>@NonNull</code> 메타데이터를 도입.</li>
-<li><strong>선언적 HTTP 클라이언트</strong> — 인터페이스에 <code>@HttpExchange</code>만 붙이고 <code>RestClient</code> 위에 <code>@ImportHttpServices</code>로 등록하면 구현 없이 HTTP 호출 가능 (Feign과 유사).</li>
-<li><strong>새 스타터</strong> — <code>spring-boot-starter-restclient</code>, <code>spring-boot-starter-webclient</code>로 HTTP 클라이언트 의존성을 명확히 분리.</li>
+<li><strong>선언적 HTTP 클라이언트</strong> — 인터페이스에 <code>@HttpExchange</code>만 붙이고 <code>@ImportHttpServices</code>로 등록하면 구현 없이 HTTP 호출 가능 (Feign과 유사). (<a href="../phase-5-production-features/01-http-interface-client.html">Phase 5-1</a>)</li>
+<li><strong>모듈화된 스타터</strong> — <code>spring-boot-starter-web</code> → <strong><code>spring-boot-starter-webmvc</code></strong>, <code>spring-boot-starter-aop</code> → <strong><code>spring-boot-starter-aspectj</code></strong> 처럼 이름이 기술 단위로 정리되고, <code>spring-boot-starter-restclient</code>·<code>spring-boot-starter-webclient</code>로 HTTP 클라이언트 의존성이 분리됐습니다. 테스트도 <code>spring-boot-starter-&lt;기술&gt;-test</code>로 쪼개졌습니다.</li>
 <li><strong>회복탄력성(resilience)</strong> — <code>@Retryable</code>(재시도), <code>@ConcurrencyLimit</code>(동시성 제한)을 코어에 내장.</li>
 <li><strong>API 버저닝</strong> — <code>/api/v1</code> 같은 버전 라우팅을 프레임워크 차원에서 지원.</li>
+</ul>
+<p>4.0에서 4.1로 올라오며 추가된 것들도 짚어 둡니다.</p>
+<ul>
+<li><strong>gRPC 지원</strong> — gRPC 서버/클라이언트 자동 구성, <code>@GrpcAdvice</code>(공통 예외 처리), 관측(Observation) 인터셉터 제공.</li>
+<li><strong>SSRF 완화</strong> — HTTP 클라이언트에 <code>InetAddressFilter</code>를 걸어 특정 주소로의 외부 호출을 차단할 수 있습니다.</li>
+<li><strong><code>@Async</code> 컨텍스트 전파</strong> — 별도 스레드로 넘어가는 메서드에도 컨텍스트가 자동 전파됩니다(<a href="../appendix-c-aop/03-pitfalls-and-internals.html">부록 C-3</a>의 ThreadLocal 함정이 완화됩니다).</li>
+<li><strong>지연 DataSource 커넥션</strong> — 실제 쿼리 시점까지 커넥션 획득을 미룹니다.</li>
+<li><strong>Log4j 로그 파일 로테이션</strong> — 크기·시간·크기+시간·cron 네 가지 전략 지원.</li>
 </ul>
 <h2>3. Spring 생태계 지도</h2>
 <p>"Spring을 배운다"는 것은 Framework 하나가 아니라 그 위의 여러 프로젝트를 함께 익히는 것입니다. 자주 마주칠 주요 프로젝트들입니다.</p>
@@ -198,7 +207,7 @@
 </tr>
 <tr>
 <td><strong>Spring Security</strong></td>
-<td>인증·인가, OAuth2, JWT 등 보안 (본 가이드 기준 7.0)</td>
+<td>인증·인가, OAuth2, JWT 등 보안 (본 가이드 기준 7.1.0)</td>
 </tr>
 <tr>
 <td><strong>Spring Web (MVC)</strong></td>

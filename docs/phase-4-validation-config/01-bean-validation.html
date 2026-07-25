@@ -99,7 +99,7 @@
 <p>먼저 의존성을 추가합니다. Spring Boot 4.x에서는 web 스타터만으로는 검증이 자동 포함되지 않으므로 명시적으로 추가해야 합니다.</p>
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
 <span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-web&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-webmvc&quot;</span><span class="p">)</span>
 <span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-validation&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// ← 추가</span>
 <span class="p">}</span>
 </pre></div>
@@ -179,30 +179,51 @@
 </table>
 <blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>문자열 필수값에는 거의 항상 <code>@NotBlank</code>를 쓰세요. <code>@NotNull</code>은 <code>""</code>(빈 문자열)을 통과시키고, <code>@NotEmpty</code>는 <code>" "</code>(공백)을 통과시킵니다. <code>@NotBlank</code>만이 셋 다 막습니다.</p>
 </blockquote>
-<h2>3. Kotlin의 함정 — <code>@field:</code> use-site target</h2>
-<p>여기서 Kotlin 개발자가 가장 자주 걸려 넘어지는 함정을 짚고 갑니다. 다음 코드는 <strong>검증이 동작하지 않습니다.</strong></p>
-<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// ❌ 잘못된 예 — @NotBlank가 무시될 수 있다</span>
+<h2>3. Kotlin의 함정 — 애너테이션 use-site target</h2>
+<p>여기는 Kotlin 개발자가 가장 자주 걸려 넘어지던 지점이고, <strong>Kotlin 2.2 / Spring Boot 4에서 규칙이 바뀐</strong> 곳이기도 합니다. 먼저 왜 문제가 생겼는지부터 봅니다.</p>
+<p>Kotlin에서 <code>val title: String</code>을 생성자 프로퍼티로 선언하면, 컴파일러는 내부적으로 <strong>생성자 파라미터(param)</strong>, <strong>필드(field)</strong>, <strong>getter</strong> 를 함께 만들어 냅니다. 애너테이션을 아무 표시 없이 붙이면 예전 Kotlin은 그것을 <strong>생성자 파라미터에만</strong> 붙였습니다. 반면 Hibernate Validator는 필드/getter의 제약을 읽으므로, 애너테이션이 파라미터에만 남아 <strong>검증이 조용히 통과</strong>되는 사고가 났습니다.</p>
+<figure class="diagram"><pre>@NotBlank val title  ──┐
+                       │  Kotlin이 생성하는 요소들
+                       ├──▶ constructor param   ← 예전 기본값: 여기에만 붙었다
+                       ├──▶ private field        ← @field: 로 지정하면 여기 (검증기가 읽음)
+                       └──▶ getter               ← @get: 로 지정</pre></figure>
+<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p><code>jakarta.validation.constraints.*</code> 애너테이션은 Java로 정의돼 있어 Kotlin의 <code>property</code> 타깃을 허용하지 않습니다. 그래서 아래 옵션이 켜지면 실제로는 <strong>파라미터 + 필드</strong>에 적용되며(Kotlin은 프로퍼티 타깃이 불가능할 때 필드로 내립니다), 그 필드를 Hibernate Validator가 읽어 검증이 동작합니다.</p>
+</blockquote>
+<h3>해법 ① 컴파일러 옵션 (Spring Boot 4 + Kotlin 2.2+ 기본)</h3>
+<p>Kotlin 2.2는 이 불편을 없애는 옵션을 도입했고, <strong>Spring Initializr가 Kotlin 프로젝트에 기본으로 넣어 줍니다</strong>(<a href="../phase-1-project-setup/04-build-gradle-kts.html">Phase 1-4</a>).</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts — Initializr 기본 출력</span>
+<span class="n">kotlin</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">compilerOptions</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">freeCompilerArgs</span><span class="p">.</span><span class="na">addAll</span><span class="p">(</span>
+<span class="w">            </span><span class="s">&quot;-Xjsr305=strict&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;-Xannotation-default-target=param-property&quot;</span><span class="p">,</span><span class="w">   </span><span class="c1">// ← 이것</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>이 옵션이 켜져 있으면 애너테이션이 <strong>생성자 파라미터와 프로퍼티(프로퍼티 타깃을 못 쓰는 Java 정의 애너테이션은 필드)에 함께</strong> 적용되어, Hibernate Validator와 Jackson이 정상적으로 인식합니다. 즉 아래처럼 Java와 똑같이 써도 검증이 동작합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// ✅ -Xannotation-default-target=param-property 가 켜져 있으면 이대로 동작</span>
 <span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">CreateBookRequest</span><span class="p">(</span>
 <span class="w">    </span><span class="nd">@NotBlank</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
-<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="nd">@NotBlank</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>이유는 Kotlin의 <strong>애너테이션 use-site target</strong> 때문입니다. Kotlin에서 <code>val title: String</code>을 생성자 프로퍼티로 선언하면, 컴파일러는 내부적으로 <strong>필드(field)</strong>, <strong>getter</strong>, <strong>생성자 파라미터(param)</strong> 를 동시에 만들어 냅니다. 그런데 애너테이션을 그냥 붙이면 Kotlin은 기본 규칙에 따라 <strong>생성자 파라미터에만</strong> 붙이는 경우가 있습니다.</p>
-<p>반면 Hibernate Validator는 기본적으로 <strong>필드(field)</strong> 에 붙은 제약을 읽습니다. 애너테이션이 엉뚱한 곳(param)에 붙으면 검증기가 못 보고 지나치는 것입니다. 그래서 <strong>명시적으로 <code>@field:</code> 라는 use-site target을 지정</strong>해 줘야 합니다.</p>
-<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// ✅ 올바른 예 — @field: 로 필드에 명시</span>
+<h3>해법 ② <code>@field:</code> 명시 (옵션과 무관하게 항상 안전)</h3>
+<p>use-site target을 직접 적어 주는 방식은 컴파일러 옵션 유무와 무관하게 언제나 동작합니다.</p>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// ✅ 어떤 설정에서도 안전한 방식</span>
 <span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">CreateBookRequest</span><span class="p">(</span>
 <span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">NotBlank</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
 <span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">NotBlank</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<figure class="diagram"><pre>@NotBlank val title  ──┐
-                       │  Kotlin이 생성하는 요소들
-                       ├──▶ constructor param   ← target 미지정 시 여기 붙을 수 있음
-                       ├──▶ private field        ← @field: 로 지정하면 여기 (검증기가 읽음)
-                       └──▶ getter               ← @get: 로 지정</pre></figure>
-<p>요점: <strong>Kotlin + Bean Validation에서는 제약 애너테이션 앞에 항상 <code>@field:</code>를 붙인다.</strong> 이것 하나만 기억해도 절반은 성공입니다.</p>
+<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p>이 규칙은 Kotlin <strong>2.4.0부터 언어 기본값으로 안정화</strong>되어, 그때부터는 옵션 없이도 동일하게 동작합니다. 본 가이드의 기준인 Kotlin 2.3.21(Spring Boot 4.1 BOM 관리 버전)에서는 위 옵션이 필요하며, Initializr가 이미 넣어 줍니다.</p>
+<p>[!TIP]
+<strong>본 가이드는 <code>@field:</code>를 계속 사용합니다.</strong> 이유는 두 가지입니다. (1) 빌드 설정에 의존하지 않아 코드만 보고 의도가 분명하고, (2) 옵션이 빠진 기존 프로젝트에 코드를 옮겨 붙여도 검증이 조용히 사라지지 않습니다. 팀이 Initializr 기본 설정을 쓰고 있다면 <code>@field:</code>를 생략하는 쪽이 더 깔끔하니, 컨벤션을 정해 한 방향으로 통일하세요.</p>
+<p>반대로 <strong>컴파일러 옵션도 없고 <code>@field:</code>도 없다면 검증이 아무 경고 없이 통과</strong>됩니다. 검증 테스트를 반드시 한 건 작성해 이 사고를 잡으세요(<a href="../phase-5-production-features/04-testing.html">Phase 5-4</a>의 400 응답 테스트).</p>
+</blockquote>
 <h2>4. CreateBookRequest에 검증 적용하기</h2>
 <p>이제 Phase 2에서 만든 DTO에 실제 규칙을 입혀 봅시다.</p>
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.dto</span>

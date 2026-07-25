@@ -38,7 +38,7 @@ dependencies {
 }
 ```
 
-`spring-boot-starter-web`이 이미 있어도, 명시적으로 `restclient` 스타터를 두면 의도가 분명해지고 자동 구성(`RestClient.Builder` 빈 등)이 깔끔하게 들어옵니다.
+`spring-boot-starter-webmvc`가 이미 있어도, 명시적으로 `restclient` 스타터를 두면 의도가 분명해지고 자동 구성(`RestClient.Builder` 빈 등)이 깔끔하게 들어옵니다.
 
 ## 3. 선언적 HTTP 인터페이스 정의
 
@@ -96,7 +96,8 @@ Spring Boot 4는 선언적 클라이언트를 가장 쉽게 등록하는 방법�
 ```kotlin
 package com.example.bookapi.client
 
-import org.springframework.boot.web.client.ImportHttpServices
+// ⚠️ Spring Framework 7의 애너테이션이다 (Boot 패키지가 아니다)
+import org.springframework.web.service.registry.ImportHttpServices
 import org.springframework.context.annotation.Configuration
 
 @Configuration
@@ -104,20 +105,28 @@ import org.springframework.context.annotation.Configuration
 class HttpClientConfig
 ```
 
-그리고 base URL과 타임아웃 등은 `application.yml`의 `spring.http.client` 설정으로 **그룹별로** 지정합니다.
+> [!WARNING]
+> `@ImportHttpServices`는 **`org.springframework.web.service.registry`** 패키지에 있습니다(Spring Framework 7 제공). `org.springframework.boot.web.client...`로 임포트하려 하면 찾을 수 없습니다. `basePackages`로 패키지 스캔도 가능하며, `group`을 생략하면 `"default"` 그룹에 묶입니다.
+
+그리고 base URL과 타임아웃 등은 `application.yml`에서 **공통 기본값(`spring.http.clients`)** 과 **그룹별 설정(`spring.http.serviceclient.<그룹명>`)** 으로 나눠 지정합니다.
 
 ```yaml
 spring:
   http:
-    client:
-      # 모든 클라이언트 공통 기본값
+    clients:
+      # 모든 HTTP 클라이언트의 공통 기본값 (복수형 clients!)
       connect-timeout: 2s
       read-timeout: 5s
-      service:
-        group:
-          book-metadata:
-            base-url: https://metadata.example.com/api
+    serviceclient:
+      # @ImportHttpServices(group = "book-metadata") 와 연결되는 그룹 설정
+      book-metadata:
+        base-url: https://metadata.example.com/api
+        connect-timeout: 2s
+        read-timeout: 5s
 ```
+
+> [!WARNING]
+> Boot 4 정식 출시 **이전**(마일스톤 시절) 블로그에서 보이는 `spring.http.client.service.group.<이름>` 경로는 GA에 들어오지 않았습니다. 4.0 GA 시점부터 그룹 설정은 **`spring.http.serviceclient.<이름>`**, 전역 기본값은 `spring.http.client`(단수, deprecated) 대신 **`spring.http.clients`**(복수)입니다. 설정을 넣었는데 base URL이 안 먹으면 이 키 이름을 먼저 확인하세요.
 
 이제 어디서든 인터페이스를 그냥 주입받아 쓰면 됩니다.
 
@@ -139,7 +148,7 @@ class BookEnrichmentService(
 ```
 
 > [!TIP]
-> `@ImportHttpServices`의 `group` 값과 `spring.http.client.service.group.<group>` 의 키가 연결됩니다. 그룹을 나누면 외부 API마다 다른 base URL·타임아웃·인터셉터를 줄 수 있습니다.
+> `@ImportHttpServices`의 `group` 값과 `spring.http.serviceclient.<group>` 의 키가 연결됩니다. 그룹을 나누면 외부 API마다 다른 base URL·타임아웃·SSL 번들을 줄 수 있습니다. 애너테이션을 여러 번 붙여 그룹별로 다른 인터페이스를 등록할 수도 있습니다.
 
 ## 5. 등록 방법 ② — 수동 `HttpServiceProxyFactory` (원리 이해용)
 
@@ -189,7 +198,10 @@ val restClient = builder
     .build()
 ```
 
-타임아웃은 앞서 본 `spring.http.client.connect-timeout` / `read-timeout` 으로 그룹/전역 지정하는 것을 권장합니다. 외부 호출은 **반드시** 타임아웃을 둬야 합니다. 그렇지 않으면 외부 서비스가 느려질 때 우리 스레드가 무한정 묶여 장애가 전파됩니다.
+타임아웃은 앞서 본 `spring.http.clients.*`(전역) / `spring.http.serviceclient.<그룹>.*`(그룹별)로 지정하는 것을 권장합니다. 외부 호출은 **반드시** 타임아웃을 둬야 합니다. 그렇지 않으면 외부 서비스가 느려질 때 우리 스레드가 무한정 묶여 장애가 전파됩니다.
+
+> [!TIP]
+> Spring Boot 4.1은 **SSRF(Server-Side Request Forgery) 완화** 장치도 제공합니다. HTTP 클라이언트에 `InetAddressFilter`를 걸면 내부망 주소처럼 허용하지 않은 대상으로의 외부 호출을 차단할 수 있습니다. 사용자 입력으로 URL을 만들어 호출하는 기능이 있다면 검토하세요.
 
 ## 7. 회복 탄력성 — `@Retryable`과 `@ConcurrencyLimit`
 
@@ -198,14 +210,14 @@ val restClient = builder
 ```kotlin
 import org.springframework.resilience.annotation.ConcurrencyLimit
 import org.springframework.resilience.annotation.Retryable
-import kotlin.time.Duration.Companion.seconds
 
 @Service
 class BookEnrichmentService(
     private val metadataClient: BookMetadataClient,
 ) {
-    // 일시적 실패 시 최대 3회, 지수 백오프로 재시도
-    @Retryable(maxAttempts = 3, delay = 1, multiplier = 2.0)
+    // 일시적 실패 시 최대 2회 재시도(총 3회 시도), 1초에서 시작해 지수 백오프
+    // delay/maxDelay 의 기본 단위는 밀리초(timeUnit 속성으로 변경 가능)
+    @Retryable(maxRetries = 2, delay = 1000, multiplier = 2.0)
     fun enrich(isbn: String) = metadataClient.findByIsbn(isbn)
 
     // 동시에 외부 API를 두드리는 호출 수를 10개로 제한 (과부하 방지)
@@ -214,7 +226,10 @@ class BookEnrichmentService(
 }
 ```
 
-이 애너테이션들이 동작하려면 AOP 프록시가 필요하므로, 설정 클래스에 `@EnableResilientMethods`(Spring Framework 7) 를 켜 줍니다. 더 정교한 서킷 브레이커나 레이트 리미터가 필요하면 여전히 **Resilience4j**를 함께 쓸 수 있습니다.
+> [!WARNING]
+> Spring Framework 7의 `@Retryable`은 Spring Retry 라이브러리의 그것과 **속성 이름이 다릅니다.** 재시도 횟수는 `maxAttempts`가 아니라 **`maxRetries`**(첫 시도를 제외한 재시도 횟수)이고, `delay`·`maxDelay`·`jitter`는 기본 단위가 **밀리초**입니다(`timeUnit`으로 변경). 문자열 버전(`maxRetriesString`, `delayString`)을 쓰면 프로퍼티 플레이스홀더도 넣을 수 있습니다.
+
+이 애너테이션들이 동작하려면 AOP 프록시가 필요하므로, 설정 클래스에 `@EnableResilientMethods`(`org.springframework.resilience.annotation`) 를 켜 줍니다. 더 정교한 서킷 브레이커나 레이트 리미터가 필요하면 여전히 **Resilience4j**를 함께 쓸 수 있습니다.
 
 > [!TIP]
 > 재시도는 **멱등(idempotent)** 한 연산(GET 등)에만 안전합니다. 결제 같은 비멱등 POST를 무지성 재시도하면 중복 결제가 날 수 있습니다.

@@ -240,7 +240,8 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>ThreadLocal은 <strong><code>@Async</code>나 별도 스레드로 작업을 넘기면 전파되지 않습니다.</strong> 트랜잭션·보안 컨텍스트가 새 스레드에서 사라지는 사고의 원인이 되니, 비동기 경계에서는 컨텍스트 전파(<code>TaskDecorator</code> 등)를 따로 챙겨야 합니다.</p>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>ThreadLocal은 <strong>별도 스레드로 작업을 넘기면 기본적으로 전파되지 않습니다.</strong> 트랜잭션·보안 컨텍스트가 새 스레드에서 사라지는 사고의 원인이 되니, 비동기 경계에서는 컨텍스트 전파(<code>TaskDecorator</code> 등)를 챙겨야 합니다.</p>
+<p>다만 <strong>Spring Boot 4.1부터는 <code>@Async</code> 메서드에 컨텍스트가 자동 전파</strong>됩니다(Micrometer Context Propagation 연동). <code>@Async</code>를 쓴다면 4.1 이상에서는 이 함정이 상당 부분 해소되지만, 직접 만든 스레드 풀이나 코루틴 디스패처로 넘길 때는 여전히 수동으로 챙겨야 합니다.</p>
 </blockquote>
 <h2>7. 마무리 — 마법의 정체</h2>
 <p><code>@Transactional</code> 하나로 트랜잭션이 열리고 닫히는 것, <code>@Cacheable</code> 하나로 결과가 캐시되는 것 — 모두 <strong>"스프링이 여러분의 빈을 프록시로 한 겹 감싸, 정해진 포인트컷에서 어드바이스를 실행한다"</strong> 는 단 하나의 원리에서 나옵니다.</p>

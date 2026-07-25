@@ -85,7 +85,7 @@
 </nav></aside>
   <main class="content">
 <h1>실행 가능 JAR 빌드</h1>
-<p>모든 배포는 <strong>하나의 실행 가능한 산출물</strong>에서 출발합니다. Spring Boot의 Gradle 플러그인은 애플리케이션 코드와 모든 의존성을 단일 jar에 담은 <strong>실행 가능 jar</strong>(흔히 <em>fat jar</em> 또는 <em>uber jar</em>)를 만들어 줍니다. 별도의 톰캣 설치 없이 <code>java -jar</code>만으로 내장 톰캣(Tomcat 11.0.x)을 띄우고 8080 포트에서 서비스가 시작됩니다.</p>
+<p>모든 배포는 <strong>하나의 실행 가능한 산출물</strong>에서 출발합니다. Spring Boot의 Gradle 플러그인은 애플리케이션 코드와 모든 의존성을 단일 jar에 담은 <strong>실행 가능 jar</strong>(흔히 <em>fat jar</em> 또는 <em>uber jar</em>)를 만들어 줍니다. 별도의 톰캣 설치 없이 <code>java -jar</code>만으로 내장 톰캣(Tomcat 11.0.22)을 띄우고 8080 포트에서 서비스가 시작됩니다.</p>
 <p>이 문서에서는 Book API를 빌드해 산출물을 만들고, 그 내부 구조(특히 <strong>layered jar</strong>)를 이해하고, 실행 시 프로파일·인자·JVM 옵션을 주입하는 방법을 다룹니다.</p>
 <h2>bootJar로 빌드하기</h2>
 <p>Spring Boot Gradle 플러그인을 적용하면 <code>bootJar</code> 태스크가 자동으로 등록됩니다. Book API 프로젝트 루트에서 다음을 실행합니다.</p>

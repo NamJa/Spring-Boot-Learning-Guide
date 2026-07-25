@@ -111,18 +111,20 @@
 <li><strong>피크 스루풋</strong> — 장시간 도는 워크로드에서는 JIT가 최적화한 JVM의 최대 처리량을 따라가지 못할 수 있음</li>
 </ul>
 <h2>프로젝트 설정</h2>
-<p>GraalVM Community <strong>25</strong>를 설치하고, <code>build.gradle.kts</code>에 <strong>Native Build Tools 1.1.1</strong> 플러그인을 추가합니다.</p>
+<p>GraalVM Community <strong>25</strong>를 설치하고, <code>build.gradle.kts</code>에 <strong>Native Build Tools 1.1.1</strong> 플러그인을 추가합니다. 이 버전은 Spring Boot 4.1.0이 BOM에서 관리하는 값(<code>native-build-tools-plugin.version</code>)이므로, 특별한 이유가 없다면 그대로 쓰는 것이 가장 안전합니다.</p>
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
 <span class="n">plugins</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;jvm&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span>
 <span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;plugin.spring&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span>
 <span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;org.springframework.boot&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;4.1.0&quot;</span>
 <span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;io.spring.dependency-management&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;1.1.7&quot;</span>
-<span class="w">    </span><span class="c1">// GraalVM 네이티브 빌드 도구</span>
+<span class="w">    </span><span class="c1">// GraalVM 네이티브 빌드 도구 (Spring Boot 4.1.0 관리 버전)</span>
 <span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;org.graalvm.buildtools.native&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;1.1.1&quot;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
+<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p>Native Build Tools 자체는 더 빠르게 릴리스됩니다(2026-07-25 기준 업스트림 최신은 1.1.6). Spring Boot 플러그인이 검증한 버전과 어긋나면 AOT 처리 단계에서 예상치 못한 문제가 생길 수 있으니, 올릴 때는 Spring Boot 릴리스 노트에서 관리 버전을 함께 확인하세요.</p>
+</blockquote>
 <p>Spring Boot 플러그인이 적용되면 AOT 처리(<code>processAot</code>)와 네이티브 컴파일 태스크가 자동 구성됩니다. GraalVM JDK가 활성 JDK인지 확인합니다.</p>
 <div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>java<span class="w"> </span>-version
 <span class="c1"># openjdk version &quot;25&quot; ... GraalVM CE 25...</span>
@@ -159,8 +161,14 @@
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 2) 더 세밀한 제어가 필요하면 RuntimeHintsRegistrar 구현</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookRuntimeHints</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">RuntimeHintsRegistrar</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">registerHints</span><span class="p">(</span><span class="n">hints</span><span class="p">:</span><span class="w"> </span><span class="n">RuntimeHints</span><span class="p">,</span><span class="w"> </span><span class="n">classLoader</span><span class="p">:</span><span class="w"> </span><span class="n">ClassLoader?)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="c1">// 리플렉션 힌트</span>
-<span class="w">        </span><span class="n">hints</span><span class="p">.</span><span class="na">reflection</span><span class="p">().</span><span class="na">registerType</span><span class="p">(</span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">withMembers</span><span class="p">(</span><span class="o">*</span><span class="n">MemberCategory</span><span class="p">.</span><span class="na">values</span><span class="p">())</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="c1">// 리플렉션 힌트 — 필요한 MemberCategory만 골라 지정한다</span>
+<span class="w">        </span><span class="n">hints</span><span class="p">.</span><span class="na">reflection</span><span class="p">().</span><span class="na">registerType</span><span class="p">(</span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nb">it</span><span class="p">.</span><span class="na">withMembers</span><span class="p">(</span>
+<span class="w">                </span><span class="n">MemberCategory</span><span class="p">.</span><span class="na">INVOKE_DECLARED_CONSTRUCTORS</span><span class="p">,</span>
+<span class="w">                </span><span class="n">MemberCategory</span><span class="p">.</span><span class="na">INVOKE_DECLARED_METHODS</span><span class="p">,</span>
+<span class="w">                </span><span class="n">MemberCategory</span><span class="p">.</span><span class="na">ACCESS_DECLARED_FIELDS</span><span class="p">,</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">        </span><span class="p">}</span>
 <span class="w">        </span><span class="c1">// 리소스 힌트 (네이티브 이미지에 포함시킬 리소스)</span>
 <span class="w">        </span><span class="n">hints</span><span class="p">.</span><span class="na">resources</span><span class="p">().</span><span class="na">registerPattern</span><span class="p">(</span><span class="s">&quot;db/migration/*.sql&quot;</span><span class="p">)</span>
 <span class="w">    </span><span class="p">}</span>
@@ -172,7 +180,9 @@
 <span class="kd">class</span><span class="w"> </span><span class="nc">HintsConfig</span>
 </pre></div>
 </div>
-<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>네이티브에서 <code>ClassNotFoundException</code>이나 <code>Jackson</code>/리플렉션 관련 오류가 난다면 거의 항상 <strong>힌트 누락</strong>이 원인입니다. 동일한 코드가 JVM jar에서는 잘 돌아가더라도 네이티브에서는 closed-world 분석에 걸리지 않은 타입이 빠질 수 있습니다.</p>
+<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p>옛 예제의 <code>withMembers(*MemberCategory.values())</code>(모든 카테고리 한 번에)는 Spring Framework 7에서 <strong><code>PUBLIC_FIELDS</code>/<code>DECLARED_FIELDS</code>와 <code>INTROSPECT_*</code> 상수가 제거 예정(deprecated for removal)</strong> 이라 경고를 뿜고 향후 깨집니다. 필드 접근은 <code>ACCESS_*</code> 상수로 대체됐고, introspection 계열은 타입에 리플렉션 힌트를 등록하면 자동 포함되므로 별도 지정이 필요 없습니다. 위처럼 <strong>필요한 카테고리만 명시</strong>하세요.</p>
+<p>[!WARNING]
+네이티브에서 <code>ClassNotFoundException</code>이나 <code>Jackson</code>/리플렉션 관련 오류가 난다면 거의 항상 <strong>힌트 누락</strong>이 원인입니다. 동일한 코드가 JVM jar에서는 잘 돌아가더라도 네이티브에서는 closed-world 분석에 걸리지 않은 타입이 빠질 수 있습니다.</p>
 </blockquote>
 <h2>네이티브 테스트 (<code>nativeTest</code>)</h2>
 <p>네이티브 이미지에서만 드러나는 힌트 누락을 잡으려면, 테스트도 네이티브로 돌려 봐야 합니다.</p>

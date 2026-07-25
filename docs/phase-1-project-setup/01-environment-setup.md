@@ -30,10 +30,10 @@ source "$HOME/.sdkman/bin/sdkman-init.sh"
 sdk list java | grep '21\.'
 
 # 3. Temurin(Eclipse Adoptium) 21 설치 — 식별자는 목록에서 확인 후 사용
-sdk install java 21.0.7-tem
+sdk install java 21.0.11-tem
 
 # 4. 기본 JDK로 지정
-sdk default java 21.0.7-tem
+sdk default java 21.0.11-tem
 ```
 
 ### 설치 확인
@@ -45,10 +45,12 @@ java -version
 다음과 비슷한 출력이 나오면 성공입니다.
 
 ```
-openjdk version "21.0.7" 2025-04-15 LTS
-OpenJDK Runtime Environment Temurin-21.0.7+6 (build 21.0.7+6-LTS)
-OpenJDK 64-Bit Server VM Temurin-21.0.7+6 (build 21.0.7+6-LTS, mixed mode, sharing)
+openjdk version "21.0.11" 2026-04-21 LTS
+OpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)
 ```
+
+> 💡 패치 번호는 분기별 보안 업데이트(CPU)마다 올라갑니다. 2026-07-25 기준 Temurin 21의 최신 태그는 **21.0.12+8**(2026-07 CPU)이지만, macOS(Apple Silicon) 바이너리와 SDKMAN 인덱스에는 아직 반영되지 않아 실제로 설치되는 것은 **21.0.11-tem**(2026-04 CPU)입니다. 항상 `sdk list java | grep '21\.'`로 그 시점에 설치 가능한 최신 식별자를 확인해 쓰면 됩니다.
 
 > ⚠️ Windows에서는 SDKMAN! 대신 [Adoptium](https://adoptium.net/)에서 MSI 인스톨러를 받거나, WSL2에서 위 명령을 그대로 사용하면 됩니다.
 
@@ -86,7 +88,7 @@ book-api/
 ./gradlew bootRun        # 애플리케이션 실행
 ```
 
-> 💡 이 가이드는 **Gradle 8.14+ / 9.x** 를 기준으로 합니다. Initializr가 생성하는 래퍼 버전을 그대로 사용하면 됩니다. Maven(3.6.3+)도 가능하지만 이 가이드는 Gradle - Kotlin DSL을 사용합니다.
+> 💡 이 가이드는 **Gradle 9.x** 를 기준으로 합니다(2026-07-25 기준 Initializr가 넣어 주는 래퍼는 **9.5.1**, Gradle 최신 릴리스는 **9.6.1**). 래퍼 버전을 그대로 사용하면 되고, 8.14+에서도 동작합니다. Maven(3.6.3+)도 가능하지만 이 가이드는 Gradle - Kotlin DSL을 사용합니다.
 
 ## 4. 보조 도구 (선택)
 
@@ -116,9 +118,9 @@ http GET :8080/api/books
 
 | 도구 | 확인 명령 | 기대 결과 |
 | --- | --- | --- |
-| JDK 21 | `java -version` | `21.x` LTS |
+| JDK 21 | `java -version` | `21.x` LTS (설치본 21.0.11, 최신 태그 21.0.12) |
 | IntelliJ IDEA | 실행 | Kotlin 내장 |
-| Gradle Wrapper | `./gradlew --version` | 8.14+ / 9.x (프로젝트 생성 후) |
+| Gradle Wrapper | `./gradlew --version` | 9.x (Initializr 기본 9.5.1) |
 | curl/HTTPie | `curl --version` | 임의 버전 |
 
 ## 다음 단계

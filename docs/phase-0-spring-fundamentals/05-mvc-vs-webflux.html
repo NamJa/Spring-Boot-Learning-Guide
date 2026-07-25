@@ -89,7 +89,7 @@
 <h2>1. Spring MVC — 서블릿 기반 블로킹 모델</h2>
 <p><strong>Spring MVC</strong>는 Java <strong>서블릿(Servlet)</strong> 위에서 동작하는 전통적인 동기 웹 스택입니다.</p>
 <ul>
-<li>기반: 서블릿 컨테이너 — 본 가이드 기준 <strong>Tomcat 11.0.x (Servlet 6.1)</strong></li>
+<li>기반: 서블릿 컨테이너 — 본 가이드 기준 <strong>Tomcat 11.0.22 (Servlet 6.1)</strong></li>
 <li>실행 모델: <strong>요청 1건당 스레드 1개(thread-per-request)</strong>. 스레드가 요청을 받아 처리가 끝날 때까지 점유하며, DB 호출이나 외부 API 응답을 <strong>기다리는 동안 그 스레드는 블로킹</strong>됩니다.</li>
 <li>프로그래밍 모델: 명령형(imperative). 위에서 아래로 읽히는 평범한 순차 코드.</li>
 </ul>
@@ -113,7 +113,7 @@
 
 스레드 풀이 가득 차면 이후 요청은 대기</pre></figure>
 <h2>2. Spring WebFlux — 리액티브 논블로킹 모델</h2>
-<p><strong>Spring WebFlux</strong>는 <strong>Reactor</strong>(본 가이드 기준 Reactor 2025.0)를 기반으로 한 리액티브 스택입니다.</p>
+<p><strong>Spring WebFlux</strong>는 <strong>Reactor</strong>(본 가이드 기준 Reactor 2025.0.6)를 기반으로 한 리액티브 스택입니다.</p>
 <ul>
 <li>기반: 보통 <strong>Netty</strong>(논블로킹 서버). 서블릿 컨테이너 위에서도 동작 가능.</li>
 <li>실행 모델: <strong>이벤트 루프 + 논블로킹 I/O</strong>. 적은 수의 스레드가 많은 요청을 처리. I/O를 기다리는 동안 스레드를 놓아주고 다른 요청을 처리한 뒤, 결과가 준비되면 콜백으로 이어 갑니다.</li>

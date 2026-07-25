@@ -78,7 +78,7 @@ fun search(title: String?, author: String?, minPrice: Int?): List<Book> {
 
 ### 2.1 무엇을 포기하는가
 
-물론 비용도 있습니다. **Q타입 생성을 위한 빌드 단계(애너테이션 프로세서)** 가 추가되고, Kotlin에서는 `kapt` 때문에 빌드가 다소 느려집니다([02 페이지](02-setup-kotlin.md) 참고). 또한 아주 단순한 단건 조회까지 Querydsl로 쓰는 것은 과합니다 — 그건 Spring Data JPA의 파생 쿼리로 충분합니다.
+물론 비용도 있습니다. **Q타입 생성을 위한 빌드 단계(애너테이션 프로세서)** 가 추가되고, Kotlin에서 `kapt`를 쓰면 빌드가 다소 느려집니다(더 빠른 KSP 경로도 있습니다 — [02 페이지](02-setup-kotlin.md) 참고). 또한 아주 단순한 단건 조회까지 Querydsl로 쓰는 것은 과합니다 — 그건 Spring Data JPA의 파생 쿼리로 충분합니다.
 
 ## 3. 2026년 Querydsl 프로젝트 현황
 
@@ -91,12 +91,13 @@ fun search(title: String?, author: String?, minPrice: Int?): List<Book> {
 | 구분 | 원조 (레거시) | OpenFeign 포크 (현행 표준) |
 |---|---|---|
 | Group ID | `com.querydsl` | **`io.github.openfeign.querydsl`** |
-| 최신 라인 | 5.x (정체) | **7.x** (활발히 유지보수) |
-| Jakarta 지원 | 제한적 | `:jakarta` classifier로 완전 지원 |
+| 최신 라인 | 5.1.0 (정체, Spring Boot BOM이 관리하는 값) | **7.5** (2026-07-21, 활발히 유지보수) |
+| Jakarta 지원 | 제한적 | 메인 아티팩트가 Jakarta 기준 |
+| Kotlin 코드 생성 | kapt만 | kapt + **KSP**(`querydsl-ksp-codegen`) |
 | Spring Boot 4 | 권장하지 않음 | 권장 |
 
 > [!WARNING]
-> 인터넷의 옛 블로그·StackOverflow 답변은 대부분 `com.querydsl:querydsl-jpa:5.0.0`을 안내합니다. **Spring Boot 4 + Jakarta 환경에서는 이 좌표를 쓰지 마세요.** 본 부록은 **`io.github.openfeign.querydsl`** 좌표를 기준으로 합니다. 정확한 버전과 의존성은 [02 페이지](02-setup-kotlin.md)에서 다룹니다.
+> 인터넷의 옛 블로그·StackOverflow 답변은 대부분 `com.querydsl:querydsl-jpa:5.0.0`을 안내합니다. **Spring Boot 4 + Jakarta 환경에서는 이 좌표를 쓰지 마세요.** (Spring Boot BOM에도 `querydsl.version=5.1.0`이 남아 있지만, 이는 레거시 `com.querydsl` 좌표용입니다.) 본 부록은 **`io.github.openfeign.querydsl`** 좌표를 기준으로 합니다. 정확한 버전·classifier 규칙은 [02 페이지](02-setup-kotlin.md)에서 다룹니다.
 
 ## 4. 다른 대안과의 비교 — JPA Criteria API
 

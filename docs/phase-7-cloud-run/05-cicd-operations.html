@@ -92,6 +92,7 @@
 <p>GitHub Actions가 GCP에 배포하려면 인증이 필요합니다. 예전에는 서비스 계정의 <strong>JSON 키 파일</strong>을 GitHub Secret에 넣었지만, 키 유출 위험이 큽니다. 지금은 <strong>Workload Identity Federation(WIF)</strong> 이 권장됩니다.</p>
 <blockquote>
 <p><strong>WIF란?</strong> JSON 키 없이, "이 GitHub 저장소의 워크플로"라는 신원을 GCP가 직접 신뢰하도록 연결하는 방식입니다. 장기 비밀이 없어 훨씬 안전합니다.</p>
+<p>WIF에도 두 가지가 있습니다. 아래 예제는 <strong>서비스 계정을 경유하는</strong> 방식(<code>service_account</code> 지정)이고, <code>google-github-actions/auth</code>가 가장 권장하는 것은 서비스 계정 없이 연맹 신원을 직접 쓰는 <strong>Direct Workload Identity Federation</strong>(<code>service_account</code> 생략)입니다. 다만 배포 대상 API가 서비스 계정 권한을 요구하는 경우가 많아, 실무에서는 아래 방식도 널리 쓰입니다.</p>
 </blockquote>
 <p>설정은 고수준으로 이렇습니다(한 번만).</p>
 <ol>
@@ -122,10 +123,10 @@
 <span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
 <span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">소스 체크아웃</span>
-<span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v7</span>
 
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">JDK 21 설정</span>
-<span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-java@v4</span>
+<span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-java@v5</span>
 <span class="w">        </span><span class="nt">with</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">distribution</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">temurin</span>
 <span class="w">          </span><span class="nt">java-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;21&#39;</span>
@@ -135,13 +136,13 @@
 
 <span class="w">      </span><span class="c1"># WIF 기반 인증 (JSON 키 없음)</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GCP 인증</span>
-<span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">google-github-actions/auth@v2</span>
+<span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">google-github-actions/auth@v3</span>
 <span class="w">        </span><span class="nt">with</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">workload_identity_provider</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.WIF_PROVIDER }}</span>
 <span class="w">          </span><span class="nt">service_account</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.WIF_SERVICE_ACCOUNT }}</span>
 
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Cloud Run 배포</span>
-<span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">google-github-actions/deploy-cloudrun@v2</span>
+<span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">google-github-actions/deploy-cloudrun@v3</span>
 <span class="w">        </span><span class="nt">with</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ env.SERVICE }}</span>
 <span class="w">          </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span><span class="w">                       </span><span class="c1"># 소스 배포(buildpacks/Dockerfile)</span>
@@ -211,7 +212,7 @@ gcloud<span class="w"> </span>run<span class="w"> </span>deploy<span class="w"> 
 <span class="w">    </span><span class="nt">readinessstate</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="nt">server</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">shutdown</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">graceful</span><span class="w">        </span><span class="c1"># 종료 시 진행 중인 요청을 마저 처리</span>
+<span class="w">  </span><span class="nt">shutdown</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">graceful</span><span class="w">        </span><span class="c1"># Boot 4 기본값 — 종료 시 진행 중인 요청을 마저 처리</span>
 </pre></div>
 </div>
 <ul>
@@ -220,7 +221,7 @@ gcloud<span class="w"> </span>run<span class="w"> </span>deploy<span class="w"> 
 </ul>
 <p>Cloud Run 콘솔(또는 YAML 서비스 정의)에서 위 경로로 HTTP 프로브를 지정합니다.</p>
 <blockquote>
-<p><strong>Graceful shutdown</strong>: <code>server.shutdown=graceful</code>로 두면 Cloud Run이 인스턴스를 줄일 때 진행 중인 요청을 끊지 않고 마무리합니다.</p>
+<p><strong>Graceful shutdown</strong>: Spring Boot 4는 그레이스풀 셧다운이 <strong>기본 활성화</strong>이므로, Cloud Run이 인스턴스를 줄일 때 진행 중인 요청을 끊지 않고 마무리합니다(끄려면 <code>server.shutdown=immediate</code>). 대기 시간은 <code>spring.lifecycle.timeout-per-shutdown-phase</code>로 조정합니다.</p>
 </blockquote>
 <h2>5. 스케일링·구조적 로깅·커스텀 도메인</h2>
 <p><strong>스케일링 노브</strong>:</p>

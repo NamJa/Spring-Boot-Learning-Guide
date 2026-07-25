@@ -30,7 +30,7 @@ SSR을 위해 필요한 것은 스타터 하나입니다([Phase 1-4](../phase-1-
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf") // 추가
 }
 ```

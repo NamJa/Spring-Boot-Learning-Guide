@@ -98,13 +98,14 @@ COPY --from=builder /workspace/extracted/application/ ./
 
 EXPOSE 8080
 
-# 컨테이너 메모리에 맞춰 힙 자동 조정
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", \
-            "org.springframework.boot.loader.launch.JarLauncher"]
+# 추출된 얇은 application.jar를 실행 (컨테이너 메모리에 맞춰 힙 자동 조정)
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "application.jar"]
 ```
 
 > [!NOTE]
-> 추출된 레이어는 `JarLauncher`가 인식하는 디렉터리 구조(`BOOT-INF/` 등)로 풀립니다. 따라서 ENTRYPOINT는 jar가 아니라 **`JarLauncher` 클래스**를 직접 실행합니다. 각 `COPY`가 별도 Docker 레이어가 되고, 코드만 바뀌면 마지막 `application` 레이어만 다시 만들어집니다.
+> `extract --layers`는 `application/` 레이어에 **애플리케이션 코드와 의존성 참조만 담긴 얇은 `application.jar`** 를 만들고, 실제 의존성은 `dependencies/`(→ `lib/`)에 풀어 놓습니다. 그래서 ENTRYPOINT는 이 얇은 jar를 `-jar`로 실행합니다. 각 `COPY`가 별도 Docker 레이어가 되고, 코드만 바뀌면 마지막 `application` 레이어만 다시 만들어집니다.
+>
+> ⚠️ 옛 예제에서 보이는 `ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]` 는 **이 레이아웃에서 동작하지 않습니다.** `JarLauncher`는 (추출하지 않은) 실행 가능 jar 안의 `Main-Class`일 때 의미가 있고, 추출 결과에는 기본적으로 로더가 포함되지 않습니다. Spring Boot 4.1 공식 Dockerfile 예제도 `java -jar application.jar`로 끝납니다.
 
 ### .dockerignore
 
@@ -184,7 +185,7 @@ services:
     depends_on:
       - db
   db:
-    image: postgres:17
+    image: postgres:18
     environment:
       POSTGRES_DB: bookdb
       POSTGRES_USER: bookuser

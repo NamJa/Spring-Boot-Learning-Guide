@@ -87,7 +87,9 @@
 <h1>데이터베이스 설정 (H2 / PostgreSQL)</h1>
 <p>Entity, Repository, 트랜잭션까지 준비했으니 마지막으로 <strong>실제 데이터베이스에 연결</strong>합니다. 개발 중에는 가볍고 설정이 필요 없는 <strong>H2</strong>를, 운영에서는 견고한 <strong>PostgreSQL</strong>을 사용하고, 둘을 <strong>Spring 프로필</strong>로 깔끔하게 분리하는 것이 목표입니다.</p>
 <h2>1. H2 개발 환경 설정</h2>
-<p>H2는 자바로 작성된 경량 DB로, <strong>인메모리 모드</strong>로 띄우면 별도 설치 없이 즉시 사용할 수 있어 개발·테스트에 이상적입니다. 의존성은 <a href="01-jpa-concepts.html">Phase 3-1</a>에서 이미 <code>runtimeOnly("com.h2database:h2")</code>로 추가했습니다.</p>
+<p>H2는 자바로 작성된 경량 DB로, <strong>인메모리 모드</strong>로 띄우면 별도 설치 없이 즉시 사용할 수 있어 개발·테스트에 이상적입니다. 의존성은 <a href="01-jpa-concepts.html">Phase 3-1</a>에서 이미 <code>runtimeOnly("com.h2database:h2")</code>(드라이버)와 <code>implementation("org.springframework.boot:spring-boot-h2console")</code>(웹 콘솔)로 추가했습니다.</p>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>Spring Boot 3까지는 <code>h2</code> 의존성만 있으면 <code>spring.h2.console.enabled=true</code>로 콘솔이 켜졌습니다. <strong>Spring Boot 4에서는 콘솔 지원이 <code>spring-boot-h2console</code> 모듈로 분리</strong>되었으므로, 이 의존성이 없으면 아래 <code>spring.h2.console</code> 설정이 아무 일도 하지 않습니다. Initializr에서 H2를 고르면 자동으로 함께 추가됩니다.</p>
+</blockquote>
 <p><code>src/main/resources/application.yml</code>에 기본(개발) 설정을 작성합니다.</p>
 <div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">spring</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">datasource</span><span class="p">:</span>
@@ -109,7 +111,7 @@
 <span class="w">        </span><span class="nt">format_sql</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">      </span><span class="c1"># SQL을 보기 좋게 정렬</span>
 </pre></div>
 </div>
-<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p><strong>Dialect(방언)는 직접 지정하지 않아도 됩니다.</strong> Hibernate 6+는 datasource URL을 보고 H2/PostgreSQL 등에 맞는 <code>Dialect</code>를 <strong>자동 감지</strong>합니다. 옛날 예제처럼 <code>spring.jpa.database-platform</code>을 손으로 적던 시절은 지났습니다.</p>
+<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p><strong>Dialect(방언)는 직접 지정하지 않아도 됩니다.</strong> Hibernate 6 이후(본 가이드는 <strong>7.4</strong>)는 datasource URL을 보고 H2/PostgreSQL 등에 맞는 <code>Dialect</code>를 <strong>자동 감지</strong>합니다. 옛날 예제처럼 <code>spring.jpa.database-platform</code>을 손으로 적던 시절은 지났습니다.</p>
 </blockquote>
 <p>앱을 실행한 뒤 브라우저에서 <code>http://localhost:8080/h2-console</code>에 접속하면 데이터를 직접 조회할 수 있습니다. 접속 시 <strong>JDBC URL</strong>을 위 <code>url</code>과 똑같이(<code>jdbc:h2:mem:bookdb</code>) 입력해야 같은 인메모리 DB에 붙습니다.</p>
 <blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>H2 콘솔과 <code>ddl-auto: create-drop</code>은 <strong>개발 전용</strong>입니다. 운영 환경에서는 절대 켜면 안 됩니다(콘솔은 보안 위험, create-drop은 데이터 전체 삭제). 그래서 다음 절에서 프로필로 분리합니다.</p>
@@ -119,10 +121,12 @@
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
 <span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">runtimeOnly</span><span class="p">(</span><span class="s">&quot;com.h2database:h2&quot;</span><span class="p">)</span><span class="w">          </span><span class="c1">// 개발/테스트용</span>
-<span class="w">    </span><span class="n">runtimeOnly</span><span class="p">(</span><span class="s">&quot;org.postgresql:postgresql&quot;</span><span class="p">)</span><span class="w">  </span><span class="c1">// 운영용 PostgreSQL 드라이버</span>
+<span class="w">    </span><span class="n">runtimeOnly</span><span class="p">(</span><span class="s">&quot;org.postgresql:postgresql&quot;</span><span class="p">)</span><span class="w">  </span><span class="c1">// 운영용 PostgreSQL 드라이버 (BOM 관리 버전 42.7.11)</span>
 <span class="p">}</span>
 </pre></div>
 </div>
+<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p>2026-07-25 기준 PostgreSQL 서버의 최신 메이저는 <strong>18</strong>입니다(도커 태그 <code>postgres:18</code>). 드라이버 버전(42.7.x)은 서버 메이저 버전과 별개로 관리되며, Spring Boot BOM이 관리하는 버전을 그대로 쓰면 됩니다.</p>
+</blockquote>
 <p>이제 <code>prod</code> 프로필용 설정 파일 <code>src/main/resources/application-prod.yml</code>을 만듭니다. 민감 정보(접속 URL·비밀번호)는 파일에 박지 않고 <strong>환경 변수</strong>로 주입합니다.</p>
 <div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">spring</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">datasource</span><span class="p">:</span>
@@ -197,7 +201,7 @@ java<span class="w"> </span>-jar<span class="w"> </span>bookapi.jar<span class="
 <h2>4. 운영을 위한 스키마 마이그레이션 (Flyway / Liquibase)</h2>
 <p><code>ddl-auto</code>로 스키마를 자동 생성하는 방식은 편하지만 운영에는 부적합합니다. "지난주에 어떤 컬럼을 추가했는지", "이 변경을 롤백하려면 어떻게 하는지" 같은 <strong>이력과 통제</strong>가 없기 때문입니다. 운영에서는 <strong>스키마 마이그레이션 도구</strong>로 변경을 버전 관리합니다.</p>
 <ul>
-<li><strong>Flyway</strong>: SQL 파일(<code>V1__init.sql</code>, <code>V2__add_column.sql</code> …)을 버전 순서대로 적용. 단순하고 직관적이라 입문에 적합.</li>
+<li><strong>Flyway</strong>: SQL 파일(<code>V1__init.sql</code>, <code>V2__add_column.sql</code> …)을 버전 순서대로 적용. 단순하고 직관적이라 입문에 적합. (Spring Boot 4.1 관리 버전은 Flyway 12.4)</li>
 <li><strong>Liquibase</strong>: XML/YAML/JSON/SQL로 변경을 기술. DB 독립적 추상화가 강력하고 롤백 기능이 풍부.</li>
 </ul>
 <p>Flyway를 쓰려면 의존성을 추가하고(<code>org.flywaydb:flyway-core</code> 등), <code>src/main/resources/db/migration/</code>에 버전 스크립트를 두면 됩니다. 그러면 <code>ddl-auto</code>는 <code>validate</code>로 두고, 스키마는 전적으로 마이그레이션 스크립트가 책임집니다.</p>

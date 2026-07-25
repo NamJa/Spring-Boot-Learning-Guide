@@ -147,6 +147,14 @@
 <span class="n">plugins</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;plugin.jpa&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span><span class="w">   </span><span class="c1">// @Entity에 no-arg 생성자 합성</span>
 <span class="p">}</span>
+
+<span class="c1">// 이 플러그인이 함께 넣어 주는 블록: JPA 애너테이션 클래스를 open 처리</span>
+<span class="c1">// (Hibernate가 지연 로딩 프록시를 만들려면 엔티티가 final이 아니어야 한다)</span>
+<span class="n">allOpen</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">annotation</span><span class="p">(</span><span class="s">&quot;jakarta.persistence.Entity&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">annotation</span><span class="p">(</span><span class="s">&quot;jakarta.persistence.MappedSuperclass&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">annotation</span><span class="p">(</span><span class="s">&quot;jakarta.persistence.Embeddable&quot;</span><span class="p">)</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <h2>4. Kotlin + JPA 함정 ②: data class를 피하라</h2>
@@ -238,7 +246,7 @@
 </table>
 <blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p><code>id</code>는 DB가 채워 주기 전까지(=저장 전)는 값이 없으므로 <strong><code>Long?</code>(nullable) + 기본값 <code>null</code></strong> 로 선언합니다. <code>@Column(nullable=false)</code>와 Kotlin의 non-null 타입을 일치시키면, 컴파일 단계에서 NPE를, DB 단계에서 제약 위반을 이중으로 방지할 수 있습니다.</p>
 </blockquote>
-<p><code>LocalDate</code>는 별도 설정 없이 DB의 <code>DATE</code> 컬럼으로 자동 매핑됩니다. (Hibernate 6+는 <code>LocalDate</code>/<code>LocalDateTime</code>/<code>Instant</code> 등 <code>java.time</code> 타입을 기본 지원합니다.)</p>
+<p><code>LocalDate</code>는 별도 설정 없이 DB의 <code>DATE</code> 컬럼으로 자동 매핑됩니다. (본 가이드 기준 Hibernate <strong>7.4</strong>는 <code>LocalDate</code>/<code>LocalDateTime</code>/<code>Instant</code> 등 <code>java.time</code> 타입을 기본 지원합니다.)</p>
 <h2>6. 연관관계 매핑 (간단 소개)</h2>
 <p>실제 도메인에서는 Entity끼리 관계를 맺습니다. 예를 들어 한 명의 <strong>저자(Author)</strong> 가 여러 <strong>도서(Book)</strong> 를 쓴다면 1:N 관계입니다. 본격적인 연관관계 설계는 범위를 벗어나지만, 형태만 짚어 둡니다.</p>
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Entity</span>

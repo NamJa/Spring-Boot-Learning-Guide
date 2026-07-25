@@ -86,7 +86,7 @@
   <main class="content">
 <h1>부록 A · JPA 심화 (원리편)</h1>
 <p>Phase 3에서 우리는 Book REST API를 실제 데이터베이스에 영속화했습니다. 하지만 거기서 다룬 JPA는 "동작하게 만드는" 수준이었습니다. <code>JpaRepository</code>를 상속하면 CRUD가 되고, <code>@Transactional</code>을 붙이면 트랜잭션이 걸린다는 정도였죠. 정작 그 아래에서 <strong>무슨 일이 벌어지는지</strong>는 거의 들여다보지 않았습니다.</p>
-<p>이 부록은 그 빈틈을 메웁니다. 김영한 님의 <em>"자바 ORM 표준 JPA 프로그래밍 - 기본편"</em> 에서 다루는 핵심 원리들을 Kotlin과 Spring Boot 4.1 맥락으로 재구성했습니다. <strong>왜 <code>save()</code>를 안 불러도 <code>UPDATE</code>가 나가는지</strong>, <strong>왜 똑같은 조회를 두 번 했는데 SQL이 한 번만 나가는지</strong>, <strong>N+1 문제는 정확히 어떤 구조에서 터지는지</strong> — 이런 질문에 자신 있게 답할 수 있게 되는 것이 목표입니다.</p>
+<p>이 부록은 그 빈틈을 메웁니다. 김영한 님의 <em>"자바 ORM 표준 JPA 프로그래밍 - 기본편"</em> 에서 다루는 핵심 원리들을 Kotlin과 Spring Boot 4.1 / Hibernate 7.4 맥락으로 재구성했습니다. <strong>왜 <code>save()</code>를 안 불러도 <code>UPDATE</code>가 나가는지</strong>, <strong>왜 똑같은 조회를 두 번 했는데 SQL이 한 번만 나가는지</strong>, <strong>N+1 문제는 정확히 어떤 구조에서 터지는지</strong> — 이런 질문에 자신 있게 답할 수 있게 되는 것이 목표입니다.</p>
 <h2>1. 이 부록이 다루는 것</h2>
 <p>Phase 3가 "JPA를 쓰는 법"이었다면, 이 부록은 <strong>"JPA가 동작하는 원리"</strong> 입니다. 같은 Book 예제를 사용하되, 연관관계를 가르치기 위해 <code>Category</code>와 <code>Review</code>라는 새 엔티티를 도입합니다.</p>
 <table>
@@ -147,7 +147,7 @@ logging:
     org.hibernate.orm.jdbc.bind: trace   # 바인딩 파라미터 값까지 출력</code></p>
 </blockquote>
 <h2>3. 기준 스택</h2>
-<p>이 부록의 모든 코드는 다음 버전에서 검증되었습니다(2026-06-20 기준). Phase 3와 동일합니다.</p>
+<p>이 부록의 모든 코드는 다음 버전에서 검증되었습니다(2026-07-25 기준). Phase 3와 동일합니다.</p>
 <table>
 <thead>
 <tr>
@@ -162,15 +162,15 @@ logging:
 </tr>
 <tr>
 <td>Spring Framework</td>
-<td>7.0.8+</td>
+<td>7.0.8</td>
 </tr>
 <tr>
 <td>Spring Data JPA</td>
-<td>Spring Data 2025.1</td>
+<td>Spring Data <strong>2026.0.0</strong> 릴리스 트레인</td>
 </tr>
 <tr>
 <td>Hibernate ORM</td>
-<td>7.x (Boot 4.1 관리 버전)</td>
+<td><strong>7.4.1.Final</strong> (Boot 4.1.0 관리 버전)</td>
 </tr>
 <tr>
 <td>Kotlin</td>

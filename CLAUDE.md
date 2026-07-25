@@ -50,7 +50,15 @@ python3 -m http.server 3000 --directory docs   # then open http://localhost:3000
 
 - All documentation is written in **Korean (한국어)**. Maintain Korean when editing or adding content.
 - All code examples use **Kotlin**.
-- Reference versions (verified 2026-06-20): **Spring Boot 4.1.0**, Spring Framework 7.0.8+, Kotlin 2.3.21, JDK 21 (17~26 supported), Gradle 8.14+/9.x, Tomcat 11.0.x. Keep version claims consistent with `docs/README.md`.
+- Reference versions (verified 2026-07-25 against the Spring Boot 4.1.0 BOM and real Spring Initializr output): **Spring Boot 4.1.0** (latest GA; 4.0.7 / 3.5.16 are the maintenance lines), Spring Framework 7.0.8, Spring Security 7.1.0, Spring Data 2026.0.0, Hibernate ORM 7.4.1.Final, Kotlin 2.3.21 (standalone latest 2.4.10), JDK 21 (17~26 supported, latest patch 21.0.11), Gradle 9.x (Initializr wrapper 9.5.1), Tomcat 11.0.22, Jackson **3**.1.4, JUnit 6.0.3, Testcontainers 2.0.5, Querydsl (OpenFeign) 7.5, GraalVM CE 25 + Native Build Tools 1.1.1. Keep version claims consistent with `docs/README.md`.
+- **Spring Boot 4 conventions to preserve when editing examples** (these differ from every Boot 3 example on the web):
+  - Jackson 3: `tools.jackson.*` packages, `tools.jackson.module:jackson-module-kotlin`, immutable `JsonMapper`; annotations stay in `com.fasterxml.jackson.annotation`. `spring.jackson.datatype.datetime.*` holds the date/time features (`WRITE_DATES_AS_TIMESTAMPS` moved to `DateTimeFeature`).
+  - Starters: `spring-boot-starter-webmvc` (not `-web`), `spring-boot-starter-aspectj` (not `-aop`), `spring-boot-h2console` for the H2 console, per-technology test starters `spring-boot-starter-<tech>-test`.
+  - Testing: `@MockitoBean` (`@MockBean` removed), `RestTestClient` + `@AutoConfigureRestTestClient` (`TestRestTemplate` moved to `org.springframework.boot.resttestclient` and is no longer auto-configured), `MockMvcTester`.
+  - Health: `org.springframework.boot.health.contributor.{Health, HealthIndicator}`.
+  - Declarative HTTP clients: `@ImportHttpServices` from `org.springframework.web.service.registry`; config keys `spring.http.clients.*` (defaults) and `spring.http.serviceclient.<group>.*` (per group).
+  - Resilience: `org.springframework.resilience.annotation.{Retryable, ConcurrencyLimit, EnableResilientMethods}`; `@Retryable` uses `maxRetries`/`delay`(ms)/`multiplier` — there is no `maxAttempts`.
+  - Kotlin: Initializr emits `-Xannotation-default-target=param-property` and an `allOpen { … }` block for JPA annotations.
 
 ## Authoring Conventions
 

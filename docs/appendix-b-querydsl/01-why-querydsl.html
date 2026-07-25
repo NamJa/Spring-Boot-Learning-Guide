@@ -146,7 +146,7 @@
 <li><strong>재사용</strong>: 조건 생성 로직을 메서드로 빼서 여러 쿼리에서 공유할 수 있습니다.</li>
 </ul>
 <h3>2.1 무엇을 포기하는가</h3>
-<p>물론 비용도 있습니다. <strong>Q타입 생성을 위한 빌드 단계(애너테이션 프로세서)</strong> 가 추가되고, Kotlin에서는 <code>kapt</code> 때문에 빌드가 다소 느려집니다(<a href="02-setup-kotlin.html">02 페이지</a> 참고). 또한 아주 단순한 단건 조회까지 Querydsl로 쓰는 것은 과합니다 — 그건 Spring Data JPA의 파생 쿼리로 충분합니다.</p>
+<p>물론 비용도 있습니다. <strong>Q타입 생성을 위한 빌드 단계(애너테이션 프로세서)</strong> 가 추가되고, Kotlin에서 <code>kapt</code>를 쓰면 빌드가 다소 느려집니다(더 빠른 KSP 경로도 있습니다 — <a href="02-setup-kotlin.html">02 페이지</a> 참고). 또한 아주 단순한 단건 조회까지 Querydsl로 쓰는 것은 과합니다 — 그건 Spring Data JPA의 파생 쿼리로 충분합니다.</p>
 <h2>3. 2026년 Querydsl 프로젝트 현황</h2>
 <p>여기는 <strong>버전·좌표 선택에 직결되는 중요한 부분</strong>입니다. 입문자가 가장 많이 혼동하는 지점이기도 합니다.</p>
 <p>원조 Querydsl(group id <strong><code>com.querydsl</code></strong>, 5.x 라인)은 사실상 <strong>유지보수가 멈춘 상태</strong>입니다. 최신 Jakarta·Spring Boot 3/4 환경과의 호환성 패치가 더디게 진행되면서, 커뮤니티는 새로운 메인테이너를 찾았습니다.</p>
@@ -167,13 +167,18 @@
 </tr>
 <tr>
 <td>최신 라인</td>
-<td>5.x (정체)</td>
-<td><strong>7.x</strong> (활발히 유지보수)</td>
+<td>5.1.0 (정체, Spring Boot BOM이 관리하는 값)</td>
+<td><strong>7.5</strong> (2026-07-21, 활발히 유지보수)</td>
 </tr>
 <tr>
 <td>Jakarta 지원</td>
 <td>제한적</td>
-<td><code>:jakarta</code> classifier로 완전 지원</td>
+<td>메인 아티팩트가 Jakarta 기준</td>
+</tr>
+<tr>
+<td>Kotlin 코드 생성</td>
+<td>kapt만</td>
+<td>kapt + <strong>KSP</strong>(<code>querydsl-ksp-codegen</code>)</td>
 </tr>
 <tr>
 <td>Spring Boot 4</td>
@@ -182,7 +187,7 @@
 </tr>
 </tbody>
 </table>
-<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>인터넷의 옛 블로그·StackOverflow 답변은 대부분 <code>com.querydsl:querydsl-jpa:5.0.0</code>을 안내합니다. <strong>Spring Boot 4 + Jakarta 환경에서는 이 좌표를 쓰지 마세요.</strong> 본 부록은 <strong><code>io.github.openfeign.querydsl</code></strong> 좌표를 기준으로 합니다. 정확한 버전과 의존성은 <a href="02-setup-kotlin.html">02 페이지</a>에서 다룹니다.</p>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>인터넷의 옛 블로그·StackOverflow 답변은 대부분 <code>com.querydsl:querydsl-jpa:5.0.0</code>을 안내합니다. <strong>Spring Boot 4 + Jakarta 환경에서는 이 좌표를 쓰지 마세요.</strong> (Spring Boot BOM에도 <code>querydsl.version=5.1.0</code>이 남아 있지만, 이는 레거시 <code>com.querydsl</code> 좌표용입니다.) 본 부록은 <strong><code>io.github.openfeign.querydsl</code></strong> 좌표를 기준으로 합니다. 정확한 버전·classifier 규칙은 <a href="02-setup-kotlin.html">02 페이지</a>에서 다룹니다.</p>
 </blockquote>
 <h2>4. 다른 대안과의 비교 — JPA Criteria API</h2>
 <p>표준 JPA에도 타입 안전 동적 쿼리 수단이 있습니다. 바로 <strong>Criteria API</strong>입니다. 하지만 코드가 극도로 장황합니다.</p>

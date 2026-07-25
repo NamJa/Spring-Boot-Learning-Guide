@@ -144,7 +144,7 @@ data class BookProperties(
 )
 ```
 
-여기서도 Kotlin의 **`@field:`** use-site target이 똑같이 필요합니다(01번 문서 3절 참고). 검증에 실패하면 애플리케이션이 시작되지 못하고 명확한 에러로 멈춥니다 — 잘못된 설정으로 운영에 배포되는 사고를 **부팅 단계에서** 막아 주는 셈입니다.
+여기서도 Kotlin의 애너테이션 use-site target 이야기가 그대로 적용됩니다(01번 문서 3절). Initializr 기본 설정(`-Xannotation-default-target=param-property`)이면 `@field:` 없이도 동작하지만, 본 가이드는 일관성을 위해 `@field:`를 명시합니다. 검증에 실패하면 애플리케이션이 시작되지 못하고 명확한 에러로 멈춥니다 — 잘못된 설정으로 운영에 배포되는 사고를 **부팅 단계에서** 막아 주는 셈입니다.
 
 > [!TIP]
 > 잘못된 설정은 런타임 한참 뒤가 아니라 시작 시점에 터지는 게 좋습니다. "빨리 실패하라(fail fast)" 원칙입니다.
@@ -171,18 +171,23 @@ data class BookProperties(
 
 ```kotlin
 // build.gradle.kts
+plugins {
+    kotlin("kapt") version "2.3.21"   // kapt 플러그인 적용 필요
+}
+
 dependencies {
     // ...
     kapt("org.springframework.boot:spring-boot-configuration-processor")
-    // 또는 KSP 사용 시:
-    // ksp("org.springframework.boot:spring-boot-configuration-processor")
 }
 ```
 
-Kotlin에서는 `annotationProcessor` 대신 **`kapt`** 또는 더 빠른 **`ksp`** 로 등록합니다(해당 Gradle 플러그인이 적용돼 있어야 합니다). 빌드하면 `META-INF/spring-configuration-metadata.json`이 생성되어, `app.book.default-page-size`를 타이핑할 때 IDE가 키와 타입, 기본값을 제안해 줍니다.
+Kotlin에서는 `annotationProcessor` 대신 **`kapt`** 로 등록합니다. 빌드하면 `META-INF/spring-configuration-metadata.json`이 생성되어, `app.book.default-page-size`를 타이핑할 때 IDE가 키와 타입을 제안해 줍니다.
+
+> [!WARNING]
+> **`ksp(...)`로는 동작하지 않습니다.** `spring-boot-configuration-processor`는 Java 애너테이션 프로세서(`javax.annotation.processing.Processor`)만 등록하고 KSP의 `SymbolProcessorProvider`는 제공하지 않으므로, KSP 설정에 넣으면 **아무 메타데이터도 생성되지 않고 조용히 넘어갑니다.** Spring Boot 공식 문서도 Kotlin에서는 `kapt`를 안내합니다.
 
 > [!NOTE]
-> configuration-processor는 **선택 사항**입니다. 없어도 바인딩은 정상 동작하며, 오직 IDE 편의를 위한 것입니다. 빌드 속도가 신경 쓰이면 kapt보다 ksp를 권장합니다.
+> configuration-processor는 **선택 사항**입니다. 없어도 바인딩은 정상 동작하며, 오직 IDE 편의를 위한 것입니다. 다만 kapt가 제공하는 모델의 한계로 **기본값 탐지와 deprecated 표시 같은 일부 기능은 Kotlin에서 동작하지 않습니다**(공식 문서에 명시된 제약입니다).
 
 ## 다음 단계
 

@@ -6,7 +6,7 @@ Spring으로 웹 애플리케이션을 만들 때 가장 먼저 마주치는 갈
 
 **Spring MVC**는 Java **서블릿(Servlet)** 위에서 동작하는 전통적인 동기 웹 스택입니다.
 
-- 기반: 서블릿 컨테이너 — 본 가이드 기준 **Tomcat 11.0.x (Servlet 6.1)**
+- 기반: 서블릿 컨테이너 — 본 가이드 기준 **Tomcat 11.0.22 (Servlet 6.1)**
 - 실행 모델: **요청 1건당 스레드 1개(thread-per-request)**. 스레드가 요청을 받아 처리가 끝날 때까지 점유하며, DB 호출이나 외부 API 응답을 **기다리는 동안 그 스레드는 블로킹**됩니다.
 - 프로그래밍 모델: 명령형(imperative). 위에서 아래로 읽히는 평범한 순차 코드.
 
@@ -35,7 +35,7 @@ class BookController(private val service: BookService) {
 
 ## 2. Spring WebFlux — 리액티브 논블로킹 모델
 
-**Spring WebFlux**는 **Reactor**(본 가이드 기준 Reactor 2025.0)를 기반으로 한 리액티브 스택입니다.
+**Spring WebFlux**는 **Reactor**(본 가이드 기준 Reactor 2025.0.6)를 기반으로 한 리액티브 스택입니다.
 
 - 기반: 보통 **Netty**(논블로킹 서버). 서블릿 컨테이너 위에서도 동작 가능.
 - 실행 모델: **이벤트 루프 + 논블로킹 I/O**. 적은 수의 스레드가 많은 요청을 처리. I/O를 기다리는 동안 스레드를 놓아주고 다른 요청을 처리한 뒤, 결과가 준비되면 콜백으로 이어 갑니다.

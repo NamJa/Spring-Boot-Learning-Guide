@@ -170,8 +170,10 @@
 <p>외부 도서 메타데이터 API(Phase 5-1)가 우리 서비스의 핵심 의존성이라면, 그 상태도 헬스에 반영하고 싶을 수 있습니다.</p>
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.health</span>
 
-<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.boot.actuate.health.Health</span>
-<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.boot.actuate.health.HealthIndicator</span>
+<span class="c1">// ⚠️ Spring Boot 4에서 헬스 API 패키지가 옮겨졌다</span>
+<span class="c1">// (Boot 3: org.springframework.boot.actuate.health.*)</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.boot.health.contributor.Health</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.boot.health.contributor.HealthIndicator</span>
 <span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.stereotype.Component</span>
 
 <span class="nd">@Component</span>
@@ -192,8 +194,10 @@
 </pre></div>
 </div>
 <p>빈 이름(<code>metadataApi</code>)이 헬스 응답의 컴포넌트 키가 됩니다.</p>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>Spring Boot 4는 헬스 관련 코드를 <strong><code>spring-boot-health</code> 모듈</strong>로 분리했습니다. 그래서 <code>Health</code>·<code>HealthIndicator</code>·<code>HealthContributor</code>의 패키지가 <code>org.springframework.boot.actuate.health</code> → <strong><code>org.springframework.boot.health.contributor</code></strong> 로 바뀌었습니다. Boot 3 예제를 복사하면 임포트를 찾을 수 없다는 컴파일 에러가 납니다. (<code>DiskSpaceHealthIndicator</code> 등 기본 구현체는 <code>org.springframework.boot.health.application</code> 패키지입니다.)</p>
+</blockquote>
 <h2>4. Micrometer — 메트릭의 표준 추상화</h2>
-<p>Actuator의 메트릭은 <strong>Micrometer</strong>가 수집합니다. Micrometer는 "메트릭계의 SLF4J"로, 코드는 Micrometer API로 작성하고 <strong>백엔드(Prometheus, OTLP 등)는 의존성만 바꿔 끼웁니다.</strong></p>
+<p>Actuator의 메트릭은 <strong>Micrometer</strong>(본 가이드 기준 1.17.0)가 수집합니다. Micrometer는 "메트릭계의 SLF4J"로, 코드는 Micrometer API로 작성하고 <strong>백엔드(Prometheus, OTLP 등)는 의존성만 바꿔 끼웁니다.</strong></p>
 <p>JVM 메모리, GC, HTTP 요청 지연(<code>http.server.requests</code>), DataSource 커넥션 등 수많은 메트릭이 <strong>자동으로</strong> 수집됩니다.</p>
 <h3>커스텀 메트릭 — Counter와 Timer</h3>
 <p>도서 등록 횟수와 처리 시간을 직접 측정해 봅시다. <code>MeterRegistry</code>를 주입받아 사용합니다.</p>
@@ -246,7 +250,7 @@
 </div>
 <p>그러면 Prometheus 서버가 <code>GET /actuator/prometheus</code> 를 스크레이프해 시계열로 저장하고, Grafana로 대시보드를 그릴 수 있습니다.</p>
 <h2>6. 관측성 — OpenTelemetry와 분산 추적</h2>
-<p>메트릭(무엇이 얼마나)만으로는 부족합니다. "이 느린 요청이 <strong>어디서</strong> 시간을 썼나"를 알려면 <strong>분산 추적(distributed tracing)</strong> 이 필요합니다. Spring Boot 4는 <strong>Micrometer Tracing</strong> + <strong>OpenTelemetry</strong>로 이를 표준 지원합니다.</p>
+<p>메트릭(무엇이 얼마나)만으로는 부족합니다. "이 느린 요청이 <strong>어디서</strong> 시간을 썼나"를 알려면 <strong>분산 추적(distributed tracing)</strong> 이 필요합니다. Spring Boot 4는 <strong>Micrometer Tracing</strong>(1.7.0) + <strong>OpenTelemetry</strong>로 이를 표준 지원하며, 4.1에서 OpenTelemetry 지원이 한 차례 더 갱신됐습니다.</p>
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
 <span class="n">implementation</span><span class="p">(</span><span class="s">&quot;io.micrometer:micrometer-tracing-bridge-otel&quot;</span><span class="p">)</span><span class="w">     </span><span class="c1">// Micrometer ↔ OTel 연결</span>
 <span class="n">implementation</span><span class="p">(</span><span class="s">&quot;io.opentelemetry:opentelemetry-exporter-otlp&quot;</span><span class="p">)</span><span class="w">     </span><span class="c1">// OTLP로 추적 전송</span>

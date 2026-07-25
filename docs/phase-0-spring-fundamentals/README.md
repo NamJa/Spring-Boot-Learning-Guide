@@ -41,16 +41,17 @@ data class Book(
 
 Phase 0에서는 아직 이 도메인을 본격적으로 다루지 않지만, 개념 설명마다 이 예제를 끌어와 "실제로 어디에 쓰이는지" 감을 잡아 둡니다.
 
-## 사용하는 버전 (2026-06-20 기준)
+## 사용하는 버전 (2026-07-25 기준)
 
 | 구성요소 | 버전 |
 | --- | --- |
-| Spring Boot | **4.1.0** (GA 2026-06-10) |
-| Spring Framework | **7.0.8+** |
+| Spring Boot | **4.1.0** (GA 2026-06-10, 현재 최신 GA) |
+| Spring Framework | **7.0.8** |
 | Kotlin | **2.3.21** (Spring Boot BOM이 관리) |
 | JDK | 17 최소 ~ 26 지원 (본 가이드는 **21 LTS** 기준) |
-| Gradle | 8.14+ / 9.x |
-| Spring Security | 7.0 |
+| Gradle | 9.x (Initializr 래퍼 9.5.1) |
+| Spring Security | **7.1.0** |
+| Jackson | **3.1.4** (`tools.jackson`, Boot 4 기본) |
 
 ## 페이지 목록
 

@@ -74,6 +74,14 @@ JPA 명세는 모든 Entity가 **인자 없는 기본 생성자**를 가질 것�
 plugins {
     kotlin("plugin.jpa") version "2.3.21"   // @Entity에 no-arg 생성자 합성
 }
+
+// 이 플러그인이 함께 넣어 주는 블록: JPA 애너테이션 클래스를 open 처리
+// (Hibernate가 지연 로딩 프록시를 만들려면 엔티티가 final이 아니어야 한다)
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
+}
 ```
 
 ## 4. Kotlin + JPA 함정 ②: data class를 피하라
@@ -129,7 +137,7 @@ Kotlin의 **null 가능 여부**와 DB 컬럼의 **NULL 허용 여부**를 일�
 > [!TIP]
 > `id`는 DB가 채워 주기 전까지(=저장 전)는 값이 없으므로 **`Long?`(nullable) + 기본값 `null`** 로 선언합니다. `@Column(nullable=false)`와 Kotlin의 non-null 타입을 일치시키면, 컴파일 단계에서 NPE를, DB 단계에서 제약 위반을 이중으로 방지할 수 있습니다.
 
-`LocalDate`는 별도 설정 없이 DB의 `DATE` 컬럼으로 자동 매핑됩니다. (Hibernate 6+는 `LocalDate`/`LocalDateTime`/`Instant` 등 `java.time` 타입을 기본 지원합니다.)
+`LocalDate`는 별도 설정 없이 DB의 `DATE` 컬럼으로 자동 매핑됩니다. (본 가이드 기준 Hibernate **7.4**는 `LocalDate`/`LocalDateTime`/`Instant` 등 `java.time` 타입을 기본 지원합니다.)
 
 ## 6. 연관관계 매핑 (간단 소개)
 

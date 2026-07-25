@@ -171,13 +171,17 @@
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@AutoConfiguration</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookJsonAutoConfiguration</span><span class="w"> </span><span class="p">{</span>
 
+<span class="w">    </span><span class="c1">// Spring Boot 4의 JSON 엔진은 Jackson 3 → 패키지가 tools.jackson.*</span>
 <span class="w">    </span><span class="nd">@Bean</span>
-<span class="w">    </span><span class="nd">@ConditionalOnClass</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s">&quot;com.fasterxml.jackson.databind.ObjectMapper&quot;</span><span class="o">]</span><span class="p">)</span>
-<span class="w">    </span><span class="nd">@ConditionalOnMissingBean</span><span class="w"> </span><span class="c1">// 사용자가 ObjectMapper Bean을 안 만들었을 때만!</span>
-<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">objectMapper</span><span class="p">():</span><span class="w"> </span><span class="n">ObjectMapper</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ObjectMapper</span><span class="p">().</span><span class="na">findAndRegisterModules</span><span class="p">()</span>
+<span class="w">    </span><span class="nd">@ConditionalOnClass</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s">&quot;tools.jackson.databind.json.JsonMapper&quot;</span><span class="o">]</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@ConditionalOnMissingBean</span><span class="w"> </span><span class="c1">// 사용자가 JsonMapper Bean을 안 만들었을 때만!</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">jsonMapper</span><span class="p">():</span><span class="w"> </span><span class="n">JsonMapper</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JsonMapper</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">findAndAddModules</span><span class="p">().</span><span class="na">build</span><span class="p">()</span>
 <span class="p">}</span>
 </pre></div>
 </div>
+<blockquote>
+<p><strong>WARNING</strong>: Spring Boot 3 예제에서 흔히 보이는 <code>com.fasterxml.jackson.databind.ObjectMapper</code>는 Jackson <strong>2</strong>의 클래스입니다. Spring Boot 4는 <strong>Jackson 3</strong>(<code>tools.jackson.*</code>)을 기본으로 쓰고, 가변 <code>ObjectMapper</code> 대신 <strong>불변 <code>JsonMapper</code></strong> 를 씁니다. 자세한 내용은 <a href="../phase-2-first-api/02-dto-and-serialization.html">Phase 2-2</a>에서 다룹니다.</p>
+</blockquote>
 <p>핵심은 <strong><code>@ConditionalOnMissingBean</code></strong> 입니다. "기본값은 우리가 줄게. 하지만 네가 직접 만들면 네 것을 쓸게"라는 철학이 여기서 구현됩니다. 이것이 Spring Boot가 "관례를 따르면 자동, 원하면 언제든 재정의 가능"한 이유입니다.</p>
 <figure class="flowchart decision-flow">
 <ol class="fc-steps">
@@ -190,16 +194,17 @@
 </figure>
 
 <h2>3. 스타터(Starter)란</h2>
-<p><strong>스타터</strong>는 특정 기능에 필요한 의존성들을 미리 묶어 둔 <strong>편의용 의존성 패키지</strong>입니다. 버전 충돌 걱정 없이 한 줄로 필요한 라이브러리 묶음을 가져옵니다. 예를 들어 <code>spring-boot-starter-web</code> 하나를 추가하면 Spring MVC, 내장 Tomcat, Jackson(JSON), 검증 기본기 등이 함께 따라옵니다.</p>
+<p><strong>스타터</strong>는 특정 기능에 필요한 의존성들을 미리 묶어 둔 <strong>편의용 의존성 패키지</strong>입니다. 버전 충돌 걱정 없이 한 줄로 필요한 라이브러리 묶음을 가져옵니다. 예를 들어 <code>spring-boot-starter-webmvc</code> 하나를 추가하면 Spring MVC, 내장 Tomcat, Jackson(JSON) 등이 함께 따라옵니다.</p>
 <div class="code-block" data-lang="groovy"><span class="code-lang">groovy</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts (Gradle Kotlin DSL)</span>
 <span class="n">dependencies</span><span class="w"> </span><span class="o">{</span>
-<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">&quot;org.springframework.boot:spring-boot-starter-web&quot;</span><span class="o">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">&quot;org.springframework.boot:spring-boot-starter-webmvc&quot;</span><span class="o">)</span>
 <span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">&quot;org.springframework.boot:spring-boot-starter-data-jpa&quot;</span><span class="o">)</span>
-<span class="w">    </span><span class="n">testImplementation</span><span class="o">(</span><span class="s2">&quot;org.springframework.boot:spring-boot-starter-test&quot;</span><span class="o">)</span>
+<span class="w">    </span><span class="n">testImplementation</span><span class="o">(</span><span class="s2">&quot;org.springframework.boot:spring-boot-starter-webmvc-test&quot;</span><span class="o">)</span>
 <span class="o">}</span>
 </pre></div>
 </div>
 <blockquote>
+<p><strong>WARNING</strong>: Spring Boot 4에서 스타터 이름이 정리됐습니다. <code>spring-boot-starter-web</code> → <strong><code>spring-boot-starter-webmvc</code></strong>, <code>spring-boot-starter-aop</code> → <strong><code>spring-boot-starter-aspectj</code></strong> 등입니다. 구 이름 중 일부는 아직 남아 있지만 <strong>deprecated</strong>이며 향후 제거될 예정이므로, 새 프로젝트는 새 이름을 쓰세요. 테스트도 <code>spring-boot-starter-&lt;기술&gt;-test</code> 형태로 쪼개졌고, 이들은 모두 <code>spring-boot-starter-test</code>를 전이 의존성으로 가져옵니다.</p>
 <p><strong>TIP</strong>: 버전 번호를 적지 않은 것에 주목하세요. Spring Boot <strong>BOM(Bill of Materials)</strong> 이 검증된 버전 조합을 관리하므로, 스타터를 추가할 때 버전을 신경 쓸 필요가 없습니다. 이것이 "의견이 반영된(opinionated)" 기본값의 한 예입니다.</p>
 </blockquote>
 <h3>3.1 자주 쓰는 스타터</h3>
@@ -212,28 +217,28 @@
 </thead>
 <tbody>
 <tr>
-<td><code>spring-boot-starter-web</code></td>
-<td>Spring MVC, 내장 Tomcat, Jackson — 가장 기본</td>
+<td><code>spring-boot-starter-webmvc</code></td>
+<td>Spring MVC, 내장 Tomcat, Jackson 3 — 가장 기본 (구 <code>-web</code>)</td>
 </tr>
 <tr>
 <td><code>spring-boot-starter-data-jpa</code></td>
-<td>Spring Data JPA, Hibernate, 트랜잭션</td>
+<td>Spring Data JPA, Hibernate 7, 트랜잭션</td>
 </tr>
 <tr>
 <td><code>spring-boot-starter-security</code></td>
-<td>Spring Security 7.0 기반 인증/인가</td>
+<td>Spring Security 7.1 기반 인증/인가</td>
 </tr>
 <tr>
 <td><code>spring-boot-starter-validation</code></td>
-<td>Bean Validation(Jakarta Validation)</td>
+<td>Bean Validation(Jakarta Validation) — <strong>web 스타터에 포함되지 않으니 직접 추가</strong></td>
 </tr>
 <tr>
 <td><code>spring-boot-starter-actuator</code></td>
 <td>헬스 체크·메트릭 등 운영 엔드포인트</td>
 </tr>
 <tr>
-<td><code>spring-boot-starter-test</code></td>
-<td>JUnit 5, Mockito, AssertJ, Spring Test</td>
+<td><code>spring-boot-starter-aspectj</code></td>
+<td>Spring AOP / AspectJ (구 <code>-aop</code>)</td>
 </tr>
 <tr>
 <td><code>spring-boot-starter-restclient</code></td>
@@ -243,10 +248,22 @@
 <td><code>spring-boot-starter-webclient</code></td>
 <td>리액티브 HTTP 클라이언트(<code>WebClient</code>) — 4.x 신규</td>
 </tr>
+<tr>
+<td><code>spring-boot-h2console</code></td>
+<td>H2 웹 콘솔 (4.x에서 별도 모듈로 분리)</td>
+</tr>
+<tr>
+<td><code>spring-boot-starter-webmvc-test</code></td>
+<td>MockMvc·<code>RestTestClient</code>·JUnit 6·AssertJ·Mockito (내부적으로 <code>spring-boot-starter-test</code> 포함)</td>
+</tr>
+<tr>
+<td><code>spring-boot-starter-data-jpa-test</code></td>
+<td><code>@DataJpaTest</code> 등 JPA 슬라이스 테스트</td>
+</tr>
 </tbody>
 </table>
 <blockquote>
-<p>본 가이드의 도서 API는 <code>web</code>, <code>data-jpa</code>, <code>validation</code>, <code>security</code>, <code>actuator</code>, <code>test</code> 정도를 사용하게 됩니다. 외부 API 연동이 필요해지면 <code>restclient</code>를 추가합니다.</p>
+<p>본 가이드의 도서 API는 <code>webmvc</code>, <code>data-jpa</code>, <code>validation</code>, <code>security</code>, <code>actuator</code>, 그리고 기술별 <code>-test</code> 스타터를 사용하게 됩니다. 외부 API 연동이 필요해지면 <code>restclient</code>를 추가합니다.</p>
 </blockquote>
 <h2>4. 자동 설정 들여다보기</h2>
 <p>"왜 이 Bean이 만들어졌지? / 왜 안 만들어졌지?"를 알고 싶을 때, Spring Boot는 <strong>조건 평가 보고서(Condition Evaluation Report)</strong> 를 제공합니다. <code>--debug</code> 플래그로 켭니다.</p>
@@ -278,17 +295,24 @@ Negative matches:   (조건 불충족으로 적용 안 된 자동설정)
 </blockquote>
 <h2>5. 자동 설정 재정의(오버라이딩)</h2>
 <p>자동 설정이 만든 기본 Bean이 마음에 들지 않으면, 방법은 간단합니다. <strong>같은 타입의 Bean을 직접 등록</strong>하면 됩니다. <code>@ConditionalOnMissingBean</code> 덕분에 자동 설정이 알아서 양보합니다.</p>
-<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Configuration</span>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">tools.jackson.databind.json.JsonMapper</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">tools.jackson.databind.SerializationFeature</span>
+
+<span class="nd">@Configuration</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">JacksonConfig</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="c1">// 이 Bean을 직접 등록하면 자동설정의 기본 ObjectMapper는 적용되지 않는다</span>
+<span class="w">    </span><span class="c1">// 이 Bean을 직접 등록하면 자동설정의 기본 JsonMapper는 적용되지 않는다</span>
 <span class="w">    </span><span class="nd">@Bean</span>
-<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">objectMapper</span><span class="p">():</span><span class="w"> </span><span class="n">ObjectMapper</span><span class="w"> </span><span class="o">=</span>
-<span class="w">        </span><span class="n">ObjectMapper</span><span class="p">()</span>
-<span class="w">            </span><span class="p">.</span><span class="na">registerModule</span><span class="p">(</span><span class="n">JavaTimeModule</span><span class="p">())</span><span class="w"> </span><span class="c1">// LocalDate 직렬화를 위한 커스터마이징</span>
-<span class="w">            </span><span class="p">.</span><span class="na">disable</span><span class="p">(</span><span class="n">SerializationFeature</span><span class="p">.</span><span class="na">WRITE_DATES_AS_TIMESTAMPS</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">jsonMapper</span><span class="p">():</span><span class="w"> </span><span class="n">JsonMapper</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="n">JsonMapper</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">            </span><span class="p">.</span><span class="na">findAndAddModules</span><span class="p">()</span><span class="w">                     </span><span class="c1">// java.time·Kotlin 모듈 등록</span>
+<span class="w">            </span><span class="p">.</span><span class="na">enable</span><span class="p">(</span><span class="n">SerializationFeature</span><span class="p">.</span><span class="na">INDENT_OUTPUT</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">build</span><span class="p">()</span><span class="w">                                 </span><span class="c1">// Jackson 3의 매퍼는 불변 → 빌더로 생성</span>
 <span class="p">}</span>
 </pre></div>
 </div>
+<blockquote>
+<p><strong>TIP</strong>: 매퍼를 통째로 대체하기보다, 자동 구성이 만든 매퍼의 <strong>빌더에 설정만 얹는</strong> <code>JsonMapperBuilderCustomizer</code> 쪽이 안전합니다(Boot 3의 <code>Jackson2ObjectMapperBuilderCustomizer</code>에 해당). 예시는 <a href="../phase-2-first-api/02-dto-and-serialization.html">Phase 2-2</a>에 있습니다.</p>
+</blockquote>
 <p>또는 프로퍼티로 동작을 바꾸거나, 특정 자동 설정을 통째로 제외할 수도 있습니다.</p>
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@SpringBootApplication</span><span class="p">(</span><span class="n">exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">DataSourceAutoConfiguration</span><span class="o">::</span><span class="n">class</span><span class="o">]</span><span class="p">)</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookApiApplication</span>

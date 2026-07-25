@@ -9,7 +9,7 @@ Phase 5는 "내 코드가 잘 도는가"를 넘어 **"세상과 잘 연결되고
 - **운영 중 무슨 일이 벌어지는지 알아야 한다** → Actuator와 관측성
 - **배포 전에 깨지지 않음을 증명해야 한다** → 테스트 전략
 
-이 네 가지는 모두 Spring Boot가 강력하게 지원하는 영역이며, 특히 **Spring Boot 4 / Spring Framework 7 / Spring Security 7** 에서 API가 크게 현대화되었습니다. 이 Phase는 그 최신 방식을 기준으로 설명합니다.
+이 네 가지는 모두 Spring Boot가 강력하게 지원하는 영역이며, 특히 **Spring Boot 4.1 / Spring Framework 7.0.8 / Spring Security 7.1** 에서 API가 크게 현대화되었습니다. 이 Phase는 그 최신 방식을 기준으로 설명합니다. 선언적 HTTP 클라이언트 등록 방식, 헬스 API 패키지, 테스트용 HTTP 클라이언트는 Boot 3과 **이름과 패키지가 다르므로** 각 문서의 경고 박스를 꼭 확인하세요.
 
 ## 이 Phase에서 다루는 내용
 

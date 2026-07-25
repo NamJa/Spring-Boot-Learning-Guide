@@ -89,10 +89,13 @@
 <h2>1. 의존성 추가</h2>
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
 <span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-aop&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="c1">// Spring Boot 4: spring-boot-starter-aop → spring-boot-starter-aspectj 로 이름이 바뀌었다</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-aspectj&quot;</span><span class="p">)</span>
 <span class="p">}</span>
 </pre></div>
 </div>
+<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p>Spring Boot 4.1에는 <strong><code>spring-boot-starter-aop</code>가 더 이상 배포되지 않습니다.</strong> AOP 스타터의 새 이름은 <strong><code>spring-boot-starter-aspectj</code></strong> 입니다. Boot 3 예제를 그대로 쓰면 의존성 해석 단계에서 실패합니다.</p>
+</blockquote>
 <p>이 스타터는 AspectJ의 <strong>애너테이션(<code>@Aspect</code>, <code>@Around</code> 등)</strong> 과 위빙(weaving) 도구를 가져옵니다. 다만 Spring AOP는 컴파일/로드 타임 위빙이 아니라, [앞에서 본] <strong>런타임 프록시 기반</strong>으로 동작한다는 점을 기억하세요. (AspectJ는 문법만 빌려 쓰는 것)</p>
 <h2>2. AOP 핵심 용어</h2>
 <figure class="flowchart">

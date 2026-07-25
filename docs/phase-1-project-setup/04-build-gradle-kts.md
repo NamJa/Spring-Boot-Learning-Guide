@@ -4,11 +4,9 @@
 
 ## 1. 전체 build.gradle.kts
 
-Initializr가 생성한 것을 가이드 기준으로 정리한 전체 파일입니다.
+아래는 **Spring Initializr가 Spring Boot 4.1.0 + Kotlin으로 실제 생성하는 파일**에 주석만 붙인 것입니다(2026-07-25 확인). Spring Boot 3 시절 예제와 다른 지점이 여러 곳 있으니, 인터넷 예제를 복사하기 전에 이 파일을 기준으로 삼으세요.
 
 ```kotlin
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     // Kotlin JVM 컴파일 지원
     kotlin("jvm") version "2.3.21"
@@ -18,12 +16,14 @@ plugins {
     id("org.springframework.boot") version "4.1.0"
     // 의존성 버전을 Spring Boot BOM에 맞춰 자동 관리 (Initializr 기본 출력)
     id("io.spring.dependency-management") version "1.1.7"
+    // kotlin-jpa(noArg): @Entity 클래스에 기본 생성자 합성 — JPA를 선택하면 함께 붙는다
+    kotlin("plugin.jpa") version "2.3.21"
 }
 
 group = "com.example"
 version = "0.0.1-SNAPSHOT"
 
-// JDK 21 툴체인: 빌드/실행에 사용할 JDK를 고정
+// JDK 21 툴체인: 빌드/실행에 사용할 JDK를 고정 (jvmTarget도 여기에 맞춰진다)
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
@@ -35,44 +35,64 @@ repositories {
 }
 
 dependencies {
-    // --- 웹/REST: 내장 Tomcat, Spring MVC, Jackson 포함 ---
-    implementation("org.springframework.boot:spring-boot-starter-web")
+    // --- 웹/REST: Spring MVC, 내장 Tomcat, Jackson 3 (구 spring-boot-starter-web) ---
+    implementation("org.springframework.boot:spring-boot-starter-webmvc")
     // --- JPA/Hibernate ---
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     // --- Bean Validation (@Valid, @NotNull 등) ---
     implementation("org.springframework.boot:spring-boot-starter-validation")
     // --- Actuator: /actuator/health 등 운영 엔드포인트 ---
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    // --- H2 웹 콘솔: Boot 4에서 별도 모듈로 분리됨 (개발용) ---
+    implementation("org.springframework.boot:spring-boot-h2console")
 
     // --- Kotlin 지원 ---
-    // Jackson이 Kotlin data class를 (기본 생성자 없이) 직렬화/역직렬화하도록
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    // Jackson 3가 Kotlin data class를 (기본 생성자 없이) 직렬화/역직렬화하도록
+    // ⚠️ Jackson 2의 com.fasterxml.jackson.module 이 아니라 tools.jackson.module 이다
+    implementation("tools.jackson.module:jackson-module-kotlin")
     // Spring이 런타임 리플렉션을 사용하므로 필수
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
     // --- 런타임 전용: H2 인메모리 DB ---
     runtimeOnly("com.h2database:h2")
 
-    // --- 테스트 ---
-    // JUnit5, AssertJ, Mockito, MockMvc 등을 한 번에 제공
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    // --- 테스트: Boot 4는 기술별 test 스타터로 쪼개졌다 ---
+    // (각 스타터가 spring-boot-starter-test = JUnit 6 · AssertJ · Mockito 를 전이로 가져온다)
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     // JUnit Platform 런처 (테스트 실행에 필요)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 kotlin {
     compilerOptions {
-        // JSR-305 어노테이션(@Nullable 등)을 엄격하게 해석 → 플랫폼 타입을 null 안전 타입으로
-        freeCompilerArgs.addAll("-Xjsr305=strict")
-        jvmTarget = JvmTarget.JVM_21
+        freeCompilerArgs.addAll(
+            // JSR-305 어노테이션(@Nullable 등)을 엄격하게 해석 → 플랫폼 타입을 null 안전 타입으로
+            "-Xjsr305=strict",
+            // 주생성자 프로퍼티의 애너테이션을 파라미터 + 프로퍼티에 함께 적용 (Kotlin 2.2+)
+            // → Bean Validation/Jackson이 @field: 없이도 애너테이션을 인식한다 (Phase 4-1)
+            "-Xannotation-default-target=param-property",
+        )
     }
 }
 
+// kotlin-jpa 플러그인이 함께 넣어 주는 블록: JPA 애너테이션 클래스를 open 처리
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
+}
+
 tasks.withType<Test> {
-    // JUnit 5(JUnit Platform)로 테스트 실행
+    // JUnit Platform(현재 JUnit 6)으로 테스트 실행
     useJUnitPlatform()
 }
 ```
+
+> 💡 예전 예제처럼 `jvmTarget = JvmTarget.JVM_21`을 직접 지정할 수도 있지만, `java { toolchain { ... } }`이 있으면 Kotlin 컴파일 타깃도 자동으로 맞춰지므로 Initializr는 더 이상 생성하지 않습니다.
 
 ## 2. plugins 블록
 
@@ -80,6 +100,7 @@ tasks.withType<Test> {
 | --- | --- |
 | `kotlin("jvm")` | Kotlin 소스를 JVM 바이트코드로 컴파일 |
 | `kotlin("plugin.spring")` | **kotlin-spring** — Spring 어노테이션 클래스를 자동으로 `open` 처리 |
+| `kotlin("plugin.jpa")` | **kotlin-jpa(noArg)** — `@Entity` 클래스에 기본 생성자 합성 + `allOpen` 블록 추가 |
 | `org.springframework.boot` | `bootJar`, `bootRun` 태스크 제공, 실행 가능 Jar 패키징 |
 | `io.spring.dependency-management` | 의존성 버전을 Spring Boot BOM에 맞춰 자동 정렬 |
 
@@ -98,7 +119,7 @@ Kotlin 클래스는 **기본이 `final`** 입니다. 그런데 Spring은 `@Confi
 
 덕분에 개발자가 일일이 `open class`를 붙이지 않아도 됩니다.
 
-> 💡 나중에 JPA 엔티티를 만들 때는 `kotlin("plugin.jpa")`도 추가합니다. 이는 **noArg** 플러그인을 적용해 `@Entity` 클래스에 JPA가 요구하는 **매개변수 없는 기본 생성자**를 만들어 줍니다. (Phase에서 JPA를 다룰 때 추가 예정)
+> 💡 Initializr에서 **Spring Data JPA**를 고르면 `kotlin("plugin.jpa")`가 함께 붙습니다. 이는 **noArg** 플러그인을 적용해 `@Entity` 클래스에 JPA가 요구하는 **매개변수 없는 기본 생성자**를 만들어 주고, 위 `allOpen { ... }` 블록으로 `@Entity`/`@MappedSuperclass`/`@Embeddable` 클래스를 `open` 처리합니다. (엔티티 작성은 [Phase 3-2](../phase-3-data-jpa/02-entity-mapping.md))
 
 ## 3. group / version / java 툴체인
 
@@ -129,28 +150,36 @@ java {
 
 핵심 의존성 요약:
 
-- `spring-boot-starter-web`: REST 컨트롤러, 내장 **Tomcat 11.0.x(Servlet 6.1)**, Jackson.
-- `spring-boot-starter-data-jpa`: Hibernate 기반 JPA.
-- `spring-boot-starter-validation`: Bean Validation 구현체.
+- `spring-boot-starter-webmvc`: REST 컨트롤러, 내장 **Tomcat 11.0.22(Servlet 6.1)**, Jackson 3. (Boot 3의 `spring-boot-starter-web`을 대체)
+- `spring-boot-starter-data-jpa`: Hibernate 7.4 기반 JPA.
+- `spring-boot-starter-validation`: Bean Validation 구현체. **web 스타터에 포함되지 않으므로 직접 추가해야 합니다.**
 - `spring-boot-starter-actuator`: 헬스/메트릭 엔드포인트.
-- `jackson-module-kotlin`: Kotlin `data class`를 기본 생성자 없이도 직렬화. **Kotlin + REST에서 사실상 필수.**
+- `spring-boot-h2console`: H2 웹 콘솔. Boot 4에서 별도 모듈이 되었습니다.
+- `tools.jackson.module:jackson-module-kotlin`: Kotlin `data class`를 기본 생성자 없이도 직렬화. **Kotlin + REST에서 사실상 필수.**
 - `kotlin-reflect`: Spring의 런타임 리플렉션에 필요.
 - `h2`: 인메모리 DB. `runtimeOnly`로 충분.
+- `spring-boot-starter-<기술>-test`: 기술별 테스트 슬라이스. 모두 `spring-boot-starter-test`(JUnit 6 · AssertJ 3.27 · Mockito 5.23)를 전이로 가져옵니다.
 
-## 5. 컴파일러 옵션 — `-Xjsr305=strict`
+> ⚠️ **Jackson 좌표를 조심하세요.** 웹의 Boot 3 예제는 거의 전부 `com.fasterxml.jackson.module:jackson-module-kotlin`을 씁니다. Spring Boot 4의 기본 JSON 엔진은 **Jackson 3**이라 좌표가 **`tools.jackson.module:jackson-module-kotlin`** 으로 바뀌었습니다. 옛 좌표를 넣으면 Jackson 2 모듈이 클래스패스에 들어와 "왜 Kotlin data class 역직렬화가 안 되지?" 하는 상황이 됩니다. ([Phase 2-2](../phase-2-first-api/02-dto-and-serialization.md))
+
+## 5. 컴파일러 옵션 — `-Xjsr305=strict`와 애너테이션 타깃
 
 ```kotlin
 kotlin {
     compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict")
-        jvmTarget = JvmTarget.JVM_21
+        freeCompilerArgs.addAll(
+            "-Xjsr305=strict",
+            "-Xannotation-default-target=param-property",
+        )
     }
 }
 ```
 
-Spring은 자바 코드에 JSR-305 nullability 어노테이션(`@NonNull`, `@Nullable`)을 광범위하게 붙여 두었습니다. `-Xjsr305=strict`를 켜면 Kotlin 컴파일러가 이 어노테이션을 **엄격하게** 해석합니다. 즉, 자바 API에서 넘어오는 값을 모호한 **플랫폼 타입**이 아니라 **정확한 null 가능/불가능 타입**으로 다뤄, Kotlin의 null 안전성 이점을 Spring API에서도 온전히 누릴 수 있습니다.
+**`-Xjsr305=strict`**: Spring은 자바 코드에 JSR-305 nullability 어노테이션(`@NonNull`, `@Nullable`)을 광범위하게 붙여 두었습니다. 이 옵션을 켜면 Kotlin 컴파일러가 그 어노테이션을 **엄격하게** 해석합니다. 즉, 자바 API에서 넘어오는 값을 모호한 **플랫폼 타입**이 아니라 **정확한 null 가능/불가능 타입**으로 다뤄, Kotlin의 null 안전성 이점을 Spring API에서도 온전히 누릴 수 있습니다.
 
-`jvmTarget = JVM_21`은 생성 바이트코드 타깃을 21로 맞춥니다.
+**`-Xannotation-default-target=param-property`**: Kotlin 2.2에서 도입된 옵션으로, 주생성자 프로퍼티에 붙인 애너테이션을 **생성자 파라미터와 프로퍼티 양쪽에** 적용합니다. 덕분에 Bean Validation(`@NotBlank`)이나 Jackson 애너테이션을 `@field:` 없이 붙여도 프레임워크가 인식합니다. Spring Initializr가 Kotlin 프로젝트에 기본으로 넣어 주며, 자세한 배경은 [Phase 4-1](../phase-4-validation-config/01-bean-validation.md)에서 다룹니다.
+
+바이트코드 타깃(`jvmTarget`)은 위 `java { toolchain { ... } }` 설정이 21로 맞춰 주므로 따로 지정하지 않아도 됩니다.
 
 ## 6. tasks 블록
 
@@ -160,7 +189,7 @@ tasks.withType<Test> {
 }
 ```
 
-`useJUnitPlatform()`은 테스트를 **JUnit 5(JUnit Platform)** 로 실행하라는 지시입니다. `spring-boot-starter-test`가 JUnit 5를 가져오므로 짝을 맞춰야 합니다.
+`useJUnitPlatform()`은 테스트를 **JUnit Platform**으로 실행하라는 지시입니다. Spring Boot 4.1의 `spring-boot-starter-test`는 **JUnit 6(Jupiter 6.0.3)** 을 가져오므로 짝을 맞춰야 합니다. (JUnit 5 → 6은 대부분의 테스트 코드에서 `org.junit.jupiter.api.*` 임포트를 그대로 쓸 수 있습니다.)
 
 ## 7. settings.gradle.kts
 

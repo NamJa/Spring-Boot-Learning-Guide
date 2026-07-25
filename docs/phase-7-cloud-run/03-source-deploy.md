@@ -31,7 +31,7 @@ gcloud run deploy book-api --source . \
       │
       ▼
   서비스 URL 발급
-  https://book-api-abc123-du.a.run.app
+  https://book-api-123456789012.asia-northeast3.run.app
 ```
 
 ## 2. Buildpacks: Dockerfile 없이 빌드되는 마법
@@ -49,7 +49,7 @@ gcloud run deploy book-api --source . \
 
 Cloud Run은 컨테이너에 **`PORT` 환경 변수**를 주입하고, 컨테이너가 그 포트에서 HTTP를 받기를 기대합니다. 기본값은 `8080`이지만 Cloud Run이 다른 값을 줄 수도 있으므로, **`PORT`를 읽도록** 설정하는 것이 안전합니다.
 
-Spring Boot는 `SERVER_PORT`/`PORT` 환경 변수를 인식하지만, `application.yml`에 명시적으로 박아 두는 것을 강력히 권장합니다.
+여기서 흔한 오해를 하나 짚습니다. **Spring Boot는 `PORT` 환경 변수를 알지 못합니다.** 완화된 바인딩으로 인식되는 것은 `SERVER_PORT`(→ `server.port`)뿐입니다. 따라서 Cloud Run이 주입하는 `PORT`를 쓰려면 `application.yml`에서 **직접 연결해 주는 것이 필수**입니다.
 
 ```yaml
 # src/main/resources/application.yml
@@ -132,7 +132,7 @@ Building using Buildpacks and deploying container to Cloud Run service [book-api
 ✓ Building and deploying new service... Done.
 Service [book-api] revision [book-api-00001-abc] has been deployed
 and is serving 100 percent of traffic.
-Service URL: https://book-api-abc123-du.a.run.app
+Service URL: https://book-api-123456789012.asia-northeast3.run.app
 ```
 
 URL을 변수에 담아 헬스 체크를 호출해 봅시다([Phase 5](../phase-5-production-features/README.md)의 Actuator와 연결).

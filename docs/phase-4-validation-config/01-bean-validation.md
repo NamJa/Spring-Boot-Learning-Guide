@@ -20,7 +20,7 @@
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.springframework.boot:spring-boot-starter-validation") // ← 추가
 }
 ```
@@ -47,39 +47,68 @@ dependencies {
 > [!TIP]
 > 문자열 필수값에는 거의 항상 `@NotBlank`를 쓰세요. `@NotNull`은 `""`(빈 문자열)을 통과시키고, `@NotEmpty`는 `" "`(공백)을 통과시킵니다. `@NotBlank`만이 셋 다 막습니다.
 
-## 3. Kotlin의 함정 — `@field:` use-site target
+## 3. Kotlin의 함정 — 애너테이션 use-site target
 
-여기서 Kotlin 개발자가 가장 자주 걸려 넘어지는 함정을 짚고 갑니다. 다음 코드는 **검증이 동작하지 않습니다.**
+여기는 Kotlin 개발자가 가장 자주 걸려 넘어지던 지점이고, **Kotlin 2.2 / Spring Boot 4에서 규칙이 바뀐** 곳이기도 합니다. 먼저 왜 문제가 생겼는지부터 봅니다.
+
+Kotlin에서 `val title: String`을 생성자 프로퍼티로 선언하면, 컴파일러는 내부적으로 **생성자 파라미터(param)**, **필드(field)**, **getter** 를 함께 만들어 냅니다. 애너테이션을 아무 표시 없이 붙이면 예전 Kotlin은 그것을 **생성자 파라미터에만** 붙였습니다. 반면 Hibernate Validator는 필드/getter의 제약을 읽으므로, 애너테이션이 파라미터에만 남아 **검증이 조용히 통과**되는 사고가 났습니다.
+
+```
+@NotBlank val title  ──┐
+                       │  Kotlin이 생성하는 요소들
+                       ├──▶ constructor param   ← 예전 기본값: 여기에만 붙었다
+                       ├──▶ private field        ← @field: 로 지정하면 여기 (검증기가 읽음)
+                       └──▶ getter               ← @get: 로 지정
+```
+
+> [!NOTE]
+> `jakarta.validation.constraints.*` 애너테이션은 Java로 정의돼 있어 Kotlin의 `property` 타깃을 허용하지 않습니다. 그래서 아래 옵션이 켜지면 실제로는 **파라미터 + 필드**에 적용되며(Kotlin은 프로퍼티 타깃이 불가능할 때 필드로 내립니다), 그 필드를 Hibernate Validator가 읽어 검증이 동작합니다.
+
+### 해법 ① 컴파일러 옵션 (Spring Boot 4 + Kotlin 2.2+ 기본)
+
+Kotlin 2.2는 이 불편을 없애는 옵션을 도입했고, **Spring Initializr가 Kotlin 프로젝트에 기본으로 넣어 줍니다**([Phase 1-4](../phase-1-project-setup/04-build-gradle-kts.md)).
 
 ```kotlin
-// ❌ 잘못된 예 — @NotBlank가 무시될 수 있다
+// build.gradle.kts — Initializr 기본 출력
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll(
+            "-Xjsr305=strict",
+            "-Xannotation-default-target=param-property",   // ← 이것
+        )
+    }
+}
+```
+
+이 옵션이 켜져 있으면 애너테이션이 **생성자 파라미터와 프로퍼티(프로퍼티 타깃을 못 쓰는 Java 정의 애너테이션은 필드)에 함께** 적용되어, Hibernate Validator와 Jackson이 정상적으로 인식합니다. 즉 아래처럼 Java와 똑같이 써도 검증이 동작합니다.
+
+```kotlin
+// ✅ -Xannotation-default-target=param-property 가 켜져 있으면 이대로 동작
 data class CreateBookRequest(
     @NotBlank val title: String,
-    val author: String,
+    @NotBlank val author: String,
 )
 ```
 
-이유는 Kotlin의 **애너테이션 use-site target** 때문입니다. Kotlin에서 `val title: String`을 생성자 프로퍼티로 선언하면, 컴파일러는 내부적으로 **필드(field)**, **getter**, **생성자 파라미터(param)** 를 동시에 만들어 냅니다. 그런데 애너테이션을 그냥 붙이면 Kotlin은 기본 규칙에 따라 **생성자 파라미터에만** 붙이는 경우가 있습니다.
+### 해법 ② `@field:` 명시 (옵션과 무관하게 항상 안전)
 
-반면 Hibernate Validator는 기본적으로 **필드(field)** 에 붙은 제약을 읽습니다. 애너테이션이 엉뚱한 곳(param)에 붙으면 검증기가 못 보고 지나치는 것입니다. 그래서 **명시적으로 `@field:` 라는 use-site target을 지정**해 줘야 합니다.
+use-site target을 직접 적어 주는 방식은 컴파일러 옵션 유무와 무관하게 언제나 동작합니다.
 
 ```kotlin
-// ✅ 올바른 예 — @field: 로 필드에 명시
+// ✅ 어떤 설정에서도 안전한 방식
 data class CreateBookRequest(
     @field:NotBlank val title: String,
     @field:NotBlank val author: String,
 )
 ```
 
-```
-@NotBlank val title  ──┐
-                       │  Kotlin이 생성하는 요소들
-                       ├──▶ constructor param   ← target 미지정 시 여기 붙을 수 있음
-                       ├──▶ private field        ← @field: 로 지정하면 여기 (검증기가 읽음)
-                       └──▶ getter               ← @get: 로 지정
-```
+> [!NOTE]
+> 이 규칙은 Kotlin **2.4.0부터 언어 기본값으로 안정화**되어, 그때부터는 옵션 없이도 동일하게 동작합니다. 본 가이드의 기준인 Kotlin 2.3.21(Spring Boot 4.1 BOM 관리 버전)에서는 위 옵션이 필요하며, Initializr가 이미 넣어 줍니다.
 
-요점: **Kotlin + Bean Validation에서는 제약 애너테이션 앞에 항상 `@field:`를 붙인다.** 이것 하나만 기억해도 절반은 성공입니다.
+> [!TIP]
+> **본 가이드는 `@field:`를 계속 사용합니다.** 이유는 두 가지입니다. (1) 빌드 설정에 의존하지 않아 코드만 보고 의도가 분명하고, (2) 옵션이 빠진 기존 프로젝트에 코드를 옮겨 붙여도 검증이 조용히 사라지지 않습니다. 팀이 Initializr 기본 설정을 쓰고 있다면 `@field:`를 생략하는 쪽이 더 깔끔하니, 컨벤션을 정해 한 방향으로 통일하세요.
+>
+> 반대로 **컴파일러 옵션도 없고 `@field:`도 없다면 검증이 아무 경고 없이 통과**됩니다. 검증 테스트를 반드시 한 건 작성해 이 사고를 잡으세요([Phase 5-4](../phase-5-production-features/04-testing.md)의 400 응답 테스트).
 
 ## 4. CreateBookRequest에 검증 적용하기
 

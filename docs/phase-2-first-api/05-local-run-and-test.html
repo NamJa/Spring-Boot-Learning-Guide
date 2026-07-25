@@ -94,7 +94,7 @@
 <p>(Windows는 <code>gradlew.bat bootRun</code>)</p>
 <p>처음 실행 시 의존성을 내려받느라 시간이 걸릴 수 있습니다. 다음과 같은 로그의 <strong>마지막 줄</strong>이 보이면 기동 완료입니다.</p>
 <div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>... INFO ... Tomcat started on port 8080 (http) with context path &#x27;/&#x27;
-... INFO ... Started BookApiApplication in 1.234 seconds (process running for 1.567)</code></pre></div>
+... INFO ... Started BookApiApplicationKt in 1.234 seconds (process running for 1.567)</code></pre></div>
 <ul>
 <li>포트는 기본 <strong>8080</strong>입니다. 바꾸려면 <code>application.yml</code>에 <code>server.port: 9090</code> 등을 지정합니다.</li>
 <li>종료는 터미널에서 <code>Ctrl + C</code>입니다.</li>
@@ -220,7 +220,7 @@ http<span class="w"> </span>DELETE<span class="w"> </span>:8080/api/books/1
 </pre></div>
 </div>
 <div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>HTTP/1.1 400 Bad Request</code></pre></div>
-<p><code>jackson-module-kotlin</code>이 non-null 프로퍼티에 <code>null</code>이 들어온 것을 감지해 거부합니다.</p>
+<p><code>jackson-module-kotlin</code>(Jackson 3용, <code>tools.jackson.module</code>)이 non-null 프로퍼티에 <code>null</code>이 들어온 것을 감지해 거부합니다.</p>
 <h3>415 Unsupported Media Type — Content-Type 누락</h3>
 <p><code>@RequestBody</code>로 JSON을 받는 엔드포인트는 <code>Content-Type: application/json</code> 헤더가 필요합니다. 누락하면 415가 납니다.</p>
 <div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># 헤더 없이 POST → 415</span>
@@ -278,12 +278,12 @@ curl<span class="w"> </span>-i<span class="w"> </span>-X<span class="w"> </span>
 <tr>
 <td><code>LocalDate</code> 직렬화 오류</td>
 <td>JSR-310 모듈 누락</td>
-<td><code>spring-boot-starter-web</code> 의존성 확인(보통 자동 포함)</td>
+<td><code>spring-boot-starter-webmvc</code> 의존성 확인(보통 자동 포함)</td>
 </tr>
 <tr>
 <td><code>Cannot construct instance of CreateBookRequest</code></td>
-<td><code>jackson-module-kotlin</code> 누락</td>
-<td>의존성에 <code>jackson-module-kotlin</code> 추가</td>
+<td>Kotlin 모듈 누락 또는 <strong>Jackson 2용 좌표 사용</strong></td>
+<td>의존성에 <code>tools.jackson.module:jackson-module-kotlin</code> 추가 (Boot 4는 Jackson 3)</td>
 </tr>
 <tr>
 <td><code>Whitelabel Error Page</code> 표시</td>

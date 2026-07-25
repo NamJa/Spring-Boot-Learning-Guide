@@ -11,8 +11,8 @@
 
 | # | 페이지 | 핵심 주제 |
 |---|---|---|
-| 01 | [왜 Querydsl인가](01-why-querydsl.md) | 문자열 JPQL의 한계, 타입 안전·동적 쿼리, 2026년 프로젝트 현황(OpenFeign 포크) |
-| 02 | [Kotlin + Gradle 설정](02-setup-kotlin.md) | `kotlin("kapt")`, OpenFeign 의존성(`:jakarta`), `JPAQueryFactory` 빈, Q타입 생성 확인 |
+| 01 | [왜 Querydsl인가](01-why-querydsl.md) | 문자열 JPQL의 한계, 타입 안전·동적 쿼리, 2026년 프로젝트 현황(OpenFeign 포크 7.5) |
+| 02 | [Kotlin + Gradle 설정](02-setup-kotlin.md) | `kotlin("kapt")`, OpenFeign 의존성과 classifier 규칙, `JPAQueryFactory` 빈, Q타입 생성 확인, KSP 대안 |
 | 03 | [기본 쿼리](03-basic-queries.md) | `selectFrom`, `where`/`and`/`or`, 비교 연산자, 정렬·페이징, `fetch` 결과 처리 |
 | 04 | [동적 쿼리와 조인](04-dynamic-and-join.md) | `BooleanBuilder`, 다중 `BooleanExpression`, `join`/`fetchJoin`, 서브쿼리 |
 | 05 | [DTO 프로젝션 & 리포지토리 통합](05-dto-and-repository.md) | `Projections`, `@QueryProjection`, 사용자 정의 리포지토리, `Page`/`Pageable` |

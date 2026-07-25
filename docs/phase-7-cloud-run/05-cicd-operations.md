@@ -11,6 +11,8 @@
 GitHub Actions가 GCP에 배포하려면 인증이 필요합니다. 예전에는 서비스 계정의 **JSON 키 파일**을 GitHub Secret에 넣었지만, 키 유출 위험이 큽니다. 지금은 **Workload Identity Federation(WIF)** 이 권장됩니다.
 
 > **WIF란?** JSON 키 없이, "이 GitHub 저장소의 워크플로"라는 신원을 GCP가 직접 신뢰하도록 연결하는 방식입니다. 장기 비밀이 없어 훨씬 안전합니다.
+>
+> WIF에도 두 가지가 있습니다. 아래 예제는 **서비스 계정을 경유하는** 방식(`service_account` 지정)이고, `google-github-actions/auth`가 가장 권장하는 것은 서비스 계정 없이 연맹 신원을 직접 쓰는 **Direct Workload Identity Federation**(`service_account` 생략)입니다. 다만 배포 대상 API가 서비스 계정 권한을 요구하는 경우가 많아, 실무에서는 아래 방식도 널리 쓰입니다.
 
 설정은 고수준으로 이렇습니다(한 번만).
 
@@ -44,10 +46,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 소스 체크아웃
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: JDK 21 설정
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
@@ -57,13 +59,13 @@ jobs:
 
       # WIF 기반 인증 (JSON 키 없음)
       - name: GCP 인증
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@v3
         with:
           workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
           service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
 
       - name: Cloud Run 배포
-        uses: google-github-actions/deploy-cloudrun@v2
+        uses: google-github-actions/deploy-cloudrun@v3
         with:
           service: ${{ env.SERVICE }}
           source: .                       # 소스 배포(buildpacks/Dockerfile)
@@ -142,7 +144,7 @@ management:
     readinessstate:
       enabled: true
 server:
-  shutdown: graceful        # 종료 시 진행 중인 요청을 마저 처리
+  shutdown: graceful        # Boot 4 기본값 — 종료 시 진행 중인 요청을 마저 처리
 ```
 
 - **Liveness 프로브** → `/actuator/health/liveness`: 죽었으면 인스턴스 재시작.
@@ -150,7 +152,7 @@ server:
 
 Cloud Run 콘솔(또는 YAML 서비스 정의)에서 위 경로로 HTTP 프로브를 지정합니다.
 
-> **Graceful shutdown**: `server.shutdown=graceful`로 두면 Cloud Run이 인스턴스를 줄일 때 진행 중인 요청을 끊지 않고 마무리합니다.
+> **Graceful shutdown**: Spring Boot 4는 그레이스풀 셧다운이 **기본 활성화**이므로, Cloud Run이 인스턴스를 줄일 때 진행 중인 요청을 끊지 않고 마무리합니다(끄려면 `server.shutdown=immediate`). 대기 시간은 `spring.lifecycle.timeout-per-shutdown-phase`로 조정합니다.
 
 ## 5. 스케일링·구조적 로깅·커스텀 도메인
 

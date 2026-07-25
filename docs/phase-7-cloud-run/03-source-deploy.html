@@ -111,7 +111,7 @@
       │
       ▼
   서비스 URL 발급
-  https://book-api-abc123-du.a.run.app</pre></figure>
+  https://book-api-123456789012.asia-northeast3.run.app</pre></figure>
 <h2>2. Buildpacks: Dockerfile 없이 빌드되는 마법</h2>
 <p><code>--source .</code>로 배포할 때 디렉터리에 <strong>Dockerfile이 없으면</strong> Cloud Build는 <strong>buildpacks</strong>를 사용합니다. Buildpacks는 소스를 들여다보고 "아, <code>build.gradle.kts</code>와 Gradle wrapper가 있네, Spring Boot Java 앱이군" 하고 <strong>자동으로 컨테이너 이미지를 만들어 줍니다</strong>. JDK 선택, 의존성 다운로드, <code>bootJar</code> 실행, 실행 명령 설정까지 알아서 합니다.</p>
 <ul>
@@ -124,7 +124,7 @@
 </blockquote>
 <h2>3. PORT: Cloud Run이 포트를 주입한다</h2>
 <p>Cloud Run은 컨테이너에 <strong><code>PORT</code> 환경 변수</strong>를 주입하고, 컨테이너가 그 포트에서 HTTP를 받기를 기대합니다. 기본값은 <code>8080</code>이지만 Cloud Run이 다른 값을 줄 수도 있으므로, <strong><code>PORT</code>를 읽도록</strong> 설정하는 것이 안전합니다.</p>
-<p>Spring Boot는 <code>SERVER_PORT</code>/<code>PORT</code> 환경 변수를 인식하지만, <code>application.yml</code>에 명시적으로 박아 두는 것을 강력히 권장합니다.</p>
+<p>여기서 흔한 오해를 하나 짚습니다. <strong>Spring Boot는 <code>PORT</code> 환경 변수를 알지 못합니다.</strong> 완화된 바인딩으로 인식되는 것은 <code>SERVER_PORT</code>(→ <code>server.port</code>)뿐입니다. 따라서 Cloud Run이 주입하는 <code>PORT</code>를 쓰려면 <code>application.yml</code>에서 <strong>직접 연결해 주는 것이 필수</strong>입니다.</p>
 <div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="c1"># src/main/resources/application.yml</span>
 <span class="nt">server</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${PORT:8080}</span><span class="w">   </span><span class="c1"># PORT가 있으면 그 값, 없으면 8080</span>
@@ -231,7 +231,7 @@ build/
 ✓ Building and deploying new service... Done.
 Service [book-api] revision [book-api-00001-abc] has been deployed
 and is serving 100 percent of traffic.
-Service URL: https://book-api-abc123-du.a.run.app</code></pre></div>
+Service URL: https://book-api-123456789012.asia-northeast3.run.app</code></pre></div>
 <p>URL을 변수에 담아 헬스 체크를 호출해 봅시다(<a href="../phase-5-production-features/README.html">Phase 5</a>의 Actuator와 연결).</p>
 <div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># 배포된 서비스 URL을 가져와 변수에 저장</span>
 <span class="nv">SERVICE_URL</span><span class="o">=</span><span class="k">$(</span>gcloud<span class="w"> </span>run<span class="w"> </span>services<span class="w"> </span>describe<span class="w"> </span>book-api<span class="w"> </span><span class="se">\</span>

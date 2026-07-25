@@ -169,12 +169,12 @@
 
 <span class="k">EXPOSE</span><span class="w"> </span><span class="s">8080</span>
 
-<span class="c"># 컨테이너 메모리에 맞춰 힙 자동 조정</span>
-<span class="k">ENTRYPOINT</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;java&quot;</span>,<span class="w"> </span><span class="s2">&quot;-XX:MaxRAMPercentage=75.0&quot;</span>,<span class="w"> </span><span class="se">\</span>
-<span class="w">            </span><span class="s2">&quot;org.springframework.boot.loader.launch.JarLauncher&quot;</span><span class="o">]</span>
+<span class="c"># 추출된 얇은 application.jar를 실행 (컨테이너 메모리에 맞춰 힙 자동 조정)</span>
+<span class="k">ENTRYPOINT</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;java&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;-XX:MaxRAMPercentage=75.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;-jar&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;application.jar&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
-<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p>추출된 레이어는 <code>JarLauncher</code>가 인식하는 디렉터리 구조(<code>BOOT-INF/</code> 등)로 풀립니다. 따라서 ENTRYPOINT는 jar가 아니라 <strong><code>JarLauncher</code> 클래스</strong>를 직접 실행합니다. 각 <code>COPY</code>가 별도 Docker 레이어가 되고, 코드만 바뀌면 마지막 <code>application</code> 레이어만 다시 만들어집니다.</p>
+<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p><code>extract --layers</code>는 <code>application/</code> 레이어에 <strong>애플리케이션 코드와 의존성 참조만 담긴 얇은 <code>application.jar</code></strong> 를 만들고, 실제 의존성은 <code>dependencies/</code>(→ <code>lib/</code>)에 풀어 놓습니다. 그래서 ENTRYPOINT는 이 얇은 jar를 <code>-jar</code>로 실행합니다. 각 <code>COPY</code>가 별도 Docker 레이어가 되고, 코드만 바뀌면 마지막 <code>application</code> 레이어만 다시 만들어집니다.</p>
+<p>⚠️ 옛 예제에서 보이는 <code>ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]</code> 는 <strong>이 레이아웃에서 동작하지 않습니다.</strong> <code>JarLauncher</code>는 (추출하지 않은) 실행 가능 jar 안의 <code>Main-Class</code>일 때 의미가 있고, 추출 결과에는 기본적으로 로더가 포함되지 않습니다. Spring Boot 4.1 공식 Dockerfile 예제도 <code>java -jar application.jar</code>로 끝납니다.</p>
 </blockquote>
 <h3>.dockerignore</h3>
 <p>빌드 컨텍스트에서 불필요하거나 민감한 파일을 제외해 빌드를 빠르고 안전하게 만듭니다.</p>
@@ -240,7 +240,7 @@ docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </
 <span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">db</span>
 <span class="w">  </span><span class="nt">db</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres:17</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgres:18</span>
 <span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">POSTGRES_DB</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bookdb</span>
 <span class="w">      </span><span class="nt">POSTGRES_USER</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bookuser</span>

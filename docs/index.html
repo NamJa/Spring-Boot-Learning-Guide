@@ -93,7 +93,7 @@
 <p><strong>Kotlin으로 배우는 Spring Boot 4 — 핵심 개념부터 REST API · 데이터 · 보안 · 배포까지</strong></p>
 </blockquote>
 <p>Kotlin은 알지만 Spring 생태계는 처음인 분들을 위한 실습형 입문 가이드입니다. IoC/DI 같은 Spring의 핵심 철학부터 시작해, Kotlin으로 REST API를 만들고, Spring Data JPA로 데이터를 다루며, 검증·예외·보안·관측성을 더한 뒤, JAR·Docker·네이티브 이미지로 배포하는 전 과정을 단계별로 다룹니다.</p>
-<h2>📦 기준 버전 (2026-06-20 기준)</h2>
+<h2>📦 기준 버전 (2026-07-25 기준)</h2>
 <table>
 <thead>
 <tr>
@@ -106,27 +106,37 @@
 <tr>
 <td><strong>Spring Boot</strong></td>
 <td>4.1.0</td>
-<td>2026-06-10 GA</td>
+<td>2026-06-10 GA. 2026-07-25 기준 최신 GA</td>
 </tr>
 <tr>
 <td><strong>Spring Framework</strong></td>
-<td>7.0.8+</td>
-<td>Spring Boot 4.1의 베이스라인</td>
+<td>7.0.8</td>
+<td>Spring Boot 4.1.0 BOM 관리 버전</td>
+</tr>
+<tr>
+<td><strong>Spring Security</strong></td>
+<td>7.1.0</td>
+<td>Spring Boot 4.1.0 BOM 관리 버전</td>
+</tr>
+<tr>
+<td><strong>Spring Data</strong></td>
+<td>2026.0.0</td>
+<td>BOM(<code>spring-data-bom</code>) 버전</td>
 </tr>
 <tr>
 <td><strong>Kotlin</strong></td>
 <td>2.3.21</td>
-<td>Spring Boot 4.1.0 BOM이 관리 (스탠드얼론 최신은 2.4.0)</td>
+<td>Spring Boot 4.1.0 BOM이 관리 (스탠드얼론 최신은 2.4.10)</td>
 </tr>
 <tr>
 <td><strong>JDK</strong></td>
 <td>17 (최소) ~ 26</td>
-<td>빌드·런타임. 본 가이드는 LTS인 JDK 21 기준</td>
+<td>빌드·런타임. 본 가이드는 LTS인 JDK 21 기준 (Temurin 최신 태그 21.0.12, SDKMAN 설치본 21.0.11)</td>
 </tr>
 <tr>
 <td><strong>Gradle</strong></td>
-<td>8.14+ / 9.x</td>
-<td>Kotlin DSL(<code>build.gradle.kts</code>) 사용</td>
+<td>9.x (Initializr 래퍼 9.5.1)</td>
+<td>Kotlin DSL(<code>build.gradle.kts</code>). 8.14+도 동작</td>
 </tr>
 <tr>
 <td><strong>Maven</strong></td>
@@ -135,20 +145,113 @@
 </tr>
 <tr>
 <td><strong>내장 서버</strong></td>
-<td>Tomcat 11.0.x (Servlet 6.1)</td>
-<td>기본값. Jetty 12.1.x도 지원</td>
+<td>Tomcat 11.0.22 (Servlet 6.1)</td>
+<td>기본값. Jetty 12.1.10도 지원</td>
+</tr>
+<tr>
+<td><strong>Hibernate ORM</strong></td>
+<td>7.4.1.Final</td>
+<td>Spring Data JPA의 구현체</td>
+</tr>
+<tr>
+<td><strong>Jackson</strong></td>
+<td>3.1.4 (<code>tools.jackson</code>)</td>
+<td><strong>Spring Boot 4의 기본 JSON 엔진</strong></td>
+</tr>
+<tr>
+<td><strong>JUnit</strong></td>
+<td>6.0.3 (Jupiter)</td>
+<td><code>spring-boot-starter-test</code>가 관리</td>
+</tr>
+<tr>
+<td><strong>Testcontainers</strong></td>
+<td>2.0.5</td>
+<td>아티팩트 이름이 <code>testcontainers-*</code>로 변경됨</td>
+</tr>
+<tr>
+<td><strong>Querydsl (OpenFeign)</strong></td>
+<td>7.5</td>
+<td>부록 B 기준</td>
 </tr>
 <tr>
 <td><strong>GraalVM</strong></td>
-<td>Community 25</td>
+<td>Community 25 + Native Build Tools 1.1.1</td>
 <td>네이티브 이미지</td>
 </tr>
 </tbody>
 </table>
 <blockquote>
-<p>Spring Boot 4.1.0은 <strong>Java 17을 최소 버전</strong>으로 요구하며 <strong>Java 26까지</strong> 호환됩니다. 본 가이드는 가장 무난한 LTS인 <strong>JDK 21</strong>을 기준으로 작성했습니다. Spring Boot 3.5.x도 여전히 유지보수되는 안정 버전이지만, 본 가이드는 최신 메이저인 <strong>4.1.0</strong>을 기준으로 합니다.</p>
-<p><strong>Kotlin 버전에 관하여:</strong> 2026-06-20 기준 Kotlin의 스탠드얼론 최신 릴리스는 <strong>2.4.0</strong>(2026-06-03)이지만, Spring Boot 4.1.0의 BOM은 <strong>Kotlin 2.3.21</strong>을 관리합니다. Spring Boot 프로젝트에서는 BOM이 검증한 버전을 그대로 쓰는 것이 안전하므로, 본 가이드는 <strong>2.3.21</strong>을 기준으로 합니다. (Spring Boot 4.0.0은 2.2.21을 관리했습니다.)</p>
+<p>Spring Boot 4.1.0은 <strong>Java 17을 최소 버전</strong>으로 요구하며 <strong>Java 26까지</strong> 호환됩니다. 본 가이드는 가장 무난한 LTS인 <strong>JDK 21</strong>을 기준으로 작성했습니다. 현재 오픈소스 유지보수 라인은 <strong>4.0.7</strong> 하나이며, <strong>3.5.x는 2026-06-30에 오픈소스 지원이 종료</strong>되어(마지막 OSS 릴리스 3.5.16) 이후 패치는 상용 지원 대상입니다. Initializr도 4.1.x / 4.0.x만 제공하므로, 새 프로젝트는 최신 GA인 <strong>4.1.0</strong>으로 시작하세요.</p>
+<p><strong>Kotlin 버전에 관하여:</strong> 2026-07-25 기준 Kotlin의 스탠드얼론 최신 릴리스는 <strong>2.4.10</strong>(2026-07-14)이지만, Spring Boot 4.1.0의 BOM은 <strong>Kotlin 2.3.21</strong>을 관리합니다. Spring Boot 프로젝트에서는 BOM이 검증한 버전을 그대로 쓰는 것이 안전하므로, 본 가이드는 <strong>2.3.21</strong>을 기준으로 합니다. (Spring Boot 4.0.0은 2.2.21을 관리했습니다.)</p>
 </blockquote>
+<h3>⚠️ Spring Boot 4에서 달라진 것 (Boot 3 예제와 다른 부분)</h3>
+<p>인터넷의 Spring Boot 3 예제를 그대로 복사하면 컴파일조차 되지 않는 지점들입니다. 각 항목은 해당 Phase에서 자세히 다룹니다.</p>
+<table>
+<thead>
+<tr>
+<th>변경</th>
+<th>Boot 3까지</th>
+<th>Boot 4 (본 가이드)</th>
+<th>다루는 곳</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>JSON 엔진</strong></td>
+<td>Jackson 2 (<code>com.fasterxml.jackson.*</code>)</td>
+<td><strong>Jackson 3</strong> (<code>tools.jackson.*</code>), <code>JsonMapper</code></td>
+<td><a href="phase-2-first-api/02-dto-and-serialization.html">Phase 2-2</a></td>
+</tr>
+<tr>
+<td><strong>웹 스타터 이름</strong></td>
+<td><code>spring-boot-starter-web</code></td>
+<td><strong><code>spring-boot-starter-webmvc</code></strong> (구 이름은 deprecated)</td>
+<td><a href="phase-1-project-setup/04-build-gradle-kts.html">Phase 1-4</a></td>
+</tr>
+<tr>
+<td><strong>테스트 스타터</strong></td>
+<td><code>spring-boot-starter-test</code> 하나</td>
+<td>기술별 <strong><code>spring-boot-starter-&lt;기술&gt;-test</code></strong></td>
+<td><a href="phase-5-production-features/04-testing.html">Phase 5-4</a></td>
+</tr>
+<tr>
+<td><strong>목 빈</strong></td>
+<td><code>@MockBean</code></td>
+<td><strong><code>@MockitoBean</code></strong> (<code>@MockBean</code>은 제거됨)</td>
+<td><a href="phase-5-production-features/04-testing.html">Phase 5-4</a></td>
+</tr>
+<tr>
+<td><strong>통합 테스트 클라이언트</strong></td>
+<td><code>TestRestTemplate</code> 자동 구성</td>
+<td><strong><code>RestTestClient</code></strong> + <code>@AutoConfigureRestTestClient</code></td>
+<td><a href="phase-5-production-features/04-testing.html">Phase 5-4</a></td>
+</tr>
+<tr>
+<td><strong>헬스 API 패키지</strong></td>
+<td><code>org.springframework.boot.actuate.health</code></td>
+<td><strong><code>org.springframework.boot.health.contributor</code></strong></td>
+<td><a href="phase-5-production-features/03-actuator-observability.html">Phase 5-3</a></td>
+</tr>
+<tr>
+<td><strong>AOP 스타터</strong></td>
+<td><code>spring-boot-starter-aop</code></td>
+<td><strong><code>spring-boot-starter-aspectj</code></strong></td>
+<td><a href="appendix-c-aop/02-spring-aop.html">부록 C-2</a></td>
+</tr>
+<tr>
+<td><strong>H2 콘솔</strong></td>
+<td><code>h2</code> 의존성만으로 사용</td>
+<td><strong><code>spring-boot-h2console</code></strong> 모듈 추가 필요</td>
+<td><a href="phase-3-data-jpa/05-database-setup.html">Phase 3-5</a></td>
+</tr>
+<tr>
+<td><strong>Kotlin 애너테이션 타깃</strong></td>
+<td><code>@field:</code> 수동 지정</td>
+<td><code>-Xannotation-default-target=param-property</code> 기본</td>
+<td><a href="phase-4-validation-config/01-bean-validation.html">Phase 4-1</a></td>
+</tr>
+</tbody>
+</table>
 <h2>🧭 추천 학습 경로</h2>
 <p>본 가이드는 <strong>하나의 예제(도서 관리 API)</strong> 를 본문 Phase 0→7로 완성한 뒤, <strong>부록 A~D</strong>로 깊이를 더하는 구성입니다. 모든 페이지는 "다음 단계" 링크로 이어져 있어, 아래 순서대로 따라가면 됩니다.</p>
 <h3>✅ 권장 통합 순서 (본문 + 부록)</h3>
@@ -208,7 +311,7 @@
 <tr>
 <td style="text-align: center;">8</td>
 <td><strong>Phase 5</strong> 실전 기능</td>
-<td>HTTP 클라이언트·Security 7·Actuator·테스트</td>
+<td>HTTP 클라이언트·Security 7.1·Actuator·테스트</td>
 <td style="text-align: center;">4</td>
 </tr>
 <tr>
@@ -355,7 +458,7 @@
 <li><a href="https://start.spring.io/">Spring Initializr</a></li>
 </ul>
 <blockquote>
-<p>본 문서의 모든 버전·API는 <strong>2026년 6월 20일</strong> 기준 공식 문서로 검증했습니다.</p>
+<p>본 문서의 모든 버전·API는 <strong>2026년 7월 25일</strong> 기준 공식 문서·Spring Boot 4.1.0 BOM·Spring Initializr 실제 출력으로 검증했습니다.</p>
 </blockquote>
   </main>
 </div>

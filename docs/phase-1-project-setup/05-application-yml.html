@@ -165,11 +165,14 @@
 <span class="w">        </span><span class="nt">format_sql</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">      </span><span class="c1"># SQL을 보기 좋게 정렬</span>
 <span class="w">    </span><span class="nt">open-in-view</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">       </span><span class="c1"># OSIV 비활성화 (권장)</span>
 
-<span class="w">  </span><span class="c1"># --- Jackson(JSON) ---</span>
+<span class="w">  </span><span class="c1"># --- Jackson(JSON) — Boot 4는 Jackson 3 ---</span>
 <span class="w">  </span><span class="nt">jackson</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">serialization</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">indent-output</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">     </span><span class="c1"># 응답 JSON 들여쓰기 (개발 가독성)</span>
 <span class="w">    </span><span class="nt">default-property-inclusion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">non_null</span><span class="w">   </span><span class="c1"># null 필드는 응답에서 제외</span>
+<span class="w">    </span><span class="nt">datatype</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">datetime</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">write-dates-as-timestamps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">   </span><span class="c1"># 날짜를 ISO 문자열로 (Jackson 3 기본값)</span>
 
 <span class="c1"># --- 로깅 레벨 ---</span>
 <span class="nt">logging</span><span class="p">:</span>
@@ -206,7 +209,7 @@
 </tr>
 <tr>
 <td><code>spring.h2.console</code></td>
-<td>브라우저로 DB를 들여다보는 콘솔 (<code>/h2-console</code>)</td>
+<td>브라우저로 DB를 들여다보는 콘솔 (<code>/h2-console</code>). <strong>Boot 4에서는 <code>spring-boot-h2console</code> 의존성이 있어야 동작</strong></td>
 </tr>
 <tr>
 <td><code>spring.jpa.hibernate.ddl-auto</code></td>
