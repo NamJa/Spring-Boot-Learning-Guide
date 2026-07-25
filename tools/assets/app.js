@@ -142,7 +142,66 @@
     if (off > 0) box.scrollTop = off;
   });
 
-  /* 6) 모바일 드로어: 링크 클릭 시 닫기 ---------------------------------- */
+  /* 6) 용어집 검색 필터 --------------------------------------------------- */
+  guard("glossary-filter", function () {
+    var input = document.getElementById("gl-filter");
+    var root = document.querySelector(".glossary");
+    if (!input || !root) return;
+
+    var items = Array.prototype.slice.call(root.querySelectorAll(".gl-item"));
+    var groups = Array.prototype.slice.call(root.querySelectorAll("h2"));
+    var extras = Array.prototype.slice.call(root.querySelectorAll("table, aside, p"));
+    var counter = document.getElementById("gl-count");
+    var empty = document.createElement("p");
+    empty.className = "gl-empty gl-hide";
+    empty.textContent = "일치하는 용어가 없습니다.";
+    root.parentNode.insertBefore(empty, root);
+
+    items.forEach(function (it) { it.dataset.glText = (it.textContent || "").toLowerCase(); });
+
+    function groupItems(h2) {
+      var out = [], n = h2.nextElementSibling;
+      while (n && n.tagName !== "H2") {
+        if (n.classList.contains("gl-item")) out.push(n);
+        n = n.nextElementSibling;
+      }
+      return out;
+    }
+    var byGroup = groups.map(function (h2) { return { h2: h2, items: groupItems(h2) }; });
+
+    function setCount(shown) {
+      if (!counter) return;
+      counter.textContent = input.value.trim()
+        ? shown + "개 일치 (전체 " + items.length + "개)"
+        : "전체 " + items.length + "개 용어";
+    }
+
+    function apply() {
+      var q = input.value.trim().toLowerCase();
+      var shown = 0;
+      items.forEach(function (it) {
+        var hit = !q || it.dataset.glText.indexOf(q) >= 0;
+        it.classList.toggle("gl-hide", !hit);
+        if (hit) shown++;
+      });
+      // 검색 중에는 항목이 없는 분류와 보조 콘텐츠를 숨긴다
+      byGroup.forEach(function (g) {
+        var any = g.items.some(function (it) { return !it.classList.contains("gl-hide"); });
+        g.h2.classList.toggle("gl-hide", !!q && !any);
+      });
+      extras.forEach(function (el) { el.classList.toggle("gl-hide", !!q); });
+      empty.classList.toggle("gl-hide", shown !== 0);
+      setCount(shown);
+    }
+
+    input.addEventListener("input", apply);
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { input.value = ""; apply(); }
+    });
+    setCount(items.length);
+  });
+
+  /* 7) 모바일 드로어: 링크 클릭 시 닫기 ---------------------------------- */
   guard("drawer", function () {
     var toggle = document.getElementById("navtoggle");
     if (!toggle) return;

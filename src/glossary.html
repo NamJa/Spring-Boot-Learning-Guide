@@ -1,0 +1,681 @@
+<h1>용어집 (Glossary)</h1>
+<p>이 가이드 68개 페이지에 등장하는 용어를 한곳에 모았습니다. 읽다가 낯선 단어를 만나면 여기서 한 줄 정의를 확인하고, 필요하면 <strong>자세히 다루는 페이지</strong>로 바로 이동하세요. Spring Boot 4 기준이며, Boot 3까지와 이름·패키지가 달라진 항목은 마지막 절에 따로 모았습니다.</p>
+
+<div class="gl-tools">
+  <input type="search" id="gl-filter" class="gl-filter" placeholder="용어 검색 — 예: 프록시, @Transactional, Jackson" autocomplete="off" aria-label="용어 검색">
+  <p class="gl-count" id="gl-count"></p>
+</div>
+
+<nav class="gl-jump" aria-label="분류 이동">
+  <a href="#gl-core">Spring 핵심</a>
+  <a href="#gl-web">웹 · HTTP</a>
+  <a href="#gl-data">데이터 · JPA</a>
+  <a href="#gl-query">쿼리 · Querydsl</a>
+  <a href="#gl-config">검증 · 설정 · 예외</a>
+  <a href="#gl-security">보안</a>
+  <a href="#gl-observability">관측성 · 테스트</a>
+  <a href="#gl-build">빌드 · 배포 · 클라우드</a>
+  <a href="#gl-kotlin">Kotlin · 빌드 도구</a>
+  <a href="#gl-boot4">Boot 4에서 바뀐 이름</a>
+</nav>
+
+<div class="glossary">
+
+<h2 id="gl-core">Spring 핵심</h2>
+
+<div class="gl-item">
+  <div class="gl-term">Spring Framework <span class="gl-tag">기반</span></div>
+  <div class="gl-def">IoC 컨테이너와 AOP를 핵심으로 하는 경량 애플리케이션 프레임워크. 2003년 등장했고 본 가이드 기준은 <code>7.0.8</code>. Spring Boot·Data·Security 등 모든 프로젝트가 이 위에 올라간다. <a href="phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Spring Boot <span class="gl-tag">기반</span></div>
+  <div class="gl-def">Spring Framework를 <em>관례에 따라 자동으로 설정해 주는</em> 레이어. 새 프레임워크가 아니다. 자동 설정·스타터·내장 서버·Actuator를 더한다. 본 가이드 기준 <code>4.1.0</code>. <a href="phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">IoC (Inversion of Control, 제어의 역전) <span class="gl-tag">핵심</span></div>
+  <div class="gl-def">객체의 생성·조립·생명주기 제어권을 개발자가 아니라 프레임워크(컨테이너)가 갖는 것. Spring의 거의 모든 기능이 이 위에 얹힌다. <a href="phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">DI (Dependency Injection, 의존성 주입) <span class="gl-tag">핵심</span></div>
+  <div class="gl-def">IoC를 구현하는 구체적 기법. 필요한 협력 객체를 컨테이너가 넣어 준다. Kotlin에서는 <strong>주생성자 파라미터가 곧 주입 지점</strong>이라 <code>@Autowired</code> 조차 생략된다. <a href="phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Bean <span class="gl-tag">핵심</span></div>
+  <div class="gl-def">Spring 컨테이너가 생성·관리하는 객체. <code>@Component</code> 계열 애너테이션(컴포넌트 스캔)이나 <code>@Bean</code> 메서드로 등록한다. <a href="phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">ApplicationContext / BeanFactory</div>
+  <div class="gl-def">IoC 컨테이너의 인터페이스. <code>BeanFactory</code>는 최소 기능(생성·DI), <code>ApplicationContext</code>는 그 위에 이벤트·국제화·환경·AOP를 더한 실무용 상위 인터페이스. <a href="phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">스테레오타입 애너테이션 (<code>@Component</code> · <code>@Service</code> · <code>@Repository</code> · <code>@Controller</code>)</div>
+  <div class="gl-def">모두 <code>@Component</code>의 특수화로 기능은 사실상 같고 <strong>역할을 드러내는 문서적 의미</strong>가 다르다. 예외로 <code>@Repository</code>는 DB 예외를 Spring 표준 예외로 변환하는 부가 기능이 있다. <a href="phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">컴포넌트 스캔 (Component Scan)</div>
+  <div class="gl-def"><code>@ComponentScan</code>이 <strong>선언된 클래스의 패키지 이하</strong>를 훑어 스테레오타입 애너테이션이 붙은 클래스를 Bean으로 등록하는 과정. 진입점을 최상위 패키지에 두는 이유. <a href="phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Bean 스코프 (singleton · prototype · request · session)</div>
+  <div class="gl-def">Bean 인스턴스를 몇 개 만들고 얼마나 유지할지. 기본은 <strong>singleton</strong>(컨테이너당 1개)이므로 가변 상태를 두면 동시성 버그가 난다. <a href="phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>@PostConstruct</code> / <code>@PreDestroy</code></div>
+  <div class="gl-def">의존성 주입이 끝난 직후(초기화) · 컨테이너 종료 직전(소멸)에 한 번 호출되는 콜백(<code>jakarta.annotation</code>). 무거운 초기화는 생성자가 아니라 여기에 둔다. <a href="phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>ObjectProvider</code></div>
+  <div class="gl-def">singleton Bean이 prototype Bean을 매 호출마다 새로 얻어야 할 때 주입받는 조회 창구. <code>getObject()</code>가 그때그때 새 인스턴스를 준다. <a href="phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">자동 설정 (Auto-configuration)</div>
+  <div class="gl-def">클래스패스에 무엇이 있는지 보고 합리적인 기본 Bean을 대신 등록하는 Spring Boot의 핵심 기능. 후보 목록은 각 jar의 <code>META-INF/spring/…AutoConfiguration.imports</code>에 있다. <a href="phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>@ConditionalOnMissingBean</code> 외 <code>@Conditional</code> 계열</div>
+  <div class="gl-def">자동 설정의 적용 조건. 특히 <code>@ConditionalOnMissingBean</code>은 "사용자가 직접 만들면 양보한다"는 뜻으로, 재정의 가능성을 보장하는 장치다. <a href="phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">조건 평가 보고서 (Condition Evaluation Report)</div>
+  <div class="gl-def"><code>--debug</code> 또는 <code>debug: true</code>로 켜면 어떤 자동 설정이 왜 적용/미적용됐는지 출력된다. Actuator의 <code>/actuator/conditions</code>로도 볼 수 있다. <a href="phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">스타터 (Starter)</div>
+  <div class="gl-def">한 기능에 필요한 의존성을 묶은 편의 패키지. 버전은 BOM이 관리하므로 적지 않는다. Boot 4에서 이름이 정리됐다(<code>spring-boot-starter-webmvc</code> 등). <a href="phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">BOM (Bill of Materials)</div>
+  <div class="gl-def">검증된 의존성 버전 조합표. <code>spring-boot-dependencies</code>가 Spring·Kotlin·Jackson·JUnit 등 수백 개 버전을 고정해 준다. <a href="phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">AOP (Aspect-Oriented Programming)</div>
+  <div class="gl-def">로깅·트랜잭션·보안처럼 여러 메서드를 가로지르는 <strong>횡단 관심사</strong>를 비즈니스 로직에서 분리하는 기법. Spring에서는 런타임 프록시로 구현된다. <a href="appendix-c-aop/README.html">부록 C. AOP와 프록시</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">프록시 (Proxy)</div>
+  <div class="gl-def">원본과 같은 타입의 대리 객체. 호출을 가로채 부가 기능을 수행한 뒤 원본에 위임한다. Spring의 <code>@Transactional</code>·<code>@Cacheable</code>·<code>@Async</code>가 모두 이 구조. <a href="appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">JDK 동적 프록시 vs CGLIB</div>
+  <div class="gl-def">전자는 <strong>인터페이스</strong>를 구현한 프록시(인터페이스 필수), 후자는 대상 클래스를 <strong>상속</strong>한 프록시(<code>final</code> 불가). Spring Boot 기본은 CGLIB. <a href="appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Aspect · Pointcut · Advice · Join Point</div>
+  <div class="gl-def">차례로 <em>모듈화 단위</em>(<code>@Aspect</code>), <em>어디에 적용할지</em>(표현식), <em>무엇을 언제 할지</em>(<code>@Around</code> 등), <em>적용 가능 지점</em>(Spring AOP에서는 메서드 실행)이다. <a href="appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">어드바이스 5종 (<code>@Around</code> · <code>@Before</code> · <code>@AfterReturning</code> · <code>@AfterThrowing</code> · <code>@After</code>)</div>
+  <div class="gl-def"><code>@Around</code>만 <code>ProceedingJoinPoint.proceed()</code>로 원본 실행 여부·시점·결과까지 제어한다. <code>proceed()</code>를 부르지 않으면 원본이 아예 실행되지 않는다. <a href="appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">자기 호출 (self-invocation)</div>
+  <div class="gl-def">같은 클래스 안에서 <code>this.method()</code>로 호출하면 프록시를 우회하므로 <code>@Transactional</code>·<code>@LogExecution</code>이 <strong>조용히 무시</strong>된다. AOP 디버깅 1순위 용의자. <a href="appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>ThreadLocal</code></div>
+  <div class="gl-def">스레드마다 독립된 저장소. Spring은 현재 트랜잭션·영속성 컨텍스트·보안 컨텍스트를 여기에 담는다. 다른 스레드로 넘기면 전파되지 않는다(Boot 4.1의 <code>@Async</code>는 자동 전파). <a href="appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a></div>
+</div>
+
+<h2 id="gl-web">웹 · HTTP</h2>
+
+<div class="gl-item">
+  <div class="gl-term">REST API</div>
+  <div class="gl-def">리소스를 URL(명사)로, 행위를 HTTP 메서드로 표현하는 API 설계 관례. <code>GET /api/getBooks</code> 같은 동사형 URL은 지양한다. <a href="phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Stateless (무상태)</div>
+  <div class="gl-def">서버가 요청 간 상태를 기억하지 않는 성질. 덕분에 인스턴스를 수평 확장할 수 있고, Cloud Run의 scale-to-zero도 가능해진다. <a href="phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Spring MVC</div>
+  <div class="gl-def">서블릿 기반 동기·블로킹 웹 스택. 요청 1건당 스레드 1개(thread-per-request). 본 가이드가 선택한 스택. <a href="phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Spring WebFlux</div>
+  <div class="gl-def">Reactor 기반 리액티브·논블로킹 웹 스택. 반환 타입이 <code>Mono</code>/<code>Flux</code>(Kotlin은 <code>suspend</code>/<code>Flow</code>). 전 구간이 논블로킹일 때만 이점이 있다. <a href="phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">가상 스레드 (Virtual Threads, Project Loom)</div>
+  <div class="gl-def">JDK 21 정식 기능. 매우 가벼운 스레드로 블로킹 시 OS 스레드를 양보한다. <code>spring.threads.virtual.enabled=true</code> 한 줄로 MVC의 동시성 한계를 크게 완화한다. <a href="phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">서블릿 (Servlet) · 서블릿 컨테이너</div>
+  <div class="gl-def">HTTP 요청 하나를 처리하는 Java 표준 객체와 그 실행 환경. Spring Boot는 <strong>Tomcat 11.0.22(Servlet 6.1)</strong>를 내장하며 패키지는 <code>jakarta.servlet.*</code>. <a href="appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 처리 흐름</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">DispatcherServlet (프런트 컨트롤러)</div>
+  <div class="gl-def">모든 요청을 가장 먼저 받는 단일 서블릿. 직접 처리하지 않고 HandlerMapping/HandlerAdapter에 위임하고 결과를 응답으로 변환한다. <a href="appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 처리 흐름</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">HandlerMapping / HandlerAdapter</div>
+  <div class="gl-def">"누가 처리할지" 찾는 쪽과 "어떻게 호출할지" 아는 쪽. 애너테이션 컨트롤러는 <code>RequestMappingHandlerMapping</code> + <code>RequestMappingHandlerAdapter</code> 조합. <a href="appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 처리 흐름</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">아규먼트 리졸버 / 리턴값 핸들러</div>
+  <div class="gl-def">컨트롤러 메서드의 <strong>입력</strong>(<code>@PathVariable</code>·<code>@RequestBody</code>·<code>Model</code> …)을 채워 주고, <strong>출력</strong>(본문 또는 뷰 이름)을 처리하는 확장 지점. <a href="appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 처리 흐름</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>HttpMessageConverter</code></div>
+  <div class="gl-def">요청 본문 ↔ 객체를 변환하는 컴포넌트. <code>@RequestBody</code>/<code>@ResponseBody</code>가 이것을 트리거한다. JSON은 Boot 4에서 Jackson 3 기반. <a href="appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 처리 흐름</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>@RestController</code> vs <code>@Controller</code></div>
+  <div class="gl-def"><code>@RestController</code> = <code>@Controller</code> + <code>@ResponseBody</code>. 전자는 반환값을 <strong>본문</strong>으로, 후자는 String 반환값을 <strong>뷰 이름</strong>으로 해석한다. <a href="phase-2-first-api/03-rest-controller.html">@RestController 구현</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>ResponseEntity</code> vs <code>@ResponseStatus</code></div>
+  <div class="gl-def">상태 코드·헤더·본문을 코드로 세밀하게 제어할 때는 <code>ResponseEntity</code>(201 + <code>Location</code>, 204 등), 상태 코드만 고정하면 될 때는 애너테이션. <a href="phase-2-first-api/03-rest-controller.html">@RestController 구현</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">DTO (Data Transfer Object)</div>
+  <div class="gl-def">계층 간 데이터 전달 전용 객체. 엔티티와 분리해 노출 범위·요청/응답 차이·검증 규칙·변경 격리를 확보한다. 이 가이드는 <code>CreateBookRequest</code>/<code>UpdateBookRequest</code>/<code>BookResponse</code>. <a href="phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Jackson 3</div>
+  <div class="gl-def">Boot 4의 <strong>기본 JSON 엔진</strong>. 패키지가 <code>tools.jackson.*</code>로 바뀌고 가변 <code>ObjectMapper</code> 대신 불변 <code>JsonMapper</code>를 쓴다. 애너테이션만 <code>com.fasterxml.jackson.annotation</code>에 남았다. <a href="phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>jackson-module-kotlin</code></div>
+  <div class="gl-def">기본 생성자가 없는 Kotlin <code>data class</code>를 주생성자로 역직렬화하고, 기본값과 null 안정성을 존중하게 해 주는 모듈. Boot 4 좌표는 <code>tools.jackson.module:jackson-module-kotlin</code>. <a href="phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">서블릿 필터 (Filter)</div>
+  <div class="gl-def">서블릿 컨테이너 영역에서 DispatcherServlet <strong>바깥</strong>을 감싸는 장치. <code>chain.doFilter()</code> 호출 전후가 요청/응답 시점. 인코딩·요청 로깅·Spring Security가 여기 산다. <a href="appendix-d-mvc-internals/03-filter-interceptor.html">서블릿 필터와 스프링 인터셉터</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">스프링 인터셉터 (<code>HandlerInterceptor</code>)</div>
+  <div class="gl-def">DispatcherServlet <strong>안</strong>에서 컨트롤러 전후에 개입한다(<code>preHandle</code>/<code>postHandle</code>/<code>afterCompletion</code>). 어떤 핸들러가 실행될지 알고, 경로 패턴 제어가 유연하다. <a href="appendix-d-mvc-internals/03-filter-interceptor.html">서블릿 필터와 스프링 인터셉터</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">SSR (Server-Side Rendering) · Thymeleaf</div>
+  <div class="gl-def">서버가 완성된 HTML을 내려주는 방식과 그 표준 템플릿 엔진(<code>3.1.5</code>). <code>templates/</code>에 두고 <code>Model</code>로 데이터를 넘긴다. JSP는 실행 가능 jar와 궁합이 나빠 다루지 않는다. <a href="appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">PRG (Post-Redirect-Get)</div>
+  <div class="gl-def">폼 저장 후 <code>redirect:</code>로 GET 페이지로 보내는 패턴. 새로고침 시 POST 재전송(중복 저장)을 막는다. <a href="appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">쿠키 · 세션 · <code>JSESSIONID</code></div>
+  <div class="gl-def">쿠키는 클라이언트 저장(위조 가능), 세션은 서버 보관 + 열쇠(세션 ID)만 쿠키로 전달. Servlet 관례상 그 쿠키 이름이 <code>JSESSIONID</code>. <a href="appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>@SessionAttribute</code></div>
+  <div class="gl-def">세션 값을 컨트롤러 파라미터로 바로 주입받는 애너테이션. <code>session.getAttribute()</code> + 캐스팅을 대신한다. <a href="appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a></div>
+</div>
+
+<h2 id="gl-data">데이터 · JPA</h2>
+
+<div class="gl-item">
+  <div class="gl-term">ORM · 임피던스 불일치</div>
+  <div class="gl-def">객체와 테이블을 자동으로 매핑하는 기술, 그리고 참조 vs 외래 키·상속 유무 등 둘 사이의 근본적 차이. <a href="phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">JPA · Hibernate · Spring Data JPA</div>
+  <div class="gl-def">차례로 <em>표준 명세</em>(<code>jakarta.persistence.*</code>), <em>구현체</em>(본 가이드 <code>7.4.1</code>), <em>Repository 추상화</em>. Spring Data JPA를 써도 아래에서는 Hibernate가 SQL을 만든다. <a href="phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">영속성 컨텍스트 (Persistence Context)</div>
+  <div class="gl-def">엔티티를 보관하는 논리적 작업 공간. 1차 캐시·동일성 보장·변경 감지·쓰기 지연이 모두 여기서 나온다. 수명은 트랜잭션과 같다. <a href="appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>EntityManager</code></div>
+  <div class="gl-def">영속성 컨텍스트를 관리하는 주체. <code>@PersistenceContext</code>로 주입되는 것은 실제로 <strong>프록시</strong>라, 싱글턴 빈에 주입해도 스레드별 트랜잭션마다 다른 컨텍스트를 쓴다. <a href="appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">엔티티 생명주기 (비영속 · 영속 · 준영속 · 삭제)</div>
+  <div class="gl-def"><code>transient</code> → <code>persist()</code> → <code>managed</code> → <code>detach()</code>/<code>clear()</code> → <code>detached</code>, <code>remove()</code> → <code>removed</code>. <strong>영속 상태에서만</strong> 변경 감지가 동작한다. <a href="appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">1차 캐시 · 동일성 보장</div>
+  <div class="gl-def">같은 트랜잭션에서 같은 ID를 두 번 조회하면 DB에 가지 않고 같은 인스턴스를 반환한다(<code>a === b</code>). 애플리케이션 전역 2차 캐시와 다르다. <a href="appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">변경 감지 (Dirty Checking)</div>
+  <div class="gl-def">적재 시 저장한 <strong>스냅샷</strong>과 현재 상태를 flush 시점에 비교해 <code>UPDATE</code>를 자동 생성한다. 그래서 <code>save()</code> 없이 필드만 바꿔도 수정이 반영된다. <a href="appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">쓰기 지연 (Write-behind) · flush</div>
+  <div class="gl-def">SQL을 모아 두었다가 flush(커밋 직전·JPQL 실행 직전·수동 호출) 시점에 전송한다. flush는 컨텍스트를 <strong>비우지 않는다</strong>. <a href="appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>merge()</code></div>
+  <div class="gl-def">준영속 엔티티의 값을 복사해 <strong>새 영속 인스턴스를 반환</strong>한다(인자 객체는 그대로 준영속). 모든 필드를 덮어써 null 유실 위험이 있어 "조회 후 변경 감지" 패턴이 권장된다. <a href="appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>@Entity</code> · <code>@Table</code> · <code>@Id</code> · <code>@Column</code></div>
+  <div class="gl-def">클래스=테이블, 인스턴스=행, 프로퍼티=컬럼 매핑을 선언하는 기본 애너테이션. Kotlin에서는 <code>data class</code>를 피하고 일반 <code>class</code> + <code>var</code> + id 기반 <code>equals/hashCode</code>로 만든다. <a href="phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>@GeneratedValue</code> (IDENTITY · SEQUENCE · AUTO)</div>
+  <div class="gl-def">PK 생성 전략. 본 가이드는 <code>IDENTITY</code>(DB auto-increment). 단 IDENTITY는 ID를 알기 위해 즉시 INSERT하므로 <strong>쓰기 지연·배치가 사실상 무력화</strong>된다. <a href="phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>@Enumerated(EnumType.STRING)</code></div>
+  <div class="gl-def">enum을 이름으로 저장. 기본값 <code>ORDINAL</code>(순서 정수)은 상수를 중간에 추가하면 기존 데이터의 의미가 뒤바뀌므로 <strong>항상 STRING을 명시</strong>한다. <a href="appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">연관관계의 주인 · <code>mappedBy</code></div>
+  <div class="gl-def">테이블에는 FK가 하나뿐이므로 객체 참조 둘 중 하나만 FK를 관리한다. 규칙: <strong>FK를 가진 <code>@ManyToOne</code> 쪽이 주인</strong>, 반대쪽은 <code>mappedBy</code>로 거울임을 선언. <a href="appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">연관관계 편의 메서드</div>
+  <div class="gl-def">양방향 연관에서 주인 쪽 FK 세팅을 빼먹지 않도록 양쪽을 한 번에 맞추는 메서드(<code>addReview()</code>). 한쪽에만 두고, <code>toString</code>/<code>equals</code>에 양방향 필드를 넣지 않는다. <a href="appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>cascade</code> · <code>orphanRemoval</code></div>
+  <div class="gl-def">부모의 영속성 동작을 자식에게 전파 / 컬렉션에서 빠진 자식을 자동 삭제. <strong>자식이 그 부모에게만 속할 때</strong>만 켠다(공유되는 <code>Category</code>에는 금지). <a href="appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">상속 매핑 (SINGLE_TABLE · JOINED · TABLE_PER_CLASS)</div>
+  <div class="gl-def">한 테이블에 몰아넣기 / 부모·자식 테이블 분리 후 조인 / 자식마다 독립 테이블. 기본은 <code>SINGLE_TABLE</code>, NOT NULL이 중요하면 <code>JOINED</code>, 마지막은 비권장. <a href="appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>@MappedSuperclass</code> · JPA Auditing</div>
+  <div class="gl-def">테이블 없이 <strong>컬럼 매핑 정보만</strong> 물려주는 부모. <code>@CreatedDate</code>/<code>@LastModifiedDate</code> + <code>@EnableJpaAuditing</code>으로 생성·수정 시각을 자동 기록한다. <a href="appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">값 타입 (<code>@Embeddable</code> · <code>@Embedded</code>)</div>
+  <div class="gl-def">식별자가 없는 값 묶음(주소·금액)을 소속 엔티티 <strong>테이블의 컬럼들</strong>로 펼친다. 인스턴스를 공유하지 말고 통째로 교체하는 식으로 다룬다. <a href="appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">지연 로딩 (<code>FetchType.LAZY</code>) vs 즉시 로딩 (EAGER)</div>
+  <div class="gl-def">연관 객체 자리에 프록시를 두고 실제 접근 시 조회 / 조회 즉시 함께 로딩. <code>@ManyToOne</code>·<code>@OneToOne</code>의 기본값이 EAGER라 <strong>전부 LAZY로 명시</strong>하는 것이 정석. <a href="appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 즉시/지연 로딩, N+1</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">N+1 문제</div>
+  <div class="gl-def">목록 조회 1번 + 각 행의 연관 초기화 N번으로 쿼리가 폭증하는 현상. EAGER로 바꿔도 해결되지 않는다(횟수 동일). 본질은 "한 번에 가져오지 않는 것". <a href="appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 즉시/지연 로딩, N+1</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">페치 조인 (fetch join) · <code>@EntityGraph</code></div>
+  <div class="gl-def">연관을 한 방의 JOIN으로 함께 로딩하는 JPQL 문법과 그 선언적 버전. <strong>컬렉션 페치 조인 + 페이징</strong>은 메모리 페이징 경고가 나므로 배치 페치로 푼다. <a href="appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 즉시/지연 로딩, N+1</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>@BatchSize</code> · <code>default_batch_fetch_size</code></div>
+  <div class="gl-def">연관 초기화를 <code>IN</code> 절로 묶어 N번을 몇 번으로 줄인다. 전역 설정(100~1000)을 기본으로 켜 두는 것이 실무 권장. <a href="appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 즉시/지연 로딩, N+1</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">OSIV (Open Session In View)</div>
+  <div class="gl-def">영속성 컨텍스트를 HTTP 응답 끝까지 살려 두는 옵션(<code>spring.jpa.open-in-view</code>, 기본 <code>true</code>). 편리하지만 <strong>DB 커넥션 점유 시간이 길어져</strong> 고트래픽에서는 끄는 것을 권장. <a href="appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 즉시/지연 로딩, N+1</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>LazyInitializationException</code></div>
+  <div class="gl-def">트랜잭션(=컨텍스트)이 닫힌 뒤 지연 로딩 필드에 접근할 때 발생. 해법은 트랜잭션 안에서 미리 로딩하거나 <strong>DTO로 변환해</strong> 반환하는 것. <a href="phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>JpaRepository</code> · 파생 쿼리 (Derived Query)</div>
+  <div class="gl-def">인터페이스만 선언하면 CRUD 구현이 생기고, <code>findByAuthorAndPriceLessThan</code>처럼 <strong>메서드 이름을 파싱해</strong> 쿼리를 만들어 준다. <a href="phase-3-data-jpa/03-repository.html">Repository 인터페이스</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>Page</code> · <code>Slice</code> · <code>Pageable</code> · <code>Sort</code></div>
+  <div class="gl-def">페이징 3종. <code>Page</code>는 전체 개수를 위해 count 쿼리를 추가로 실행하고, <code>Slice</code>는 다음 페이지 유무만 확인해 더 가볍다. <a href="phase-3-data-jpa/03-repository.html">Repository 인터페이스</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>findByIdOrNull</code></div>
+  <div class="gl-def"><code>findById(id).orElse(null)</code>의 Kotlin 확장(<code>org.springframework.data.repository</code>). <code>Optional</code>을 nullable 타입으로 바꿔 준다. <a href="phase-3-data-jpa/03-repository.html">Repository 인터페이스</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">트랜잭션 · <code>@Transactional</code></div>
+  <div class="gl-def">여러 DB 작업을 원자적 단위로 묶는다. <strong>서비스 계층</strong>에 붙이고, import는 <code>org.springframework.transaction.annotation</code>을 쓴다(Spring 옵션을 쓰기 위해). <a href="phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>readOnly = true</code></div>
+  <div class="gl-def">조회 전용 트랜잭션. 변경 감지 스냅샷을 만들지 않아 메모리·CPU를 아끼고 불필요한 flush를 막는다. 클래스에 깔고 쓰기 메서드만 재정의하는 패턴이 흔하다. <a href="phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">전파 (Propagation) · 격리 수준 (Isolation)</div>
+  <div class="gl-def">기존 트랜잭션이 있을 때의 동작(<code>REQUIRED</code> 기본, <code>REQUIRES_NEW</code> 등)과 동시 트랜잭션의 간섭 정도(대개 DB 기본값 유지). <a href="phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">롤백 규칙</div>
+  <div class="gl-def">unchecked 예외는 롤백, checked 예외는 커밋이 기본. <strong>Kotlin에는 checked 예외가 없어</strong> 대개 "예외 발생 시 롤백"으로 이해하면 된다. 예외를 <code>try-catch</code>로 삼키면 롤백되지 않는다. <a href="phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>ddl-auto</code> (none · validate · update · create · create-drop)</div>
+  <div class="gl-def">기동 시 스키마 처리 전략. 개발은 <code>create-drop</code>/<code>update</code>, <strong>운영은 <code>validate</code>(또는 <code>none</code>)</strong> + 마이그레이션 도구가 정석. <a href="phase-3-data-jpa/05-database-setup.html">데이터베이스 설정</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Flyway · Liquibase</div>
+  <div class="gl-def">스키마 변경을 버전 관리하는 마이그레이션 도구. Flyway는 <code>V1__init.sql</code>처럼 SQL 파일을 순서대로 적용한다(Boot 4.1 관리 버전 12.4). <a href="phase-3-data-jpa/05-database-setup.html">데이터베이스 설정</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">HikariCP</div>
+  <div class="gl-def">Spring Boot 기본 JDBC 커넥션 풀(관리 버전 7.0). 커넥션 점유 시간이 길어지면 풀 고갈로 이어지므로 OSIV·트랜잭션 범위 설계와 직결된다. <a href="phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a></div>
+</div>
+
+<h2 id="gl-query">쿼리 · Querydsl</h2>
+
+<div class="gl-item">
+  <div class="gl-term">JPQL (Jakarta Persistence Query Language)</div>
+  <div class="gl-def">테이블이 아니라 <strong>엔티티와 필드</strong>를 대상으로 하는 객체 지향 쿼리 언어. <code>select b from Book b where b.price &gt;= :min</code> 처럼 쓰고 별칭이 필수다. <a href="appendix-a-jpa-advanced/05-jpql.html">JPQL</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">프로젝션 (엔티티 · 스칼라 · DTO)</div>
+  <div class="gl-def">select 절에 무엇을 담을지. DTO 프로젝션은 JPQL의 <code>new 패키지.DTO(...)</code> 구문을 쓰는데 FQCN과 생성자 순서를 손으로 맞춰야 해 깨지기 쉽다. <a href="appendix-a-jpa-advanced/05-jpql.html">JPQL</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">벌크 연산 (<code>@Modifying</code> · <code>executeUpdate()</code>)</div>
+  <div class="gl-def">여러 행을 한 번에 수정/삭제. 영속성 컨텍스트를 <strong>거치지 않고</strong> DB에 직접 나가므로 1차 캐시가 어긋난다. 직후 <code>clear()</code> 또는 <code>@Modifying(clearAutomatically = true)</code>가 필요. <a href="appendix-a-jpa-advanced/05-jpql.html">JPQL</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Querydsl</div>
+  <div class="gl-def">코드로 <strong>타입 안전한</strong> 쿼리를 작성하는 라이브러리. 오타가 컴파일 에러가 되고 동적 쿼리를 우아하게 조립한다. 현재 표준은 OpenFeign 포크(<code>io.github.openfeign.querydsl</code> 7.5). <a href="appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Q타입 (<code>QBook</code>)</div>
+  <div class="gl-def">엔티티로부터 <strong>빌드 시점에 생성</strong>되는 쿼리용 메타 클래스. 보통 정적 인스턴스 <code>QBook.book</code>을 쓰고, 자기 조인 등에는 <code>QBook("sub")</code>처럼 별칭을 만든다. <a href="appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>JPAQueryFactory</code></div>
+  <div class="gl-def">Querydsl 쿼리의 진입점. <code>EntityManager</code>를 받아 빈으로 등록해 두고 주입받아 쓴다. 패키지는 group id와 무관하게 <code>com.querydsl.jpa.impl</code>. <a href="appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>BooleanExpression</code> · <code>BooleanBuilder</code></div>
+  <div class="gl-def">동적 쿼리의 두 방식. <code>where(...)</code>는 <code>null</code> 인자를 무시하므로 "조건 없으면 null 반환" 메서드를 나열하는 쪽이 권장되고, 복잡한 <code>and</code>/<code>or</code> 그룹핑에는 <code>BooleanBuilder</code>가 편하다. <a href="appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>fetchJoin()</code> · <code>JPAExpressions</code></div>
+  <div class="gl-def">Querydsl에서 N+1을 푸는 페치 조인과 서브쿼리 빌더. JPQL 표준상 <strong><code>from</code> 절 서브쿼리는 지원되지 않는다</strong>. <a href="appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>Projections</code> · <code>@QueryProjection</code></div>
+  <div class="gl-def">DTO로 결과를 받는 두 방법. <code>Projections.constructor</code>는 순서를 런타임에 검증하고, <code>@QueryProjection</code>은 DTO의 Q타입을 만들어 <strong>컴파일 타임에</strong> 검증한다(대신 DTO가 Querydsl에 의존). <a href="appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">사용자 정의 리포지토리 (<code>…Custom</code> / <code>…Impl</code>)</div>
+  <div class="gl-def">Spring Data 기본 기능과 Querydsl 구현을 <strong>하나의 인터페이스</strong>로 합치는 표준 패턴. 구현 클래스 이름은 반드시 <code>[리포지토리명]Impl</code>. <a href="appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a></div>
+</div>
+
+<h2 id="gl-config">검증 · 설정 · 예외</h2>
+
+<div class="gl-item">
+  <div class="gl-term">Bean Validation · Hibernate Validator</div>
+  <div class="gl-def">필드에 제약을 선언하면 런타임에 검사해 주는 <em>표준 명세</em>(<code>jakarta.validation.*</code>)와 그 <em>구현체</em>. Boot 4에서는 <code>spring-boot-starter-validation</code>을 직접 추가해야 한다. <a href="phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>@NotNull</code> · <code>@NotEmpty</code> · <code>@NotBlank</code></div>
+  <div class="gl-def">차례로 null만 / null·빈 값 / null·빈 문자열·공백까지 거부. <strong>문자열 필수값에는 거의 항상 <code>@NotBlank</code></strong>. <a href="phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>@field:</code> use-site target</div>
+  <div class="gl-def">Kotlin에서 애너테이션을 <strong>백킹 필드</strong>에 붙이도록 지정하는 표기. 검증기가 읽는 자리라서 예전에는 필수였다. Initializr 기본 옵션(<code>-Xannotation-default-target=param-property</code>)이 켜져 있으면 생략해도 동작한다. <a href="phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>@Valid</code> vs <code>@Validated</code></div>
+  <div class="gl-def">전자는 표준으로 <code>@RequestBody</code> 검증·중첩 객체를 지원하고, 후자는 Spring 전용으로 <strong>검증 그룹</strong>과 메서드 파라미터 검증(클래스에 부착)을 지원한다. <a href="phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>MethodArgumentNotValidException</code> / <code>HandlerMethodValidationException</code></div>
+  <div class="gl-def">본문(<code>@Valid @RequestBody</code>) 검증 실패 / 파라미터 레벨(<code>@Validated</code> + <code>@PathVariable</code> 등) 검증 실패 시 던져지는 예외. 전역 처리 시 둘 다 고려한다. <a href="phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">커스텀 검증기 (<code>@Constraint</code> · <code>ConstraintValidator</code>)</div>
+  <div class="gl-def">표준 애너테이션으로 표현 못 하는 규칙(예: ISBN 체크섬)을 직접 만드는 방법. <code>message</code>·<code>groups</code>·<code>payload</code> 세 멤버는 명세상 필수. <a href="phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>@RestControllerAdvice</code> · <code>@ExceptionHandler</code></div>
+  <div class="gl-def">컨트롤러에서 던져진 예외를 한곳에서 잡아 의미 있는 상태 코드·본문으로 바꾸는 장치. <code>ResponseEntityExceptionHandler</code>를 상속하면 MVC 표준 예외도 함께 처리된다. <a href="phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>ProblemDetail</code> (RFC 9457)</div>
+  <div class="gl-def">HTTP API 에러의 표준 형태(<code>type</code>·<code>title</code>·<code>status</code>·<code>detail</code>·<code>instance</code> + 확장 필드). 반환하면 <code>application/problem+json</code>으로 직렬화된다. 신규 프로젝트 권장. <a href="phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">외부화된 설정 (Externalized Configuration)</div>
+  <div class="gl-def">설정값을 코드에서 분리해 환경마다 주입하는 원칙. 우선순위는 <strong>커맨드라인 &gt; 환경 변수 &gt; <code>application-{profile}.yml</code> &gt; <code>application.yml</code> &gt; 코드 기본값</strong>. <a href="phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">프로파일 (Profile) · 프로파일 그룹</div>
+  <div class="gl-def">환경별 설정 묶음(<code>dev</code>·<code>prod</code>·<code>test</code>)과 여러 프로파일을 한 이름으로 켜는 기능. <code>@Profile("!prod")</code>처럼 Bean 등록도 갈라낼 수 있다. <a href="phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">느슨한 바인딩 (Relaxed Binding)</div>
+  <div class="gl-def"><code>app.book.default-page-size</code> = <code>defaultPageSize</code> = 환경 변수 <code>APP_BOOK_DEFAULTPAGESIZE</code> 를 같은 키로 취급하는 규칙. 컨테이너 환경 변수 주입의 기반. <a href="phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">플레이스홀더 <code>${VAR:기본값}</code></div>
+  <div class="gl-def">환경 변수가 있으면 그 값, 없으면 기본값. 비밀번호처럼 기본값을 두면 위험한 항목은 일부러 비워 <strong>기동 실패로 만드는</strong> 것이 안전하다. <a href="phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>@ConfigurationProperties</code> vs <code>@Value</code></div>
+  <div class="gl-def">관련 설정을 타입 안전한 클래스에 통째로 바인딩 vs 단일 값 주입. 전자는 느슨한 바인딩·검증·중첩 타입에 강하고, 후자는 SpEL을 쓸 수 있다. <a href="phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">생성자 바인딩 · <code>@EnableConfigurationProperties</code> / <code>@ConfigurationPropertiesScan</code></div>
+  <div class="gl-def"><code>val</code>만 가진 불변 <code>data class</code>로 설정을 받는 권장 방식과, 그 클래스를 빈으로 등록하는 두 가지 방법(<code>@Component</code>는 쓸 수 없다). <a href="phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">configuration-processor</div>
+  <div class="gl-def">설정 메타데이터를 만들어 IDE 자동완성을 돕는 애너테이션 프로세서. Kotlin에서는 <strong><code>kapt</code>로만</strong> 동작하며(KSP 미지원), 기본값 탐지 등 일부 기능에 제약이 있다. <a href="phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a></div>
+</div>
+
+<h2 id="gl-security">보안</h2>
+
+<div class="gl-item">
+  <div class="gl-term">Spring Security</div>
+  <div class="gl-def">인증·인가 프레임워크(본 가이드 <code>7.1.0</code>). 스타터만 추가해도 <strong>모든 엔드포인트가 잠기는</strong> secure-by-default 철학. 내부는 거대한 서블릿 필터 체인. <a href="phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>SecurityFilterChain</code></div>
+  <div class="gl-def">"어떤 경로에 어떤 인증·인가 규칙을 적용할지" 담은 필터 묶음. Security 7에서는 <code>WebSecurityConfigurerAdapter</code> 상속이 아니라 <strong>이 빈을 등록</strong>하는 방식만 쓴다. <a href="phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Security Kotlin DSL (<code>http { }</code>)</div>
+  <div class="gl-def">람다 빌더보다 읽기 좋은 Kotlin 전용 설정 DSL. <code>import org.springframework.security.config.annotation.web.invoke</code> 확장을 빼먹으면 컴파일되지 않는다. <a href="phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">인증 (Authentication) vs 인가 (Authorization)</div>
+  <div class="gl-def">"누구인가"를 확인하는 것과 "무엇을 할 수 있는가"를 판단하는 것. 전자는 인증 필터(Basic·폼·JWT), 후자는 <code>authorizeHttpRequests</code>·<code>@PreAuthorize</code>가 담당. <a href="phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>PasswordEncoder</code> · BCrypt</div>
+  <div class="gl-def">비밀번호를 단방향 해시로 저장하기 위한 추상화와 그 표준 구현. 평문 저장은 금지이며 <code>BCryptPasswordEncoder</code>가 기본 선택. <a href="phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">CSRF (Cross-Site Request Forgery)</div>
+  <div class="gl-def">브라우저가 자동 전송하는 <strong>쿠키 세션</strong>을 악용하는 공격. 쿠키 세션 + 서버 렌더링 폼이면 반드시 켜고, 헤더 토큰 기반 순수 REST API면 끌 수 있다. <a href="phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">OAuth2 Resource Server · JWT</div>
+  <div class="gl-def">우리 API가 인증 서버(Keycloak·Auth0 등)가 발급한 <strong>토큰을 검증만</strong> 하는 역할. <code>issuer-uri</code> 하나로 서명·만료 검증이 자동 구성된다. 운영 REST API의 정석. <a href="phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">메서드 보안 (<code>@EnableMethodSecurity</code> · <code>@PreAuthorize</code>)</div>
+  <div class="gl-def">URL 규칙 외에 서비스 메서드 단위로 인가를 표현하는 방법. 비즈니스 규칙 가까이에서 권한을 선언할 수 있다. <a href="phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">SSRF 완화 (<code>InetAddressFilter</code>)</div>
+  <div class="gl-def">Boot 4.1 신규. HTTP 클라이언트가 내부망 등 허용되지 않은 주소로 나가는 것을 차단한다. 사용자 입력으로 URL을 만드는 기능이 있으면 검토. <a href="phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Secret Manager · Workload Identity Federation (WIF)</div>
+  <div class="gl-def">비밀값을 외부 금고에서 주입하는 방식과, JSON 키 없이 GitHub 워크플로 신원을 GCP가 직접 신뢰하게 하는 인증 방식. 장기 비밀이 없어 더 안전하다. <a href="phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a></div>
+</div>
+
+<h2 id="gl-observability">관측성 · 테스트</h2>
+
+<div class="gl-item">
+  <div class="gl-term">Actuator</div>
+  <div class="gl-def">헬스·메트릭·환경·로거 등을 즉시 사용 가능한 엔드포인트로 노출하는 운영 모듈. <strong>기본 노출은 <code>health</code>뿐</strong>이며 필요한 것만 열어야 한다. <a href="phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">liveness / readiness 프로브</div>
+  <div class="gl-def">"프로세스가 살아 있나"(실패 시 재시작) vs "트래픽을 받을 준비가 됐나"(실패 시 트래픽 제외). <code>management.endpoint.health.probes.enabled=true</code>로 그룹을 켠다. <a href="phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>HealthIndicator</code></div>
+  <div class="gl-def">헬스 체크 항목 하나를 구현하는 인터페이스. Boot 4에서 패키지가 <code>org.springframework.boot.health.contributor</code>로 이동했다. <a href="phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Micrometer · <code>MeterRegistry</code></div>
+  <div class="gl-def">"메트릭계의 SLF4J". 코드는 Micrometer API로 쓰고 백엔드(Prometheus·OTLP)는 의존성만 갈아끼운다. <code>Counter</code>·<code>Timer</code>를 <code>MeterRegistry</code>에 등록해 쓴다. <a href="phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Prometheus · Grafana</div>
+  <div class="gl-def"><code>/actuator/prometheus</code>를 주기적으로 스크레이프해 시계열로 저장하는 수집기와, 그것을 그리는 대시보드. <a href="phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">분산 추적 · OpenTelemetry (OTLP)</div>
+  <div class="gl-def">요청 하나가 <strong>어디서</strong> 시간을 썼는지 구간(span)별로 보는 기법과 그 표준·전송 프로토콜. Micrometer Tracing이 브리지 역할을 한다. <a href="phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">구조화 로깅 (Structured Logging)</div>
+  <div class="gl-def">로그를 JSON으로 출력해 수집기가 필드 단위로 파싱하게 하는 것. Boot 4 내장 기능(<code>logging.structured.format.console=ecs</code>)이며 trace ID와 엮어 쓴다. <a href="phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">관측성 3대 신호 (Metrics · Traces · Logs)</div>
+  <div class="gl-def">무엇이 얼마나 / 어디서 느린가 / 정확히 무슨 일이. 셋을 <strong>trace ID 하나로 연결</strong>하는 것이 운영 디버깅의 핵심. <a href="phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">테스트 슬라이스</div>
+  <div class="gl-def">필요한 만큼만 컨텍스트를 띄우는 전략. <code>@WebMvcTest</code>(웹) · <code>@DataJpaTest</code>(JPA) · <code>@RestClientTest</code>(외부 호출) · <code>@SpringBootTest</code>(전체). 좁은 것 많이, 통합은 적게. <a href="phase-5-production-features/04-testing.html">테스트 전략</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>@MockitoBean</code></div>
+  <div class="gl-def">스프링 컨텍스트의 빈을 목으로 교체하는 애너테이션. Boot 4에서 <code>@MockBean</code>·<code>@SpyBean</code>은 <strong>제거</strong>되어 이것으로 대체됐다. <a href="phase-5-production-features/04-testing.html">테스트 전략</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>MockMvc</code> · <code>MockMvcTester</code></div>
+  <div class="gl-def">서버 없이 웹 계층을 호출하는 테스트 도구와, 그 AssertJ 기반 fluent 버전. Kotlin에서는 <code>mockMvc.get("/api/books") { … }</code> DSL도 쓸 수 있다. <a href="phase-5-production-features/04-testing.html">테스트 전략</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>RestTestClient</code></div>
+  <div class="gl-def">Spring Framework 7의 테스트용 HTTP 클라이언트. <code>@SpringBootTest(RANDOM_PORT)</code> + <code>@AutoConfigureRestTestClient</code>로 주입받아 <code>exchange().expectStatus()</code> 체인으로 검증한다. <a href="phase-5-production-features/04-testing.html">테스트 전략</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Testcontainers · <code>@ServiceConnection</code></div>
+  <div class="gl-def">테스트 중 실제 DB를 도커로 띄우는 도구와, 그 접속 정보를 datasource 설정에 자동 연결해 주는 애너테이션. 2.x에서 아티팩트·클래스 패키지가 바뀌었다. <a href="phase-5-production-features/04-testing.html">테스트 전략</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>MockRestServiceServer</code></div>
+  <div class="gl-def">외부 API 호출을 실제 서버 없이 흉내 내는 테스트 서버. <code>@RestClientTest</code> 슬라이스가 <code>RestClient.Builder</code>에 끼워 준다. <a href="phase-5-production-features/04-testing.html">테스트 전략</a></div>
+</div>
+
+<h2 id="gl-build">빌드 · 배포 · 클라우드</h2>
+
+<div class="gl-item">
+  <div class="gl-term">실행 가능 jar (fat jar) · <code>bootJar</code></div>
+  <div class="gl-def">애플리케이션과 모든 의존성을 한 jar에 담아 <code>java -jar</code>로 바로 실행되는 산출물. <code>Main-Class</code>는 <code>JarLauncher</code>이며 plain jar와는 용도가 다르다. <a href="phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">layered jar · <code>-Djarmode=tools</code></div>
+  <div class="gl-def">jar 내부를 변경 빈도에 따라 4개 레이어(dependencies · spring-boot-loader · snapshot-dependencies · application)로 나눈 구조와, 그것을 추출하는 도구 모드. <a href="phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Cloud Native Buildpacks · Paketo · <code>bootBuildImage</code></div>
+  <div class="gl-def">Dockerfile 없이 소스/jar를 분석해 OCI 이미지를 만들어 주는 표준과 그 구현, 그리고 이를 실행하는 Gradle 태스크. OS 패치를 빌드팩 업데이트로 흡수한다. <a href="phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">멀티 스테이지 빌드</div>
+  <div class="gl-def">빌드 단계에서만 JDK·Gradle을 쓰고 런타임 이미지에는 JRE와 산출물만 남기는 Dockerfile 기법. 레이어 분리와 함께 이미지 크기·캐시 효율을 좌우한다. <a href="phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>-XX:MaxRAMPercentage</code></div>
+  <div class="gl-def">컨테이너에 할당된 메모리의 비율로 힙 상한을 정하는 JVM 옵션. 고정 <code>-Xmx</code>보다 안전하다(JDK 21은 cgroup 한도를 자동 인식). <a href="phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">AOT · GraalVM 네이티브 이미지</div>
+  <div class="gl-def">빌드 시점에 기계어로 컴파일해 JVM 없이 실행되는 단일 파일을 만드는 기술. 시작 수십 ms·메모리 수십 MB이지만 빌드가 길고 closed-world 제약이 있다. <a href="phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">런타임 힌트 (<code>@RegisterReflectionForBinding</code> · <code>RuntimeHintsRegistrar</code>)</div>
+  <div class="gl-def">네이티브 이미지가 리플렉션·프록시·리소스를 알 수 있게 빌드 시점에 알려 주는 메타데이터. 네이티브에서만 나는 오류의 대부분이 힌트 누락이다. <a href="phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">12-factor · 그레이스풀 셧다운</div>
+  <div class="gl-def">"설정은 코드와 분리해 환경에 둔다"는 원칙과, SIGTERM 후 진행 중 요청을 마무리하고 종료하는 동작(<strong>Boot 4는 기본 활성화</strong>). 무중단 배포의 전제. <a href="phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Cloud Run</div>
+  <div class="gl-def">컨테이너 기반 서버리스 플랫폼. HTTPS URL·오토스케일링·요청 기반 과금을 제공하고 트래픽이 없으면 인스턴스를 0으로 줄인다. <a href="phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Service · Revision · Instance</div>
+  <div class="gl-def">고정 URL을 갖는 배포 단위 / 이미지+설정의 불변 스냅샷 / 실제 실행 컨테이너. 리비전 단위로 롤백·트래픽 분할(카나리)이 가능하다. <a href="phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">동시성 (Concurrency) · 콜드 스타트</div>
+  <div class="gl-def">인스턴스 하나가 동시에 처리하는 요청 수(gcloud 배포 기본 = vCPU × 80)와, 인스턴스가 0인 상태에서 처음 요청이 겪는 기동 지연. <code>--min-instances</code>·<code>--cpu-boost</code>·네이티브 이미지로 완화한다. <a href="phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">scale to zero · 무료 티어</div>
+  <div class="gl-def">트래픽이 없으면 인스턴스를 0개로 줄여 비용이 0에 수렴하는 성질과, 결제 계정당 월 200만 요청·180,000 vCPU-초·360,000 GiB-초의 무료 한도. <a href="phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>PORT</code> 환경 변수</div>
+  <div class="gl-def">Cloud Run이 컨테이너에 주입하는 리스닝 포트. <strong>Spring Boot는 <code>PORT</code>를 알지 못하므로</strong> <code>server.port: ${PORT:8080}</code>으로 직접 연결해야 한다(가장 흔한 배포 실패 원인). <a href="phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Artifact Registry · Cloud Build</div>
+  <div class="gl-def">GCP의 컨테이너 이미지 저장소와 빌드 서비스. <code>--source</code> 배포는 Cloud Build가 (Dockerfile 또는 buildpacks로) 이미지를 만들어 여기에 올린다. <a href="phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Cloud SQL · 휘발성 파일 시스템</div>
+  <div class="gl-def">관리형 관계형 DB와, Cloud Run 인스턴스의 <strong>인메모리</strong> 파일 시스템. 디스크에 쓴 내용은 사라지고 메모리를 잡아먹으므로 영구 데이터는 Cloud SQL·Cloud Storage에 둔다. <a href="phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a></div>
+</div>
+
+<h2 id="gl-kotlin">Kotlin · 빌드 도구</h2>
+
+<div class="gl-item">
+  <div class="gl-term">kotlin-spring (all-open)</div>
+  <div class="gl-def">Kotlin 클래스는 기본이 <code>final</code>이라 CGLIB 프록시를 만들 수 없다. 이 플러그인이 <code>@Component</code>·<code>@Transactional</code> 등이 붙은 클래스를 <strong>자동으로 <code>open</code></strong> 처리해 준다. <a href="phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">kotlin-jpa (noArg) · <code>allOpen</code> 블록</div>
+  <div class="gl-def"><code>@Entity</code>에 JPA가 요구하는 <strong>기본 생성자를 합성</strong>하는 플러그인. Initializr는 함께 <code>allOpen { annotation("jakarta.persistence.Entity") … }</code> 블록도 생성한다. <a href="phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>-Xjsr305=strict</code></div>
+  <div class="gl-def">Java API의 nullability 애너테이션을 엄격히 해석해, 플랫폼 타입 대신 정확한 null 가능/불가능 타입으로 다루게 하는 컴파일러 옵션. <a href="phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term"><code>-Xannotation-default-target=param-property</code></div>
+  <div class="gl-def">주생성자 프로퍼티의 애너테이션을 파라미터와 프로퍼티(필드)에 함께 적용하는 Kotlin 2.2+ 옵션. Initializr 기본값이며 Kotlin 2.4부터는 언어 기본 동작. <a href="phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">kapt vs KSP</div>
+  <div class="gl-def">Kotlin에서 애너테이션 프로세서를 돌리는 두 방식. kapt는 Java stub을 거쳐 느리지만 검증돼 있고(현재 유지보수 모드), KSP는 Kotlin 네이티브로 빠르다. Querydsl은 양쪽 다 지원. <a href="appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Gradle Wrapper · 툴체인 (toolchain)</div>
+  <div class="gl-def">저장소에 포함된 스크립트로 <strong>고정된 Gradle 버전</strong>을 쓰게 하는 장치와, 빌드 머신의 기본 JDK와 무관하게 특정 JDK로 컴파일하도록 고정하는 설정. <a href="phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Spring Initializr</div>
+  <div class="gl-def"><a href="https://start.spring.io/">start.spring.io</a>의 프로젝트 생성기. 웹·<code>curl</code>·IntelliJ에서 모두 쓸 수 있고, 본 가이드의 <code>build.gradle.kts</code>는 여기 출력을 기준으로 검증했다. <a href="phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">DevTools</div>
+  <div class="gl-def">클래스 변경 시 애플리케이션을 자동 재시작해 주는 개발 편의 모듈(<code>developmentOnly</code> 스코프라 운영 산출물에는 빠진다). 재시작하면 메모리 데이터는 초기화된다. <a href="phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a></div>
+</div>
+
+<h2 id="gl-boot4">Boot 4에서 바뀐 이름 (빠른 대조)</h2>
+
+<p>Boot 3 예제를 그대로 복사하면 컴파일·빌드가 깨지는 항목만 모았습니다. 각 항목의 자세한 설명은 위 분류에 있습니다.</p>
+
+<table class="gl-table">
+<thead><tr><th>구분</th><th>Boot 3까지</th><th>Boot 4 (본 가이드)</th></tr></thead>
+<tbody>
+<tr><td>JSON 패키지</td><td><code>com.fasterxml.jackson.*</code></td><td><code>tools.jackson.*</code> (애너테이션만 유지)</td></tr>
+<tr><td>JSON 매퍼</td><td>가변 <code>ObjectMapper</code></td><td>불변 <code>JsonMapper</code> + <code>JsonMapperBuilderCustomizer</code></td></tr>
+<tr><td>날짜 프로퍼티</td><td><code>spring.jackson.serialization.write-dates-as-timestamps</code></td><td><code>spring.jackson.datatype.datetime.write-dates-as-timestamps</code></td></tr>
+<tr><td>웹 스타터</td><td><code>spring-boot-starter-web</code></td><td><code>spring-boot-starter-webmvc</code></td></tr>
+<tr><td>AOP 스타터</td><td><code>spring-boot-starter-aop</code></td><td><code>spring-boot-starter-aspectj</code></td></tr>
+<tr><td>H2 콘솔</td><td><code>h2</code> 의존성만</td><td>+ <code>spring-boot-h2console</code> 모듈</td></tr>
+<tr><td>테스트 스타터</td><td><code>spring-boot-starter-test</code> 하나</td><td>기술별 <code>spring-boot-starter-&lt;기술&gt;-test</code></td></tr>
+<tr><td>목 빈</td><td><code>@MockBean</code> · <code>@SpyBean</code></td><td><code>@MockitoBean</code> · <code>@MockitoSpyBean</code> (구 애너테이션 제거)</td></tr>
+<tr><td>통합 테스트 클라이언트</td><td><code>TestRestTemplate</code> 자동 구성</td><td><code>RestTestClient</code> + <code>@AutoConfigureRestTestClient</code></td></tr>
+<tr><td>슬라이스 애너테이션</td><td><code>…test.autoconfigure.web.servlet.WebMvcTest</code></td><td><code>…boot.webmvc.test.autoconfigure.WebMvcTest</code></td></tr>
+<tr><td>헬스 API</td><td><code>org.springframework.boot.actuate.health</code></td><td><code>org.springframework.boot.health.contributor</code></td></tr>
+<tr><td>선언적 HTTP 클라이언트</td><td>(없음 / Feign 등 외부)</td><td><code>@ImportHttpServices</code> (<code>org.springframework.web.service.registry</code>)</td></tr>
+<tr><td>HTTP 클라이언트 설정 키</td><td>—</td><td><code>spring.http.clients.*</code> · <code>spring.http.serviceclient.&lt;group&gt;.*</code></td></tr>
+<tr><td>재시도 애너테이션</td><td>Spring Retry의 <code>maxAttempts</code></td><td><code>org.springframework.resilience</code>의 <code>maxRetries</code>(ms 단위 <code>delay</code>)</td></tr>
+<tr><td>그레이스풀 셧다운</td><td><code>server.shutdown=graceful</code> 로 활성화</td><td>기본 활성화 (끄려면 <code>immediate</code>)</td></tr>
+<tr><td>Testcontainers 모듈</td><td><code>org.testcontainers:postgresql</code></td><td><code>org.testcontainers:testcontainers-postgresql</code> (클래스도 <code>org.testcontainers.postgresql</code>)</td></tr>
+</tbody>
+</table>
+
+<aside class="callout note">
+<p>용어는 계속 늘어납니다. 새 페이지를 추가할 때 낯선 개념을 도입했다면 이 문서에도 한 줄 항목을 남겨 주세요. 파일은 <code>src/glossary.html</code> 이고, 항목 하나는 <code>&lt;div class="gl-item"&gt;</code> + <code>gl-term</code>/<code>gl-def</code> 두 줄입니다.</p>
+</aside>
+
+</div>
