@@ -1,0 +1,180 @@
+<h1>진입점 — @SpringBootApplication</h1>
+<p>모든 Spring Boot 애플리케이션에는 단 하나의 <strong>진입점(entry point)</strong> 클래스가 있습니다. Phase 1에서 프로젝트를 생성하면 <code>src/main/kotlin/com/example/bookapi/</code> 아래에 <code>BookApiApplication.kt</code> 파일이 자동으로 만들어집니다. 이 파일이 애플리케이션 전체의 출발점입니다.</p>
+
+<h2>1. 생성된 진입점 클래스</h2>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi
+
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+
+@SpringBootApplication
+class BookApiApplication
+
+fun main(args: Array&lt;String&gt;) {
+    runApplication&lt;BookApiApplication&gt;(*args)
+}</code></pre>
+<p>코드는 단 몇 줄이지만, 이 안에 Spring Boot의 거의 모든 마법이 압축되어 있습니다. 하나씩 풀어 보겠습니다.</p>
+
+<h2>2. @SpringBootApplication 애너테이션</h2>
+<p><code>@SpringBootApplication</code>은 사실 세 개의 애너테이션을 합쳐 놓은 <strong>메타 애너테이션(composed annotation)</strong>입니다.</p>
+
+<table>
+<thead>
+<tr>
+<th>포함된 애너테이션</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@SpringBootConfiguration</code></td>
+<td>이 클래스가 Spring 설정(configuration) 클래스임을 표시 (<code>@Configuration</code>의 특수형)</td>
+</tr>
+<tr>
+<td><code>@EnableAutoConfiguration</code></td>
+<td><strong>자동 설정(auto-configuration)</strong> 활성화. 클래스패스에 있는 라이브러리를 보고 필요한 빈을 자동 등록</td>
+</tr>
+<tr>
+<td><code>@ComponentScan</code></td>
+<td>현재 패키지(<code>com.example.bookapi</code>)와 그 하위 패키지를 스캔하여 <code>@Component</code>, <code>@Service</code>, <code>@RestController</code> 등을 빈으로 등록</td>
+</tr>
+</tbody>
+</table>
+<p>여기서 가장 중요한 규칙: <strong>진입점 클래스는 프로젝트의 최상위 패키지에 두어야 합니다.</strong> <code>@ComponentScan</code>은 이 클래스가 위치한 패키지를 기준(base package)으로 하위를 탐색하기 때문입니다. <code>com.example.bookapi</code>에 두면 <code>com.example.bookapi.controller</code>, <code>com.example.bookapi.service</code> 등이 모두 스캔 대상이 됩니다.</p>
+
+<blockquote>
+<p><strong>자주 하는 실수</strong>: 컨트롤러를 진입점 패키지 바깥(예: <code>com.example.web</code>)에 두면 스캔되지 않아 404가 발생합니다. 새 클래스는 항상 <code>com.example.bookapi</code> 하위에 만드세요.</p>
+</blockquote>
+
+<h3>자동 설정이란?</h3>
+<p><code>@EnableAutoConfiguration</code>은 "클래스패스에 무엇이 있는가"를 보고 적절한 기본 설정을 알아서 적용합니다. 예를 들어,</p>
+
+<ul>
+<li><code>spring-boot-starter-webmvc</code>가 있으면 → 내장 <strong>Tomcat</strong> 서버, <code>DispatcherServlet</code>, Jackson 3 JSON 변환기 등을 자동 구성</li>
+<li><code>tools.jackson.module:jackson-module-kotlin</code>이 있으면 → Kotlin data class를 위한 JSON 직렬화기를 자동 등록</li>
+</ul>
+<p>이 덕분에 우리는 XML 설정 한 줄 없이 곧바로 웹 서버를 띄울 수 있습니다.</p>
+
+<h2>3. runApplication — Kotlin다운 시작 방식</h2>
+<p><code>runApplication</code>은 Spring Boot가 Kotlin 사용자를 위해 제공하는 <strong>확장 함수</strong>입니다. Java에서는 보통 이렇게 씁니다.</p>
+
+<pre class="code" data-lang="java"><code>// Java 스타일
+public static void main(String[] args) {
+    SpringApplication.run(BookApiApplication.class, args);
+}</code></pre>
+<p>Kotlin에서는 <code>runApplication</code>을 쓰면 클래스 참조(<code>::class.java</code>)를 명시할 필요 없이 <strong>타입 파라미터</strong>로 깔끔하게 표현됩니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>runApplication&lt;BookApiApplication&gt;(*args)</code></pre>
+<p><code>*args</code>는 <strong>스프레드 연산자(spread operator)</strong>로, <code>Array&lt;String&gt;</code>을 가변 인자(vararg)로 풀어서 전달합니다. 이 인자는 커맨드라인 옵션(<code>--server.port=9090</code> 등)으로 활용됩니다.</p>
+
+<h2>4. 시작 시 무슨 일이 일어나는가</h2>
+<p><code>main</code>이 실행되면 다음 순서로 진행됩니다.</p>
+
+<figure class="flowchart">
+
+<ol class="fc-steps">
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">runApplication&lt;BookApiApplication&gt;(*args)</div></div></li>
+<li class="fc-step"><span class="fc-num">1</span><div class="fc-body"><div class="fc-head">SpringApplication 객체 생성, 환경(Environment) 준비</div></div></li>
+<li class="fc-step"><span class="fc-num">2</span><div class="fc-body"><div class="fc-head">ApplicationContext(IoC 컨테이너) 생성</div></div></li>
+<li class="fc-step"><span class="fc-num">3</span><div class="fc-body"><div class="fc-head">@ComponentScan → 빈 정의 수집 (@Service, @RestController ...)</div></div></li>
+<li class="fc-step"><span class="fc-num">4</span><div class="fc-body"><div class="fc-head">@EnableAutoConfiguration → 내장 Tomcat, Jackson 등 자동 구성</div></div></li>
+<li class="fc-step"><span class="fc-num">5</span><div class="fc-body"><div class="fc-head">모든 싱글톤 빈 생성 및 의존성 주입(DI)</div></div></li>
+<li class="fc-step"><span class="fc-num">6</span><div class="fc-body"><div class="fc-head">내장 Tomcat 시작 → 8080 포트에서 요청 대기</div></div></li>
+</ol></figure>
+<p>5단계가 끝나면 우리가 만든 <code>BookService</code>, <code>BookController</code> 같은 객체들이 컨테이너 안에 준비되고, 서로 의존성이 연결됩니다. 6단계에서 서버가 떠 실제로 HTTP 요청을 받을 수 있게 됩니다.</p>
+
+<h2>5. 시작 로그 읽기</h2>
+<p><code>./gradlew bootRun</code>으로 실행하면 콘솔에 다음과 비슷한 로그가 출력됩니다.</p>
+
+<pre class="code" data-lang="text"><code>  .   ____          _            __ _ _
+ /\\ / ___&#x27;_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | &#x27;_ | &#x27;_| | &#x27;_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  &#x27;  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.0)
+
+... INFO ... Starting BookApiApplicationKt using Java 21 ...
+... INFO ... Tomcat initialized with port 8080 (http)
+... INFO ... Starting service [Tomcat]
+... INFO ... Starting Servlet engine: [Apache Tomcat/11.0.22]
+... INFO ... Initializing Spring embedded WebApplicationContext
+... INFO ... Tomcat started on port 8080 (http) with context path &#x27;/&#x27;
+... INFO ... Started BookApiApplicationKt in 1.234 seconds (process running for 1.567)</code></pre>
+<p>로그에서 확인할 핵심 정보입니다.</p>
+
+<ul>
+<li><strong>Spring Boot 버전</strong>: <code>v4.1.0</code></li>
+<li><strong>JDK 버전</strong>: <code>Java 21</code></li>
+<li><strong>내장 서버</strong>: <code>Apache Tomcat/11.0.22</code> (Servlet 6.1)</li>
+<li><strong>포트</strong>: <code>8080</code></li>
+<li><strong>마지막 줄</strong> <code>Started BookApiApplicationKt in ...</code>: 정상 기동 완료 신호. 이 줄이 보이면 API를 호출할 준비가 된 것입니다. (Kotlin은 최상위 <code>fun main</code>이 <code>BookApiApplicationKt</code> 클래스로 컴파일되므로 로그에 <code>...Kt</code>가 붙습니다.)</li>
+</ul>
+
+<h2>6. SpringApplication 커스터마이징 (간단히)</h2>
+<p>대부분 기본값으로 충분하지만, 시작 동작을 바꾸고 싶다면 람다로 설정을 조정할 수 있습니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>fun main(args: Array&lt;String&gt;) {
+    runApplication&lt;BookApiApplication&gt;(*args) {
+        // 시작 배너 끄기
+        setBannerMode(Banner.Mode.OFF)
+        // 추가 프로파일 지정 등도 가능
+    }
+}</code></pre>
+<p>포트나 애플리케이션 이름 같은 설정은 코드보다 <code>src/main/resources/application.yml</code>에 두는 것이 더 일반적입니다.</p>
+
+<pre class="code" data-lang="yaml"><code>server:
+  port: 8080
+spring:
+  application:
+    name: book-api</code></pre>
+
+<h2>7. Ktor의 embeddedServer와 비교</h2>
+<p>Ktor 경험이 있다면 이 구조가 낯설 수 있습니다. Ktor에서는 서버 엔진과 라우팅을 코드에서 명시적으로 조립합니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>// Ktor
+fun main() {
+    embeddedServer(Netty, port = 8080) {
+        routing {
+            get(&quot;/api/books&quot;) { call.respondText(&quot;...&quot;) }
+        }
+    }.start(wait = true)
+}</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>Ktor</th>
+<th>Spring Boot</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>서버 시작</td>
+<td><code>embeddedServer(Netty, ...)</code> 명시적 조립</td>
+<td><code>runApplication</code> 한 줄, 나머지는 자동</td>
+</tr>
+<tr>
+<td>엔진 선택</td>
+<td>코드에서 직접 지정 (Netty 등)</td>
+<td>starter 의존성으로 결정 (기본 Tomcat)</td>
+</tr>
+<tr>
+<td>라우팅</td>
+<td><code>routing { }</code> DSL로 코드에 작성</td>
+<td><code>@RestController</code> 애너테이션으로 선언</td>
+</tr>
+<tr>
+<td>설정 방식</td>
+<td>코드 중심(명시적)</td>
+<td>애너테이션 + 자동 설정(관례 중심)</td>
+</tr>
+</tbody>
+</table>
+<p>핵심 차이는 <strong>명시(explicit) vs 관례(convention)</strong>입니다. Ktor는 모든 것을 코드로 보여 주는 대신 직접 조립해야 하고, Spring Boot는 관례와 자동 설정으로 보일러플레이트를 줄이는 대신 "어떤 마법이 일어나는지"를 이해하는 학습이 필요합니다. 이 가이드는 바로 그 마법을 한 겹씩 벗겨 나가는 과정입니다.</p>
+
+<h2>다음 단계</h2>
+<p>진입점을 이해했으니, 이제 API가 주고받을 데이터의 형태를 정의할 차례입니다. <a href="02-dto-and-serialization.html">DTO와 JSON 직렬화</a>로 이동하세요.</p>

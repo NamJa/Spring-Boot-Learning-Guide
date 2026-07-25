@@ -1,0 +1,226 @@
+<h1>함정과 내부 동작</h1>
+<p>AOP는 "분명히 애너테이션을 붙였는데 동작하지 않는" 버그를 만들기로 악명 높습니다. 원인은 거의 항상 <strong>프록시의 동작 방식</strong>에 있습니다. 이 페이지는 가장 흔한 함정들과, <code>@Transactional</code>이 AOP로 동작하는 내부 원리를 파헤쳐 "보이지 않는 마법"의 정체를 드러냅니다.</p>
+
+<h2>1. 자기 호출(self-invocation) — 프록시를 우회한다</h2>
+<p>가장 악명 높은 함정입니다. <strong>같은 클래스 안의 메서드를 <code>this</code>로 호출하면, 프록시를 거치지 않으므로 AOP가 적용되지 않습니다.</strong> <a href="../phase-3-data-jpa/04-transactions.html">Phase 3-4 트랜잭션</a>에서 예고했던 바로 그 문제입니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>@Service
+class BookService(private val bookRepository: BookRepository) {
+
+    fun createTwo(a: CreateBookRequest, b: CreateBookRequest) {
+        create(a)        // ⚠ this.create(a) — 프록시를 우회한다!
+        create(b)        // ⚠ @Transactional / @LogExecution 안 먹힘
+    }
+
+    @Transactional
+    @LogExecution
+    fun create(request: CreateBookRequest): BookResponse =
+        bookRepository.save(request.toEntity()).toResponse()
+}</code></pre>
+<p>왜 안 될까요? 호출 경로를 그림으로 보면 명확합니다.</p>
+
+<figure class="dg">
+<figcaption>자기 호출(self-invocation)이 AOP를 우회하는 경로</figcaption>
+<div class="dg-vs">
+  <div class="col is-bad">
+    <h4>우회되는 경로</h4>
+    <div class="dg-pipe">
+      <div class="dg-node"><div class="t">컨트롤러</div></div>
+      <div class="dg-arrow h"></div>
+      <div class="dg-node is-accent"><div class="t">프록시</div></div>
+      <div class="dg-arrow h"></div>
+      <div class="dg-node"><div class="t">createTwo()</div></div>
+    </div>
+    <div class="dg-arrow v"><span>this.create()</span></div>
+    <div class="dg-node is-bad"><div class="t">create() — 원본 인스턴스 직접 호출</div>
+      <div class="s"><code>@Transactional</code> · <code>@LogExecution</code> 모두 <strong>미적용</strong></div></div>
+  </div>
+  <div class="mid"><span>vs</span></div>
+  <div class="col is-good">
+    <h4>올바른 경로</h4>
+    <div class="dg-pipe">
+      <div class="dg-node"><div class="t">컨트롤러</div></div>
+      <div class="dg-arrow h"></div>
+      <div class="dg-node is-accent"><div class="t">프록시</div></div>
+      <div class="dg-arrow h"></div>
+      <div class="dg-node"><div class="t">create()</div></div>
+    </div>
+    <p class="dg-foot" style="margin-top:10px">외부(다른 빈)에서 호출되어 <strong>프록시를 거치므로</strong> 어드바이스가 적용됩니다.</p>
+  </div>
+</div>
+</figure>
+<p><code>create()</code>에 붙은 <code>@Transactional</code>·<code>@LogExecution</code>은 <strong>프록시를 통해 들어올 때만</strong> 발동합니다. 그런데 <code>createTwo</code> 안의 <code>create()</code>는 프록시가 아닌 <strong>원본 인스턴스(<code>this</code>)</strong> 의 메서드를 직접 호출하므로 어드바이스가 끼어들 틈이 없습니다.</p>
+
+<h3>해결책</h3>
+
+<table>
+<thead>
+<tr>
+<th>방법</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>빈 분리(권장)</strong></td>
+<td><code>create()</code>를 별도 빈(예: <code>BookCreator</code>)으로 빼고, 그 빈을 주입받아 호출. 외부 빈 호출이므로 프록시를 거침.</td>
+</tr>
+<tr>
+<td><strong>구조 변경</strong></td>
+<td>자기 호출 자체를 없애도록 메서드 설계를 재구성.</td>
+</tr>
+<tr>
+<td>자기 주입</td>
+<td>자기 자신의 프록시를 주입받아 <code>self.create()</code> 호출. 동작하지만 가독성이 나빠 비권장.</td>
+</tr>
+<tr>
+<td><code>AopContext</code></td>
+<td><code>AopContext.currentProxy()</code>로 프록시 획득. 설정이 필요하고 코드가 지저분해 비권장.</td>
+</tr>
+</tbody>
+</table>
+
+<pre class="code" data-lang="kotlin"><code>// 해결: 빈 분리
+@Service
+class BookCreator(private val bookRepository: BookRepository) {
+    @Transactional
+    @LogExecution
+    fun create(request: CreateBookRequest): BookResponse =
+        bookRepository.save(request.toEntity()).toResponse()
+}
+
+@Service
+class BookService(private val bookCreator: BookCreator) {
+    fun createTwo(a: CreateBookRequest, b: CreateBookRequest) {
+        bookCreator.create(a)    // 외부 빈 → 프록시를 거침 → AOP 적용 O
+        bookCreator.create(b)
+    }
+}</code></pre>
+
+<aside class="callout warning">
+<p><code>@Transactional</code>이 "왜 롤백이 안 되지?"라며 헤맬 때, 80%는 자기 호출입니다. 트랜잭션 메서드를 같은 클래스의 다른 메서드가 부르고 있지 않은지 가장 먼저 의심하세요.</p>
+</aside>
+
+<h2>2. <code>final</code>/<code>open</code> 함정 — 프록시를 못 만든다</h2>
+<p><a href="01-proxy-and-decorator.html">01 페이지</a>에서 본 대로, CGLIB은 대상을 <strong>상속</strong>해 프록시를 만듭니다. 따라서 <code>final</code> 클래스나 <code>final</code> 메서드는 프록시할 수 없습니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>// 만약 all-open 플러그인이 없다면, Kotlin 기본값이 final 이라
+@Service
+class BookService {
+    @Transactional
+    fun create(...) { ... }    // final 메서드 → 오버라이드 불가 → 프록시 미적용
+}</code></pre>
+<p>Phase 1의 <code>kotlin("plugin.spring")</code>(all-open)이 스프링 애너테이션 클래스를 자동으로 <code>open</code>으로 바꿔 주므로 평소엔 문제가 없습니다. 하지만 <strong>all-open이 인식하지 못하는 자작 애너테이션 기반 빈</strong>이나, 실수로 <code>final</code>을 명시한 메서드에서는 조용히 AOP가 빠질 수 있습니다.</p>
+
+<aside class="callout tip">
+<p>AOP가 안 먹히는데 자기 호출도 아니라면, 대상 클래스/메서드가 <code>open</code>인지 확인하세요. 빈의 실제 타입을 로그로 찍어 보면(<code>bookService.javaClass.name</code>) <code>...$$SpringCGLIB$$...</code>가 보여야 프록시가 적용된 것입니다.</p>
+</aside>
+
+<h2>3. 프록시 생성 시점</h2>
+<p>AOP 프록시는 <strong>컴파일 타임이 아니라, 스프링 컨테이너가 빈을 초기화하는 시점</strong>에 만들어집니다.</p>
+
+<figure class="flowchart">
+
+<ol class="fc-steps">
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">빈 인스턴스 생성 → 의존성 주입 → BeanPostProcessor 동작</div></div></li>
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">└─ AnnotationAwareAspectJAutoProxyCreator : 포인트컷에 매칭되면 원본을 프록시로 교체</div></div></li>
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">컨테이너에는 &#x27;프록시&#x27;가 빈으로 등록됨</div></div></li>
+</ol></figure>
+<p>핵심은 <strong>컨테이너에 등록되는 빈 자체가 프록시로 바꿔치기된다</strong>는 점입니다. 그래서 다른 빈이 <code>BookService</code>를 주입받으면 실제로는 프록시를 받습니다. (이 교체를 담당하는 게 <code>AnnotationAwareAspectJAutoProxyCreator</code>라는 <code>BeanPostProcessor</code>입니다.)</p>
+
+<h2>4. <code>@Transactional</code>이 AOP로 동작하는 원리</h2>
+<p>이제 부록 개요에서 한 약속을 갚을 차례입니다. <code>@Transactional</code>은 사실 <strong>스프링이 미리 등록해 둔 트랜잭션 Aspect</strong>입니다.</p>
+
+<ul>
+<li>스프링 부트가 자동 구성으로 <strong><code>@EnableTransactionManagement</code></strong> 를 켭니다.</li>
+<li>이때 <strong><code>BeanFactoryTransactionAttributeSourceAdvisor</code></strong> 라는 어드바이저(포인트컷 + 어드바이스 묶음)가 등록됩니다.</li>
+<li><strong>포인트컷</strong>: "<code>@Transactional</code>이 붙은 클래스/메서드"</li>
+<li><strong>어드바이스</strong>: <code>TransactionInterceptor</code> — <code>@Around</code>와 동등하게 동작</li>
+<li><code>TransactionInterceptor</code>는 사실상 이런 <code>@Around</code>입니다.</li>
+</ul>
+
+<pre class="code" data-lang="kotlin"><code>// 개념적 의사 코드 — TransactionInterceptor가 하는 일
+fun invoke(joinPoint: ProceedingJoinPoint): Any? {
+    val tx = transactionManager.getTransaction(...)   // 1) 트랜잭션 시작
+    return try {
+        val result = joinPoint.proceed()              // 2) 원본 비즈니스 메서드 실행
+        transactionManager.commit(tx)                 // 3) 정상 → 커밋
+        result
+    } catch (e: RuntimeException) {
+        transactionManager.rollback(tx)               // 4) 예외 → 롤백
+        throw e
+    }
+}</code></pre>
+<p><a href="02-spring-aop.html">02 페이지의 실습 ①</a> 실행 시간 측정 Aspect와 구조가 똑같습니다. <strong><code>@Transactional</code>은 특별한 언어 기능이 아니라, 스프링이 기본 제공하는 AOP 적용 사례</strong>일 뿐입니다. 그래서 자기 호출(1번)이나 <code>final</code>(2번) 함정에 똑같이 걸립니다.</p>
+
+<h2>5. AOP 적용 순서 — <code>@Order</code></h2>
+<p>한 메서드에 여러 Aspect가 걸리면 순서가 중요합니다. 로깅이 트랜잭션 바깥에서 도는지 안쪽에서 도는지에 따라 결과가 달라지죠. 순서는 <strong><code>@Order</code>(또는 <code>Ordered</code> 인터페이스)</strong> 로 제어합니다. <strong>숫자가 작을수록 바깥쪽(먼저)</strong> 입니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>@Aspect
+@Component
+@Order(1)                 // 가장 바깥 — 트랜잭션보다 먼저 진입
+class LogExecutionAspect { ... }
+
+@Aspect
+@Component
+@Order(2)                 // 안쪽
+class ExecutionTimeAspect { ... }</code></pre>
+
+<figure class="dg">
+<figcaption>어드바이스 중첩 순서 — 숫자가 작을수록 바깥</figcaption>
+<div class="dg-box">
+  <div class="bx-title"><span class="badge">@Order(1)</span> 로깅 진입</div>
+  <div class="dg-box">
+    <div class="bx-title"><span class="badge">@Order(2)</span> 시간 측정 진입</div>
+    <div class="dg-box is-solid">
+      <div class="bx-title"><span class="badge">@Transactional</span> 트랜잭션 시작</div>
+      <div class="dg-node is-accent"><div class="t">비즈니스 로직 실행</div></div>
+      <p class="dg-foot" style="margin:10px 0 0">◀ 커밋</p>
+    </div>
+    <p class="dg-foot" style="margin:10px 0 0">◀ 시간 측정 종료</p>
+  </div>
+  <p class="dg-foot" style="margin:10px 0 0">◀ 로깅 종료</p>
+</div>
+<p class="dg-foot">바깥에서 안으로 진입하고, 안에서 바깥으로 빠져나옵니다. 트랜잭션 어드바이저의 기본 순서는 가장 안쪽에 가깝습니다.</p>
+</figure>
+
+<aside class="callout warning">
+<p><code>@Order</code>를 지정하지 않으면 적용 순서가 보장되지 않습니다. 트랜잭션과 다른 Aspect의 선후 관계가 결과에 영향을 준다면 반드시 명시하세요. 참고로 트랜잭션 어드바이저의 기본 순서는 <code>Ordered.LOWEST_PRECEDENCE</code>(가장 안쪽)에 가깝습니다.</p>
+</aside>
+
+<h2>6. ThreadLocal과 요청 스코프 빈</h2>
+<p>트랜잭션 같은 부가 기능은 "현재 진행 중인 작업의 상태"를 어딘가 저장해야 합니다. 스프링은 이를 <strong><code>ThreadLocal</code></strong> 에 담습니다.</p>
+
+<ul>
+<li><strong><code>ThreadLocal</code></strong>: 스레드마다 독립된 저장소. 같은 코드라도 스레드 A와 B가 서로 다른 값을 봅니다. 스프링은 현재 트랜잭션·영속성 컨텍스트(<code>EntityManager</code>)·보안 컨텍스트를 ThreadLocal에 보관해, 요청을 처리하는 한 스레드 안에서 일관되게 공유합니다.</li>
+<li><strong>요청 스코프 빈(<code>@Scope("request")</code>)</strong>: HTTP 요청 1건당 빈 하나가 생성됐다가 요청이 끝나면 사라집니다. 요청별 로그 추적 ID(traceId) 같은 걸 담기에 좋습니다.</li>
+</ul>
+
+<pre class="code" data-lang="kotlin"><code>@Component
+@Scope(value = &quot;request&quot;, proxyMode = ScopedProxyMode.TARGET_CLASS)
+class RequestLogContext {
+    var traceId: String = UUID.randomUUID().toString()
+}</code></pre>
+
+<aside class="callout warning">
+<p>ThreadLocal은 <strong>별도 스레드로 작업을 넘기면 기본적으로 전파되지 않습니다.</strong> 트랜잭션·보안 컨텍스트가 새 스레드에서 사라지는 사고의 원인이 되니, 비동기 경계에서는 컨텍스트 전파(<code>TaskDecorator</code> 등)를 챙겨야 합니다.</p>
+<p>다만 <strong>Spring Boot 4.1부터는 <code>@Async</code> 메서드에 컨텍스트가 자동 전파</strong>됩니다(Micrometer Context Propagation 연동). <code>@Async</code>를 쓴다면 4.1 이상에서는 이 함정이 상당 부분 해소되지만, 직접 만든 스레드 풀이나 코루틴 디스패처로 넘길 때는 여전히 수동으로 챙겨야 합니다.</p>
+</aside>
+
+<h2>7. 마무리 — 마법의 정체</h2>
+<p><code>@Transactional</code> 하나로 트랜잭션이 열리고 닫히는 것, <code>@Cacheable</code> 하나로 결과가 캐시되는 것 — 모두 <strong>"스프링이 여러분의 빈을 프록시로 한 겹 감싸, 정해진 포인트컷에서 어드바이스를 실행한다"</strong> 는 단 하나의 원리에서 나옵니다.</p>
+<p>이 정체를 알면 디버깅이 쉬워집니다.</p>
+
+<ul>
+<li>트랜잭션이 안 먹는다 → <strong>자기 호출</strong>을 의심한다 (1번)</li>
+<li>AOP가 통째로 안 먹는다 → <strong><code>open</code> 여부</strong>와 <strong>빈 등록</strong>을 확인한다 (2·3번)</li>
+<li>Aspect 순서가 이상하다 → <strong><code>@Order</code></strong> 를 점검한다 (5번)</li>
+<li>비동기에서 컨텍스트가 사라진다 → <strong>ThreadLocal 전파</strong>를 챙긴다 (6번)</li>
+</ul>
+
+<aside class="callout tip">
+<p>"보이지 않는 마법의 정체를 이해하면, 마법이 풀렸을 때 어디를 봐야 할지 안다." AOP를 두려워하지 말고, 프록시라는 한 겹을 항상 머릿속에 그리세요.</p>
+</aside>
+
+<h2>다음 단계</h2>
+<p>AOP와 프록시의 원리를 마쳤습니다. 다음 부록에서는 이 프록시 위에서 동작하는 웹 계층 — 디스패처 서블릿과 요청 처리 파이프라인의 내부를 들여다봅니다. → <strong><a href="../appendix-d-mvc-internals/README.html">부록 D. Spring MVC 내부 동작</a></strong></p>

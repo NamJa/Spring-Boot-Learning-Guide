@@ -1,0 +1,187 @@
+<h1>Spring Data JPA 개념</h1>
+<p>데이터베이스 코드를 작성하기 전에, 우리가 사용할 기술 스택이 정확히 무엇인지부터 정리합시다. <strong>JPA</strong>, <strong>Hibernate</strong>, <strong>Spring Data JPA</strong> — 이름이 비슷해 보이지만 서로 다른 계층의 것들입니다. 이 셋의 관계를 이해하는 것이 JPA 학습의 첫걸음입니다.</p>
+
+<h2>1. ORM이란 무엇인가</h2>
+<p>관계형 데이터베이스(RDB)는 데이터를 <strong>테이블의 행(row)</strong> 으로 저장합니다. 반면 Kotlin/Java 같은 객체지향 언어는 데이터를 <strong>객체(object)</strong> 로 다룹니다. 이 둘 사이에는 근본적인 불일치가 있습니다.</p>
+
+<ul>
+<li>객체는 <strong>참조</strong>로 다른 객체를 가리키지만, 테이블은 <strong>외래 키(FK)</strong> 로 다른 행을 가리킨다.</li>
+<li>객체는 상속·다형성을 갖지만, 테이블에는 그런 개념이 없다.</li>
+<li>객체 그래프는 자유롭게 탐색되지만, 테이블은 JOIN으로 연결된다.</li>
+</ul>
+<p>이런 차이를 흔히 <strong>객체-관계 임피던스 불일치(impedance mismatch)</strong> 라고 부릅니다. <strong>ORM(Object-Relational Mapping)</strong> 은 이 간극을 자동으로 메워 주는 기술입니다. 즉, 객체를 저장하면 알아서 <code>INSERT</code> SQL을 만들어 주고, 행을 조회하면 알아서 객체로 변환해 줍니다. 개발자는 SQL이 아니라 <strong>객체</strong> 중심으로 코드를 작성할 수 있게 됩니다.</p>
+
+<h2>2. JPA / Hibernate / Spring Data JPA의 관계</h2>
+<p>세 가지를 한 문장으로 요약하면 다음과 같습니다.</p>
+
+<ul>
+<li><strong>JPA (Jakarta Persistence API)</strong>: ORM을 위한 <strong>표준 명세(specification)</strong>. 인터페이스와 애너테이션의 집합일 뿐, 그 자체로는 동작하지 않는다. <code>jakarta.persistence.*</code> 패키지가 여기에 해당한다.</li>
+<li><strong>Hibernate</strong>: JPA 명세를 <strong>실제로 구현한 ORM 프레임워크(구현체)</strong>. SQL을 생성하고 실행하는 진짜 엔진. Spring Boot의 기본 JPA 구현체다.</li>
+<li><strong>Spring Data JPA</strong>: JPA/Hibernate를 더 <strong>편하게 쓰도록 감싸 주는 Spring 모듈</strong>. Repository 인터페이스만 선언하면 구현 코드를 자동 생성해 보일러플레이트를 제거해 준다.</li>
+</ul>
+
+<aside class="callout note">
+<p>과거에는 <code>javax.persistence.*</code> 패키지를 사용했지만, Jakarta EE로 이관되면서 <strong><code>jakarta.persistence.*</code></strong> 로 바뀌었습니다. Spring Boot 4.x / Spring Framework 7.x는 전부 <code>jakarta</code> 네임스페이스를 사용합니다. 오래된 예제에서 <code>javax</code>를 보면 구버전이라고 생각하세요.</p>
+</aside>
+<p>계층을 그림으로 표현하면 다음과 같습니다. 위쪽이 우리가 직접 다루는 추상화, 아래로 갈수록 실제 DB에 가까워집니다.</p>
+
+<figure class="layer-stack">
+<div class="layer" style="--i:0;--n:6">
+<div class="layer-head">우리 코드 (BookRepository, BookService)</div>
+</div>
+<div class="layer" style="--i:1;--n:6">
+<div class="layer-head">Spring Data JPA</div>
+<div class="layer-sub">← Repository 추상화, 쿼리 메서드 자동 생성</div>
+</div>
+<div class="layer" style="--i:2;--n:6">
+<div class="layer-head">JPA (Jakarta Persistence) 명세</div>
+<div class="layer-sub">← @Entity, EntityManager 등 표준 인터페이스</div>
+</div>
+<div class="layer" style="--i:3;--n:6">
+<div class="layer-head">Hibernate (JPA 구현체)</div>
+<div class="layer-sub">← 실제 SQL 생성·실행, 영속성 컨텍스트 관리</div>
+</div>
+<div class="layer" style="--i:4;--n:6">
+<div class="layer-head">JDBC</div>
+<div class="layer-sub">← 표준 Java DB 연결 API</div>
+</div>
+<div class="layer" style="--i:5;--n:6">
+<div class="layer-head">Database (H2 / PostgreSQL)</div>
+</div>
+</figure>
+<p>요점은 <strong>Spring Data JPA를 사용한다고 해서 JPA와 Hibernate를 안 쓰는 게 아니라는 것</strong>입니다. 우리는 가장 위층의 편리한 추상화를 사용하지만, 그 아래에서는 여전히 JPA 명세에 따라 Hibernate가 SQL을 만들어 JDBC로 DB에 보냅니다.</p>
+
+<h2>3. 영속성 컨텍스트와 EntityManager</h2>
+<p>JPA의 핵심 개념 중 가장 중요한 것이 <strong>영속성 컨텍스트(Persistence Context)</strong> 입니다. 이것은 "Entity 객체를 보관하는 1차 캐시이자 작업 공간"이라고 생각하면 됩니다. 이 컨텍스트를 관리하는 주체가 <strong><code>EntityManager</code></strong> 입니다.</p>
+<p>영속성 컨텍스트가 제공하는 대표적인 기능은 다음과 같습니다.</p>
+
+<ul>
+<li><strong>1차 캐시</strong>: 같은 트랜잭션 안에서 같은 ID로 조회하면 DB에 다시 가지 않고 캐시된 객체를 반환한다.</li>
+<li><strong>변경 감지(Dirty Checking)</strong>: 영속 상태인 Entity의 필드를 바꾸면, 트랜잭션이 끝날 때 자동으로 <code>UPDATE</code> SQL이 나간다. <strong><code>save()</code>를 명시적으로 호출하지 않아도 된다.</strong></li>
+<li><strong>쓰기 지연(Write-behind)</strong>: <code>INSERT</code>/<code>UPDATE</code>를 모았다가 트랜잭션 커밋 시점(flush)에 한 번에 보낸다.</li>
+</ul>
+
+<figure class="dg">
+<figcaption>영속성 컨텍스트는 코드와 DB 사이의 작업 공간</figcaption>
+<div class="dg-pipe">
+  <div class="dg-node"><div class="t">조회 / 저장</div><div class="s">Repository 호출</div></div>
+  <div class="dg-arrow h"></div>
+  <div class="dg-node is-accent"><div class="t">영속성 컨텍스트</div><div class="s">1차 캐시 · 변경 감지</div></div>
+  <div class="dg-arrow h"><span>flush</span></div>
+  <div class="dg-node"><div class="t">DB</div><div class="s">실제 SQL 전송</div></div>
+</div>
+</figure>
+
+<aside class="callout tip">
+<p>변경 감지 덕분에 "객체의 필드만 바꾸면 DB가 갱신된다"는 점이 처음엔 마법처럼 느껴집니다. 단, 이 마법은 <strong>트랜잭션 + 영속성 컨텍스트가 살아 있는 동안에만</strong> 작동합니다. 이 경계는 <a href="04-transactions.html">Phase 3-4 트랜잭션 관리</a>에서 자세히 다룹니다.</p>
+</aside>
+<p>실무에서는 <code>EntityManager</code>를 직접 다루는 일이 드뭅니다. Spring Data JPA의 Repository가 내부적으로 <code>EntityManager</code>를 사용해 우리 대신 일을 처리해 주기 때문입니다. 다만 "내부적으로 영속성 컨텍스트가 동작한다"는 사실은 반드시 알고 있어야 합니다.</p>
+
+<h2>4. Spring Data JPA가 제거해 주는 보일러플레이트</h2>
+<p>순수 JPA만 쓰면 단순 조회 하나에도 다음과 같은 코드를 직접 작성해야 합니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>// 순수 JPA (Spring Data 없이) - 직접 EntityManager를 다뤄야 한다
+fun findById(id: Long): Book? {
+    return entityManager.find(Book::class.java, id)
+}
+
+fun findByAuthor(author: String): List&lt;Book&gt; {
+    return entityManager
+        .createQuery(&quot;SELECT b FROM Book b WHERE b.author = :author&quot;, Book::class.java)
+        .setParameter(&quot;author&quot;, author)
+        .resultList
+}</code></pre>
+<p>Spring Data JPA를 쓰면 위 코드가 <strong>인터페이스 선언만으로</strong> 사라집니다. 구현체는 Spring이 런타임에 자동 생성합니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>interface BookRepository : JpaRepository&lt;Book, Long&gt; {
+    fun findByAuthor(author: String): List&lt;Book&gt;   // 메서드 이름만으로 쿼리 생성
+}</code></pre>
+<p>이 부분은 <a href="03-repository.html">Phase 3-3 Repository 인터페이스</a>에서 본격적으로 다룹니다.</p>
+
+<h2>5. 의존성 추가</h2>
+<p>Spring Data JPA를 사용하려면 <code>build.gradle.kts</code>에 스타터 하나만 추가하면 됩니다. 이 스타터가 Spring Data JPA, Hibernate, 트랜잭션 관리, 커넥션 풀(HikariCP) 등을 한꺼번에 가져옵니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>plugins {
+    kotlin(&quot;jvm&quot;) version &quot;2.3.21&quot;
+    kotlin(&quot;plugin.spring&quot;) version &quot;2.3.21&quot;
+    kotlin(&quot;plugin.jpa&quot;) version &quot;2.3.21&quot;        // ← JPA Entity용 no-arg 플러그인
+    id(&quot;org.springframework.boot&quot;) version &quot;4.1.0&quot;
+    id(&quot;io.spring.dependency-management&quot;) version &quot;1.1.7&quot;
+}
+
+dependencies {
+    implementation(&quot;org.springframework.boot:spring-boot-starter-data-jpa&quot;)
+    implementation(&quot;org.springframework.boot:spring-boot-h2console&quot;)  // H2 웹 콘솔(개발용)
+    runtimeOnly(&quot;com.h2database:h2&quot;)             // 개발용 인메모리 DB
+    // 운영용 PostgreSQL은 Phase 3-5에서 추가
+}
+
+// kotlin(&quot;plugin.jpa&quot;)가 함께 넣어 주는 블록 (Initializr 기본 출력)
+allOpen {
+    annotation(&quot;jakarta.persistence.Entity&quot;)
+    annotation(&quot;jakarta.persistence.MappedSuperclass&quot;)
+    annotation(&quot;jakarta.persistence.Embeddable&quot;)
+}</code></pre>
+
+<aside class="callout note">
+<p>이 스타터가 가져오는 구현체는 <strong>Hibernate ORM 7.4.1</strong>(Spring Boot 4.1.0 관리 버전)이고, 커넥션 풀은 HikariCP 7.0입니다. Spring Data JPA는 Spring Data 2026.0.0 릴리스 트레인에 속합니다.</p>
+</aside>
+
+<aside class="callout warning">
+<p><code>kotlin("plugin.jpa")</code> 플러그인을 빼먹으면 <code>@Entity</code> 클래스가 동작하지 않습니다. JPA 명세는 Entity에 <strong>인자 없는 기본 생성자(no-arg constructor)</strong> 를 요구하는데, Kotlin은 기본 생성자를 자동으로 만들지 않기 때문입니다. 이 플러그인이 컴파일 시점에 no-arg 생성자를 합성해 줍니다. 자세한 내용은 다음 문서에서 다룹니다.</p>
+</aside>
+
+<h2>6. 데이터 접근 기술 비교</h2>
+<p>같은 "도서 1건 조회"라도 어떤 기술을 쓰느냐에 따라 작성량과 추상화 수준이 크게 다릅니다.</p>
+
+<table>
+<thead>
+<tr>
+<th>기술</th>
+<th>추상화 수준</th>
+<th>SQL 작성</th>
+<th>객체 매핑</th>
+<th>보일러플레이트</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Raw JDBC</strong></td>
+<td>가장 낮음</td>
+<td>직접</td>
+<td>직접 (ResultSet → 객체)</td>
+<td>매우 많음</td>
+<td><code>Connection</code>/<code>Statement</code> 직접 관리</td>
+</tr>
+<tr>
+<td><strong>JdbcTemplate</strong></td>
+<td>낮음</td>
+<td>직접</td>
+<td><code>RowMapper</code>로 일부 자동화</td>
+<td>보통</td>
+<td>연결/예외 처리는 Spring이 대신</td>
+</tr>
+<tr>
+<td><strong>JPA / Hibernate (순수)</strong></td>
+<td>높음</td>
+<td>JPQL/자동 생성</td>
+<td>자동 (ORM)</td>
+<td>보통</td>
+<td><code>EntityManager</code> 직접 사용</td>
+</tr>
+<tr>
+<td><strong>Spring Data JPA</strong></td>
+<td>가장 높음</td>
+<td>대부분 불필요</td>
+<td>자동 (ORM)</td>
+<td>거의 없음</td>
+<td>인터페이스 선언만으로 구현</td>
+</tr>
+</tbody>
+</table>
+<p>이 가이드에서는 가장 생산성이 높은 <strong>Spring Data JPA</strong>를 사용합니다. 다만 추상화가 높다고 무조건 좋은 것은 아닙니다. 복잡한 통계 쿼리나 성능이 극도로 중요한 구간에서는 <code>@Query</code>나 JdbcTemplate을 함께 쓰는 것이 더 나을 수 있습니다.</p>
+
+<h2>다음 단계</h2>
+<p>이제 첫 번째 실습으로, Phase 2의 인메모리 <code>Book</code>을 실제 DB 테이블과 매핑되는 <strong>JPA Entity</strong>로 바꿔 봅니다. Kotlin과 JPA를 함께 쓸 때의 함정들도 함께 짚습니다.</p>
+<p>→ <a href="02-entity-mapping.html">Entity 매핑 (Kotlin)</a></p>

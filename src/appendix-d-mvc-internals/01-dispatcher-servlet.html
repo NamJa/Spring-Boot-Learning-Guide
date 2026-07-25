@@ -1,0 +1,218 @@
+<h1>DispatcherServlet과 요청 처리 흐름</h1>
+<p>Phase 2에서 우리는 <code>@RestController</code>에 <code>@GetMapping("/api/books")</code>를 붙이고, 메서드가 <code>List&lt;BookResponse&gt;</code>를 반환하면 그것이 JSON으로 바뀌어 클라이언트에게 도착하는 것을 봤습니다. 하지만 <strong>그 사이에 무슨 일이 벌어졌는지</strong>는 묻지 않았습니다. HTTP 요청 바이트가 어떻게 Kotlin 객체가 되고, 반환된 객체가 어떻게 다시 JSON 바이트가 될까요?</p>
+<p>이 문서는 그 블랙박스를 엽니다. 핵심에는 <strong>DispatcherServlet</strong> 이라는 단 하나의 서블릿이 있습니다.</p>
+
+<h2>1. 서블릿과 서블릿 컨테이너</h2>
+<p>웹 애플리케이션이 HTTP 요청을 받으려면 누군가 80/8080 포트를 열고, TCP 연결을 받고, HTTP 메시지를 파싱해야 합니다. Java 진영에서 이 저수준 작업을 표준화한 것이 <strong>서블릿(Servlet) 스펙</strong> 이고, 그 구현체가 <strong>서블릿 컨테이너</strong> 입니다. Spring Boot가 내장으로 들고 다니는 <strong>Tomcat 11.0.22</strong> 가 바로 그 서블릿 컨테이너이며, <strong>Servlet 6.1 스펙</strong>을 구현합니다.</p>
+
+<ul>
+<li><strong>서블릿(Servlet)</strong>: HTTP 요청 하나를 처리하는 Java 객체. <code>service(request, response)</code> 메서드가 핵심이며, 컨테이너가 요청마다 이를 호출합니다.</li>
+<li><strong>서블릿 컨테이너(Tomcat)</strong>: 소켓 연결, 스레드 풀, HTTP 파싱, 서블릿 생명주기를 책임집니다. 요청이 오면 <code>HttpServletRequest</code>/<code>HttpServletResponse</code> 객체를 만들어 서블릿에 넘깁니다.</li>
+</ul>
+
+<figure class="flowchart">
+
+<ol class="fc-steps">
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">[브라우저] --HTTP--&gt; [Tomcat: 소켓 + 스레드풀 + HTTP 파싱] │  HttpServletRequest / HttpServletResponse 생성</div></div></li>
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">[서블릿.service(req, res)]</div></div></li>
+</ol></figure>
+<p>옛날에는 URL 패턴마다 서블릿을 하나씩 만들고 <code>web.xml</code>에 일일이 등록했습니다. Spring MVC는 이 방식을 버리고 <strong>단 하나의 서블릿</strong>으로 모든 요청을 받습니다. 그게 DispatcherServlet입니다.</p>
+
+<aside class="callout note">
+<p>패키지는 <code>jakarta.servlet.*</code> 입니다. 예전 <code>javax.servlet</code>은 Jakarta EE로 넘어오며 이름이 바뀌었습니다. 예제에서 <code>javax</code>가 보이면 구버전입니다.</p>
+</aside>
+
+<h2>2. DispatcherServlet — 프런트 컨트롤러</h2>
+<p>DispatcherServlet은 <strong>모든 요청을 가장 먼저 받는 단일 진입점</strong>입니다. 이런 패턴을 <strong>프런트 컨트롤러(Front Controller)</strong> 라고 부릅니다. 요청을 직접 처리하지 않고, <strong>어떤 컨트롤러가 처리할지 찾아서 위임</strong>하고, 그 결과를 응답으로 변환하는 "교통정리" 역할만 합니다.</p>
+<p>Spring Boot에서는 자동 설정(<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">Phase 0-04</a>)이 <code>DispatcherServlet</code>을 만들어 <code>/</code> 경로(전체 요청)에 매핑합니다. 우리가 <code>web.xml</code>을 쓰지 않아도 되는 이유가 이것입니다.</p>
+
+<h3>전체 요청 처리 흐름</h3>
+<p><code>GET /api/books</code> 요청 하나가 들어왔을 때, DispatcherServlet 내부에서 벌어지는 일을 ASCII로 그리면 다음과 같습니다.</p>
+
+<figure class="dg" data-focusable>
+<figcaption>GET /api/books 한 건이 DispatcherServlet 안에서 거치는 전 과정</figcaption>
+<ol class="dg-steps">
+  <li><span class="n">1</span><div class="dg-node"><div class="t">브라우저 → 요청 도착</div>
+    <div class="s"><code>GET /api/books</code> — Tomcat이 HTTP를 파싱해 <code>HttpServletRequest</code> 를 만들고 DispatcherServlet에 넘긴다</div></div></li>
+  <li><span class="n">2</span><div class="dg-node"><div class="t">HandlerMapping 조회</div>
+    <div class="s">"이 요청을 처리할 핸들러는?" → <code>BookController.list()</code> + 적용할 인터셉터 목록(<code>HandlerExecutionChain</code>)</div></div></li>
+  <li><span class="n">3</span><div class="dg-node"><div class="t">HandlerAdapter 선택</div>
+    <div class="s">그 핸들러를 실행할 방법을 아는 어댑터를 찾는다 → <code>RequestMappingHandlerAdapter</code></div></div></li>
+  <li><span class="n">4</span><div class="dg-node is-accent"><div class="t">컨트롤러 메서드 호출</div>
+    <div class="s">
+      ① <strong>아규먼트 리졸버</strong>: <code>@PathVariable</code>/<code>@RequestBody</code> → 파라미터로 변환<br>
+      ② <strong>실행</strong>: <code>BookController.list()</code><br>
+      ③ <strong>리턴값 핸들러</strong>: 반환값 처리
+    </div></div></li>
+  <li><span class="n">5</span><div class="dg-node is-warn"><div class="t">두 갈래로 분기</div>
+    <div class="s">응답을 만드는 방식이 여기서 갈린다 (아래 참고)</div></div></li>
+  <li><span class="n">6</span><div class="dg-node"><div class="t">HTTP 응답 → 브라우저</div></div></li>
+</ol>
+<div class="dg-fork" style="margin-top:16px">
+  <div class="q">5단계 — 반환값을 본문으로 쓸 것인가, 뷰 이름으로 쓸 것인가?</div>
+  <div class="paths">
+    <div class="path"><span class="tag yes">@ResponseBody</span><span class="arw">→</span>
+      <span class="out"><code>HttpMessageConverter</code> 가 객체 → JSON 직렬화</span><span class="st ok">REST</span></div>
+    <div class="path"><span class="tag alt">뷰 이름 반환</span><span class="arw">→</span>
+      <span class="out"><code>ViewResolver</code> 가 View를 찾아 HTML 렌더링</span><span class="st warn">SSR</span></div>
+  </div>
+</div>
+<p class="dg-hint">각 단계를 클릭하면 그 단계만 강조됩니다.</p>
+</figure>
+<p>이 흐름에서 ②③④⑤ 단계의 주인공들을 하나씩 살펴봅니다.</p>
+
+<h2>3. @Controller vs @RestController</h2>
+<p>먼저 우리가 매일 쓰던 두 애너테이션의 정체부터 짚고 갑니다.</p>
+
+<ul>
+<li><strong><code>@Controller</code></strong>: 이 클래스가 웹 요청을 처리하는 핸들러임을 표시합니다. 메서드가 <strong>String을 반환하면 그것을 "뷰 이름"으로 해석</strong>해 ViewResolver가 HTML을 렌더링합니다(위 그림의 ⑤ 아래쪽 경로).</li>
+<li><strong><code>@ResponseBody</code></strong>: 메서드 반환값을 <strong>뷰 이름이 아니라 응답 본문 자체</strong>로 취급하라는 표시입니다. 이때 HttpMessageConverter가 객체를 JSON 등으로 변환합니다(⑤ 위쪽 경로).</li>
+<li><strong><code>@RestController</code></strong> = <strong><code>@Controller</code> + <code>@ResponseBody</code></strong>. 즉 클래스의 모든 메서드에 <code>@ResponseBody</code>가 자동으로 붙은 것과 같습니다. 그래서 Phase 2의 REST 컨트롤러는 String을 반환해도 뷰 이름이 아니라 "그 문자열 자체"가 응답 본문이 됩니다.</li>
+</ul>
+
+<pre class="code" data-lang="kotlin"><code>// Phase 2에서 쓰던 JSON API (이 부록 전체에서 그대로 유지)
+@RestController                         // = @Controller + @ResponseBody
+@RequestMapping(&quot;/api/books&quot;)
+class BookController(private val bookService: BookService) {
+
+    @GetMapping
+    fun list(): List&lt;BookResponse&gt; =     // 반환값이 곧 JSON 본문
+        bookService.findAll()
+}</code></pre>
+
+<pre class="code" data-lang="kotlin"><code>// 부록 D에서 새로 추가하는 HTML 화면 컨트롤러 (다음 문서에서 본격 사용)
+@Controller                             // @ResponseBody 없음 → 반환 String = 뷰 이름
+@RequestMapping(&quot;/books&quot;)
+class BookViewController(private val bookService: BookService) {
+
+    @GetMapping
+    fun list(model: Model): String {
+        model.addAttribute(&quot;books&quot;, bookService.findAll())
+        return &quot;books/list&quot;             // → templates/books/list.html 을 렌더링
+    }
+}</code></pre>
+
+<aside class="callout tip">
+<p>같은 메서드에서 둘을 구별하는 핵심 질문은 <strong>"반환된 String을 본문으로 쓸 것인가(@ResponseBody), 뷰 이름으로 쓸 것인가(@Controller)"</strong> 입니다. <code>/api/books</code>(JSON)와 <code>/books</code>(HTML)를 URL로 분리해 두면 한 애플리케이션에서 두 스타일이 깔끔하게 공존합니다.</p>
+</aside>
+
+<h2>4. HandlerMapping과 HandlerAdapter</h2>
+<p>DispatcherServlet은 어떤 컨트롤러도 직접 알지 못합니다. 대신 <strong>두 개의 확장 지점</strong>에 위임합니다.</p>
+
+<h3>HandlerMapping — "누가 처리할지"</h3>
+<p><code>HandlerMapping</code>은 요청(URL, HTTP 메서드, 헤더 등)을 보고 <strong>이 요청을 처리할 핸들러를 찾아 줍니다.</strong> 우리가 쓰는 <code>@GetMapping</code>/<code>@PostMapping</code> 방식은 <code>RequestMappingHandlerMapping</code>이 담당합니다. 애플리케이션이 뜰 때 모든 <code>@RequestMapping</code> 메서드를 스캔해 <strong><code>{URL+메서드 → 핸들러 메서드}</code> 매핑 테이블</strong>을 만들어 두고, 요청이 오면 그 테이블을 조회합니다.</p>
+<p>반환값에는 핸들러뿐 아니라 <strong>적용할 인터셉터 목록</strong>도 포함됩니다(이게 <code>HandlerExecutionChain</code>이며, <a href="03-filter-interceptor.html">3번 문서</a>의 인터셉터와 직결됩니다).</p>
+
+<h3>HandlerAdapter — "어떻게 호출할지"</h3>
+<p>찾아낸 핸들러는 형태가 다양할 수 있습니다(애너테이션 방식 메서드, 함수형 핸들러 등). DispatcherServlet은 이 다양성을 직접 다루지 않고, <strong>그 핸들러를 실행하는 방법을 아는 <code>HandlerAdapter</code></strong> 에게 다시 위임합니다. 애너테이션 컨트롤러는 <code>RequestMappingHandlerAdapter</code>가 담당하며, 바로 이 어댑터가 <strong>아규먼트 리졸버와 리턴값 핸들러를 호출</strong>합니다.</p>
+
+<figure class="flowchart branch-flow">
+
+<ol class="fc-steps">
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">DispatcherServlet</div><div class="fc-desc">"이 핸들러 실행 좀"</div></div></li>
+<li class="fc-step fc-fork"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head"><code>HandlerAdapter.handle(req, res, handler)</code></div></div></li>
+</ol>
+
+<ul class="fc-branches">
+<li class="fc-branch"><span class="fc-seg"><strong>아규먼트 리졸버</strong> — HTTP 요청 → 메서드 파라미터로 변환</span></li>
+<li class="fc-branch"><span class="fc-seg"><strong>실제 컨트롤러 메서드</strong> 호출</span></li>
+<li class="fc-branch"><span class="fc-seg"><strong>리턴값 핸들러</strong> — 반환값 → 응답으로 변환</span></li>
+</ul>
+</figure>
+
+<p>이 <strong>"인터페이스로 확장 지점을 열어 두고 구현을 바꿔 끼운다"</strong> 는 설계가 Spring MVC의 유연함의 원천입니다. WebFlux로 가도 흐름의 골격은 똑같습니다(<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Phase 0-05</a>).</p>
+
+<h2>5. HttpMessageConverter — JSON 변환의 정체</h2>
+<p>Phase 2에서 객체가 "그냥" JSON이 되던 그 마법의 정체가 바로 <strong><code>HttpMessageConverter</code></strong> 입니다. <code>@ResponseBody</code>(또는 <code>@RestController</code>)가 붙은 메서드의 반환값을 처리하는 리턴값 핸들러가, 등록된 컨버터 중 적절한 것을 골라 <strong>객체 ↔ HTTP 본문 바이트</strong> 변환을 수행합니다.</p>
+
+<ul>
+<li>요청: <code>@RequestBody Book</code> ← 요청 본문 JSON을 컨버터가 <code>Book</code> 객체로 <strong>역직렬화</strong>.</li>
+<li>응답: <code>return book</code> → 컨버터가 <code>Book</code>을 JSON 바이트로 <strong>직렬화</strong>.</li>
+</ul>
+
+<figure class="dg">
+<figcaption>HttpMessageConverter — 본문 바이트와 객체 사이의 양방향 변환</figcaption>
+<div class="dg-pipe">
+  <div class="dg-node is-code"><div class="t">@RequestBody</div><div class="s">요청 본문 JSON 바이트</div></div>
+  <div class="dg-arrow h"><span>읽기</span></div>
+  <div class="dg-node is-accent"><div class="t">MessageConverter</div><div class="s">Jackson 3</div></div>
+  <div class="dg-arrow h"><span>역직렬화</span></div>
+  <div class="dg-node is-code"><div class="t">Kotlin 객체</div></div>
+</div>
+<div class="dg-pipe" style="margin-top:12px">
+  <div class="dg-node is-code"><div class="t">Kotlin 객체</div></div>
+  <div class="dg-arrow h"><span>쓰기</span></div>
+  <div class="dg-node is-accent"><div class="t">MessageConverter</div><div class="s">Jackson 3</div></div>
+  <div class="dg-arrow h"><span>직렬화</span></div>
+  <div class="dg-node is-code"><div class="t">@ResponseBody</div><div class="s">응답 본문 JSON 바이트</div></div>
+</div>
+</figure>
+<p>JSON의 경우 Spring Boot는 기본적으로 <strong>Jackson</strong> 기반 컨버터(<code>MappingJackson2HttpMessageConverter</code>)를 자동 등록합니다. 어떤 컨버터를 쓸지는 요청의 <code>Content-Type</code>/<code>Accept</code> 헤더와 반환 타입을 보고 결정합니다. Kotlin 데이터 클래스를 매끄럽게 다루기 위해 Jackson Kotlin 모듈도 함께 등록됩니다.</p>
+
+<aside class="callout note">
+<p>여기서 한 가지가 명확해집니다. <strong><code>@Controller</code>의 뷰 렌더링과 <code>@ResponseBody</code>의 메시지 컨버터는 서로 배타적인 두 갈래</strong> 입니다(그림 ⑤). 전자는 ViewResolver+View로 HTML을 만들고(<a href="02-thymeleaf-ssr.html">2번 문서</a>), 후자는 MessageConverter로 본문을 직접 만듭니다. SSR이냐 REST냐의 분기점이 바로 이 지점입니다.</p>
+</aside>
+
+<h2>6. 아규먼트 리졸버와 리턴값 핸들러</h2>
+<p><code>@PathVariable</code>, <code>@RequestParam</code>, <code>@RequestBody</code>, <code>Model</code>, <code>HttpSession</code>… 컨트롤러 메서드 파라미터에 무엇이든 선언하면 알아서 채워지는 것도 마법처럼 보였을 겁니다. 그 마법의 주인공이 <strong>아규먼트 리졸버(<code>HandlerMethodArgumentResolver</code>)</strong> 입니다.</p>
+<p><code>RequestMappingHandlerAdapter</code>는 메서드를 호출하기 전에, <strong>각 파라미터마다 "이걸 처리할 수 있는 리졸버"를 찾아</strong> 값을 만들어 채웁니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>@GetMapping(&quot;/{id}&quot;)
+fun detail(
+    @PathVariable id: Long,          // PathVariableMethodArgumentResolver 가 URL에서 추출
+    @RequestParam(required = false) // RequestParamMethodArgumentResolver 가 쿼리스트링에서
+    sort: String?,
+    model: Model,                    // ModelMethodProcessor 가 모델 객체 주입
+): String { /* ... */ return &quot;books/detail&quot; }
+
+@PostMapping(&quot;/api/books&quot;)
+fun create(
+    @RequestBody req: CreateBookRequest  // RequestResponseBodyMethodProcessor
+                                          // → 내부에서 HttpMessageConverter 호출
+): BookResponse { /* ... */ }</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>애너테이션/타입</th>
+<th>담당 리졸버</th>
+<th>값의 출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@PathVariable</code></td>
+<td><code>PathVariableMethodArgumentResolver</code></td>
+<td>URL 경로 변수</td>
+</tr>
+<tr>
+<td><code>@RequestParam</code></td>
+<td><code>RequestParamMethodArgumentResolver</code></td>
+<td>쿼리스트링 / 폼 필드</td>
+</tr>
+<tr>
+<td><code>@RequestBody</code></td>
+<td><code>RequestResponseBodyMethodProcessor</code></td>
+<td>요청 본문(컨버터 사용)</td>
+</tr>
+<tr>
+<td><code>Model</code></td>
+<td><code>ModelMethodProcessor</code></td>
+<td>뷰에 넘길 모델</td>
+</tr>
+<tr>
+<td><code>HttpSession</code></td>
+<td><code>ServletRequestMethodArgumentResolver</code></td>
+<td>현재 세션(<a href="04-session-login.html">4번 문서</a>)</td>
+</tr>
+</tbody>
+</table>
+<p>반대편에는 <strong>리턴값 핸들러(<code>HandlerMethodReturnValueHandler</code>)</strong> 가 있습니다. 반환값이 <code>@ResponseBody</code>면 <code>RequestResponseBodyMethodProcessor</code>가 컨버터로 본문을 만들고, 일반 String이면 <code>ViewNameMethodReturnValueHandler</code>가 뷰 이름으로 처리합니다.</p>
+
+<aside class="callout tip">
+<p>정리하면, 컨트롤러 메서드 시그니처는 <strong>"아규먼트 리졸버가 채워 줄 입력"</strong> 과 <strong>"리턴값 핸들러가 처리할 출력"</strong> 의 선언일 뿐입니다. 우리는 비즈니스 로직만 쓰고, 변환의 양 끝단은 Spring MVC가 책임집니다. 검증(<code>@Valid</code>)도 이 아규먼트 리졸버 단계에서 동작합니다(<a href="../phase-4-validation-config/01-bean-validation.html">Phase 4-1</a>).</p>
+</aside>
+
+<h2>다음 단계</h2>
+<p>이제 요청이 컨트롤러까지 도달하는 길을 알았습니다. 그림 ⑤의 두 갈래 중 본문에서 쭉 다룬 것은 위쪽(MessageConverter→JSON)이었죠. 다음 문서에서는 <strong>아래쪽 갈래 — ViewResolver가 Thymeleaf로 HTML을 그려 내려주는 SSR</strong> 을 본격적으로 다룹니다.</p>
+<p>➡️ <strong><a href="02-thymeleaf-ssr.html">2. Thymeleaf 서버 사이드 렌더링</a></strong></p>

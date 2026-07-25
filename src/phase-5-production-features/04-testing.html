@@ -1,0 +1,399 @@
+<h1>테스트 전략</h1>
+<p>테스트 없는 코드는 <strong>배포할 때마다 도박</strong>입니다. 하지만 모든 테스트를 매번 전체 애플리케이션을 띄워서 돌리면 느리고 깨지기 쉽습니다. Spring Boot의 핵심 테스트 전략은 <strong>필요한 만큼만 컨텍스트를 띄우는 "테스트 슬라이스(test slice)"</strong> 입니다.</p>
+<p>이 문서에서는 슬라이스별 도구를 정리하고, Book API에 대한 Kotlin + JUnit 5 테스트를 실제로 작성합니다.</p>
+
+<h2>1. 테스트 슬라이스 한눈에 보기</h2>
+
+<table>
+<thead>
+<tr>
+<th>애너테이션</th>
+<th>띄우는 범위</th>
+<th>용도</th>
+<th>속도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@SpringBootTest</code></td>
+<td><strong>전체</strong> 애플리케이션 컨텍스트</td>
+<td>통합 테스트, E2E</td>
+<td>느림</td>
+</tr>
+<tr>
+<td><code>@WebMvcTest</code></td>
+<td>웹 계층(컨트롤러)만, 서비스는 목</td>
+<td>컨트롤러 + <code>MockMvc</code>/<code>MockMvcTester</code></td>
+<td>빠름</td>
+</tr>
+<tr>
+<td><code>@DataJpaTest</code></td>
+<td>JPA 계층(리포지토리 + 내장 DB)</td>
+<td>쿼리·매핑 검증</td>
+<td>빠름</td>
+</tr>
+<tr>
+<td><code>@RestClientTest</code></td>
+<td>HTTP 클라이언트 + <code>MockRestServiceServer</code></td>
+<td>외부 호출 클라이언트(Phase 5-1)</td>
+<td>빠름</td>
+</tr>
+</tbody>
+</table>
+<p>원칙: <strong>가능한 한 좁은 슬라이스로</strong> 테스트하고, 전체 통합 테스트는 핵심 시나리오에만 사용합니다. 슬라이스 테스트가 빠르므로 많이, 통합 테스트는 적게 — 흔히 말하는 테스트 피라미드입니다.</p>
+
+<h3>의존성 — Boot 4의 모듈형 테스트 스타터</h3>
+<p>Spring Boot 4부터 테스트 의존성이 <strong>기술별 스타터</strong>로 쪼개졌습니다. 필요한 슬라이스만 골라 넣으면 되고, 각 스타터가 <code>spring-boot-starter-test</code>(JUnit 6 · AssertJ 3.27 · Mockito 5.23 · Hamcrest · JSONassert)를 전이 의존성으로 가져옵니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>// build.gradle.kts
+testImplementation(&quot;org.springframework.boot:spring-boot-starter-webmvc-test&quot;)    // MockMvc, RestTestClient
+testImplementation(&quot;org.springframework.boot:spring-boot-starter-data-jpa-test&quot;)  // @DataJpaTest
+testImplementation(&quot;org.springframework.boot:spring-boot-starter-restclient-test&quot;) // @RestClientTest
+testImplementation(&quot;org.jetbrains.kotlin:kotlin-test-junit5&quot;)
+testRuntimeOnly(&quot;org.junit.platform:junit-platform-launcher&quot;)</code></pre>
+
+<aside class="callout note">
+<p><code>spring-boot-starter-test</code> 하나만 넣는 Boot 3 방식도 여전히 동작하지만, 그러면 슬라이스별 자동 구성(예: <code>RestTestClient</code>)이 빠질 수 있습니다. Initializr도 이제 기술별 <code>-test</code> 스타터를 생성합니다. 또한 Spring Boot 4.1의 <code>spring-boot-starter-test</code>가 가져오는 JUnit은 <strong>JUnit 6(Jupiter 6.0.3)</strong> 입니다 — 임포트(<code>org.junit.jupiter.api.*</code>)는 그대로라 대부분의 테스트 코드는 수정 없이 동작합니다.</p>
+</aside>
+
+<aside class="callout warning">
+<p><strong>테스트 슬라이스 애너테이션의 패키지도 함께 이동했습니다.</strong> 기술별 모듈로 쪼개지면서 임포트 경로가 바뀌었으니, Boot 3 예제를 복사하면 컴파일되지 않습니다.</p>
+
+<table>
+<thead>
+<tr>
+<th>애너테이션</th>
+<th>Boot 3</th>
+<th><strong>Boot 4</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@WebMvcTest</code></td>
+<td><code>org.springframework.boot.test.autoconfigure.web.servlet</code></td>
+<td><strong><code>org.springframework.boot.webmvc.test.autoconfigure</code></strong></td>
+</tr>
+<tr>
+<td><code>@DataJpaTest</code></td>
+<td><code>org.springframework.boot.test.autoconfigure.orm.jpa</code></td>
+<td><strong><code>org.springframework.boot.data.jpa.test.autoconfigure</code></strong></td>
+</tr>
+<tr>
+<td><code>@RestClientTest</code></td>
+<td><code>org.springframework.boot.test.autoconfigure.web.client</code></td>
+<td><strong><code>org.springframework.boot.restclient.test.autoconfigure</code></strong></td>
+</tr>
+</tbody>
+</table>
+<p><code>@SpringBootTest</code>(<code>org.springframework.boot.test.context</code>)는 그대로입니다.</p>
+</aside>
+
+<h2>2. <code>@WebMvcTest</code> — 컨트롤러 테스트</h2>
+<p>컨트롤러의 요청 매핑·직렬화·검증·상태 코드만 검증하고 싶을 때 씁니다. 서비스 계층은 <strong>목(mock)</strong> 으로 대체합니다. 여기서 Spring Boot가 제공하는 <strong><code>@MockitoBean</code></strong> 을 씁니다.</p>
+
+<aside class="callout warning">
+<p><code>@MockitoBean</code>(<code>org.springframework.test.context.bean.override.mockito</code>)은 과거의 <code>@MockBean</code>을 대체합니다. Spring Boot 4에서 <strong><code>@MockBean</code>과 <code>@SpyBean</code>은 deprecated가 아니라 아예 제거</strong>되었으므로, Boot 3 예제를 복사하면 컴파일되지 않습니다. 동작은 같습니다: 목 객체를 만들어 스프링 컨텍스트의 해당 빈을 교체합니다. 단, <code>@MockitoBean</code>은 <strong>테스트 클래스(또는 그 상위 클래스·인터페이스)의 필드나 클래스 자체</strong>에만 붙일 수 있습니다. 클래스 레벨에 붙일 때는 <code>types</code> 속성으로 대상 타입을 지정하며(반복 사용 가능), <code>@Configuration</code> 클래스에서는 쓸 수 없습니다.</p>
+</aside>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi.controller
+
+import com.example.bookapi.dto.BookResponse
+import com.example.bookapi.service.BookService
+import java.time.LocalDate
+import org.junit.jupiter.api.Test
+import org.mockito.kotlin.given
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest   // ⚠️ Boot 4에서 패키지 이동
+import org.springframework.test.context.bean.override.mockito.MockitoBean
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.post
+
+@WebMvcTest(BookController::class)   // BookController만 로드
+class BookControllerTest(
+    @Autowired val mockMvc: MockMvc,
+) {
+    @MockitoBean
+    lateinit var bookService: BookService   // 진짜 서비스 대신 목 주입
+
+    @Test
+    fun `GET books returns 200 with list`() {
+        given(bookService.findAll())
+            .willReturn(
+                listOf(
+                    BookResponse(
+                        id = 1,
+                        title = &quot;코틀린 인 액션&quot;,
+                        author = &quot;드미트리 제메로프&quot;,
+                        isbn = &quot;978-8966262281&quot;,
+                        price = 35000,
+                        publishedAt = LocalDate.of(2017, 6, 1),
+                    ),
+                ),
+            )
+
+        mockMvc.get(&quot;/api/books&quot;)
+            .andExpect {
+                status { isOk() }
+                jsonPath(&quot;$[0].title&quot;) { value(&quot;코틀린 인 액션&quot;) }
+            }
+    }
+
+    @Test
+    fun `POST with blank title returns 400`() {
+        mockMvc.post(&quot;/api/books&quot;) {
+            contentType = org.springframework.http.MediaType.APPLICATION_JSON
+            content = &quot;&quot;&quot;{&quot;title&quot;:&quot;&quot;,&quot;author&quot;:&quot;홍길동&quot;,&quot;isbn&quot;:&quot;978-8966262281&quot;,&quot;price&quot;:1000,&quot;publishedAt&quot;:&quot;2017-06-01&quot;}&quot;&quot;&quot;
+        }.andExpect {
+            status { isBadRequest() }   // Bean Validation 실패 (Phase 4)
+        }
+    }
+}</code></pre>
+<p>Spring Boot 4에서는 fluent한 <strong><code>MockMvcTester</code></strong> (Spring Framework의 AssertJ 기반 API)도 <code>@WebMvcTest</code>에서 자동 주입됩니다. 더 읽기 좋은 단언을 원하면 이렇게 쓸 수 있습니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>import org.springframework.test.web.servlet.assertj.MockMvcTester
+import org.assertj.core.api.Assertions.assertThat
+
+@WebMvcTest(BookController::class)
+class BookControllerTesterTest(@Autowired val mvc: MockMvcTester) {
+
+    @MockitoBean lateinit var bookService: BookService
+
+    @Test
+    fun `GET books is ok`() {
+        given(bookService.findAll()).willReturn(emptyList())
+
+        assertThat(mvc.get().uri(&quot;/api/books&quot;))
+            .hasStatusOk()
+            .bodyJson().isEqualTo(&quot;[]&quot;)
+    }
+}</code></pre>
+
+<h2>3. <code>@DataJpaTest</code> — 리포지토리 테스트</h2>
+<p>리포지토리의 쿼리 메서드와 엔티티 매핑을 검증합니다. 기본적으로 <strong>내장 H2 DB</strong>를 띄우고, 각 테스트는 <strong>트랜잭션 후 롤백</strong>되어 서로 격리됩니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi.repository
+
+import com.example.bookapi.domain.Book
+import java.time.LocalDate
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest   // ⚠️ Boot 4에서 패키지 이동
+
+@DataJpaTest
+class BookRepositoryTest(
+    @Autowired val repository: BookRepository,
+) {
+    @Test
+    fun `findByTitleContaining returns matching books`() {
+        repository.save(
+            Book(
+                title = &quot;코틀린 인 액션&quot;,
+                author = &quot;드미트리 제메로프&quot;,
+                isbn = &quot;978-8966262281&quot;,
+                price = 35000,
+                publishedAt = LocalDate.of(2017, 6, 1),
+            ),
+        )
+        repository.save(
+            Book(
+                title = &quot;이펙티브 코틀린&quot;,
+                author = &quot;마르친 모스카와&quot;,
+                isbn = &quot;978-8966263363&quot;,
+                price = 30000,
+                publishedAt = LocalDate.of(2022, 3, 1),
+            ),
+        )
+        repository.save(
+            Book(
+                title = &quot;자바 최강의 기술&quot;,
+                author = &quot;조슈아 블로크&quot;,
+                isbn = &quot;978-8966263158&quot;,
+                price = 28000,
+                publishedAt = LocalDate.of(2018, 10, 1),
+            ),
+        )
+
+        val result = repository.findByTitleContaining(&quot;코틀린&quot;)
+
+        // AssertJ — 읽기 좋은 단언
+        assertThat(result)
+            .hasSize(2)
+            .extracting&lt;String&gt; { it.title }
+            .containsExactlyInAnyOrder(&quot;코틀린 인 액션&quot;, &quot;이펙티브 코틀린&quot;)
+    }
+}</code></pre>
+
+<aside class="callout tip">
+<p><code>@DataJpaTest</code>는 컨트롤러·서비스 빈을 로드하지 않습니다. 따라서 매우 빠릅니다. 단, 내장 H2와 운영 DB(PostgreSQL) 사이에 방언 차이가 있을 수 있으니, 미묘한 쿼리는 6절의 Testcontainers로 실제 DB에서 검증하세요.</p>
+</aside>
+
+<h2>4. <code>@SpringBootTest</code> — 통합 테스트</h2>
+<p>실제 서버를 띄워 HTTP 호출부터 DB 저장까지 <strong>전 계층을 관통</strong>하는 테스트입니다. <code>webEnvironment = RANDOM_PORT</code> 로 실제 포트에 톰캣을 띄우고, Spring Framework 7이 제공하는 <strong><code>RestTestClient</code></strong> 로 호출합니다.</p>
+<p>Spring Boot 4에서는 테스트용 HTTP 클라이언트가 <strong>더 이상 자동 구성되지 않습니다.</strong> <code>@AutoConfigureRestTestClient</code>로 명시적으로 켜 줘야 합니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi
+
+import com.example.bookapi.dto.CreateBookRequest
+import java.time.LocalDate
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.web.servlet.client.RestTestClient
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureRestTestClient   // ← Boot 4: 테스트 HTTP 클라이언트를 명시적으로 활성화
+@ActiveProfiles(&quot;test&quot;)        // application-test.yml 설정 사용 (Phase 4)
+class BookApiIntegrationTest(
+    @Autowired val client: RestTestClient,
+) {
+    @Test
+    fun `create then fetch book end-to-end`() {
+        // 1. 도서 등록 (인증 필요 — Phase 5-2)
+        client.post().uri(&quot;/api/books&quot;)
+            .headers { it.setBasicAuth(&quot;admin&quot;, &quot;admin-secret&quot;) }
+            .body(
+                CreateBookRequest(
+                    title = &quot;스프링 부트 4 입문&quot;,
+                    author = &quot;김종우&quot;,
+                    isbn = &quot;978-8966262281&quot;,
+                    price = 42000,
+                    publishedAt = LocalDate.of(2026, 1, 1),
+                ),
+            )
+            .exchange()                       // 요청 실행 → ResponseSpec 반환
+            .expectStatus().isCreated()       // 201 검증
+            .expectBody()
+            .jsonPath(&quot;$.title&quot;).isEqualTo(&quot;스프링 부트 4 입문&quot;)
+
+        // 2. 조회 (인증 불필요)
+        client.get().uri(&quot;/api/books&quot;)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath(&quot;$[0].title&quot;).isEqualTo(&quot;스프링 부트 4 입문&quot;)
+    }
+}</code></pre>
+
+<aside class="callout warning">
+<p><strong><code>TestRestClient</code>라는 클래스는 존재하지 않습니다.</strong> Boot 4의 통합 테스트 클라이언트는 Spring Framework 7의 <strong><code>RestTestClient</code></strong>(<code>org.springframework.test.web.servlet.client</code>)이고, 활성화 애너테이션은 <code>org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient</code>입니다. 기존 <strong><code>TestRestTemplate</code></strong> 도 남아 있지만 패키지가 <code>org.springframework.boot.resttestclient</code>로 옮겨졌고 <code>@AutoConfigureTestRestTemplate</code>을 붙여야 주입됩니다. 새 코드는 <code>RestTestClient</code>를 권장합니다.</p>
+<p><code>RestTestClient</code>는 서버 없이 MockMvc에 바인딩해서(<code>RestTestClient.bindToApplicationContext(...)</code>) 쓸 수도 있어, 슬라이스/통합 테스트에서 같은 API를 유지할 수 있습니다.</p>
+</aside>
+
+<h2>5. <code>@RestClientTest</code> — 외부 클라이언트 테스트</h2>
+<p>Phase 5-1에서 만든 <code>BookMetadataClient</code>처럼 <strong>외부 API를 호출하는 클라이언트</strong>는, 실제 외부 서버에 의존하지 않고 <code>MockRestServiceServer</code>로 응답을 흉내 내 테스트합니다. Boot 4에서 이 애너테이션의 패키지는 <strong><code>org.springframework.boot.restclient.test.autoconfigure.RestClientTest</code></strong> 이고, <code>spring-boot-starter-restclient-test</code> 스타터가 제공합니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>@RestClientTest(BookEnrichmentService::class)
+class BookEnrichmentServiceTest(
+    @Autowired val service: BookEnrichmentService,
+    @Autowired val server: MockRestServiceServer,
+) {
+    @Test
+    fun `enrich returns title from external api`() {
+        server.expect(requestTo(&quot;/books/978-1617293290&quot;))
+            .andRespond(withSuccess(&quot;&quot;&quot;{&quot;isbn&quot;:&quot;978-1617293290&quot;,&quot;title&quot;:&quot;코틀린 인 액션&quot;,&quot;authors&quot;:[&quot;드미트리&quot;]}&quot;&quot;&quot;,
+                MediaType.APPLICATION_JSON))
+
+        val result = service.enrich(&quot;978-1617293290&quot;)
+
+        assertThat(result).contains(&quot;코틀린 인 액션&quot;)
+    }
+}</code></pre>
+
+<aside class="callout warning">
+<p><code>@RestClientTest</code> 슬라이스는 <strong><code>RestClient.Builder</code>/<code>RestTemplateBuilder</code>를 사용하는 빈만</strong> 로드하고 그 빌더에 <code>MockRestServiceServer</code>를 끼워 넣습니다. 그런데 <a href="01-http-interface-client.html">Phase 5-1</a>의 <code>BookMetadataClient</code>는 <code>@ImportHttpServices</code>가 만들어 주는 프록시 빈이고, 그 등록기는 이 슬라이스의 자동 구성에 포함되지 않습니다. 따라서 위 예제를 그대로 돌리면 <code>BookMetadataClient</code> 빈을 찾지 못할 수 있습니다.</p>
+<p>실무에서는 (1) 테스트에 <code>@ImportHttpServices</code> 설정 클래스를 명시적으로 <code>@Import</code>하거나, (2) 5-1의 "수동 <code>HttpServiceProxyFactory</code>" 방식처럼 주입받은 <code>RestClient.Builder</code>로 클라이언트를 만들어 두면(그 빌더가 목 서버에 연결됩니다) 이 슬라이스로 깔끔하게 테스트할 수 있습니다.</p>
+</aside>
+
+<h2>6. 실제 DB 통합 테스트 — Testcontainers</h2>
+<p>H2로는 PostgreSQL 고유 기능(JSONB, 특정 함수 등)을 검증할 수 없습니다. <strong>Testcontainers</strong>는 테스트 중 <strong>실제 PostgreSQL을 도커 컨테이너로</strong> 띄워 줍니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>// build.gradle.kts — Testcontainers 2.x 기준 (Spring Boot 4.1 관리 버전 2.0.5)
+testImplementation(&quot;org.springframework.boot:spring-boot-testcontainers&quot;)
+testImplementation(&quot;org.testcontainers:testcontainers-postgresql&quot;)
+testImplementation(&quot;org.testcontainers:testcontainers-junit-jupiter&quot;)</code></pre>
+
+<aside class="callout warning">
+<p>Testcontainers <strong>2.0</strong>에서 두 가지가 바뀌었습니다.
+1. <strong>아티팩트 이름</strong>에 <code>testcontainers-</code> 접두사가 붙었습니다(<code>postgresql</code> → <code>testcontainers-postgresql</code>, <code>junit-jupiter</code> → <code>testcontainers-junit-jupiter</code>). 코어(<code>org.testcontainers:testcontainers</code>)는 그대로입니다.
+2. <strong>컨테이너 클래스가 모듈별 패키지로 이동</strong>했습니다: <code>org.testcontainers.containers.PostgreSQLContainer</code> → <strong><code>org.testcontainers.postgresql.PostgreSQLContainer</code></strong>. 구 클래스도 아직 들어 있지만 <code>@Deprecated</code>이고, 새 클래스는 제네릭 타입 파라미터가 없습니다(<code>PostgreSQLContainer</code> 그대로 사용).</p>
+<p><code>@Testcontainers</code>/<code>@Container</code>(<code>org.testcontainers.junit.jupiter</code>)와 Spring Boot의 <code>@ServiceConnection</code>(<code>org.springframework.boot.testcontainers.service.connection</code>)은 위치가 그대로입니다. JUnit 4 지원은 제거됐습니다.</p>
+</aside>
+
+<pre class="code" data-lang="kotlin"><code>import org.springframework.boot.testcontainers.service.connection.ServiceConnection
+import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
+import org.testcontainers.postgresql.PostgreSQLContainer   // ⚠️ 2.x에서 이동한 패키지
+
+@SpringBootTest
+@ActiveProfiles(&quot;test&quot;)
+@Testcontainers
+class BookRepositoryPostgresTest {
+
+    companion object {
+        @Container
+        @ServiceConnection   // 컨테이너 접속 정보를 datasource 설정에 자동 연결 (Spring Boot 3.1+)
+        val postgres = PostgreSQLContainer(&quot;postgres:18&quot;)   // 2026-07 기준 최신 메이저
+    }
+
+    @Autowired lateinit var repository: BookRepository
+
+    @Test
+    fun `works against real postgres`() {
+        val saved = repository.save(
+            Book(
+                title = &quot;테스트 도서&quot;,
+                author = &quot;테스트 저자&quot;,
+                isbn = &quot;978-8966262281&quot;,
+                price = 1000,
+                publishedAt = LocalDate.of(2025, 1, 1),
+            ),
+        )
+        assertThat(repository.findById(saved.id!!)).isPresent
+    }
+}</code></pre>
+<p><code>@ServiceConnection</code> 덕분에 컨테이너의 JDBC URL·계정을 수동으로 프로퍼티에 옮길 필요가 없습니다. 운영과 동일한 DB로 검증하므로 신뢰도가 가장 높지만, 도커가 필요하고 느리므로 <strong>핵심 쿼리에만</strong> 적용합니다.</p>
+
+<h2>7. 정리: 무엇을 언제 쓰나</h2>
+
+<table>
+<thead>
+<tr>
+<th>검증하고 싶은 것</th>
+<th>사용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>요청 매핑·검증·상태 코드·직렬화</td>
+<td><code>@WebMvcTest</code> + <code>@MockitoBean</code></td>
+</tr>
+<tr>
+<td>쿼리 메서드·엔티티 매핑 (빠르게)</td>
+<td><code>@DataJpaTest</code></td>
+</tr>
+<tr>
+<td>외부 API 호출 클라이언트</td>
+<td><code>@RestClientTest</code></td>
+</tr>
+<tr>
+<td>전 계층 시나리오 / 보안 / 통합</td>
+<td><code>@SpringBootTest(RANDOM_PORT)</code> + <code>@AutoConfigureRestTestClient</code> + <code>RestTestClient</code></td>
+</tr>
+<tr>
+<td>운영 DB 고유 동작</td>
+<td><code>@SpringBootTest</code> + Testcontainers</td>
+</tr>
+</tbody>
+</table>
+
+<aside class="callout tip">
+<p>단언은 <strong>AssertJ</strong>(<code>assertThat(...)</code>)로 통일하면 가독성과 에러 메시지가 좋아집니다. JUnit <code>assertEquals</code>보다 권장됩니다. 그리고 통합 테스트에는 <code>@ActiveProfiles("test")</code>로 테스트 전용 설정을 분리하세요.</p>
+</aside>
+
+<h2>다음 단계</h2>
+<p>축하합니다. 이제 Book API는 외부와 통신하고, 보안이 적용되고, 관측 가능하며, 테스트로 검증됩니다. 운영에 필요한 기능을 모두 갖췄으니, 마지막 Phase에서 이 애플리케이션을 <strong>실제로 빌드하고 배포</strong>합니다.</p>
+<p>→ <a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a></p>

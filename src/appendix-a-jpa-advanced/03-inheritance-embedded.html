@@ -1,0 +1,259 @@
+<h1>상속 매핑과 값 타입</h1>
+<p>객체지향에는 있지만 관계형 DB에는 없는 두 가지가 <strong>상속</strong>과 <strong>값 타입</strong>입니다. 테이블에는 <code>extends</code>도 없고, "주소"처럼 여러 컬럼을 묶은 의미 단위도 없습니다. JPA는 이 간극을 상속 전략과 임베디드 타입으로 메웁니다.</p>
+
+<h2>1. 상속 매핑 전략 세 가지</h2>
+<p>"콘텐츠(Content)"라는 부모 아래 <code>Book</code>과 <code>Ebook</code>이 있다고 가정합시다. 이 상속 구조를 테이블로 어떻게 풀어낼지에 세 가지 전략이 있습니다.</p>
+
+<pre class="code" data-lang="text"><code>        Content (공통: title, price)
+         /            \
+      Book           Ebook
+   (isbn 등)      (fileSize 등)</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>전략</th>
+<th>애너테이션</th>
+<th>테이블 구조</th>
+<th>장점</th>
+<th>단점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>단일 테이블</strong></td>
+<td><code>SINGLE_TABLE</code> (기본)</td>
+<td>부모·자식을 <strong>한 테이블</strong>에 다 담고 구분 컬럼으로 식별</td>
+<td>조인 없음, 조회 빠름, 단순</td>
+<td>자식 컬럼이 전부 <strong>nullable</strong>, 테이블 비대</td>
+</tr>
+<tr>
+<td><strong>조인</strong></td>
+<td><code>JOINED</code></td>
+<td>부모/자식마다 테이블, PK로 조인</td>
+<td><strong>정규화</strong>, 무결성, NULL 없음</td>
+<td>조회 시 <strong>JOIN</strong> 필요, INSERT 2회</td>
+</tr>
+<tr>
+<td><strong>구현 클래스마다</strong></td>
+<td><code>TABLE_PER_CLASS</code></td>
+<td>자식마다 독립 테이블(부모 컬럼 중복)</td>
+<td>부모 추상 클래스일 때 명확</td>
+<td>여러 자식 통합 조회 시 <code>UNION</code>, <strong>비권장</strong></td>
+</tr>
+</tbody>
+</table>
+
+<pre class="code" data-lang="kotlin"><code>@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = &quot;content_type&quot;)  // 구분 컬럼 (SINGLE_TABLE에서 특히 중요)
+abstract class Content(
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null,
+    var title: String = &quot;&quot;,
+    var price: Int = 0
+)
+
+@Entity
+@DiscriminatorValue(&quot;BOOK&quot;)
+class Book(
+    var isbn: String = &quot;&quot;
+    // title, price, id는 부모에서 상속
+) : Content()
+
+@Entity
+@DiscriminatorValue(&quot;EBOOK&quot;)
+class Ebook(
+    var fileSizeMb: Int = 0
+) : Content()</code></pre>
+
+<ul>
+<li><strong><code>@DiscriminatorColumn</code></strong> 은 한 행이 어느 자식 타입인지 구분하는 컬럼을 정의합니다. <code>SINGLE_TABLE</code>에서는 필수에 가깝습니다.</li>
+<li><strong><code>@DiscriminatorValue</code></strong> 는 각 자식이 그 컬럼에 넣을 값을 지정합니다.</li>
+</ul>
+
+<aside class="callout tip">
+<p>전략 선택의 실전 가이드 — <strong>기본은 <code>SINGLE_TABLE</code></strong>(단순·빠름), 자식별 컬럼이 많고 NOT NULL 제약이 중요하면 <code>JOINED</code>. <code>TABLE_PER_CLASS</code>는 사실상 쓰지 마세요. 참고로 우리 <code>Book</code>은 상속이 필요 없는 단순 엔티티이므로, 실제 프로젝트에서는 상속을 도입하지 않습니다. 위 예제는 <strong>개념 학습용</strong>입니다.</p>
+</aside>
+
+<h2>2. @MappedSuperclass — 공통 매핑 정보 상속</h2>
+<p>모든 엔티티가 <code>createdAt</code>/<code>updatedAt</code> 같은 공통 필드를 가지는 경우, 상속 매핑(엔티티 간 상속)이 아니라 <strong><code>@MappedSuperclass</code></strong> 를 씁니다. 이것은 <strong>테이블을 만들지 않고</strong>, 단지 매핑 정보(컬럼 정의)만 자식에게 물려주는 부모입니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>import jakarta.persistence.*
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
+import java.time.LocalDateTime
+
+@MappedSuperclass
+@EntityListeners(AuditingEntityListener::class)   // Auditing 이벤트 수신
+abstract class BaseEntity(
+    @CreatedDate
+    @Column(updatable = false)          // 생성 후 수정 금지
+    var createdAt: LocalDateTime? = null,
+
+    @LastModifiedDate
+    var updatedAt: LocalDateTime? = null
+)</code></pre>
+<p><code>@MappedSuperclass</code>와 <code>@Inheritance</code>의 차이는 분명합니다.</p>
+
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th><code>@Inheritance</code> (상속 매핑)</th>
+<th><code>@MappedSuperclass</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>부모도 테이블이 있나?</td>
+<td>O (조회·다형성 대상)</td>
+<td>X (컬럼 정보만 제공)</td>
+</tr>
+<tr>
+<td>부모로 조회 가능?</td>
+<td>O (<code>em.find(Content, id)</code>)</td>
+<td>X</td>
+</tr>
+<tr>
+<td>용도</td>
+<td>도메인 상속(is-a)</td>
+<td>공통 컬럼 재사용</td>
+</tr>
+</tbody>
+</table>
+
+<h2>3. JPA Auditing — 생성/수정 시각 자동 기록</h2>
+<p>위 <code>BaseEntity</code>의 <code>@CreatedDate</code>/<code>@LastModifiedDate</code>가 자동으로 채워지게 하려면, 설정 클래스에 <strong><code>@EnableJpaAuditing</code></strong> 한 줄이 필요합니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>import org.springframework.context.annotation.Configuration
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing
+
+@Configuration
+@EnableJpaAuditing
+class JpaConfig</code></pre>
+<p>이제 <code>Book</code>이 <code>BaseEntity</code>를 상속하면, <code>save</code> 시 <code>createdAt</code>이, 변경 시 <code>updatedAt</code>이 자동으로 채워집니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>@Entity
+class Book(
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null,
+    var title: String,
+    var author: String,
+    var isbn: String,
+    var price: Int,
+    var publishedAt: LocalDate
+) : BaseEntity()   // createdAt / updatedAt 를 물려받음</code></pre>
+
+<aside class="callout tip">
+<p>생성자(<code>@CreatedBy</code>)/수정자(<code>@LastModifiedBy</code>)까지 기록하려면 <code>AuditorAware&lt;String&gt;</code> 빈을 등록해 현재 로그인 사용자를 반환하게 합니다. 보통 Spring Security의 <code>SecurityContext</code>에서 사용자명을 꺼내옵니다(<a href="../phase-5-production-features/README.html">Phase 5</a>의 보안과 연계).</p>
+</aside>
+
+<h2>4. 임베디드 값 타입 — @Embeddable / @Embedded</h2>
+<p><strong>값 타입(value type)</strong> 은 식별자가 없는, "값 그 자체"인 객체입니다. 엔티티가 식별자(<code>@Id</code>)로 구분되는 것과 대조적입니다. 예를 들어 "주소"는 그 자체로 의미 있는 묶음이지만, 독립적인 식별자가 필요 없습니다. 이런 묶음을 <strong>임베디드 타입</strong>으로 만들면, 여러 컬럼을 응집력 있는 객체로 다룰 수 있습니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>import jakarta.persistence.Embeddable
+
+@Embeddable
+class Address(
+    var city: String = &quot;&quot;,
+    var street: String = &quot;&quot;,
+    var zipcode: String = &quot;&quot;
+)
+
+// 금액을 의미 있는 타입으로 (price는 Int지만, 별도 금액 묶음 예시)
+@Embeddable
+class Money(
+    var amount: Int = 0,        // 원화 정수
+    var currency: String = &quot;KRW&quot;
+)</code></pre>
+
+<pre class="code" data-lang="kotlin"><code>@Entity
+class Publisher(
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null,
+    var name: String = &quot;&quot;,
+
+    @Embedded
+    var address: Address = Address(),      // 컬럼: city, street, zipcode 로 풀림
+
+    @Embedded
+    @AttributeOverrides(
+        AttributeOverride(name = &quot;amount&quot;, column = Column(name = &quot;fee_amount&quot;)),
+        AttributeOverride(name = &quot;currency&quot;, column = Column(name = &quot;fee_currency&quot;))
+    )
+    var listingFee: Money = Money()        // 같은 타입을 두 번 쓰면 컬럼명 충돌 → 오버라이드
+)</code></pre>
+<p>생성되는 테이블은 다음과 같습니다. 값 타입은 <strong>별도 테이블이 아니라 소속 엔티티 테이블의 컬럼</strong>이 됩니다.</p>
+
+<pre class="code" data-lang="sql"><code>CREATE TABLE publisher (
+    id          BIGINT PRIMARY KEY,
+    name        VARCHAR(255),
+    city        VARCHAR(255),   -- Address.city
+    street      VARCHAR(255),   -- Address.street
+    zipcode     VARCHAR(255),   -- Address.zipcode
+    fee_amount  INTEGER,        -- Money.amount (오버라이드)
+    fee_currency VARCHAR(255)   -- Money.currency (오버라이드)
+);</code></pre>
+
+<aside class="callout warning">
+<p>값 타입은 <strong>불변(immutable)으로 다루는 것이 안전</strong>합니다. 여러 엔티티가 같은 값 타입 인스턴스를 <strong>공유(share)</strong> 하면, 한쪽을 바꿨을 때 다른 쪽까지 변경 감지로 함께 UPDATE되는 부작용이 생깁니다. 값을 바꿔야 한다면 인스턴스 자체를 <strong>새로 만들어 통째로 교체</strong>하세요. Kotlin에서는 <code>val</code> 위주로 설계하거나 <code>copy</code> 패턴을 쓰면 자연스럽습니다(단, JPA 매핑 제약상 <code>var</code>가 필요한 경우가 있으니 공유만 피하면 됩니다).</p>
+</aside>
+
+<h2>5. @Enumerated — Enum 매핑은 반드시 STRING</h2>
+<p>도메인에 자주 등장하는 <code>enum</code>을 매핑할 때 <strong><code>@Enumerated(EnumType.STRING)</code></strong> 을 쓰는 것은 거의 규칙입니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>enum class BookStatus { ON_SALE, OUT_OF_STOCK, DISCONTINUED }
+
+@Entity
+class Book(
+    // ...
+    @Enumerated(EnumType.STRING)        // ← 반드시 STRING
+    var status: BookStatus = BookStatus.ON_SALE
+)</code></pre>
+<p>기본값인 <code>EnumType.ORDINAL</code>은 enum의 <strong>순서(0, 1, 2…)</strong> 를 정수로 저장하는데, 이것은 <strong>재앙의 씨앗</strong>입니다.</p>
+
+<figure class="dg">
+<figcaption><code>EnumType.ORDINAL</code> 이 데이터를 깨뜨리는 과정</figcaption>
+<ol class="dg-steps">
+  <li><span class="n">1</span><div class="dg-node"><div class="t">처음 저장</div>
+    <div class="s"><code>ON_SALE=0</code> · <code>OUT_OF_STOCK=1</code> · <code>DISCONTINUED=2</code> — DB에는 정수만 남는다</div></div></li>
+  <li><span class="n is-warn">2</span><div class="dg-node is-warn"><div class="t">enum 중간에 상수 추가</div>
+    <div class="s"><code>enum { ON_SALE, <mark>NEW</mark>, OUT_OF_STOCK, DISCONTINUED }</code></div></div></li>
+  <li><span class="n is-bad">3</span><div class="dg-node is-bad"><div class="t">기존 데이터의 의미가 뒤바뀐다</div>
+    <div class="s">이제 <code>ON_SALE=0</code> · <code>NEW=1</code> · <code>OUT_OF_STOCK=2</code> · <code>DISCONTINUED=3</code><br>
+    → 예전에 <code>1</code>(품절)로 저장된 행이 <strong>NEW</strong> 로 해석된다</div></div></li>
+</ol>
+<p class="dg-foot"><code>@Enumerated(EnumType.STRING)</code> 은 이름(<code>"OUT_OF_STOCK"</code>)을 저장하므로 순서 변경에 영향받지 않습니다.</p>
+</figure>
+
+<table>
+<thead>
+<tr>
+<th>방식</th>
+<th>DB 저장 값</th>
+<th>enum 순서 변경 시</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ORDINAL</code> (기본)</td>
+<td>0, 1, 2…</td>
+<td><strong>데이터 의미가 깨짐</strong></td>
+</tr>
+<tr>
+<td><code>STRING</code> (권장)</td>
+<td><code>"ON_SALE"</code> 등 이름</td>
+<td>안전, 순서 무관</td>
+</tr>
+</tbody>
+</table>
+
+<aside class="callout warning">
+<p><code>@Enumerated</code>를 <strong>생략하면 기본이 <code>ORDINAL</code></strong> 입니다. 즉 아무 생각 없이 enum 필드를 두면 위험한 ORDINAL로 저장됩니다. enum 필드에는 <strong>항상 명시적으로 <code>@Enumerated(EnumType.STRING)</code></strong> 을 붙이세요. 저장 용량이 약간 늘어나는 대신 미래의 데이터 깨짐을 막습니다.</p>
+</aside>
+
+<h2>다음 단계</h2>
+<p>엔티티 구조를 모두 다뤘으니, 이제 그 엔티티를 <strong>조회할 때</strong> 벌어지는 프록시·지연 로딩·N+1 문제로 들어갑니다. JPA 성능 학습의 핵심입니다.</p>
+<p>→ <a href="04-proxy-fetch.html">프록시와 지연 로딩, N+1</a></p>

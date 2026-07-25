@@ -1,0 +1,281 @@
+<h1>전역 예외 처리</h1>
+<p>지금 우리 API에서 예외가 발생하면 어떤 일이 벌어질까요? 존재하지 않는 도서를 조회해 <code>BookNotFoundException</code>이 던져지면, Spring Boot의 기본 에러 처리기가 작동해 다음과 같은 다소 투박한 JSON을 돌려줍니다.</p>
+
+<pre class="code" data-lang="json"><code>{
+  &quot;timestamp&quot;: &quot;2026-07-25T01:30:00.123+00:00&quot;,
+  &quot;status&quot;: 500,
+  &quot;error&quot;: &quot;Internal Server Error&quot;,
+  &quot;path&quot;: &quot;/api/books/999&quot;
+}</code></pre>
+<p>문제가 두 가지입니다. 첫째, <strong>상태 코드가 틀렸습니다</strong> — "도서를 못 찾음"은 500(서버 오류)이 아니라 404(찾을 수 없음)여야 합니다. 둘째, 클라이언트가 무엇이 잘못됐는지 알 수 있는 <strong>상세 정보가 부족</strong>합니다. 검증 실패 시에는 "어떤 필드가 왜 틀렸는지"를 알려줘야 하죠.</p>
+<p>이 문서에서는 <strong>모든 예외를 한곳에서</strong> 잡아 의미 있는 HTTP 상태와 일관된 본문으로 변환하는 방법을 배웁니다.</p>
+
+<h2>1. <code>@RestControllerAdvice</code>와 <code>@ExceptionHandler</code></h2>
+<p>Spring은 컨트롤러에서 던져진 예외를 가로채는 <strong><code>@ControllerAdvice</code></strong> (REST에서는 <code>@RestControllerAdvice</code>)를 제공합니다. 이 클래스 안에 <strong><code>@ExceptionHandler</code></strong> 메서드를 정의하면, 해당 예외 타입이 발생할 때마다 그 메서드가 호출됩니다.</p>
+
+<figure class="flowchart branch-flow">
+
+<ol class="fc-steps">
+<li class="fc-step"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head">컨트롤러에서 예외 throw</div></div></li>
+<li class="fc-step fc-fork"><span class="fc-num fc-dot"></span><div class="fc-body"><div class="fc-head"><code>@RestControllerAdvice</code> 가 가로챔</div></div></li>
+</ol>
+
+<ul class="fc-branches">
+<li class="fc-branch"><code>BookNotFoundException</code><span class="fc-arrow">→</span><span class="fc-seg">handleNotFound()</span><span class="fc-status s-404">404</span></li>
+<li class="fc-branch"><code>MethodArgumentNotValidException</code><span class="fc-arrow">→</span><span class="fc-seg">handleValidation()</span><span class="fc-status s-400">400</span></li>
+<li class="fc-branch"><code>Exception</code> <span class="fc-seg">(그 밖의 모든 것)</span><span class="fc-arrow">→</span><span class="fc-seg">handleGeneric()</span><span class="fc-status s-500">500</span></li>
+</ul>
+</figure>
+
+<p><code>@RestControllerAdvice</code>는 <code>@ControllerAdvice</code> + <code>@ResponseBody</code>의 조합으로, 핸들러의 반환값을 자동으로 JSON 본문에 직렬화해 줍니다.</p>
+
+<h2>2. 일관된 에러 응답 DTO</h2>
+<p>먼저 모든 에러가 공유할 응답 형태를 정의합니다. 클라이언트는 어떤 에러든 같은 구조를 받게 되어 처리하기 편합니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi.controller
+
+import java.time.OffsetDateTime
+
+data class ErrorResponse(
+    val timestamp: OffsetDateTime,   // 발생 시각
+    val status: Int,                 // HTTP 상태 코드 (예: 404)
+    val error: String,               // 상태 코드의 이름 (예: &quot;Not Found&quot;)
+    val message: String,             // 사람이 읽을 메시지
+    val path: String,                // 요청 경로
+    val fieldErrors: List&lt;FieldError&gt; = emptyList(), // 검증 실패 시 필드별 상세
+)
+
+data class FieldError(
+    val field: String,    // 문제가 된 필드명 (예: &quot;title&quot;)
+    val message: String,  // 그 필드의 에러 메시지
+)</code></pre>
+
+<h2>3. ControllerAdvice 구현</h2>
+<p>이제 세 종류의 예외를 처리하는 어드바이스를 작성합니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi.controller
+
+import com.example.bookapi.exception.BookNotFoundException
+import jakarta.servlet.http.HttpServletRequest
+import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.RestControllerAdvice
+import java.time.OffsetDateTime
+
+@RestControllerAdvice
+class GlobalExceptionHandler {
+
+    private val log = LoggerFactory.getLogger(javaClass)
+
+    // 1) 도메인 예외 → 404
+    @ExceptionHandler(BookNotFoundException::class)
+    fun handleNotFound(
+        ex: BookNotFoundException,
+        request: HttpServletRequest,
+    ): ResponseEntity&lt;ErrorResponse&gt; {
+        val body = ErrorResponse(
+            timestamp = OffsetDateTime.now(),
+            status = HttpStatus.NOT_FOUND.value(),
+            error = HttpStatus.NOT_FOUND.reasonPhrase,
+            message = ex.message ?: &quot;도서를 찾을 수 없습니다&quot;,
+            path = request.requestURI,
+        )
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body)
+    }
+
+    // 2) @Valid 검증 실패 → 400 + 필드별 상세
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleValidation(
+        ex: MethodArgumentNotValidException,
+        request: HttpServletRequest,
+    ): ResponseEntity&lt;ErrorResponse&gt; {
+        val fieldErrors = ex.bindingResult.fieldErrors.map {
+            FieldError(field = it.field, message = it.defaultMessage ?: &quot;유효하지 않은 값&quot;)
+        }
+        val body = ErrorResponse(
+            timestamp = OffsetDateTime.now(),
+            status = HttpStatus.BAD_REQUEST.value(),
+            error = HttpStatus.BAD_REQUEST.reasonPhrase,
+            message = &quot;입력 검증에 실패했습니다&quot;,
+            path = request.requestURI,
+            fieldErrors = fieldErrors,
+        )
+        return ResponseEntity.badRequest().body(body)
+    }
+
+    // 3) 그 밖의 모든 예외 → 500 (스택트레이스는 로그로만, 응답엔 노출 금지)
+    @ExceptionHandler(Exception::class)
+    fun handleGeneric(
+        ex: Exception,
+        request: HttpServletRequest,
+    ): ResponseEntity&lt;ErrorResponse&gt; {
+        log.error(&quot;처리되지 않은 예외 발생&quot;, ex) // 내부 상세는 서버 로그에만 남긴다
+        val body = ErrorResponse(
+            timestamp = OffsetDateTime.now(),
+            status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            error = HttpStatus.INTERNAL_SERVER_ERROR.reasonPhrase,
+            message = &quot;서버 내부 오류가 발생했습니다&quot;,
+            path = request.requestURI,
+        )
+        return ResponseEntity.internalServerError().body(body)
+    }
+}</code></pre>
+
+<aside class="callout warning">
+<p>마지막 <code>Exception</code> 핸들러에서 <code>ex.message</code>나 스택트레이스를 <strong>응답 본문에 그대로 넣지 마세요.</strong> 내부 구현(테이블명, SQL, 파일 경로 등)이 외부에 노출되면 보안 위험입니다. 상세는 <strong>로그</strong>로만 남기고, 클라이언트에는 일반적인 메시지만 돌려줍니다.</p>
+</aside>
+<p>이제 검증 실패 시 응답은 다음과 같이 풍부해집니다.</p>
+
+<pre class="code" data-lang="json"><code>{
+  &quot;timestamp&quot;: &quot;2026-07-25T01:30:00.123+09:00&quot;,
+  &quot;status&quot;: 400,
+  &quot;error&quot;: &quot;Bad Request&quot;,
+  &quot;message&quot;: &quot;입력 검증에 실패했습니다&quot;,
+  &quot;path&quot;: &quot;/api/books&quot;,
+  &quot;fieldErrors&quot;: [
+    { &quot;field&quot;: &quot;title&quot;, &quot;message&quot;: &quot;제목은 필수입니다&quot; },
+    { &quot;field&quot;: &quot;price&quot;, &quot;message&quot;: &quot;가격은 0보다 커야 합니다&quot; }
+  ]
+}</code></pre>
+
+<h2>4. <code>@ResponseStatus</code> — 더 간단한 방식</h2>
+<p>예외 클래스 자체에 <strong><code>@ResponseStatus</code></strong> 를 붙이면, 어드바이스 없이도 해당 예외가 자동으로 지정된 상태 코드로 매핑됩니다. 도메인 예외에 잘 어울립니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi.exception
+
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.ResponseStatus
+
+@ResponseStatus(HttpStatus.NOT_FOUND) // 이 예외는 항상 404
+class BookNotFoundException(id: Long) : RuntimeException(&quot;ID가 ${id}인 도서를 찾을 수 없습니다&quot;)</code></pre>
+<p>다만 <code>@ResponseStatus</code>만 쓰면 응답 <strong>본문 형태를 커스터마이즈할 수 없습니다.</strong> 본문까지 일관되게 다루려면 결국 <code>@ExceptionHandler</code>가 필요합니다. 둘은 함께 쓸 수 있습니다.</p>
+
+<h2>5. <code>ProblemDetail</code> — RFC 9457 표준 (권장)</h2>
+<p>위에서 만든 <code>ErrorResponse</code>는 잘 동작하지만 <strong>우리만의 임의 형태</strong>입니다. API마다 에러 형태가 제각각이면 클라이언트가 매번 새로 적응해야 합니다. 그래서 IETF는 HTTP API 에러의 <strong>표준 형태</strong>를 정의했습니다 — <strong>RFC 9457 (Problem Details for HTTP APIs)</strong>.</p>
+<p>Spring Framework 6부터 이를 위한 <strong><code>ProblemDetail</code></strong> 클래스를 기본 제공합니다(Spring Boot 4.x에 포함). 표준 필드는 다음과 같습니다.</p>
+
+<table>
+<thead>
+<tr>
+<th>필드</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td>문제 유형을 식별하는 URI (기본 <code>about:blank</code>)</td>
+</tr>
+<tr>
+<td><code>title</code></td>
+<td>사람이 읽는 짧은 제목</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>HTTP 상태 코드</td>
+</tr>
+<tr>
+<td><code>detail</code></td>
+<td>이번 발생에 대한 구체적 설명</td>
+</tr>
+<tr>
+<td><code>instance</code></td>
+<td>문제가 발생한 리소스 URI</td>
+</tr>
+<tr>
+<td>(확장)</td>
+<td>임의의 커스텀 필드 추가 가능</td>
+</tr>
+</tbody>
+</table>
+<p><code>ProblemDetail</code>을 사용하도록 어드바이스를 다시 쓰면 다음과 같습니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi.controller
+
+import com.example.bookapi.exception.BookNotFoundException
+import org.springframework.http.HttpStatus
+import org.springframework.http.ProblemDetail
+import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.context.request.WebRequest
+import java.net.URI
+import java.time.OffsetDateTime
+
+@RestControllerAdvice
+class ProblemDetailExceptionHandler {
+
+    @ExceptionHandler(BookNotFoundException::class)
+    fun handleNotFound(ex: BookNotFoundException): ProblemDetail {
+        val problem = ProblemDetail.forStatusAndDetail(
+            HttpStatus.NOT_FOUND,
+            ex.message ?: &quot;도서를 찾을 수 없습니다&quot;,
+        )
+        problem.title = &quot;Book Not Found&quot;
+        problem.type = URI.create(&quot;https://api.example.com/problems/book-not-found&quot;)
+        problem.setProperty(&quot;timestamp&quot;, OffsetDateTime.now()) // 확장 필드
+        return problem
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleValidation(ex: MethodArgumentNotValidException): ProblemDetail {
+        val problem = ProblemDetail.forStatusAndDetail(
+            HttpStatus.BAD_REQUEST,
+            &quot;입력 검증에 실패했습니다&quot;,
+        )
+        problem.title = &quot;Validation Failed&quot;
+        val errors = ex.bindingResult.fieldErrors.associate {
+            it.field to (it.defaultMessage ?: &quot;유효하지 않은 값&quot;)
+        }
+        problem.setProperty(&quot;errors&quot;, errors) // 필드별 에러를 확장 필드로
+        return problem
+    }
+}</code></pre>
+<p>핸들러가 <code>ProblemDetail</code>을 반환하면 Spring이 자동으로 적절한 상태 코드와 <code>application/problem+json</code> Content-Type으로 직렬화합니다. 응답 예시는 다음과 같습니다.</p>
+
+<pre class="code" data-lang="json"><code>{
+  &quot;type&quot;: &quot;https://api.example.com/problems/book-not-found&quot;,
+  &quot;title&quot;: &quot;Book Not Found&quot;,
+  &quot;status&quot;: 404,
+  &quot;detail&quot;: &quot;ID가 999인 도서를 찾을 수 없습니다&quot;,
+  &quot;instance&quot;: &quot;/api/books/999&quot;,
+  &quot;timestamp&quot;: &quot;2026-07-25T01:30:00.123+09:00&quot;
+}</code></pre>
+<p>검증 실패는 다음과 같습니다.</p>
+
+<pre class="code" data-lang="json"><code>{
+  &quot;type&quot;: &quot;about:blank&quot;,
+  &quot;title&quot;: &quot;Validation Failed&quot;,
+  &quot;status&quot;: 400,
+  &quot;detail&quot;: &quot;입력 검증에 실패했습니다&quot;,
+  &quot;instance&quot;: &quot;/api/books&quot;,
+  &quot;errors&quot;: {
+    &quot;title&quot;: &quot;제목은 필수입니다&quot;,
+    &quot;price&quot;: &quot;가격은 0보다 커야 합니다&quot;
+  }
+}</code></pre>
+
+<aside class="callout tip">
+<p><strong>신규 프로젝트라면 <code>ProblemDetail</code>을 권장합니다.</strong> 표준이라 클라이언트 라이브러리·문서화 도구(OpenAPI)와 호환이 좋고, 직접 DTO를 유지보수할 필요가 없습니다. 기존에 커스텀 <code>ErrorResponse</code>를 쓰던 프로젝트라도 점진적으로 옮겨가는 것을 고려하세요.</p>
+</aside>
+
+<h2>6. <code>ResponseEntityExceptionHandler</code> 상속</h2>
+<p>Spring MVC 내부 예외(잘못된 JSON 본문 → <code>HttpMessageNotReadableException</code>, 지원하지 않는 메서드 → <code>HttpRequestMethodNotSupportedException</code> 등)까지 일관되게 다루려면, 어드바이스가 <strong><code>ResponseEntityExceptionHandler</code></strong> 를 상속하면 됩니다. 이 추상 클래스는 표준 MVC 예외들을 이미 <code>ProblemDetail</code> 기반으로 처리하므로, 우리는 도메인 예외만 추가로 오버라이드/추가하면 됩니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
+
+@RestControllerAdvice
+class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
+    // MVC 표준 예외(400, 405, 415 등)는 부모가 ProblemDetail 로 처리.
+    // 여기서는 도메인 예외만 추가한다.
+    @ExceptionHandler(BookNotFoundException::class)
+    fun handleNotFound(ex: BookNotFoundException): ProblemDetail = /* ... */
+        ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.message ?: &quot;&quot;)
+}</code></pre>
+
+<h2>다음 단계</h2>
+<p>이제 검증과 예외가 견고해졌습니다. 다음은 환경마다 다른 설정값(DB 주소, 비밀번호, 기능 플래그 등)을 코드 밖으로 빼내는 외부화된 설정과 프로파일을 다룹니다.</p>
+<p>→ <a href="03-profiles-config.html">외부화된 설정과 프로파일</a></p>

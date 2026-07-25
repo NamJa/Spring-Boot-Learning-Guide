@@ -1,0 +1,221 @@
+<h1>Spring Initializr로 프로젝트 생성</h1>
+<p>Spring 프로젝트는 보통 <strong>Spring Initializr</strong>(https://start.spring.io/)로 시작합니다. 필요한 의존성을 고르면 빌드 스크립트, 디렉터리 구조, 진입점 클래스가 미리 구성된 압축 파일을 만들어 줍니다. Kotlin의 Gradle 프로젝트 생성과 비슷하지만, <strong>Spring의 스타터(starter) 의존성</strong>을 한 번에 묶어준다는 점이 다릅니다.</p>
+
+<h2>1. 웹 Initializr에서 설정</h2>
+<p>https://start.spring.io/ 에 접속해 다음과 같이 설정합니다.</p>
+
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>선택 값</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Project</strong></td>
+<td>Gradle - Kotlin</td>
+<td>Kotlin DSL 빌드 스크립트(<code>build.gradle.kts</code>)</td>
+</tr>
+<tr>
+<td><strong>Language</strong></td>
+<td>Kotlin</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Spring Boot</strong></td>
+<td>4.1.0</td>
+<td>2026-06-10 GA (2026-07-25 기준 최신)</td>
+</tr>
+<tr>
+<td><strong>Packaging</strong></td>
+<td>Jar</td>
+<td>내장 Tomcat 포함 실행 가능 Jar</td>
+</tr>
+<tr>
+<td><strong>Java</strong></td>
+<td>21</td>
+<td>JDK 21 LTS. Initializr 기본값은 17이므로 <strong>직접 21을 고르세요</strong></td>
+</tr>
+<tr>
+<td><strong>Group</strong></td>
+<td><code>com.example</code></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Artifact</strong></td>
+<td><code>book-api</code></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Name</strong></td>
+<td><code>book-api</code></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Package name</strong></td>
+<td><code>com.example.bookapi</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+<aside class="callout tip">
+<p>"Project"에서 <strong>Gradle - Kotlin</strong>과 <strong>Gradle - Groovy</strong>를 혼동하지 마세요. 전자는 <code>build.gradle.kts</code>(Kotlin DSL), 후자는 <code>build.gradle</code>(Groovy DSL)입니다. Kotlin 개발자라면 Kotlin DSL이 자연스럽습니다.</p>
+</aside>
+
+<h2>2. 의존성(Dependencies) 추가</h2>
+<p>오른쪽 <strong>ADD DEPENDENCIES</strong> 버튼으로 다음을 추가합니다.</p>
+
+<table>
+<thead>
+<tr>
+<th>의존성</th>
+<th>생성되는 아티팩트</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Spring Web</strong></td>
+<td><code>spring-boot-starter-webmvc</code></td>
+<td>REST API, 내장 Tomcat, Jackson 3</td>
+</tr>
+<tr>
+<td><strong>Spring Data JPA</strong></td>
+<td><code>spring-boot-starter-data-jpa</code></td>
+<td>JPA/Hibernate ORM (+ <code>kotlin("plugin.jpa")</code> 플러그인)</td>
+</tr>
+<tr>
+<td><strong>Validation</strong></td>
+<td><code>spring-boot-starter-validation</code></td>
+<td>Bean Validation(<code>@Valid</code> 등)</td>
+</tr>
+<tr>
+<td><strong>H2 Database</strong></td>
+<td><code>h2</code> + <code>spring-boot-h2console</code></td>
+<td>인메모리 DB와 웹 콘솔 (학습용)</td>
+</tr>
+<tr>
+<td><strong>Spring Boot Actuator</strong></td>
+<td><code>spring-boot-starter-actuator</code></td>
+<td>헬스 체크, 메트릭 등 운영 엔드포인트</td>
+</tr>
+</tbody>
+</table>
+
+<aside class="callout warning">
+<p>Initializr 화면의 이름(<strong>Spring Web</strong>)은 그대로지만, Spring Boot 4에서 실제로 생성되는 의존성은 <strong><code>spring-boot-starter-webmvc</code></strong> 입니다. 화면 이름과 아티팩트 이름이 다르므로 검색할 때 혼동하지 마세요. 테스트 의존성도 기술별 <code>spring-boot-starter-&lt;기술&gt;-test</code>로 함께 생성됩니다.</p>
+</aside>
+
+<aside class="callout tip">
+<p><strong>Spring Security</strong>는 인증/인가를 다루는 뒤쪽 단계에서 추가합니다. 지금 넣으면 모든 엔드포인트에 기본 인증이 걸려 학습 흐름이 복잡해지므로 일단 제외합니다.</p>
+</aside>
+<p>설정을 마치면 하단의 <strong>GENERATE</strong> 버튼을 눌러 <code>book-api.zip</code>을 내려받고 압축을 풉니다.</p>
+
+<h2>3. curl로 동일하게 생성하기</h2>
+<p>Initializr는 REST API를 제공하므로, 브라우저 없이 <code>curl</code>로 동일한 프로젝트를 생성할 수 있습니다.</p>
+
+<pre class="code" data-lang="bash"><code>curl https://start.spring.io/starter.zip \
+  -d type=gradle-project-kotlin \
+  -d language=kotlin \
+  -d bootVersion=4.1.0 \
+  -d javaVersion=21 \
+  -d packaging=jar \
+  -d groupId=com.example \
+  -d artifactId=book-api \
+  -d name=book-api \
+  -d packageName=com.example.bookapi \
+  -d dependencies=web,data-jpa,validation,h2,actuator \
+  -o book-api.zip
+
+unzip book-api.zip -d book-api
+cd book-api</code></pre>
+<p>각 파라미터의 의미는 다음과 같습니다.</p>
+
+<table>
+<thead>
+<tr>
+<th>파라미터</th>
+<th>값</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td><code>gradle-project-kotlin</code></td>
+<td>Gradle + Kotlin DSL</td>
+</tr>
+<tr>
+<td><code>language</code></td>
+<td><code>kotlin</code></td>
+<td>소스 언어</td>
+</tr>
+<tr>
+<td><code>bootVersion</code></td>
+<td><code>4.1.0</code></td>
+<td>Spring Boot 버전</td>
+</tr>
+<tr>
+<td><code>javaVersion</code></td>
+<td><code>21</code></td>
+<td>툴체인 JDK</td>
+</tr>
+<tr>
+<td><code>dependencies</code></td>
+<td><code>web,data-jpa,validation,h2,actuator</code></td>
+<td>쉼표로 구분한 스타터 ID</td>
+</tr>
+</tbody>
+</table>
+
+<aside class="callout tip">
+<p>사용 가능한 모든 옵션은 <code>curl https://start.spring.io</code> (브라우저가 아닌 터미널에서)로 텍스트 메타데이터를 확인할 수 있습니다.</p>
+</aside>
+
+<h2>4. IntelliJ 내장 마법사 사용</h2>
+<p>IntelliJ IDEA에도 Initializr가 내장되어 있어, 브라우저를 거치지 않고 바로 프로젝트를 만들 수 있습니다.</p>
+
+<ol>
+<li><code>File &gt; New &gt; Project...</code></li>
+<li>왼쪽 목록에서 <strong>Spring Boot</strong>(또는 <strong>Spring Initializr</strong>) 선택</li>
+<li>Name <code>book-api</code>, Language <code>Kotlin</code>, Type <code>Gradle - Kotlin</code>, JDK <code>21</code>, Java <code>21</code>, Packaging <code>Jar</code>, Group <code>com.example</code>, Artifact <code>book-api</code>, Package <code>com.example.bookapi</code> 입력</li>
+<li><strong>Next</strong> → 위 표의 의존성(Web, Spring Data JPA, Validation, H2, Actuator) 선택</li>
+<li><strong>Create</strong></li>
+</ol>
+
+<aside class="callout warning">
+<p>내장 마법사는 내부적으로 start.spring.io API를 호출하므로 인터넷 연결이 필요합니다. 또한 IntelliJ가 제안하는 기본 Spring Boot 버전이 4.1.0이 아닐 수 있고, Initializr의 Java 기본값은 <strong>17</strong>이므로, 목록에서 <strong>4.1.0</strong>과 <strong>21</strong>을 직접 선택하세요.</p>
+</aside>
+
+<h2>5. 생성된 파일 트리</h2>
+<p>압축을 풀면 다음과 같은 구조가 나옵니다.</p>
+
+<figure class="filetree"><div class="ft-root">📦 book-api/</div>
+<ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">🐘</span><span class="ft-name">build.gradle.kts</span><span class="ft-cmt">빌드 스크립트 (Kotlin DSL)</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">🐘</span><span class="ft-name">settings.gradle.kts</span><span class="ft-cmt">프로젝트 이름/모듈 정의</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📜</span><span class="ft-name">gradlew</span><span class="ft-cmt">Gradle Wrapper (Unix)</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">gradlew.bat</span><span class="ft-cmt">Gradle Wrapper (Windows)</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">gradle</span></span>
+<ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">wrapper</span></span>
+<ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📦</span><span class="ft-name">gradle-wrapper.jar</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">⚙️</span><span class="ft-name">gradle-wrapper.properties</span></span></li></ul></li></ul></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">.gitignore</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">src</span></span>
+<ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">main</span></span>
+<ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">kotlin</span></span>
+<ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">com/example/bookapi</span></span>
+<ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookApiApplication.kt</span><span class="ft-cmt">애플리케이션 진입점</span></span></li></ul></li></ul></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">resources</span></span>
+<ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">⚙️</span><span class="ft-name">application.properties</span><span class="ft-cmt">기본 설정 파일</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">static</span><span class="ft-cmt">정적 리소스</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">templates</span><span class="ft-cmt">템플릿 (사용 시)</span></span></li></ul></li></ul></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">test</span></span>
+<ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">kotlin</span></span>
+<ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">com/example/bookapi</span></span>
+<ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookApiApplicationTests.kt</span></span></li></ul></li></ul></li></ul></li></ul></li></ul></figure>
+
+<h2>6. 첫 실행 확인</h2>
+<p>프로젝트 루트에서 다음을 실행하면 내장 Tomcat(11.0.22, Servlet 6.1)에서 애플리케이션이 뜹니다.</p>
+
+<pre class="code" data-lang="bash"><code>./gradlew bootRun</code></pre>
+<p>콘솔에 다음과 같은 로그와 함께 8080 포트에서 기동되면 정상입니다. (아직 엔드포인트가 없으므로 404가 정상입니다.)</p>
+
+<pre class="code" data-lang="text"><code> :: Spring Boot ::                (v4.1.0)
+...
+Tomcat started on port 8080 (http) with context path &#x27;/&#x27;
+Started BookApiApplicationKt in 1.2 seconds</code></pre>
+
+<h2>다음 단계</h2>
+<p>프로젝트를 만들었으니, <a href="03-project-structure.html">프로젝트 구조 해부</a>에서 각 파일과 폴더가 무슨 역할을 하는지 살펴봅니다.</p>

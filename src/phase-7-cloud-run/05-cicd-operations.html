@@ -1,0 +1,222 @@
+<h1>CI/CD와 운영</h1>
+<p>지금까지는 손으로 배포했습니다. 마지막 장에서는 <strong>GitHub에 푸시하면 자동으로 배포</strong>되는 파이프라인을 만들고, 환경 변수·비밀·데이터베이스·헬스 프로브·로그까지 <strong>실전 운영</strong>에 필요한 것들을 정리합니다.</p>
+
+<h2>1. GitHub Actions로 자동 배포</h2>
+<p>목표: <code>main</code> 브랜치에 푸시하면 → 테스트·빌드 → Cloud Run 배포까지 자동.</p>
+
+<h3>인증: Workload Identity Federation (권장)</h3>
+<p>GitHub Actions가 GCP에 배포하려면 인증이 필요합니다. 예전에는 서비스 계정의 <strong>JSON 키 파일</strong>을 GitHub Secret에 넣었지만, 키 유출 위험이 큽니다. 지금은 <strong>Workload Identity Federation(WIF)</strong> 이 권장됩니다.</p>
+
+<blockquote>
+<p><strong>WIF란?</strong> JSON 키 없이, "이 GitHub 저장소의 워크플로"라는 신원을 GCP가 직접 신뢰하도록 연결하는 방식입니다. 장기 비밀이 없어 훨씬 안전합니다.</p>
+<p>WIF에도 두 가지가 있습니다. 아래 예제는 <strong>서비스 계정을 경유하는</strong> 방식(<code>service_account</code> 지정)이고, <code>google-github-actions/auth</code>가 가장 권장하는 것은 서비스 계정 없이 연맹 신원을 직접 쓰는 <strong>Direct Workload Identity Federation</strong>(<code>service_account</code> 생략)입니다. 다만 배포 대상 API가 서비스 계정 권한을 요구하는 경우가 많아, 실무에서는 아래 방식도 널리 쓰입니다.</p>
+</blockquote>
+<p>설정은 고수준으로 이렇습니다(한 번만).</p>
+
+<ol>
+<li>GCP에 <strong>Workload Identity Pool</strong>과 <strong>Provider</strong>를 만들어 GitHub를 신뢰 발급자로 등록.</li>
+<li>배포용 <strong>서비스 계정</strong>을 만들고 <code>roles/run.admin</code>, <code>roles/iam.serviceAccountUser</code>, (이미지 푸시 시) <code>roles/artifactregistry.writer</code>를 부여.</li>
+<li>그 서비스 계정을 WIF Provider에 바인딩.</li>
+<li>GitHub 저장소 Secrets에 <code>WIF_PROVIDER</code>(Provider 리소스 경로), <code>WIF_SERVICE_ACCOUNT</code>(서비스 계정 이메일), <code>GCP_PROJECT_ID</code>를 등록.</li>
+</ol>
+
+<h3>워크플로 파일</h3>
+<p><code>.github/workflows/deploy.yml</code>:</p>
+
+<pre class="code" data-lang="yaml"><code>name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: [main]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: asia-northeast3
+  SERVICE: book-api
+
+permissions:
+  contents: read
+  id-token: write   # WIF에 필수: OIDC 토큰 발급 권한
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 소스 체크아웃
+        uses: actions/checkout@v7
+
+      - name: JDK 21 설정
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: &#x27;21&#x27;
+
+      - name: Gradle 빌드 &amp; 테스트
+        run: ./gradlew clean build
+
+      # WIF 기반 인증 (JSON 키 없음)
+      - name: GCP 인증
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Cloud Run 배포
+        uses: google-github-actions/deploy-cloudrun@v3
+        with:
+          service: ${{ env.SERVICE }}
+          source: .                       # 소스 배포(buildpacks/Dockerfile)
+          region: ${{ env.REGION }}
+          flags: &gt;-
+            --allow-unauthenticated
+            --memory 512Mi
+            --port 8080
+          env_vars: |
+            SPRING_PROFILES_ACTIVE=prod</code></pre>
+
+<blockquote>
+<p><strong>대안</strong>: <code>deploy-cloudrun</code> 액션 대신 인증 후 <code>run: gcloud run deploy ... --source .</code>를 직접 호출해도 됩니다. 이미지를 미리 빌드해 <code>--image</code>로 배포하려면 빌드·푸시 스텝(<a href="04-image-deploy.html">4장</a>)을 추가하면 됩니다.</p>
+</blockquote>
+
+<h2>2. 환경 변수와 비밀(Secret Manager)</h2>
+<p>DB 비밀번호 같은 민감 정보를 환경 변수에 평문으로 넣는 건 위험합니다. <strong>Secret Manager</strong>에 저장하고 Cloud Run에 마운트하세요.</p>
+
+<pre class="code" data-lang="bash"><code># 비밀 생성
+echo -n &quot;내DB비밀번호&quot; | gcloud secrets create book-db-password --data-file=-
+
+# 배포 시 비밀을 환경 변수로 주입
+gcloud run deploy book-api --source . --region asia-northeast3 \
+  --set-secrets SPRING_DATASOURCE_PASSWORD=book-db-password:latest \
+  --set-env-vars SPRING_PROFILES_ACTIVE=prod</code></pre>
+
+<ul>
+<li><code>--set-env-vars</code>: 민감하지 않은 일반 설정.</li>
+<li><code>--set-secrets</code>: Secret Manager의 비밀을 환경 변수 또는 파일로 주입.</li>
+</ul>
+
+<h2>3. Cloud SQL(PostgreSQL) 연결</h2>
+<p>휘발성 파일 시스템 때문에 영구 데이터는 <strong>Cloud SQL</strong>에 둡니다(<a href="../phase-3-data-jpa/README.html">Phase 3</a>의 prod 프로파일과 연결).</p>
+
+<pre class="code" data-lang="bash"><code>gcloud run deploy book-api --source . --region asia-northeast3 \
+  --add-cloudsql-instances book-api-12345:asia-northeast3:book-db \
+  --set-secrets SPRING_DATASOURCE_PASSWORD=book-db-password:latest \
+  --set-env-vars SPRING_PROFILES_ACTIVE=prod</code></pre>
+<p><code>--add-cloudsql-instances</code>는 인스턴스로의 안전한 소켓을 컨테이너에 연결해 줍니다. 애플리케이션은 <strong>Unix 소켓</strong> 경로로 접속합니다. <code>application-prod.yml</code> 예:</p>
+
+<pre class="code" data-lang="yaml"><code># application-prod.yml
+spring:
+  datasource:
+    # Cloud SQL은 /cloudsql/&lt;INSTANCE_CONNECTION_NAME&gt; 소켓으로 접속
+    url: jdbc:postgresql:///bookdb?cloudSqlInstance=book-api-12345:asia-northeast3:book-db&amp;socketFactory=com.google.cloud.sql.postgres.SocketFactory
+    username: bookuser
+    password: ${SPRING_DATASOURCE_PASSWORD}   # Secret Manager에서 주입
+  jpa:
+    hibernate:
+      ddl-auto: validate            # prod에서는 절대 update/create 금지</code></pre>
+
+<blockquote>
+<p>Cloud SQL Socket Factory 의존성(<code>com.google.cloud.sql:postgres-socket-factory</code>)을 <code>build.gradle.kts</code>에 추가해야 합니다.</p>
+</blockquote>
+
+<h2>4. 헬스 프로브를 Actuator에 연결</h2>
+<p>Cloud Run은 컨테이너의 <strong>liveness/readiness 프로브</strong>를 지원합니다. <a href="../phase-5-production-features/README.html">Phase 5</a>의 Actuator 헬스 그룹과 연결하면 정확한 상태 판정이 가능합니다.</p>
+<p>먼저 Spring Boot에서 liveness/readiness 그룹을 노출합니다.</p>
+
+<pre class="code" data-lang="yaml"><code># application-prod.yml
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true       # /actuator/health/{liveness,readiness} 활성화
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+server:
+  shutdown: graceful        # Boot 4 기본값 — 종료 시 진행 중인 요청을 마저 처리</code></pre>
+
+<ul>
+<li><strong>Liveness 프로브</strong> → <code>/actuator/health/liveness</code>: 죽었으면 인스턴스 재시작.</li>
+<li><strong>Readiness 프로브</strong> → <code>/actuator/health/readiness</code>: 준비 안 됐으면 트래픽 제외(예: DB 커넥션 풀 워밍업 전).</li>
+</ul>
+<p>Cloud Run 콘솔(또는 YAML 서비스 정의)에서 위 경로로 HTTP 프로브를 지정합니다.</p>
+
+<blockquote>
+<p><strong>Graceful shutdown</strong>: Spring Boot 4는 그레이스풀 셧다운이 <strong>기본 활성화</strong>이므로, Cloud Run이 인스턴스를 줄일 때 진행 중인 요청을 끊지 않고 마무리합니다(끄려면 <code>server.shutdown=immediate</code>). 대기 시간은 <code>spring.lifecycle.timeout-per-shutdown-phase</code>로 조정합니다.</p>
+</blockquote>
+
+<h2>5. 스케일링·구조적 로깅·커스텀 도메인</h2>
+<p><strong>스케일링 노브</strong>:</p>
+
+<pre class="code" data-lang="bash"><code>gcloud run services update book-api --region asia-northeast3 \
+  --min-instances 1 \      # 콜드 스타트 제거
+  --max-instances 5 \      # 상한
+  --concurrency 40 \       # 인스턴스당 동시 요청
+  --cpu-boost              # 시작 가속</code></pre>
+<p><strong>구조적(JSON) 로깅</strong>: Cloud Logging은 JSON 로그를 자동으로 파싱해 필드별 검색·필터를 제공합니다. Spring Boot의 로그를 JSON 포맷(예: <code>logging.structured.format.console=ecs</code> 또는 Logback JSON 인코더)으로 내보내면 운영 가시성이 크게 좋아집니다.</p>
+<p><strong>커스텀 도메인</strong>: <code>*.run.app</code> 대신 내 도메인을 붙이려면 Cloud Run 도메인 매핑 또는 외부 로드밸런서를 사용합니다(개념만 언급).</p>
+
+<h2>6. 로그와 모니터링</h2>
+
+<pre class="code" data-lang="bash"><code># 최근 로그 보기
+gcloud run services logs read book-api --region asia-northeast3 --limit 50
+
+# 실시간 추적
+gcloud run services logs tail book-api --region asia-northeast3</code></pre>
+<p>Cloud Console의 Cloud Run 서비스 페이지에서는 <strong>요청 수, 지연 시간(p50/p95/p99), 인스턴스 수, CPU/메모리 사용량, 에러율</strong>을 그래프로 볼 수 있습니다.</p>
+
+<h2>7. 트러블슈팅</h2>
+
+<table>
+<thead>
+<tr>
+<th>증상</th>
+<th>흔한 원인</th>
+<th>해결</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Container failed to listen on PORT</code></td>
+<td>PORT 미설정</td>
+<td><code>server.port: ${PORT:8080}</code> 추가(<a href="03-source-deploy.html">3장</a>)</td>
+</tr>
+<tr>
+<td>OOM으로 인스턴스 강제 종료</td>
+<td>메모리 부족</td>
+<td><code>--memory 1Gi</code>로 상향, 힙 옵션 점검</td>
+</tr>
+<tr>
+<td>첫 요청 매우 느림</td>
+<td>콜드 스타트</td>
+<td><code>--min-instances 1</code>, <code>--cpu-boost</code>, <a href="../phase-6-build-deploy/03-native-image.html">네이티브 이미지</a></td>
+</tr>
+<tr>
+<td>DB 연결 실패</td>
+<td>Cloud SQL 미연결/URL 오류</td>
+<td><code>--add-cloudsql-instances</code>, 소켓 URL·Secret 확인</td>
+</tr>
+<tr>
+<td>빌드 실패</td>
+<td>Gradle/JDK 문제</td>
+<td>Cloud Build 로그 확인, <code>.gcloudignore</code> 점검, JDK 21 명시</td>
+</tr>
+<tr>
+<td>502/503</td>
+<td>readiness 미준비, 타임아웃</td>
+<td>프로브 경로·<code>--timeout</code> 확인</td>
+</tr>
+</tbody>
+</table>
+
+<h2>다음 단계</h2>
+<p>축하합니다! 🎉 여기까지 왔다면, 여러분은 <strong>IoC/DI와 자동 구성</strong>부터 시작해 <strong>REST API</strong>, <strong>Spring Data JPA</strong>, <strong>검증·보안·관측성</strong>, <strong>JAR/Docker/네이티브 빌드</strong>, 그리고 마침내 <strong>Google Cloud Run으로의 실제 배포와 운영</strong>까지 — Spring Boot 애플리케이션의 한살이(life cycle) 전체를 직접 경험했습니다. Kotlin 개발자로서 Spring 생태계를 자신 있게 다룰 수 있는 토대를 갖춘 셈입니다.</p>
+<p>이제 여러분의 코드는 인터넷 어딘가에서 HTTPS URL로 살아 숨 쉬고 있습니다. 다음은 여러분만의 서비스를 만들 차례입니다.</p>
+
+<ul>
+<li>🏠 <strong><a href="../index.html">가이드 홈으로 돌아가기</a></strong></li>
+<li>📖 Cloud Run 공식 Java 배포 가이드: <a href="https://docs.cloud.google.com/run/docs/quickstarts/build-and-deploy/deploy-java-service">https://docs.cloud.google.com/run/docs/quickstarts/build-and-deploy/deploy-java-service</a></li>
+<li>📖 Spring Boot 공식 문서: <a href="https://docs.spring.io/spring-boot/index.html">https://docs.spring.io/spring-boot/index.html</a></li>
+</ul>
+<p>수고하셨습니다. Happy shipping! 🚀</p>

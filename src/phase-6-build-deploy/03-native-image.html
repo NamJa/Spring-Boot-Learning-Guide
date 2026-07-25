@@ -1,0 +1,206 @@
+<h1>GraalVM 네이티브 이미지</h1>
+<p>지금까지 만든 산출물은 모두 <strong>JVM 위에서</strong> 실행됩니다. JVM은 강력하지만, 클래스 로딩과 JIT 워밍업 때문에 시작이 느리고 기본 메모리 사용량이 큽니다. 서버리스나 오토스케일링처럼 <strong>빠른 콜드 스타트</strong>와 <strong>낮은 메모리</strong>가 중요한 환경에서는 이 비용이 부담입니다.</p>
+<p><strong>GraalVM 네이티브 이미지</strong>는 이 문제에 대한 답입니다. 애플리케이션을 <strong>AOT(Ahead-Of-Time) 컴파일</strong>해, JVM 없이 OS에서 바로 실행되는 <strong>단일 네이티브 실행 파일</strong>로 만듭니다.</p>
+
+<h2>AOT / 네이티브 컴파일이란</h2>
+<p>기존 JVM은 바이트코드를 실행 중에 JIT로 기계어로 번역합니다(런타임 컴파일). 반면 네이티브 이미지는 <strong>빌드 시점에 모든 것을 기계어로 컴파일</strong>하고, 도달 가능한 코드만 골라(closed-world 분석) 하나의 실행 파일에 담습니다.</p>
+
+<figure class="dg">
+<figcaption>JVM 실행과 네이티브 이미지의 시작 과정 비교</figcaption>
+<div class="dg-vs">
+  <div class="col">
+    <h4>전통적 JVM</h4>
+    <div class="dg-pipe" style="flex-direction:column;gap:8px">
+      <div class="dg-node"><div class="t">jar</div></div>
+      <div class="dg-node"><div class="t">JVM 시작 → 클래스 로딩</div></div>
+      <div class="dg-node"><div class="t">JIT 워밍업</div></div>
+      <div class="dg-node is-accent"><div class="t">정상 속도 도달</div></div>
+    </div>
+    <p class="dg-foot" style="margin-top:10px">시작 <strong>수 초</strong> · 메모리 <strong>수백 MB</strong></p>
+  </div>
+  <div class="mid"><span>vs</span></div>
+  <div class="col is-good">
+    <h4>네이티브 이미지</h4>
+    <div class="dg-pipe" style="flex-direction:column;gap:8px">
+      <div class="dg-node"><div class="t">소스</div></div>
+      <div class="dg-node is-warn"><div class="t">AOT 컴파일 (빌드가 길다)</div></div>
+      <div class="dg-node"><div class="t">단일 실행 파일</div></div>
+      <div class="dg-node is-accent"><div class="t">즉시 풀 스피드</div></div>
+    </div>
+    <p class="dg-foot" style="margin-top:10px">시작 <strong>수십 ms</strong> · 메모리 <strong>수십 MB</strong></p>
+  </div>
+</div>
+</figure>
+<p>Spring Boot는 자체 <strong>AOT 엔진</strong>을 통해 빈 정의, 프록시, 설정을 빌드 시점에 미리 처리해 GraalVM이 분석하기 쉬운 코드를 생성합니다. 그 위에 GraalVM이 네이티브 컴파일을 수행합니다.</p>
+
+<h3>장점</h3>
+
+<ul>
+<li><strong>콜드 스타트가 수십 ms</strong> — 함수/컨테이너가 거의 즉시 응답. Cloud Run, AWS Lambda 같은 서버리스에 이상적</li>
+<li><strong>메모리 사용량이 작음</strong> — JVM 메타데이터·JIT 캐시가 없어 RSS가 수십 MB 수준</li>
+<li><strong>단일 실행 파일</strong> — JRE조차 필요 없어 컨테이너 이미지가 매우 작아짐</li>
+</ul>
+
+<h3>트레이드오프 (단점)</h3>
+
+<ul>
+<li><strong>빌드가 길다</strong> — AOT 컴파일은 수 분이 걸리고 CPU·메모리를 많이 씀</li>
+<li><strong>closed-world 가정</strong> — 빌드 시점에 도달 가능한 코드만 포함. 런타임에 새 클래스를 동적으로 로드할 수 없음</li>
+<li><strong>리플렉션 설정 필요</strong> — 리플렉션·프록시·리소스 접근은 빌드 시점에 <strong>힌트</strong>로 알려 줘야 함</li>
+<li><strong>피크 스루풋</strong> — 장시간 도는 워크로드에서는 JIT가 최적화한 JVM의 최대 처리량을 따라가지 못할 수 있음</li>
+</ul>
+
+<h2>프로젝트 설정</h2>
+<p>GraalVM Community <strong>25</strong>를 설치하고, <code>build.gradle.kts</code>에 <strong>Native Build Tools 1.1.1</strong> 플러그인을 추가합니다. 이 버전은 Spring Boot 4.1.0이 BOM에서 관리하는 값(<code>native-build-tools-plugin.version</code>)이므로, 특별한 이유가 없다면 그대로 쓰는 것이 가장 안전합니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>// build.gradle.kts
+plugins {
+    kotlin(&quot;jvm&quot;) version &quot;2.3.21&quot;
+    kotlin(&quot;plugin.spring&quot;) version &quot;2.3.21&quot;
+    id(&quot;org.springframework.boot&quot;) version &quot;4.1.0&quot;
+    id(&quot;io.spring.dependency-management&quot;) version &quot;1.1.7&quot;
+    // GraalVM 네이티브 빌드 도구 (Spring Boot 4.1.0 관리 버전)
+    id(&quot;org.graalvm.buildtools.native&quot;) version &quot;1.1.1&quot;
+}</code></pre>
+
+<aside class="callout note">
+<p>Native Build Tools 자체는 더 빠르게 릴리스됩니다(2026-07-25 기준 업스트림 최신은 1.1.6). Spring Boot 플러그인이 검증한 버전과 어긋나면 AOT 처리 단계에서 예상치 못한 문제가 생길 수 있으니, 올릴 때는 Spring Boot 릴리스 노트에서 관리 버전을 함께 확인하세요.</p>
+</aside>
+<p>Spring Boot 플러그인이 적용되면 AOT 처리(<code>processAot</code>)와 네이티브 컴파일 태스크가 자동 구성됩니다. GraalVM JDK가 활성 JDK인지 확인합니다.</p>
+
+<pre class="code" data-lang="bash"><code>java -version
+# openjdk version &quot;25&quot; ... GraalVM CE 25...</code></pre>
+
+<h2>네이티브 이미지 빌드하기</h2>
+<p>두 가지 방법이 있습니다.</p>
+
+<h3>1) 로컬 네이티브 실행 파일 (<code>nativeCompile</code>)</h3>
+<p>호스트에 직접 실행 파일을 만듭니다.</p>
+
+<pre class="code" data-lang="bash"><code>./gradlew nativeCompile
+
+# 산출물 실행
+./build/native/nativeCompile/book-api</code></pre>
+<p>시작 로그에서 기동 시간이 초 단위가 아니라 <strong>밀리초 단위</strong>로 찍히는 것을 볼 수 있습니다.</p>
+
+<h3>2) 네이티브 컨테이너 이미지 (<code>bootBuildImage</code>)</h3>
+<p>별도 GraalVM 설치 없이, Buildpacks가 네이티브 빌드팩으로 네이티브 이미지를 만들어 컨테이너에 담습니다.</p>
+
+<pre class="code" data-lang="bash"><code>./gradlew bootBuildImage
+# (Spring Boot가 네이티브 빌드팩을 자동 선택하도록 구성된 경우)</code></pre>
+
+<aside class="callout tip">
+<p>로컬에 GraalVM을 깔기 번거롭다면 <code>bootBuildImage</code> 방식이 편리합니다. 빌드 환경이 컨테이너 안에 격리되므로 CI에서도 재현이 쉽습니다.</p>
+</aside>
+
+<h2>런타임 힌트: 리플렉션과 closed-world</h2>
+<p>대부분의 Spring/Jackson 사용 패턴은 Spring과 GraalVM의 메타데이터로 <strong>자동 처리</strong>됩니다. 하지만 우리가 직접 리플렉션·프록시·리소스에 접근하거나, 힌트가 없는 라이브러리를 쓰면 <strong>명시적 힌트</strong>가 필요합니다.</p>
+<p>가장 흔한 두 가지 방법입니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>// 1) 특정 타입을 직렬화/역직렬화 대상으로 등록 (Jackson 등)
+@Configuration
+@RegisterReflectionForBinding(BookResponse::class, CreateBookRequest::class)
+class NativeHintsConfig</code></pre>
+
+<pre class="code" data-lang="kotlin"><code>// 2) 더 세밀한 제어가 필요하면 RuntimeHintsRegistrar 구현
+class BookRuntimeHints : RuntimeHintsRegistrar {
+    override fun registerHints(hints: RuntimeHints, classLoader: ClassLoader?) {
+        // 리플렉션 힌트 — 필요한 MemberCategory만 골라 지정한다
+        hints.reflection().registerType(Book::class.java) {
+            it.withMembers(
+                MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+                MemberCategory.INVOKE_DECLARED_METHODS,
+                MemberCategory.ACCESS_DECLARED_FIELDS,
+            )
+        }
+        // 리소스 힌트 (네이티브 이미지에 포함시킬 리소스)
+        hints.resources().registerPattern(&quot;db/migration/*.sql&quot;)
+    }
+}
+
+// 등록
+@Configuration
+@ImportRuntimeHints(BookRuntimeHints::class)
+class HintsConfig</code></pre>
+
+<aside class="callout note">
+<p>옛 예제의 <code>withMembers(*MemberCategory.values())</code>(모든 카테고리 한 번에)는 Spring Framework 7에서 <strong><code>PUBLIC_FIELDS</code>/<code>DECLARED_FIELDS</code>와 <code>INTROSPECT_*</code> 상수가 제거 예정(deprecated for removal)</strong> 이라 경고를 뿜고 향후 깨집니다. 필드 접근은 <code>ACCESS_*</code> 상수로 대체됐고, introspection 계열은 타입에 리플렉션 힌트를 등록하면 자동 포함되므로 별도 지정이 필요 없습니다. 위처럼 <strong>필요한 카테고리만 명시</strong>하세요.</p>
+</aside>
+
+<aside class="callout warning">
+<p>네이티브에서 <code>ClassNotFoundException</code>이나 <code>Jackson</code>/리플렉션 관련 오류가 난다면 거의 항상 <strong>힌트 누락</strong>이 원인입니다. 동일한 코드가 JVM jar에서는 잘 돌아가더라도 네이티브에서는 closed-world 분석에 걸리지 않은 타입이 빠질 수 있습니다.</p>
+</aside>
+
+<h2>네이티브 테스트 (<code>nativeTest</code>)</h2>
+<p>네이티브 이미지에서만 드러나는 힌트 누락을 잡으려면, 테스트도 네이티브로 돌려 봐야 합니다.</p>
+
+<pre class="code" data-lang="bash"><code>./gradlew nativeTest</code></pre>
+<p>이 태스크는 테스트 스위트를 네이티브로 컴파일해 실행하므로, JVM 테스트는 통과하지만 네이티브에서 깨지는 케이스를 CI에서 조기에 발견할 수 있습니다.</p>
+
+<h2>언제 네이티브를 쓰지 말아야 하나</h2>
+<p>네이티브는 만능이 아닙니다. 다음 상황에서는 <strong>JVM jar가 더 낫습니다.</strong></p>
+
+<ul>
+<li><strong>장시간 도는 고스루풋 서비스</strong> — JIT가 충분히 워밍업되면 JVM의 피크 처리량이 더 높음</li>
+<li><strong>빈번한 배포 + 긴 빌드가 부담</strong> — 네이티브 빌드는 수 분이 걸려 개발 피드백 루프를 늦춤</li>
+<li><strong>동적 클래스 로딩·바이트코드 생성에 크게 의존</strong> — closed-world와 충돌</li>
+<li><strong>힌트가 정비되지 않은 외부 라이브러리</strong> 다수 사용</li>
+</ul>
+<p>반대로 <strong>콜드 스타트와 메모리가 비용을 좌우하는</strong> 서버리스(Cloud Run, Lambda), 짧게 떴다 사라지는 배치/CLI에는 네이티브가 강력합니다.</p>
+
+<h2>JVM jar vs 네이티브 이미지 비교</h2>
+
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>JVM 실행 가능 jar</th>
+<th>네이티브 이미지</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>시작 시간</td>
+<td>1~3초 (워밍업 별도)</td>
+<td>수십 ms</td>
+</tr>
+<tr>
+<td>메모리 사용량</td>
+<td>수백 MB</td>
+<td>수십 MB</td>
+</tr>
+<tr>
+<td>빌드 시간</td>
+<td>빠름 (초 단위)</td>
+<td>느림 (분 단위, CPU 多)</td>
+</tr>
+<tr>
+<td>피크 스루풋</td>
+<td>높음 (JIT 최적화)</td>
+<td>약간 낮을 수 있음</td>
+</tr>
+<tr>
+<td>이미지 크기</td>
+<td>JRE 포함, 큼</td>
+<td>작음 (JRE 불필요)</td>
+</tr>
+<tr>
+<td>동적 기능</td>
+<td>자유로움</td>
+<td>힌트 필요, 제약 있음</td>
+</tr>
+<tr>
+<td>적합한 워크로드</td>
+<td>장시간 고부하 서비스</td>
+<td>서버리스, 콜드 스타트 민감</td>
+</tr>
+</tbody>
+</table>
+
+<aside class="callout tip">
+<p>"일단 JVM jar로 배포해 보고, 콜드 스타트나 메모리가 실제 병목으로 측정될 때 네이티브를 검토한다"가 안전한 순서입니다. 측정 없이 네이티브로 직행하면 빌드·힌트 관리 비용만 떠안을 수 있습니다.</p>
+</aside>
+
+<h2>다음 단계</h2>
+<p>빌드 산출물(jar·컨테이너·네이티브)을 모두 준비했습니다. 마지막으로 이를 <strong>프로파일별로 실제 운영 환경에 배포</strong>하고, 프로덕션 체크리스트와 운영·트러블슈팅을 정리합니다.</p>
+<p>→ <a href="04-deploy-operations.html">프로파일별 배포 &amp; 운영</a></p>

@@ -1,0 +1,328 @@
+<h1>Bean Validation 입력 검증</h1>
+<p>지금까지의 <code>BookController</code>는 사용자가 보낸 데이터를 <strong>무조건 믿었습니다.</strong> 제목이 빈 문자열이든, 가격이 <code>-9999</code>든, ISBN이 <code>"hello"</code>든 그대로 받아 저장했죠. 실무에서는 절대 그래선 안 됩니다. 입력 검증은 보안과 데이터 무결성의 첫 번째 방어선입니다.</p>
+<p>물론 Service 안에서 <code>if (request.title.isBlank()) throw ...</code> 식으로 직접 검증할 수도 있습니다. 하지만 이런 코드는 금방 지저분해지고 중복됩니다. Spring은 <strong>선언적(declarative)</strong> 으로 검증 규칙을 애너테이션으로 표현하는 표준 방식 — <strong>Bean Validation (Jakarta Validation)</strong> — 을 제공합니다.</p>
+
+<h2>1. Bean Validation이란</h2>
+<p><strong>Bean Validation</strong>은 객체의 필드에 애너테이션으로 제약 조건(constraint)을 선언하면, 런타임에 그 규칙을 검사해 주는 <strong>Jakarta EE 표준 명세</strong>입니다. JPA가 그랬듯 이것 역시 명세일 뿐이고, 실제 구현체는 <strong>Hibernate Validator</strong>입니다(Hibernate ORM과는 별개의 라이브러리입니다).</p>
+
+<ul>
+<li><strong>명세</strong>: <code>jakarta.validation.*</code> — <code>@NotNull</code>, <code>@Size</code>, <code>@Valid</code> 등</li>
+<li><strong>구현체</strong>: Hibernate Validator</li>
+<li><strong>스타터</strong>: <code>spring-boot-starter-validation</code> — 위 둘을 묶어 가져오고 Spring MVC와 통합</li>
+</ul>
+
+<aside class="callout note">
+<p>과거 <code>javax.validation.*</code> 패키지는 Jakarta EE 이관으로 <strong><code>jakarta.validation.*</code></strong> 로 바뀌었습니다. Spring Boot 4.x는 전부 <code>jakarta</code> 네임스페이스를 씁니다.</p>
+</aside>
+<p>먼저 의존성을 추가합니다. Spring Boot 4.x에서는 web 스타터만으로는 검증이 자동 포함되지 않으므로 명시적으로 추가해야 합니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>// build.gradle.kts
+dependencies {
+    implementation(&quot;org.springframework.boot:spring-boot-starter-webmvc&quot;)
+    implementation(&quot;org.springframework.boot:spring-boot-starter-validation&quot;) // ← 추가
+}</code></pre>
+
+<h2>2. 주요 제약 애너테이션</h2>
+<p>자주 쓰는 <code>jakarta.validation.constraints.*</code> 애너테이션을 정리하면 다음과 같습니다.</p>
+
+<table>
+<thead>
+<tr>
+<th>애너테이션</th>
+<th>적용 대상</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@NotNull</code></td>
+<td>모든 타입</td>
+<td><code>null</code>이 아니어야 함 (빈 문자열은 통과)</td>
+</tr>
+<tr>
+<td><code>@NotEmpty</code></td>
+<td>String, Collection, Map, 배열</td>
+<td><code>null</code>도 아니고 비어 있지도 않음</td>
+</tr>
+<tr>
+<td><code>@NotBlank</code></td>
+<td>String</td>
+<td><code>null</code>/빈 문자열/공백만 있는 문자열 모두 거부</td>
+</tr>
+<tr>
+<td><code>@Size(min, max)</code></td>
+<td>String, Collection 등</td>
+<td>길이/크기 범위</td>
+</tr>
+<tr>
+<td><code>@Min</code> / <code>@Max</code></td>
+<td>숫자</td>
+<td>최소/최대값 (정수)</td>
+</tr>
+<tr>
+<td><code>@Positive</code> / <code>@PositiveOrZero</code></td>
+<td>숫자</td>
+<td>양수 / 0 이상</td>
+</tr>
+<tr>
+<td><code>@Negative</code> / <code>@NegativeOrZero</code></td>
+<td>숫자</td>
+<td>음수 / 0 이하</td>
+</tr>
+<tr>
+<td><code>@DecimalMin</code> / <code>@DecimalMax</code></td>
+<td>숫자</td>
+<td>소수 포함 경계값</td>
+</tr>
+<tr>
+<td><code>@Pattern(regexp)</code></td>
+<td>String</td>
+<td>정규식 일치</td>
+</tr>
+<tr>
+<td><code>@Email</code></td>
+<td>String</td>
+<td>이메일 형식</td>
+</tr>
+<tr>
+<td><code>@Past</code> / <code>@PastOrPresent</code></td>
+<td>날짜/시간</td>
+<td>과거 / 과거·현재</td>
+</tr>
+<tr>
+<td><code>@Future</code> / <code>@FutureOrPresent</code></td>
+<td>날짜/시간</td>
+<td>미래 / 미래·현재</td>
+</tr>
+</tbody>
+</table>
+
+<aside class="callout tip">
+<p>문자열 필수값에는 거의 항상 <code>@NotBlank</code>를 쓰세요. <code>@NotNull</code>은 <code>""</code>(빈 문자열)을 통과시키고, <code>@NotEmpty</code>는 <code>" "</code>(공백)을 통과시킵니다. <code>@NotBlank</code>만이 셋 다 막습니다.</p>
+</aside>
+
+<h2>3. Kotlin의 함정 — 애너테이션 use-site target</h2>
+<p>여기는 Kotlin 개발자가 가장 자주 걸려 넘어지던 지점이고, <strong>Kotlin 2.2 / Spring Boot 4에서 규칙이 바뀐</strong> 곳이기도 합니다. 먼저 왜 문제가 생겼는지부터 봅니다.</p>
+<p>Kotlin에서 <code>val title: String</code>을 생성자 프로퍼티로 선언하면, 컴파일러는 내부적으로 <strong>생성자 파라미터(param)</strong>, <strong>필드(field)</strong>, <strong>getter</strong> 를 함께 만들어 냅니다. 애너테이션을 아무 표시 없이 붙이면 예전 Kotlin은 그것을 <strong>생성자 파라미터에만</strong> 붙였습니다. 반면 Hibernate Validator는 필드/getter의 제약을 읽으므로, 애너테이션이 파라미터에만 남아 <strong>검증이 조용히 통과</strong>되는 사고가 났습니다.</p>
+
+<figure class="dg">
+<figcaption><code>@NotBlank val title</code> 하나가 만들어 내는 세 자리</figcaption>
+<div class="dg-fork">
+  <div class="q">애너테이션은 어디에 붙는가?</div>
+  <div class="paths">
+    <div class="path"><span class="tag no">param</span><span class="arw">→</span>
+      <span class="out">생성자 파라미터</span><span class="st warn">예전 기본값 — 검증기가 못 본다</span></div>
+    <div class="path"><span class="tag yes">field</span><span class="arw">→</span>
+      <span class="out">private 백킹 필드 — <code>@field:</code> 로 지정</span><span class="st ok">Hibernate Validator가 읽는다</span></div>
+    <div class="path"><span class="tag alt">getter</span><span class="arw">→</span>
+      <span class="out">게터 — <code>@get:</code> 로 지정</span><span class="st ok">프로퍼티 접근자 기준 검증</span></div>
+  </div>
+</div>
+<p class="dg-foot"><code>-Xannotation-default-target=param-property</code> 를 켜면 파라미터와 프로퍼티(필드)에 <strong>함께</strong> 적용되어, <code>@field:</code> 없이도 검증이 동작합니다.</p>
+</figure>
+
+<aside class="callout note">
+<p><code>jakarta.validation.constraints.*</code> 애너테이션은 Java로 정의돼 있어 Kotlin의 <code>property</code> 타깃을 허용하지 않습니다. 그래서 아래 옵션이 켜지면 실제로는 <strong>파라미터 + 필드</strong>에 적용되며(Kotlin은 프로퍼티 타깃이 불가능할 때 필드로 내립니다), 그 필드를 Hibernate Validator가 읽어 검증이 동작합니다.</p>
+</aside>
+
+<h3>해법 ① 컴파일러 옵션 (Spring Boot 4 + Kotlin 2.2+ 기본)</h3>
+<p>Kotlin 2.2는 이 불편을 없애는 옵션을 도입했고, <strong>Spring Initializr가 Kotlin 프로젝트에 기본으로 넣어 줍니다</strong>(<a href="../phase-1-project-setup/04-build-gradle-kts.html">Phase 1-4</a>).</p>
+
+<pre class="code" data-lang="kotlin"><code>// build.gradle.kts — Initializr 기본 출력
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll(
+            &quot;-Xjsr305=strict&quot;,
+            &quot;-Xannotation-default-target=param-property&quot;,   // ← 이것
+        )
+    }
+}</code></pre>
+<p>이 옵션이 켜져 있으면 애너테이션이 <strong>생성자 파라미터와 프로퍼티(프로퍼티 타깃을 못 쓰는 Java 정의 애너테이션은 필드)에 함께</strong> 적용되어, Hibernate Validator와 Jackson이 정상적으로 인식합니다. 즉 아래처럼 Java와 똑같이 써도 검증이 동작합니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>// ✅ -Xannotation-default-target=param-property 가 켜져 있으면 이대로 동작
+data class CreateBookRequest(
+    @NotBlank val title: String,
+    @NotBlank val author: String,
+)</code></pre>
+
+<h3>해법 ② <code>@field:</code> 명시 (옵션과 무관하게 항상 안전)</h3>
+<p>use-site target을 직접 적어 주는 방식은 컴파일러 옵션 유무와 무관하게 언제나 동작합니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>// ✅ 어떤 설정에서도 안전한 방식
+data class CreateBookRequest(
+    @field:NotBlank val title: String,
+    @field:NotBlank val author: String,
+)</code></pre>
+
+<aside class="callout note">
+<p>이 규칙은 Kotlin <strong>2.4.0부터 언어 기본값으로 안정화</strong>되어, 그때부터는 옵션 없이도 동일하게 동작합니다. 본 가이드의 기준인 Kotlin 2.3.21(Spring Boot 4.1 BOM 관리 버전)에서는 위 옵션이 필요하며, Initializr가 이미 넣어 줍니다.</p>
+</aside>
+
+<aside class="callout tip">
+<p><strong>본 가이드는 <code>@field:</code>를 계속 사용합니다.</strong> 이유는 두 가지입니다. (1) 빌드 설정에 의존하지 않아 코드만 보고 의도가 분명하고, (2) 옵션이 빠진 기존 프로젝트에 코드를 옮겨 붙여도 검증이 조용히 사라지지 않습니다. 팀이 Initializr 기본 설정을 쓰고 있다면 <code>@field:</code>를 생략하는 쪽이 더 깔끔하니, 컨벤션을 정해 한 방향으로 통일하세요.</p>
+<p>반대로 <strong>컴파일러 옵션도 없고 <code>@field:</code>도 없다면 검증이 아무 경고 없이 통과</strong>됩니다. 검증 테스트를 반드시 한 건 작성해 이 사고를 잡으세요(<a href="../phase-5-production-features/04-testing.html">Phase 5-4</a>의 400 응답 테스트).</p>
+</aside>
+
+<h2>4. CreateBookRequest에 검증 적용하기</h2>
+<p>이제 Phase 2에서 만든 DTO에 실제 규칙을 입혀 봅시다.</p>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi.dto
+
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.PastOrPresent
+import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Positive
+import jakarta.validation.constraints.Size
+import java.time.LocalDate
+
+data class CreateBookRequest(
+    // 제목: 필수, 1~200자
+    @field:NotBlank(message = &quot;제목은 필수입니다&quot;)
+    @field:Size(max = 200, message = &quot;제목은 200자를 넘을 수 없습니다&quot;)
+    val title: String,
+
+    // 저자: 필수
+    @field:NotBlank(message = &quot;저자는 필수입니다&quot;)
+    val author: String,
+
+    // ISBN-13: 하이픈 포함/미포함 13자리 숫자 패턴
+    @field:Pattern(
+        regexp = &quot;^(?:\\d[- ]?){12}\\d$&quot;,
+        message = &quot;ISBN은 13자리 형식이어야 합니다&quot;,
+    )
+    val isbn: String,
+
+    // 가격: 양수만 허용
+    @field:Positive(message = &quot;가격은 0보다 커야 합니다&quot;)
+    val price: Int,
+
+    // 출판일: 미래일 수 없음 (오늘까지 허용)
+    @field:PastOrPresent(message = &quot;출판일은 미래일 수 없습니다&quot;)
+    val publishedAt: LocalDate,
+)</code></pre>
+<p><code>UpdateBookRequest</code>도 같은 방식으로 적용합니다. 부분 수정(PATCH)이라 필드가 nullable이라면 <code>@field:NotBlank</code> 대신 nullable 타입에 제약을 거는데, 이때 <code>null</code>은 대부분의 제약을 <strong>통과</strong>한다는 점을 기억하세요(<code>@NotNull</code>만 막음). 즉 "값이 들어왔다면 검증, 안 들어왔으면 패스"가 자연스럽게 표현됩니다.</p>
+
+<h2>5. 컨트롤러에서 <code>@Valid</code>로 검증 트리거</h2>
+<p>DTO에 규칙을 선언만 한다고 검증이 자동으로 일어나지는 않습니다. 컨트롤러 메서드에서 <strong><code>@Valid</code></strong> 를 <code>@RequestBody</code> 앞에 붙여 검증을 발동시켜야 합니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi.controller
+
+import com.example.bookapi.dto.CreateBookRequest
+import com.example.bookapi.service.BookService
+import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+
+@RestController
+@RequestMapping(&quot;/api/books&quot;)
+class BookController(
+    private val bookService: BookService,
+) {
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    fun create(
+        @Valid @RequestBody request: CreateBookRequest, // ← @Valid 가 검증을 발동
+    ): BookResponse = bookService.create(request)
+}</code></pre>
+<p>이제 검증에 실패하면 Spring은 <strong><code>MethodArgumentNotValidException</code></strong> 을 던집니다. 별도 처리를 하지 않으면 Spring Boot 기본 동작에 따라 <strong>HTTP 400 Bad Request</strong> 가 응답됩니다. 다음 문서(<a href="02-exception-handling.html">전역 예외 처리</a>)에서 이 예외를 잡아 깔끔한 에러 JSON으로 바꾸는 법을 다룹니다.</p>
+
+<aside class="callout note">
+<p><code>@Valid</code>(<code>jakarta.validation</code>)와 <code>@Validated</code>(<code>org.springframework.validation</code>)는 비슷하지만 다릅니다. <code>@Valid</code>는 표준이고 중첩 객체 검증을 지원합니다. <code>@Validated</code>는 Spring 전용으로 <strong>검증 그룹(groups)</strong> 과 메서드 파라미터 검증을 지원합니다(아래 6, 7절).</p>
+</aside>
+
+<h2>6. 경로 변수 · 쿼리 파라미터 검증</h2>
+<p><code>@RequestBody</code> 객체가 아니라 단일 경로 변수나 쿼리 파라미터에 제약을 걸려면, 컨트롤러 <strong>클래스에 <code>@Validated</code></strong> 를 붙이고 파라미터에 직접 제약 애너테이션을 답니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>import org.springframework.validation.annotation.Validated
+import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.Positive
+
+@RestController
+@RequestMapping(&quot;/api/books&quot;)
+@Validated // ← 메서드 파라미터 레벨 검증 활성화
+class BookController(/* ... */) {
+
+    @GetMapping(&quot;/{id}&quot;)
+    fun findById(
+        @PathVariable @Positive id: Long, // id는 양수여야 함
+    ): BookResponse = bookService.findById(id)
+
+    @GetMapping
+    fun list(
+        @RequestParam(defaultValue = &quot;0&quot;) @Min(0) page: Int,
+        @RequestParam(defaultValue = &quot;20&quot;) @Min(1) size: Int,
+    ): List&lt;BookResponse&gt; = bookService.findAll(page, size)
+}</code></pre>
+
+<aside class="callout tip">
+<p>클래스에 <code>@Validated</code>가 없으면 <code>@PathVariable @Positive id</code>의 제약은 <strong>조용히 무시</strong>됩니다. 파라미터 레벨 검증 실패 시에는 <code>MethodArgumentNotValidException</code>이 아니라 <strong><code>HandlerMethodValidationException</code></strong> 이 던져집니다(Spring 6.1+). 예외 처리 시 둘 다 고려하세요.</p>
+</aside>
+
+<h2>7. 커스텀 검증기 만들기</h2>
+<p>표준 애너테이션으로 표현하기 어려운 규칙은 직접 만들 수 있습니다. 예로, ISBN-13의 <strong>체크섬(checksum)</strong> 까지 검증하는 <code>@Isbn</code> 애너테이션을 정의해 봅시다.</p>
+<p>먼저 애너테이션을 선언합니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi.validation
+
+import jakarta.validation.Constraint
+import jakarta.validation.Payload
+import kotlin.reflect.KClass
+
+@Target(AnnotationTarget.FIELD)
+@Retention(AnnotationRetention.RUNTIME)
+@Constraint(validatedBy = [IsbnValidator::class]) // ← 실제 검증 로직 연결
+annotation class Isbn(
+    val message: String = &quot;유효하지 않은 ISBN-13입니다&quot;,
+    val groups: Array&lt;KClass&lt;*&gt;&gt; = [],
+    val payload: Array&lt;KClass&lt;out Payload&gt;&gt; = [],
+)</code></pre>
+<p><code>message</code>, <code>groups</code>, <code>payload</code> 세 멤버는 Bean Validation 명세가 <strong>요구하는 필수 요소</strong>입니다. 빠뜨리면 안 됩니다.</p>
+<p>다음으로 <code>ConstraintValidator</code>를 구현합니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi.validation
+
+import jakarta.validation.ConstraintValidator
+import jakarta.validation.ConstraintValidatorContext
+
+class IsbnValidator : ConstraintValidator&lt;Isbn, String&gt; {
+    override fun isValid(value: String?, context: ConstraintValidatorContext): Boolean {
+        // null은 통과시킨다 (필수 여부는 @NotBlank 가 따로 책임진다)
+        if (value == null) return true
+
+        val digits = value.filter { it.isDigit() }
+        if (digits.length != 13) return false
+
+        // ISBN-13 체크섬: 가중치 1,3 을 번갈아 곱한 합이 10의 배수
+        val sum = digits.mapIndexed { index, ch -&gt;
+            val d = ch.digitToInt()
+            if (index % 2 == 0) d else d * 3
+        }.sum()
+        return sum % 10 == 0
+    }
+}</code></pre>
+<p>이제 DTO에서 <code>@field:Pattern</code> 대신 또는 함께 <code>@field:Isbn</code>을 사용할 수 있습니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>@field:Isbn
+val isbn: String,</code></pre>
+<p>검증기 안에서 다른 Bean(예: DB 중복 체크용 Repository)을 주입받고 싶다면, <code>ConstraintValidator</code>도 Spring Bean으로 등록되므로 생성자 주입이 가능합니다.</p>
+
+<h2>8. 검증 그룹 (간단 소개)</h2>
+<p>같은 DTO를 상황마다 다르게 검증하고 싶을 때 <strong>검증 그룹</strong>을 씁니다. 예를 들어 "생성 시에는 id가 없어야 하고, 수정 시에는 id가 있어야 한다" 같은 경우입니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>interface OnCreate
+interface OnUpdate
+
+data class BookForm(
+    @field:Null(groups = [OnCreate::class])
+    @field:NotNull(groups = [OnUpdate::class])
+    val id: Long?,
+
+    @field:NotBlank // 그룹 미지정 → 기본 그룹(Default)
+    val title: String,
+)</code></pre>
+<p>컨트롤러에서는 <code>@Validated(OnCreate::class)</code> 처럼 그룹을 지정해 검증합니다(이때는 <code>@Valid</code>가 아니라 <code>@Validated</code>를 사용). 그룹은 강력하지만 복잡도를 키우므로, <strong>대부분의 경우 DTO를 생성용/수정용으로 분리하는 편이 더 단순</strong>합니다. 우리 예제처럼 <code>CreateBookRequest</code>와 <code>UpdateBookRequest</code>를 따로 두는 것이 그 예입니다.</p>
+
+<h2>다음 단계</h2>
+<p>검증에 실패하면 예외가 던져진다는 것을 확인했습니다. 이제 그 예외(와 그 밖의 모든 예외)를 한곳에서 잡아 일관된 에러 응답으로 바꾸는 방법을 배웁니다.</p>
+<p>→ <a href="02-exception-handling.html">전역 예외 처리</a></p>

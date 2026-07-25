@@ -1,0 +1,190 @@
+<h1>소스에서 직접 배포 (가장 간단)</h1>
+<p>이제 진짜 배포입니다. Cloud Run에는 배포 방법이 여러 가지지만, 가장 빠르게 결과를 보는 길은 <strong>소스 디렉터리에서 바로 배포</strong>하는 것입니다. 명령은 단 한 줄입니다.</p>
+
+<pre class="code" data-lang="bash"><code>gcloud run deploy book-api --source . \
+  --region asia-northeast3 \
+  --allow-unauthenticated</code></pre>
+<p>이 한 줄이 내부에서 무슨 일을 하는지부터 보겠습니다.</p>
+
+<h2>1. 무슨 일이 벌어지는가</h2>
+
+<figure class="dg">
+<figcaption><code>gcloud run deploy --source .</code> 한 줄이 하는 일</figcaption>
+<ol class="dg-steps">
+  <li><span class="n">1</span><div class="dg-node"><div class="t">로컬 소스 업로드</div>
+    <div class="s">현재 디렉터리(<code>.</code>)를 gcloud가 올린다 — <code>.gcloudignore</code> 로 제외 가능</div></div></li>
+  <li><span class="n">2</span><div class="dg-node is-accent"><div class="t">Cloud Build 가 이미지를 만든다</div>
+    <div class="s">아래 두 갈래로 갈린다</div></div></li>
+  <li><span class="n">3</span><div class="dg-node"><div class="t">Artifact Registry 로 push</div><div class="s">이미지 저장소</div></div></li>
+  <li><span class="n">4</span><div class="dg-node"><div class="t">Cloud Run 이 새 Revision 생성</div></div></li>
+  <li><span class="n">5</span><div class="dg-node is-accent"><div class="t">서비스 URL 발급</div>
+    <div class="s"><code>https://book-api-123456789012.asia-northeast3.run.app</code></div></div></li>
+</ol>
+<div class="dg-fork" style="margin-top:16px">
+  <div class="q">2단계 — 디렉터리에 Dockerfile이 있는가?</div>
+  <div class="paths">
+    <div class="path"><span class="tag yes">있음</span><span class="arw">→</span>
+      <span class="out">그 Dockerfile로 빌드</span><span class="st ok">빌드를 내가 통제</span></div>
+    <div class="path"><span class="tag no">없음</span><span class="arw">→</span>
+      <span class="out">Buildpacks가 Gradle/Java를 자동 감지해 이미지 생성</span><span class="st warn">JDK 선택도 자동</span></div>
+  </div>
+</div>
+</figure>
+
+<h2>2. Buildpacks: Dockerfile 없이 빌드되는 마법</h2>
+<p><code>--source .</code>로 배포할 때 디렉터리에 <strong>Dockerfile이 없으면</strong> Cloud Build는 <strong>buildpacks</strong>를 사용합니다. Buildpacks는 소스를 들여다보고 "아, <code>build.gradle.kts</code>와 Gradle wrapper가 있네, Spring Boot Java 앱이군" 하고 <strong>자동으로 컨테이너 이미지를 만들어 줍니다</strong>. JDK 선택, 의존성 다운로드, <code>bootJar</code> 실행, 실행 명령 설정까지 알아서 합니다.</p>
+
+<ul>
+<li><strong>Dockerfile이 없으면</strong>: buildpacks가 Gradle Spring Boot 프로젝트를 자동 감지해 이미지를 생성.</li>
+<li><strong>Dockerfile이 있으면</strong>(예: <a href="../phase-6-build-deploy/README.html">Phase 6</a>에서 만든 멀티 스테이지 Dockerfile): buildpacks 대신 <strong>그 Dockerfile</strong>을 사용해 빌드.</li>
+</ul>
+<p>즉, 빠르게 띄우고 싶으면 Dockerfile 없이 그냥 배포하고, 빌드 과정을 직접 통제하고 싶으면 Dockerfile을 두면 됩니다.</p>
+
+<aside class="callout tip">
+<p>buildpacks는 JDK 버전을 자동 선택합니다. 특정 버전(JDK 21)을 강제하려면 <code>gradle.properties</code>나 buildpacks 환경 변수로 지정할 수 있지만, 보통은 자동으로도 잘 동작합니다.</p>
+</aside>
+
+<h2>3. PORT: Cloud Run이 포트를 주입한다</h2>
+<p>Cloud Run은 컨테이너에 <strong><code>PORT</code> 환경 변수</strong>를 주입하고, 컨테이너가 그 포트에서 HTTP를 받기를 기대합니다. 기본값은 <code>8080</code>이지만 Cloud Run이 다른 값을 줄 수도 있으므로, <strong><code>PORT</code>를 읽도록</strong> 설정하는 것이 안전합니다.</p>
+<p>여기서 흔한 오해를 하나 짚습니다. <strong>Spring Boot는 <code>PORT</code> 환경 변수를 알지 못합니다.</strong> 완화된 바인딩으로 인식되는 것은 <code>SERVER_PORT</code>(→ <code>server.port</code>)뿐입니다. 따라서 Cloud Run이 주입하는 <code>PORT</code>를 쓰려면 <code>application.yml</code>에서 <strong>직접 연결해 주는 것이 필수</strong>입니다.</p>
+
+<pre class="code" data-lang="yaml"><code># src/main/resources/application.yml
+server:
+  port: ${PORT:8080}   # PORT가 있으면 그 값, 없으면 8080</code></pre>
+<p>이렇게 해 두면 로컬에서는 <code>8080</code>으로, Cloud Run에서는 주입된 <code>PORT</code>로 자동으로 동작합니다. <strong>이 설정을 빼먹으면</strong> Cloud Run이 "컨테이너가 PORT에서 응답하지 않는다"며 배포에 실패하는, 가장 흔한 함정에 빠집니다.</p>
+
+<h2>4. 플래그 완전 정복</h2>
+<p>배포를 세밀하게 제어하는 주요 플래그입니다.</p>
+
+<pre class="code" data-lang="bash"><code>gcloud run deploy book-api \
+  --source . \
+  --region asia-northeast3 \
+  --memory 512Mi \
+  --cpu 1 \
+  --min-instances 0 \
+  --max-instances 2 \
+  --port 8080 \
+  --set-env-vars SPRING_PROFILES_ACTIVE=prod \
+  --allow-unauthenticated</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>플래그</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--source .</code></td>
+<td>현재 디렉터리 소스로 빌드 후 배포</td>
+</tr>
+<tr>
+<td><code>--region</code></td>
+<td>배포 리전(기본 리전 설정했다면 생략 가능)</td>
+</tr>
+<tr>
+<td><code>--memory 512Mi</code></td>
+<td>인스턴스 메모리(Spring Boot는 512Mi~1Gi 권장)</td>
+</tr>
+<tr>
+<td><code>--cpu 1</code></td>
+<td>vCPU 수</td>
+</tr>
+<tr>
+<td><code>--min-instances 0</code></td>
+<td>최소 인스턴스(0이면 scale to zero, 콜드 스타트 발생)</td>
+</tr>
+<tr>
+<td><code>--max-instances 2</code></td>
+<td>최대 인스턴스 상한(비용 폭주 방지)</td>
+</tr>
+<tr>
+<td><code>--port 8080</code></td>
+<td>컨테이너가 리스닝하는 포트</td>
+</tr>
+<tr>
+<td><code>--set-env-vars K=V</code></td>
+<td>환경 변수 주입(쉼표로 여러 개)</td>
+</tr>
+<tr>
+<td><code>--allow-unauthenticated</code></td>
+<td>인증 없이 누구나 접근 허용(공개 API)</td>
+</tr>
+<tr>
+<td><code>--no-allow-unauthenticated</code></td>
+<td>인증된 호출만 허용(비공개)</td>
+</tr>
+</tbody>
+</table>
+
+<h3>인증: 공개 vs 비공개</h3>
+
+<ul>
+<li><code>--allow-unauthenticated</code>: URL만 알면 누구나 호출 가능. <strong>공개 REST API</strong>라면 이걸 씁니다.</li>
+<li><code>--no-allow-unauthenticated</code>: IAM으로 인증된 호출만 허용. 내부용·관리용 서비스에 사용.</li>
+</ul>
+
+<h3>prod 프로파일 활성화</h3>
+<p>Spring Boot의 프로파일을 환경 변수로 켭니다. <code>SPRING_PROFILES_ACTIVE=prod</code>를 주입하면 <code>application-prod.yml</code>이 적용됩니다(<a href="../phase-3-data-jpa/README.html">Phase 3</a>에서 만든 prod 프로파일과 연결됩니다).</p>
+
+<pre class="code" data-lang="bash"><code>--set-env-vars SPRING_PROFILES_ACTIVE=prod</code></pre>
+
+<blockquote>
+<p><strong>콜드 스타트가 신경 쓰인다면</strong> <code>--min-instances 1</code>로 항상 하나를 켜 두거나, <code>--cpu-boost</code>로 시작을 가속하세요. 가장 확실한 해법은 <a href="../phase-6-build-deploy/03-native-image.html">Phase 6의 네이티브 이미지</a>입니다.</p>
+</blockquote>
+
+<h2>5. <code>.gcloudignore</code>: 불필요한 파일 제외</h2>
+<p><code>--source .</code>는 디렉터리 전체를 업로드합니다. 빌드 산출물·로컬 설정은 올릴 필요가 없으니 <code>.gcloudignore</code>로 제외해 업로드 속도와 빌드 안정성을 높입니다(형식은 <code>.gitignore</code>와 같음).</p>
+
+<pre class="code" data-lang="gitignore"><code># .gcloudignore
+.git
+.gitignore
+.idea/
+*.iml
+build/
+.gradle/
+/out
+.env
+*.log</code></pre>
+
+<blockquote>
+<p><code>.gitignore</code>가 있으면 gcloud가 기본적으로 그 규칙도 참고합니다. 하지만 <code>build/</code> 같은 무거운 디렉터리는 <code>.gcloudignore</code>에 명시적으로 넣는 게 안전합니다.</p>
+</blockquote>
+
+<h2>6. 배포 결과 읽고 확인하기</h2>
+<p>배포가 끝나면 마지막 줄에 <strong>서비스 URL</strong>이 출력됩니다.</p>
+
+<pre class="code" data-lang="text"><code>Building using Buildpacks and deploying container to Cloud Run service [book-api] in project [book-api-12345] region [asia-northeast3]
+✓ Building and deploying new service... Done.
+Service [book-api] revision [book-api-00001-abc] has been deployed
+and is serving 100 percent of traffic.
+Service URL: https://book-api-123456789012.asia-northeast3.run.app</code></pre>
+<p>URL을 변수에 담아 헬스 체크를 호출해 봅시다(<a href="../phase-5-production-features/README.html">Phase 5</a>의 Actuator와 연결).</p>
+
+<pre class="code" data-lang="bash"><code># 배포된 서비스 URL을 가져와 변수에 저장
+SERVICE_URL=$(gcloud run services describe book-api \
+  --region asia-northeast3 --format=&#x27;value(status.url)&#x27;)
+
+# Actuator 헬스 체크 호출
+curl &quot;$SERVICE_URL/actuator/health&quot;
+# {&quot;status&quot;:&quot;UP&quot;}  ← 이렇게 나오면 성공!</code></pre>
+
+<h2>7. 재배포</h2>
+<p>코드를 고친 뒤 다시 배포할 때도 <strong>똑같은 명령</strong>을 실행하면 됩니다. 새 리비전이 만들어지고 트래픽이 자동으로 그쪽으로 넘어갑니다. URL은 그대로입니다.</p>
+
+<pre class="code" data-lang="bash"><code>gcloud run deploy book-api --source . --region asia-northeast3 --allow-unauthenticated</code></pre>
+
+<h2>8. 자주 묻는 질문 (FAQ)</h2>
+<p><strong>Q. 배포가 "Container failed to start. Failed to listen on PORT"로 실패해요.</strong>
+A. 가장 흔한 원인은 PORT 설정입니다. <code>server.port: ${PORT:8080}</code>이 <code>application.yml</code>에 있는지 확인하세요(3절).</p>
+<p><strong>Q. 빌드는 되는데 OOM(메모리 부족)으로 죽어요.</strong>
+A. <code>--memory 1Gi</code>로 올려 보세요. JVM은 512Mi에서 빠듯할 수 있습니다.</p>
+<p><strong>Q. 첫 요청이 너무 느려요.</strong>
+A. 콜드 스타트입니다. <code>--min-instances 1</code> 또는 <code>--cpu-boost</code>, 궁극적으로 네이티브 이미지를 고려하세요(4절).</p>
+<p><strong>Q. 매번 빌드가 오래 걸려요. 더 빠른 방법은?</strong>
+A. 이미지를 미리 빌드해 올리는 방식이 있습니다. 다음 장에서 다룹니다.</p>
+
+<h2>다음 단계</h2>
+<p><code>--source</code> 배포는 편하지만, 빌드를 직접 통제하거나 CI에서 다루려면 <strong>이미지를 미리 빌드</strong>하는 편이 낫습니다. 다음 장에서 살펴봅시다.</p>
+<p>➡️ <strong><a href="04-image-deploy.html">4. 컨테이너 이미지 빌드 후 배포</a></strong></p>

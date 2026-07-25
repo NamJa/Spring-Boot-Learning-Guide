@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Spring Initializr로 프로젝트 생성 · Spring Boot 학습 가이드</title>
+<meta name="description" content="Spring 프로젝트는 보통 Spring Initializr(https://start.spring.io/)로 시작합니다. 필요한 의존성을 고르면 빌드 스크립트, 디렉터리 구조, 진입점 클래스가 미리 구성된 압축 파일을 만들어 줍니다. Kotlin의 Gradle 프로젝트">
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
@@ -14,80 +15,94 @@
 </header>
 <div class="layout">
   <aside class="sidebar"><nav class="nav">
-<a href="../index.html">🏠 홈</a>
-<div class="nav-section">Phase 0: Spring 핵심 개념</div>
-<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
-<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
-<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
-<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
-<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
-<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
-<div class="nav-section">Phase 1: 프로젝트 설정</div>
-<a href="01-environment-setup.html">개발 환경 설정</a>
-<a href="02-create-project.html" class="active">Spring Initializr로 프로젝트 생성</a>
-<a href="03-project-structure.html">프로젝트 구조 해부</a>
-<a href="04-build-gradle-kts.html">build.gradle.kts 해부</a>
-<a href="05-application-yml.html">application.yml 설정</a>
-<div class="nav-section">Phase 2: 첫 번째 REST API</div>
-<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
-<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
-<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
-<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
-<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
-<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
-<a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
-<a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
-<a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
-<a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
-<a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
-<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
-<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
-<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
-<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
-<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
-<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
-<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
-<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
-<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
-<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
-<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
-<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
-<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
-<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
-<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
-<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
-<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
-<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
-<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
-<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
-<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
-<div class="nav-section">부록 A: JPA 심화</div>
-<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
-<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
-<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
-<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
-<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
-<div class="nav-section">부록 B: Querydsl</div>
-<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
-<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
-<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
-<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
-<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
-<div class="nav-section">부록 C: AOP / 프록시 고급</div>
-<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
-<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
-<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
-<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
-<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
-<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
-<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
-<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+  <a href="../index.html">🏠 홈</a>
+  <div class="nav-section">Phase 0: Spring 핵심 개념</div>
+  <a href="../phase-0-spring-fundamentals/README.html">📄 개요</a>
+  <a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+  <a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+  <a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+  <a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+  <a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+  <a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+  <div class="nav-section">Phase 1: 프로젝트 설정</div>
+  <a href="README.html">📄 개요</a>
+  <a href="01-environment-setup.html">개발 환경 설정</a>
+  <a href="02-create-project.html" class="active">Spring Initializr로 프로젝트 생성</a>
+  <a href="03-project-structure.html">프로젝트 구조 해부</a>
+  <a href="04-build-gradle-kts.html">build.gradle.kts 해부</a>
+  <a href="05-application-yml.html">application.yml 설정</a>
+  <div class="nav-section">Phase 2: 첫 번째 REST API</div>
+  <a href="../phase-2-first-api/README.html">📄 개요</a>
+  <a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+  <a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+  <a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+  <a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+  <a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+  <div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+  <a href="../phase-3-data-jpa/README.html">📄 개요</a>
+  <a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+  <a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+  <a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+  <a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+  <a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+  <div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+  <a href="../phase-4-validation-config/README.html">📄 개요</a>
+  <a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+  <a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+  <a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+  <a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+  <div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+  <a href="../phase-5-production-features/README.html">📄 개요</a>
+  <a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+  <a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+  <a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+  <a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+  <div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+  <a href="../phase-6-build-deploy/README.html">📄 개요</a>
+  <a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+  <a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+  <a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+  <a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+  <div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+  <a href="../phase-7-cloud-run/README.html">📄 개요</a>
+  <a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+  <a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+  <a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+  <a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+  <a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+  <div class="nav-section">부록 A: JPA 심화</div>
+  <a href="../appendix-a-jpa-advanced/README.html">📄 개요</a>
+  <a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+  <a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+  <a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+  <a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+  <a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+  <div class="nav-section">부록 B: Querydsl</div>
+  <a href="../appendix-b-querydsl/README.html">📄 개요</a>
+  <a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+  <a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+  <a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+  <a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+  <a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+  <div class="nav-section">부록 C: AOP / 프록시 고급</div>
+  <a href="../appendix-c-aop/README.html">📄 개요</a>
+  <a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+  <a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+  <a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+  <div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+  <a href="../appendix-d-mvc-internals/README.html">📄 개요</a>
+  <a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+  <a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+  <a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+  <a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
 </nav></aside>
   <main class="content">
 <h1>Spring Initializr로 프로젝트 생성</h1>
 <p>Spring 프로젝트는 보통 <strong>Spring Initializr</strong>(https://start.spring.io/)로 시작합니다. 필요한 의존성을 고르면 빌드 스크립트, 디렉터리 구조, 진입점 클래스가 미리 구성된 압축 파일을 만들어 줍니다. Kotlin의 Gradle 프로젝트 생성과 비슷하지만, <strong>Spring의 스타터(starter) 의존성</strong>을 한 번에 묶어준다는 점이 다릅니다.</p>
-<h2>1. 웹 Initializr에서 설정</h2>
+
+<h2 id="1-웹-initializr에서-설정">1. 웹 Initializr에서 설정</h2>
 <p>https://start.spring.io/ 에 접속해 다음과 같이 설정합니다.</p>
+
 <table>
 <thead>
 <tr>
@@ -144,11 +159,14 @@
 </tr>
 </tbody>
 </table>
-<blockquote>
-<p>💡 "Project"에서 <strong>Gradle - Kotlin</strong>과 <strong>Gradle - Groovy</strong>를 혼동하지 마세요. 전자는 <code>build.gradle.kts</code>(Kotlin DSL), 후자는 <code>build.gradle</code>(Groovy DSL)입니다. Kotlin 개발자라면 Kotlin DSL이 자연스럽습니다.</p>
-</blockquote>
-<h2>2. 의존성(Dependencies) 추가</h2>
+
+<aside class="callout tip">
+<p>"Project"에서 <strong>Gradle - Kotlin</strong>과 <strong>Gradle - Groovy</strong>를 혼동하지 마세요. 전자는 <code>build.gradle.kts</code>(Kotlin DSL), 후자는 <code>build.gradle</code>(Groovy DSL)입니다. Kotlin 개발자라면 Kotlin DSL이 자연스럽습니다.</p>
+</aside>
+
+<h2 id="2-의존성dependencies-추가">2. 의존성(Dependencies) 추가</h2>
 <p>오른쪽 <strong>ADD DEPENDENCIES</strong> 버튼으로 다음을 추가합니다.</p>
+
 <table>
 <thead>
 <tr>
@@ -185,13 +203,19 @@
 </tr>
 </tbody>
 </table>
-<blockquote>
-<p>⚠️ Initializr 화면의 이름(<strong>Spring Web</strong>)은 그대로지만, Spring Boot 4에서 실제로 생성되는 의존성은 <strong><code>spring-boot-starter-webmvc</code></strong> 입니다. 화면 이름과 아티팩트 이름이 다르므로 검색할 때 혼동하지 마세요. 테스트 의존성도 기술별 <code>spring-boot-starter-&lt;기술&gt;-test</code>로 함께 생성됩니다.</p>
-<p>💡 <strong>Spring Security</strong>는 인증/인가를 다루는 뒤쪽 단계에서 추가합니다. 지금 넣으면 모든 엔드포인트에 기본 인증이 걸려 학습 흐름이 복잡해지므로 일단 제외합니다.</p>
-</blockquote>
+
+<aside class="callout warning">
+<p>Initializr 화면의 이름(<strong>Spring Web</strong>)은 그대로지만, Spring Boot 4에서 실제로 생성되는 의존성은 <strong><code>spring-boot-starter-webmvc</code></strong> 입니다. 화면 이름과 아티팩트 이름이 다르므로 검색할 때 혼동하지 마세요. 테스트 의존성도 기술별 <code>spring-boot-starter-&lt;기술&gt;-test</code>로 함께 생성됩니다.</p>
+</aside>
+
+<aside class="callout tip">
+<p><strong>Spring Security</strong>는 인증/인가를 다루는 뒤쪽 단계에서 추가합니다. 지금 넣으면 모든 엔드포인트에 기본 인증이 걸려 학습 흐름이 복잡해지므로 일단 제외합니다.</p>
+</aside>
 <p>설정을 마치면 하단의 <strong>GENERATE</strong> 버튼을 눌러 <code>book-api.zip</code>을 내려받고 압축을 풉니다.</p>
-<h2>3. curl로 동일하게 생성하기</h2>
+
+<h2 id="3-curl로-동일하게-생성하기">3. curl로 동일하게 생성하기</h2>
 <p>Initializr는 REST API를 제공하므로, 브라우저 없이 <code>curl</code>로 동일한 프로젝트를 생성할 수 있습니다.</p>
+
 <div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>curl<span class="w"> </span>https://start.spring.io/starter.zip<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-d<span class="w"> </span><span class="nv">type</span><span class="o">=</span>gradle-project-kotlin<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-d<span class="w"> </span><span class="nv">language</span><span class="o">=</span>kotlin<span class="w"> </span><span class="se">\</span>
@@ -210,6 +234,7 @@ unzip<span class="w"> </span>book-api.zip<span class="w"> </span>-d<span class="
 </pre></div>
 </div>
 <p>각 파라미터의 의미는 다음과 같습니다.</p>
+
 <table>
 <thead>
 <tr>
@@ -246,11 +271,14 @@ unzip<span class="w"> </span>book-api.zip<span class="w"> </span>-d<span class="
 </tr>
 </tbody>
 </table>
-<blockquote>
-<p>💡 사용 가능한 모든 옵션은 <code>curl https://start.spring.io</code> (브라우저가 아닌 터미널에서)로 텍스트 메타데이터를 확인할 수 있습니다.</p>
-</blockquote>
-<h2>4. IntelliJ 내장 마법사 사용</h2>
+
+<aside class="callout tip">
+<p>사용 가능한 모든 옵션은 <code>curl https://start.spring.io</code> (브라우저가 아닌 터미널에서)로 텍스트 메타데이터를 확인할 수 있습니다.</p>
+</aside>
+
+<h2 id="4-intellij-내장-마법사-사용">4. IntelliJ 내장 마법사 사용</h2>
 <p>IntelliJ IDEA에도 Initializr가 내장되어 있어, 브라우저를 거치지 않고 바로 프로젝트를 만들 수 있습니다.</p>
+
 <ol>
 <li><code>File &gt; New &gt; Project...</code></li>
 <li>왼쪽 목록에서 <strong>Spring Boot</strong>(또는 <strong>Spring Initializr</strong>) 선택</li>
@@ -258,26 +286,56 @@ unzip<span class="w"> </span>book-api.zip<span class="w"> </span>-d<span class="
 <li><strong>Next</strong> → 위 표의 의존성(Web, Spring Data JPA, Validation, H2, Actuator) 선택</li>
 <li><strong>Create</strong></li>
 </ol>
-<blockquote>
-<p>⚠️ 내장 마법사는 내부적으로 start.spring.io API를 호출하므로 인터넷 연결이 필요합니다. 또한 IntelliJ가 제안하는 기본 Spring Boot 버전이 4.1.0이 아닐 수 있고, Initializr의 Java 기본값은 <strong>17</strong>이므로, 목록에서 <strong>4.1.0</strong>과 <strong>21</strong>을 직접 선택하세요.</p>
-</blockquote>
-<h2>5. 생성된 파일 트리</h2>
+
+<aside class="callout warning">
+<p>내장 마법사는 내부적으로 start.spring.io API를 호출하므로 인터넷 연결이 필요합니다. 또한 IntelliJ가 제안하는 기본 Spring Boot 버전이 4.1.0이 아닐 수 있고, Initializr의 Java 기본값은 <strong>17</strong>이므로, 목록에서 <strong>4.1.0</strong>과 <strong>21</strong>을 직접 선택하세요.</p>
+</aside>
+
+<h2 id="5-생성된-파일-트리">5. 생성된 파일 트리</h2>
 <p>압축을 풀면 다음과 같은 구조가 나옵니다.</p>
-<figure class="filetree"><div class="ft-root">📦 book-api/</div><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">🐘</span><span class="ft-name">build.gradle.kts</span><span class="ft-cmt">빌드 스크립트 (Kotlin DSL)</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">🐘</span><span class="ft-name">settings.gradle.kts</span><span class="ft-cmt">프로젝트 이름/모듈 정의</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📜</span><span class="ft-name">gradlew</span><span class="ft-cmt">Gradle Wrapper (Unix)</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">gradlew.bat</span><span class="ft-cmt">Gradle Wrapper (Windows)</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">gradle</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">wrapper</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📦</span><span class="ft-name">gradle-wrapper.jar</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">⚙️</span><span class="ft-name">gradle-wrapper.properties</span></span></li></ul></li></ul></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">.gitignore</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">src</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">main</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">kotlin</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">com/example/bookapi</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookApiApplication.kt</span><span class="ft-cmt">애플리케이션 진입점</span></span></li></ul></li></ul></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">resources</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">⚙️</span><span class="ft-name">application.properties</span><span class="ft-cmt">기본 설정 파일</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">static</span><span class="ft-cmt">정적 리소스</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">templates</span><span class="ft-cmt">템플릿 (사용 시)</span></span></li></ul></li></ul></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">test</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">kotlin</span></span><ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">com/example/bookapi</span></span><ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookApiApplicationTests.kt</span></span></li></ul></li></ul></li></ul></li></ul></li></ul></figure>
-<h2>6. 첫 실행 확인</h2>
+
+<figure class="filetree"><div class="ft-root">📦 book-api/</div>
+<ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">🐘</span><span class="ft-name">build.gradle.kts</span><span class="ft-cmt">빌드 스크립트 (Kotlin DSL)</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">🐘</span><span class="ft-name">settings.gradle.kts</span><span class="ft-cmt">프로젝트 이름/모듈 정의</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📜</span><span class="ft-name">gradlew</span><span class="ft-cmt">Gradle Wrapper (Unix)</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">gradlew.bat</span><span class="ft-cmt">Gradle Wrapper (Windows)</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">gradle</span></span>
+<ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">wrapper</span></span>
+<ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📦</span><span class="ft-name">gradle-wrapper.jar</span></span></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">⚙️</span><span class="ft-name">gradle-wrapper.properties</span></span></li></ul></li></ul></li><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">.gitignore</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">src</span></span>
+<ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">main</span></span>
+<ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">kotlin</span></span>
+<ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">com/example/bookapi</span></span>
+<ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookApiApplication.kt</span><span class="ft-cmt">애플리케이션 진입점</span></span></li></ul></li></ul></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">resources</span></span>
+<ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">⚙️</span><span class="ft-name">application.properties</span><span class="ft-cmt">기본 설정 파일</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">static</span><span class="ft-cmt">정적 리소스</span></span></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">templates</span><span class="ft-cmt">템플릿 (사용 시)</span></span></li></ul></li></ul></li><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">test</span></span>
+<ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">kotlin</span></span>
+<ul><li class="ft-dir"><span class="ft-row"><span class="ft-icon">📁</span><span class="ft-name">com/example/bookapi</span></span>
+<ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookApiApplicationTests.kt</span></span></li></ul></li></ul></li></ul></li></ul></li></ul></figure>
+
+<h2 id="6-첫-실행-확인">6. 첫 실행 확인</h2>
 <p>프로젝트 루트에서 다음을 실행하면 내장 Tomcat(11.0.22, Servlet 6.1)에서 애플리케이션이 뜹니다.</p>
+
 <div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>./gradlew<span class="w"> </span>bootRun
 </pre></div>
 </div>
 <p>콘솔에 다음과 같은 로그와 함께 8080 포트에서 기동되면 정상입니다. (아직 엔드포인트가 없으므로 404가 정상입니다.)</p>
+
 <div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code> :: Spring Boot ::                (v4.1.0)
 ...
 Tomcat started on port 8080 (http) with context path &#x27;/&#x27;
 Started BookApiApplicationKt in 1.2 seconds</code></pre></div>
-<h2>다음 단계</h2>
+
+<h2 id="다음-단계">다음 단계</h2>
 <p>프로젝트를 만들었으니, <a href="03-project-structure.html">프로젝트 구조 해부</a>에서 각 파일과 폴더가 무슨 역할을 하는지 살펴봅니다.</p>
+
   </main>
+<aside class="toc" aria-label="페이지 목차">
+<div class="toc-title">이 페이지</div>
+<a class="lvl2" href="#1-웹-initializr에서-설정">1. 웹 Initializr에서 설정</a>
+<a class="lvl2" href="#2-의존성dependencies-추가">2. 의존성(Dependencies) 추가</a>
+<a class="lvl2" href="#3-curl로-동일하게-생성하기">3. curl로 동일하게 생성하기</a>
+<a class="lvl2" href="#4-intellij-내장-마법사-사용">4. IntelliJ 내장 마법사 사용</a>
+<a class="lvl2" href="#5-생성된-파일-트리">5. 생성된 파일 트리</a>
+<a class="lvl2" href="#6-첫-실행-확인">6. 첫 실행 확인</a>
+<a class="lvl2" href="#다음-단계">다음 단계</a>
+</aside>
 </div>
 <label for="navtoggle" class="scrim"></label>
+<script src="../assets/app.js" defer></script>
 </body>
 </html>

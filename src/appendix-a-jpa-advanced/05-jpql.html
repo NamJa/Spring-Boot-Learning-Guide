@@ -1,0 +1,161 @@
+<h1>JPQL</h1>
+<p>Spring Data JPA의 메서드 이름 쿼리(<code>findByTitleAndAuthor</code>)는 편하지만, 조건이 복잡해지면 메서드 이름이 외계어처럼 길어집니다. 그 너머에는 <strong>JPQL(Jakarta Persistence Query Language)</strong> 이 있습니다. JPQL은 SQL과 닮았지만, <strong>테이블이 아니라 엔티티(객체)를 대상으로</strong> 질의한다는 점이 결정적으로 다릅니다.</p>
+
+<h2>1. JPQL 기본 — 객체를 대상으로 한 질의</h2>
+<p>SQL은 <code>book</code> 테이블을, JPQL은 <code>Book</code> <strong>엔티티</strong>를 조회합니다. 별칭(<code>b</code>)은 필수이며, <code>*</code> 대신 별칭 자체를 select합니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>@Transactional(readOnly = true)
+fun basicJpql() {
+    // 엔티티 b 를 그대로 조회
+    val books = em.createQuery(&quot;select b from Book b where b.price &gt;= 20000&quot;, Book::class.java)
+        .resultList
+}</code></pre>
+
+<pre class="code" data-lang="sql"><code>-- 실제로 번역되어 나가는 SQL
+select b.id, b.title, b.author, b.isbn, b.price, b.published_at, b.category_id
+from book b
+where b.price &gt;= 20000;</code></pre>
+<p>JPQL의 식별자는 <strong>테이블/컬럼명이 아니라 엔티티 클래스명과 필드명</strong>입니다. <code>Book</code>(클래스명, 대소문자 구분), <code>b.price</code>(필드명)처럼 씁니다. Spring Data JPA에서는 <code>@Query</code>로 감싸 Repository 메서드로 노출합니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>interface BookRepository : JpaRepository&lt;Book, Long&gt; {
+    @Query(&quot;select b from Book b where b.author = :author and b.price &gt;= :min&quot;)
+    fun search(author: String, min: Int): List&lt;Book&gt;
+}</code></pre>
+
+<h2>2. 파라미터 바인딩</h2>
+<p>두 가지 방식이 있습니다. <strong>이름 기준(<code>:name</code>)</strong> 을 항상 권장합니다 — 가독성과 안전성 때문입니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>// 이름 기준 (권장)
+em.createQuery(&quot;select b from Book b where b.author = :author&quot;, Book::class.java)
+    .setParameter(&quot;author&quot;, &quot;김영한&quot;)
+    .resultList
+
+// 위치 기준 (?1) — 순서가 바뀌면 깨지므로 비권장
+em.createQuery(&quot;select b from Book b where b.author = ?1&quot;, Book::class.java)
+    .setParameter(1, &quot;김영한&quot;)
+    .resultList</code></pre>
+
+<aside class="callout warning">
+<p>파라미터를 <strong>문자열로 직접 이어 붙이지 마세요</strong>(<code>"... where b.author = '" + name + "'"</code>). SQL 인젝션 취약점이 생기고, 바인딩 캐시 이점도 잃습니다. 반드시 <code>setParameter</code>(또는 <code>@Query</code>의 <code>:param</code>)로 바인딩하세요.</p>
+</aside>
+
+<h2>3. 프로젝션 — 무엇을 select할 것인가</h2>
+<p><strong>프로젝션(projection)</strong> 은 select 절에 무엇을 담을지입니다. 세 종류가 있습니다.</p>
+
+<h3>3-1. 엔티티 프로젝션</h3>
+
+<pre class="code" data-lang="kotlin"><code>// 조회한 Book 은 전부 영속 상태로 관리됨 (변경 감지 대상)
+&quot;select b from Book b&quot;</code></pre>
+
+<h3>3-2. 스칼라 프로젝션</h3>
+
+<pre class="code" data-lang="kotlin"><code>// 컬럼/표현식 — 영속성 컨텍스트가 관리하지 않음
+&quot;select b.title, b.price from Book b&quot;   // 결과: List&lt;Array&lt;Any&gt;&gt;</code></pre>
+
+<h3>3-3. DTO 프로젝션 — <code>new</code> 구문 (실무 핵심)</h3>
+<p>특정 필드만 골라 <strong>DTO로 직접 매핑</strong>합니다. 화면에 필요한 데이터만 가볍게 가져올 때 씁니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi.dto
+
+// 생성자가 있는 일반 클래스 (Kotlin data class 가능)
+data class BookSummary(val title: String, val author: String, val price: Int)</code></pre>
+
+<pre class="code" data-lang="kotlin"><code>@Query(
+    &quot;&quot;&quot;
+    select new com.example.bookapi.dto.BookSummary(b.title, b.author, b.price)
+    from Book b
+    where b.price &gt;= :min
+    &quot;&quot;&quot;
+)
+fun findSummaries(min: Int): List&lt;BookSummary&gt;</code></pre>
+
+<aside class="callout tip">
+<p><code>new</code> 구문에는 <strong>DTO의 전체 패키지 경로(FQCN)</strong> 를 적어야 하고, <strong>생성자의 인자 순서·타입이 정확히 일치</strong>해야 합니다. 길고 깨지기 쉽죠. 이 불편함이 바로 <a href="../appendix-b-querydsl/README.html">부록 B Querydsl</a>에서 타입 안전 DTO 프로젝션으로 깔끔히 해결됩니다.</p>
+</aside>
+
+<h2>4. 페이징 — setFirstResult / setMaxResults</h2>
+<p>JPQL 페이징은 DB 방언(dialect)에 맞는 <code>LIMIT</code>/<code>OFFSET</code>을 JPA가 알아서 만들어 줍니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>em.createQuery(&quot;select b from Book b order by b.id desc&quot;, Book::class.java)
+    .setFirstResult(20)   // offset: 21번째부터
+    .setMaxResults(10)    // limit: 10개
+    .resultList</code></pre>
+<p>Spring Data JPA에서는 <code>Pageable</code>이 이 둘을 대신 처리하므로 직접 쓸 일은 드뭅니다(<a href="../phase-3-data-jpa/03-repository.html">Phase 3-3</a>의 <code>Page&lt;Book&gt;</code> 참고). 원리는 위와 같습니다.</p>
+
+<h2>5. 조인 — 내부 / 외부 / 페치</h2>
+
+<pre class="code" data-lang="kotlin"><code>// 내부 조인 — 연관 경로로 조인
+&quot;select b from Book b join b.category c where c.name = :name&quot;
+
+// 외부 조인 — category 가 없는 Book 도 포함
+&quot;select b from Book b left join b.category c&quot;
+
+// 세타 조인(연관 없는 조인) — from 절에 나열
+&quot;select b from Book b, Category c where b.title = c.name&quot;</code></pre>
+<p><strong>페치 조인(<code>join fetch</code>)</strong> 은 <a href="04-proxy-fetch.html">04장</a>에서 본 N+1 해결의 핵심입니다. 일반 조인과 달리 <strong>연관 엔티티까지 함께 영속 상태로 로딩</strong>합니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>// 일반 조인: category 로 필터링만, b.category 는 여전히 프록시 (지연 로딩 대상)
+&quot;select b from Book b join b.category c where c.name = &#x27;소설&#x27;&quot;
+
+// 페치 조인: b.category 까지 즉시 함께 로딩 → 이후 접근해도 추가 SELECT 없음
+&quot;select b from Book b join fetch b.category&quot;</code></pre>
+
+<aside class="callout warning">
+<p>컬렉션(<code>@OneToMany</code>, 예: <code>b.reviews</code>) 페치 조인은 <strong>결과가 중복</strong>됩니다(책 1권에 리뷰 3개면 3행). <code>select distinct b ...</code>로 애플리케이션 레벨 중복을 제거하거나, 페이징이 필요하면 페치 조인 대신 <strong>배치 페치</strong>(<code>default_batch_fetch_size</code>)를 쓰세요(<a href="04-proxy-fetch.html">04장 4절</a>).</p>
+</aside>
+
+<h2>6. 벌크 연산 — executeUpdate와 영속성 컨텍스트</h2>
+<p>여러 행을 한 번에 수정/삭제할 때는 <strong>벌크 연산</strong>을 씁니다. 변경 감지는 엔티티를 하나씩 처리하므로, 수만 건을 한 번에 바꿀 땐 비효율적이기 때문입니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>@Modifying          // Spring Data JPA: UPDATE/DELETE JPQL 임을 표시
+@Query(&quot;update Book b set b.price = b.price * 11 / 10 where b.publishedAt &lt; :date&quot;)
+fun raisePriceForOldBooks(date: LocalDate): Int   // 반환: 영향받은 행 수</code></pre>
+<p>순수 <code>EntityManager</code>로는 <code>executeUpdate()</code>입니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>val affected = em.createQuery(&quot;update Book b set b.price = b.price + 1000&quot;)
+    .executeUpdate()   // DB에 직접 UPDATE, 한 방에 수천 건 처리</code></pre>
+
+<aside class="callout warning">
+<p>벌크 연산의 <strong>가장 위험한 함정</strong>: 벌크 연산은 영속성 컨텍스트(1차 캐시)를 <strong>거치지 않고 DB에 직접</strong> SQL을 날립니다. 그래서 <strong>벌크 연산 후의 1차 캐시는 DB와 어긋난</strong> 상태가 됩니다. 같은 트랜잭션에서 이미 조회한 엔티티는 옛날 값을 그대로 들고 있습니다.</p>
+<p><code>kotlin
+val book = em.find(Book::class.java, 1L)      // price=10000 (1차 캐시)
+em.createQuery("update Book b set b.price = 9999").executeUpdate()  // DB는 9999
+println(book.price)   // 여전히 10000! (1차 캐시는 안 바뀜)</code></p>
+<p><strong>해결: 벌크 연산 직후 <code>em.clear()</code>로 영속성 컨텍스트를 비우세요.</strong> 이후 다시 조회하면 DB의 최신 값을 가져옵니다. Spring Data JPA에서는 <code>@Modifying(clearAutomatically = true)</code>로 자동화할 수 있습니다.</p>
+</aside>
+
+<pre class="code" data-lang="kotlin"><code>@Modifying(clearAutomatically = true, flushAutomatically = true)
+@Query(&quot;update Book b set b.price = b.price + 1000&quot;)
+fun bumpAllPrices(): Int</code></pre>
+
+<h2>7. 문자열 JPQL의 한계 — 그리고 Querydsl 예고</h2>
+<p>여기까지 JPQL의 힘을 봤지만, <strong>문자열로 쿼리를 쓴다는 사실 자체</strong>가 한계입니다.</p>
+
+<ul>
+<li><strong>타입 안전하지 않다.</strong> <code>b.pirce</code>(오타)라고 써도 컴파일은 통과하고, <strong>런타임에야</strong> 터집니다. 필드명 변경 시 IDE 리팩터링이 문자열 안까지 못 들어갑니다.</li>
+<li><strong>동적 쿼리가 지옥이다.</strong> "검색 조건이 입력된 것만 <code>where</code>에 추가"하는 화면을 만들려면, 문자열을 <code>if</code>로 이어 붙이고 <code>and</code>/공백/<code>where</code> 유무를 손으로 관리해야 합니다.</li>
+</ul>
+
+<pre class="code" data-lang="kotlin"><code>// 동적 쿼리를 문자열로 — 끔찍하다
+val sb = StringBuilder(&quot;select b from Book b where 1=1&quot;)
+if (author != null) sb.append(&quot; and b.author = :author&quot;)
+if (minPrice != null) sb.append(&quot; and b.price &gt;= :minPrice&quot;)
+// 공백 빠뜨리면 &quot;where1=1and...&quot; 로 깨지고, 파라미터 바인딩도 if 로 또 분기...</code></pre>
+
+<figure class="dg">
+<figcaption>문자열 JPQL의 구조적 한계 세 가지</figcaption>
+<div class="dg-grid c3">
+  <div class="cell"><div class="k">컴파일 검증 불가</div><div class="v">오타(<code>b.pirce</code>)가 런타임 예외로만 드러난다</div></div>
+  <div class="cell"><div class="k">리팩터링 안전성 없음</div><div class="v">필드명을 바꿔도 문자열 속 이름은 그대로 남는다</div></div>
+  <div class="cell"><div class="k">동적 쿼리 지옥</div><div class="v"><code>where 1=1</code> 트릭과 공백·<code>and</code> 를 손으로 조립해야 한다</div></div>
+</div>
+<p class="dg-foot">이 셋을 컴파일 타임으로 옮기는 것이 <strong>Querydsl</strong>의 존재 이유입니다.</p>
+</figure>
+
+<aside class="callout tip">
+<p>이 모든 문제를 <strong>컴파일 타임에 잡아 주는</strong> 타입 안전 쿼리 빌더가 <strong>Querydsl</strong>입니다. <code>book.author.eq(author)</code>처럼 메서드 체이닝으로 쿼리를 짜므로 오타는 컴파일 에러가 되고, 동적 쿼리는 <code>BooleanBuilder</code>로 우아하게 조립됩니다. 다음 부록에서 본격적으로 다룹니다.</p>
+</aside>
+
+<h2>다음 단계</h2>
+<p>부록 A를 마쳤습니다. 영속성 컨텍스트부터 JPQL까지, JPA의 동작 원리를 한 바퀴 돌았습니다. 이제 그 마지막 한계 — <strong>문자열 쿼리의 타입 안전성과 동적 쿼리</strong> 문제를 정면으로 해결하는 Querydsl로 넘어갑니다.</p>
+<p>→ <a href="../appendix-b-querydsl/README.html">부록 B · Querydsl</a></p>

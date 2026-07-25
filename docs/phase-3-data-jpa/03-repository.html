@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Repository 인터페이스 · Spring Boot 학습 가이드</title>
+<meta name="description" content="Entity를 정의했으니 이제 그것을 저장하고 조회할 차례입니다. Spring Data JPA의 진짜 마법은 여기서 드러납니다. 인터페이스만 선언하면 구현체가 자동으로 생성됩니다. 직접 작성할 코드가 거의 없습니다.">
 <link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
@@ -14,80 +15,94 @@
 </header>
 <div class="layout">
   <aside class="sidebar"><nav class="nav">
-<a href="../index.html">🏠 홈</a>
-<div class="nav-section">Phase 0: Spring 핵심 개념</div>
-<a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
-<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
-<a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
-<a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
-<a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
-<a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
-<div class="nav-section">Phase 1: 프로젝트 설정</div>
-<a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
-<a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
-<a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
-<a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
-<a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
-<div class="nav-section">Phase 2: 첫 번째 REST API</div>
-<a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
-<a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
-<a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
-<a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
-<a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
-<div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
-<a href="01-jpa-concepts.html">Spring Data JPA 개념</a>
-<a href="02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
-<a href="03-repository.html" class="active">Repository 인터페이스</a>
-<a href="04-transactions.html">트랜잭션 관리</a>
-<a href="05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
-<div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
-<a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
-<a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
-<a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
-<a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
-<div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
-<a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
-<a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
-<a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
-<a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
-<div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
-<a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
-<a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
-<a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
-<a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
-<div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
-<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
-<a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
-<a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
-<a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
-<a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
-<div class="nav-section">부록 A: JPA 심화</div>
-<a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
-<a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
-<a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
-<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
-<a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
-<div class="nav-section">부록 B: Querydsl</div>
-<a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
-<a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
-<a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
-<a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
-<a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
-<div class="nav-section">부록 C: AOP / 프록시 고급</div>
-<a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
-<a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
-<a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
-<div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
-<a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
-<a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
-<a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
-<a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+  <a href="../index.html">🏠 홈</a>
+  <div class="nav-section">Phase 0: Spring 핵심 개념</div>
+  <a href="../phase-0-spring-fundamentals/README.html">📄 개요</a>
+  <a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+  <a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+  <a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+  <a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+  <a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+  <a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+  <div class="nav-section">Phase 1: 프로젝트 설정</div>
+  <a href="../phase-1-project-setup/README.html">📄 개요</a>
+  <a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+  <a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+  <a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+  <a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+  <a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+  <div class="nav-section">Phase 2: 첫 번째 REST API</div>
+  <a href="../phase-2-first-api/README.html">📄 개요</a>
+  <a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+  <a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+  <a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+  <a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+  <a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+  <div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+  <a href="README.html">📄 개요</a>
+  <a href="01-jpa-concepts.html">Spring Data JPA 개념</a>
+  <a href="02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+  <a href="03-repository.html" class="active">Repository 인터페이스</a>
+  <a href="04-transactions.html">트랜잭션 관리</a>
+  <a href="05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+  <div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+  <a href="../phase-4-validation-config/README.html">📄 개요</a>
+  <a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+  <a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+  <a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+  <a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+  <div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+  <a href="../phase-5-production-features/README.html">📄 개요</a>
+  <a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+  <a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+  <a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+  <a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+  <div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+  <a href="../phase-6-build-deploy/README.html">📄 개요</a>
+  <a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+  <a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+  <a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+  <a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+  <div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+  <a href="../phase-7-cloud-run/README.html">📄 개요</a>
+  <a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+  <a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+  <a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+  <a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+  <a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+  <div class="nav-section">부록 A: JPA 심화</div>
+  <a href="../appendix-a-jpa-advanced/README.html">📄 개요</a>
+  <a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+  <a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+  <a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+  <a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+  <a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+  <div class="nav-section">부록 B: Querydsl</div>
+  <a href="../appendix-b-querydsl/README.html">📄 개요</a>
+  <a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+  <a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+  <a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+  <a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+  <a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+  <div class="nav-section">부록 C: AOP / 프록시 고급</div>
+  <a href="../appendix-c-aop/README.html">📄 개요</a>
+  <a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+  <a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+  <a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+  <div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+  <a href="../appendix-d-mvc-internals/README.html">📄 개요</a>
+  <a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+  <a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+  <a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+  <a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
 </nav></aside>
   <main class="content">
 <h1>Repository 인터페이스</h1>
 <p>Entity를 정의했으니 이제 그것을 저장하고 조회할 차례입니다. Spring Data JPA의 진짜 마법은 여기서 드러납니다. <strong>인터페이스만 선언하면 구현체가 자동으로 생성</strong>됩니다. 직접 작성할 코드가 거의 없습니다.</p>
-<h2>1. JpaRepository 상속</h2>
+
+<h2 id="1-jparepository-상속">1. JpaRepository 상속</h2>
 <p>Repository는 인터페이스로 선언하고 <code>JpaRepository&lt;Entity타입, ID타입&gt;</code>을 상속하기만 하면 됩니다.</p>
+
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.repository</span>
 
 <span class="k">import</span><span class="w"> </span><span class="nn">com.example.bookapi.domain.Book</span>
@@ -97,8 +112,10 @@
 </pre></div>
 </div>
 <p>이게 전부입니다. <code>@Repository</code> 애너테이션조차 필요 없습니다(Spring Data가 자동 인식). Spring은 애플리케이션 시작 시 이 인터페이스의 <strong>프록시 구현체</strong>를 만들어 빈으로 등록하고, 우리는 그것을 주입받아 사용합니다.</p>
-<h3>상속받는 CRUD 메서드</h3>
+
+<h3 id="상속받는-crud-메서드">상속받는 CRUD 메서드</h3>
 <p><code>JpaRepository</code>를 상속하면 다음 메서드들을 <strong>공짜로</strong> 얻습니다.</p>
+
 <table>
 <thead>
 <tr>
@@ -153,10 +170,14 @@
 </tr>
 </tbody>
 </table>
-<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p><code>findById</code>는 Java의 <code>Optional&lt;Book&gt;</code>을 반환합니다. Kotlin에서는 <code>.orElse(null)</code>이나 <code>.getOrNull()</code>(Kotlin 확장)로 nullable로 변환해 다루는 것이 자연스럽습니다.</p>
-</blockquote>
-<h2>2. 파생 쿼리 메서드 (Derived Query)</h2>
+
+<aside class="callout note">
+<p><code>findById</code>는 Java의 <code>Optional&lt;Book&gt;</code>을 반환합니다. Kotlin에서는 <code>.orElse(null)</code>이나 <code>.getOrNull()</code>(Kotlin 확장)로 nullable로 변환해 다루는 것이 자연스럽습니다.</p>
+</aside>
+
+<h2 id="2-파생-쿼리-메서드-derived-query">2. 파생 쿼리 메서드 (Derived Query)</h2>
 <p>CRUD만으로는 부족합니다. "저자로 검색", "제목에 특정 단어가 포함된 책 검색" 같은 조회가 필요하죠. Spring Data JPA는 <strong>메서드 이름을 파싱해 쿼리를 자동 생성</strong>합니다. 정해진 규칙대로 이름만 지으면 됩니다.</p>
+
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">interface</span><span class="w"> </span><span class="nc">BookRepository</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">JpaRepository</span><span class="o">&lt;</span><span class="n">Book</span><span class="p">,</span><span class="w"> </span><span class="kt">Long</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findByAuthor</span><span class="p">(</span><span class="n">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span>
@@ -177,8 +198,10 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<h3>메서드 이름 규칙</h3>
+
+<h3 id="메서드-이름-규칙">메서드 이름 규칙</h3>
 <p>메서드 이름은 <code>[동작] + By + [조건]</code> 형태로 구성됩니다.</p>
+
 <table>
 <thead>
 <tr>
@@ -250,10 +273,14 @@
 </tr>
 </tbody>
 </table>
-<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>메서드 이름이 너무 길어지면(조건 4개 이상) 가독성이 떨어집니다. 그럴 때는 다음 절의 <code>@Query</code>를 쓰는 것이 낫습니다.</p>
-</blockquote>
-<h2>3. @Query — 직접 쿼리 작성</h2>
+
+<aside class="callout tip">
+<p>메서드 이름이 너무 길어지면(조건 4개 이상) 가독성이 떨어집니다. 그럴 때는 다음 절의 <code>@Query</code>를 쓰는 것이 낫습니다.</p>
+</aside>
+
+<h2 id="3-query-직접-쿼리-작성">3. @Query — 직접 쿼리 작성</h2>
 <p>복잡한 쿼리는 <code>@Query</code>로 직접 작성합니다. 기본은 <strong>JPQL</strong>(Entity 대상 쿼리 언어)이고, <code>nativeQuery = true</code>를 주면 진짜 SQL을 씁니다.</p>
+
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">interface</span><span class="w"> </span><span class="nc">BookRepository</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">JpaRepository</span><span class="o">&lt;</span><span class="n">Book</span><span class="p">,</span><span class="w"> </span><span class="kt">Long</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 
 <span class="w">    </span><span class="c1">// JPQL: 테이블이 아니라 Entity(Book)와 필드(title)를 대상으로 한다</span>
@@ -274,15 +301,20 @@
 </pre></div>
 </div>
 <p><code>@Param</code>으로 메서드 인자를 쿼리의 <code>:이름</code> 바인딩 변수와 연결합니다.</p>
-<blockquote class="callout callout-warning"><p class="callout-label">⚠️ WARNING</p><p><strong>JPQL ≠ SQL</strong>입니다. JPQL은 테이블/컬럼이 아니라 <strong>Entity 클래스명/프로퍼티명</strong>을 사용합니다. 위 예에서 <code>Book</code>, <code>b.title</code>은 Kotlin 클래스/프로퍼티 이름이지 테이블/컬럼명이 아닙니다. 네이티브 쿼리는 DB에 종속되므로 H2↔PostgreSQL 전환 시 깨질 수 있어 꼭 필요할 때만 씁니다.</p>
-</blockquote>
-<h2>4. 페이징과 정렬 (Pageable / Page / Sort)</h2>
+
+<aside class="callout warning">
+<p><strong>JPQL ≠ SQL</strong>입니다. JPQL은 테이블/컬럼이 아니라 <strong>Entity 클래스명/프로퍼티명</strong>을 사용합니다. 위 예에서 <code>Book</code>, <code>b.title</code>은 Kotlin 클래스/프로퍼티 이름이지 테이블/컬럼명이 아닙니다. 네이티브 쿼리는 DB에 종속되므로 H2↔PostgreSQL 전환 시 깨질 수 있어 꼭 필요할 때만 씁니다.</p>
+</aside>
+
+<h2 id="4-페이징과-정렬-pageable-page-sort">4. 페이징과 정렬 (Pageable / Page / Sort)</h2>
 <p>목록 API는 보통 페이징이 필요합니다. 메서드에 <code>Pageable</code>을 받고 <code>Page&lt;Book&gt;</code>을 반환하면 됩니다.</p>
+
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">interface</span><span class="w"> </span><span class="nc">BookRepository</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">JpaRepository</span><span class="o">&lt;</span><span class="n">Book</span><span class="p">,</span><span class="w"> </span><span class="kt">Long</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findByAuthor</span><span class="p">(</span><span class="n">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">pageable</span><span class="p">:</span><span class="w"> </span><span class="n">Pageable</span><span class="p">):</span><span class="w"> </span><span class="n">Page</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
+
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 사용 예: 0번 페이지, 페이지당 20건, 가격 내림차순</span>
 <span class="kd">val</span><span class="w"> </span><span class="nv">pageable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PageRequest</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">20</span><span class="p">,</span><span class="w"> </span><span class="n">Sort</span><span class="p">.</span><span class="na">by</span><span class="p">(</span><span class="n">Sort</span><span class="p">.</span><span class="na">Direction</span><span class="p">.</span><span class="na">DESC</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;price&quot;</span><span class="p">))</span>
 <span class="kd">val</span><span class="w"> </span><span class="nv">page</span><span class="p">:</span><span class="w"> </span><span class="n">Page</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">findByAuthor</span><span class="p">(</span><span class="s">&quot;김작가&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">pageable</span><span class="p">)</span>
@@ -294,6 +326,7 @@
 <span class="n">page</span><span class="p">.</span><span class="na">hasNext</span><span class="p">()</span><span class="w">        </span><span class="c1">// 다음 페이지 존재 여부</span>
 </pre></div>
 </div>
+
 <table>
 <thead>
 <tr>
@@ -325,10 +358,14 @@
 </tr>
 </tbody>
 </table>
-<blockquote class="callout callout-tip"><p class="callout-label">💡 TIP</p><p>전체 페이지 수를 화면에 표시할 필요가 없다면(예: 무한 스크롤) <code>Page</code> 대신 <strong><code>Slice</code></strong> 를 쓰세요. 비싼 <code>COUNT(*)</code> 쿼리를 생략해 성능이 좋아집니다.</p>
-</blockquote>
-<h2>5. Entity ↔ DTO 매핑 헬퍼</h2>
+
+<aside class="callout tip">
+<p>전체 페이지 수를 화면에 표시할 필요가 없다면(예: 무한 스크롤) <code>Page</code> 대신 <strong><code>Slice</code></strong> 를 쓰세요. 비싼 <code>COUNT(*)</code> 쿼리를 생략해 성능이 좋아집니다.</p>
+</aside>
+
+<h2 id="5-entity-dto-매핑-헬퍼">5. Entity ↔ DTO 매핑 헬퍼</h2>
 <p>Phase 2의 <code>BookService</code>는 <strong>DTO를 받아 DTO를 돌려주는(DTO-in / DTO-out)</strong> 형태였습니다. 컨트롤러와 주고받는 것은 <code>CreateBookRequest</code>·<code>UpdateBookRequest</code>·<code>BookResponse</code>이고, 그 사이에서만 <code>Book</code>을 다룹니다. JPA로 바꾸어도 이 계약은 그대로 유지하므로, 먼저 Entity와 DTO를 변환하는 확장 함수를 마련합니다. (매퍼는 별도 파일이나 서비스 상단 어디에 두어도 됩니다.)</p>
+
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.mapper</span>
 
 <span class="k">import</span><span class="w"> </span><span class="nn">com.example.bookapi.domain.Book</span>
@@ -355,11 +392,16 @@
 <span class="p">)</span>
 </pre></div>
 </div>
-<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p>Entity의 <code>id</code>는 <code>Long?</code>(nullable)이지만, <code>toResponse()</code>는 <strong>항상 영속화된(save된) Book에 대해서만</strong> 호출됩니다. 저장이 끝나면 DB가 id를 채워 주므로 이 시점의 <code>id</code>는 절대 null이 아닙니다. 그래서 <code>id!!</code>로 단언해도 안전합니다.</p>
-</blockquote>
-<h2>6. BookService 리팩터링 (Before → After)</h2>
+
+<aside class="callout note">
+<p>Entity의 <code>id</code>는 <code>Long?</code>(nullable)이지만, <code>toResponse()</code>는 <strong>항상 영속화된(save된) Book에 대해서만</strong> 호출됩니다. 저장이 끝나면 DB가 id를 채워 주므로 이 시점의 <code>id</code>는 절대 null이 아닙니다. 그래서 <code>id!!</code>로 단언해도 안전합니다.</p>
+</aside>
+
+<h2 id="6-bookservice-리팩터링-before-after">6. BookService 리팩터링 (Before → After)</h2>
 <p>이제 Phase 2의 인메모리 <code>BookService</code>를 <code>BookRepository</code> 기반으로 바꿉니다. 핵심은 <strong>메서드 시그니처는 그대로 유지되므로 Phase 2의 컨트롤러는 한 줄도 바꾸지 않아도 됩니다</strong>. 저장 방식(메모리 → DB)만 갈아끼우는 것이죠. 이것이 Phase 2에서 계층을 분리하며 약속했던 바로 그 효과입니다.</p>
-<h3>Before — 인메모리 Map (Phase 2)</h3>
+
+<h3 id="before-인메모리-map-phase-2">Before — 인메모리 Map (Phase 2)</h3>
+
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="w"> </span><span class="p">{</span>
 
@@ -396,7 +438,9 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<h3>After — Spring Data JPA</h3>
+
+<h3 id="after-spring-data-jpa">After — Spring Data JPA</h3>
+
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.service</span>
 
 <span class="k">import</span><span class="w"> </span><span class="nn">com.example.bookapi.dto.BookResponse</span>
@@ -449,6 +493,7 @@
 </pre></div>
 </div>
 <p>달라진 점을 정리하면 다음과 같습니다.</p>
+
 <ul>
 <li><strong>시그니처는 동일</strong>: <code>findAll</code>/<code>findByAuthor</code>/<code>findById</code>/<code>create</code>/<code>update</code>/<code>delete</code> 6개 메서드 모두 입·출력 타입이 Phase 2와 똑같습니다. 그래서 컨트롤러는 그대로 둡니다.</li>
 <li><strong>저장소 코드가 사라졌다</strong>: <code>ConcurrentHashMap</code>, <code>AtomicLong</code>, 수동 ID 채번 → 전부 JPA가 처리.</li>
@@ -456,13 +501,32 @@
 <li><strong><code>update</code>는 변경 감지로</strong>: Phase 2처럼 객체를 통째로 갈아끼우지 않고, 영속 상태인 <code>Book</code>의 필드를 바꾸기만 합니다. 트랜잭션이 끝날 때 Hibernate가 자동으로 <code>UPDATE</code>를 날립니다(<code>save()</code> 호출 불필요). 자세한 내용은 다음 문서에서 다룹니다.</li>
 <li><strong><code>@Transactional</code> 등장</strong>: 트랜잭션 경계를 명시. 다음 문서의 주제다.</li>
 </ul>
-<blockquote class="callout callout-note"><p class="callout-label">📝 NOTE</p><p><code>findByIdOrNull</code>은 <code>org.springframework.data.repository.findByIdOrNull</code> 패키지의 Kotlin 확장 함수로, <code>findById(id).orElse(null)</code>을 간결하게 표현합니다. import만 추가하면 쓸 수 있습니다.</p>
-</blockquote>
-<h2>다음 단계</h2>
+
+<aside class="callout note">
+<p><code>findByIdOrNull</code>은 <code>org.springframework.data.repository.findByIdOrNull</code> 패키지의 Kotlin 확장 함수로, <code>findById(id).orElse(null)</code>을 간결하게 표현합니다. import만 추가하면 쓸 수 있습니다.</p>
+</aside>
+
+<h2 id="다음-단계">다음 단계</h2>
 <p><code>BookService</code>에 등장한 <code>@Transactional</code>이 무엇이고, 왜 어디에 붙여야 하는지를 다음 문서에서 자세히 다룹니다. 영속성 컨텍스트의 경계와도 직결되는 핵심 주제입니다.</p>
 <p>→ <a href="04-transactions.html">트랜잭션 관리</a></p>
+
   </main>
+<aside class="toc" aria-label="페이지 목차">
+<div class="toc-title">이 페이지</div>
+<a class="lvl2" href="#1-jparepository-상속">1. JpaRepository 상속</a>
+<a class="lvl3" href="#상속받는-crud-메서드">상속받는 CRUD 메서드</a>
+<a class="lvl2" href="#2-파생-쿼리-메서드-derived-query">2. 파생 쿼리 메서드 (Derived Query)</a>
+<a class="lvl3" href="#메서드-이름-규칙">메서드 이름 규칙</a>
+<a class="lvl2" href="#3-query-직접-쿼리-작성">3. @Query — 직접 쿼리 작성</a>
+<a class="lvl2" href="#4-페이징과-정렬-pageable-page-sort">4. 페이징과 정렬 (Pageable / Page / Sort)</a>
+<a class="lvl2" href="#5-entity-dto-매핑-헬퍼">5. Entity ↔ DTO 매핑 헬퍼</a>
+<a class="lvl2" href="#6-bookservice-리팩터링-before-after">6. BookService 리팩터링 (Before → After)</a>
+<a class="lvl3" href="#before-인메모리-map-phase-2">Before — 인메모리 Map (Phase 2)</a>
+<a class="lvl3" href="#after-spring-data-jpa">After — Spring Data JPA</a>
+<a class="lvl2" href="#다음-단계">다음 단계</a>
+</aside>
 </div>
 <label for="navtoggle" class="scrim"></label>
+<script src="../assets/app.js" defer></script>
 </body>
 </html>
