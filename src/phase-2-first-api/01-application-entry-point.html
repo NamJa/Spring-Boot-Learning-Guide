@@ -94,21 +94,21 @@ public static void main(String[] args) {
   &#x27;  |____| .__|_| |_|_| |_\__, | / / / /
  =========|_|==============|___/=/_/_/_/
 
- :: Spring Boot ::                (v4.1.0)
+ :: Spring Boot ::                (v4.1.1)
 
 ... INFO ... Starting BookApiApplicationKt using Java 21 ...
 ... INFO ... Tomcat initialized with port 8080 (http)
 ... INFO ... Starting service [Tomcat]
-... INFO ... Starting Servlet engine: [Apache Tomcat/11.0.22]
+... INFO ... Starting Servlet engine: [Apache Tomcat/11.0.24]
 ... INFO ... Initializing Spring embedded WebApplicationContext
 ... INFO ... Tomcat started on port 8080 (http) with context path &#x27;/&#x27;
 ... INFO ... Started BookApiApplicationKt in 1.234 seconds (process running for 1.567)</code></pre>
 <p>로그에서 확인할 핵심 정보입니다.</p>
 
 <ul>
-<li><strong>Spring Boot 버전</strong>: <code>v4.1.0</code></li>
+<li><strong>Spring Boot 버전</strong>: <code>v4.1.1</code></li>
 <li><strong>JDK 버전</strong>: <code>Java 21</code></li>
-<li><strong>내장 서버</strong>: <code>Apache Tomcat/11.0.22</code> (Servlet 6.1)</li>
+<li><strong>내장 서버</strong>: <code>Apache Tomcat/11.0.24</code> (Servlet 6.1)</li>
 <li><strong>포트</strong>: <code>8080</code></li>
 <li><strong>마지막 줄</strong> <code>Started BookApiApplicationKt in ...</code>: 정상 기동 완료 신호. 이 줄이 보이면 API를 호출할 준비가 된 것입니다. (Kotlin은 최상위 <code>fun main</code>이 <code>BookApiApplicationKt</code> 클래스로 컴파일되므로 로그에 <code>...Kt</code>가 붙습니다.)</li>
 </ul>

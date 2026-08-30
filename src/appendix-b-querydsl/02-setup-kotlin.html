@@ -1,8 +1,8 @@
 <h1>02. Kotlin + Gradle 설정</h1>
 <p>Querydsl을 쓰려면 <strong>두 가지</strong>가 필요합니다. (1) 런타임/컴파일 의존성, 그리고 (2) 엔티티로부터 <strong>Q타입</strong>(예: <code>QBook</code>)을 생성하는 <strong>애너테이션 프로세서</strong>. Kotlin에서 애너테이션 프로세서는 <code>kapt</code>로 구동합니다. 이 페이지에서는 완전한 <code>build.gradle.kts</code> 설정과 Q타입 생성 확인 방법을 다룹니다.</p>
 
-<h2>1. 좌표와 버전 (2026-07-25 검증)</h2>
-<p>본 부록은 OpenFeign 포크를 사용합니다. Maven Central의 실제 아티팩트 목록으로 확인한 좌표는 다음과 같습니다(최신 버전 <strong>7.5</strong>, 2026-07-21 릴리스).</p>
+<h2>1. 좌표와 버전 (2026-08-30 검증)</h2>
+<p>본 부록은 OpenFeign 포크를 사용합니다. Maven Central의 실제 아티팩트 목록으로 확인한 좌표는 다음과 같습니다(최신 버전 <strong>7.6</strong>, 2026-08-19 릴리스).</p>
 
 <table>
 <thead>
@@ -15,24 +15,24 @@
 <tbody>
 <tr>
 <td>JPA 모듈</td>
-<td><code>io.github.openfeign.querydsl:querydsl-jpa:7.5</code></td>
+<td><code>io.github.openfeign.querydsl:querydsl-jpa:7.6</code></td>
 <td>런타임/컴파일. <strong>classifier 없음</strong></td>
 </tr>
 <tr>
 <td>애너테이션 프로세서(kapt)</td>
-<td><code>io.github.openfeign.querydsl:querydsl-apt:7.5:jakarta</code></td>
+<td><code>io.github.openfeign.querydsl:querydsl-apt:7.6:jakarta</code></td>
 <td>Q타입 생성. <strong><code>:jakarta</code> classifier 필요</strong></td>
 </tr>
 <tr>
 <td>(대안) KSP 코드젠</td>
-<td><code>io.github.openfeign.querydsl:querydsl-ksp-codegen:7.5</code></td>
+<td><code>io.github.openfeign.querydsl:querydsl-ksp-codegen:7.6</code></td>
 <td>KSP로 Q타입 생성. classifier 없음</td>
 </tr>
 </tbody>
 </table>
 
 <aside class="callout warning">
-<p><strong><code>querydsl-jpa</code>에는 <code>:jakarta</code> classifier를 붙이지 마세요.</strong> Querydsl 7.x의 <code>querydsl-jpa</code> 메인 아티팩트는 이미 <code>jakarta.persistence-api</code>에 의존하는 Jakarta 전용이고, <code>:jakarta</code> classifier 파일 <strong>자체가 존재하지 않습니다</strong>(<code>querydsl-jpa-7.5-jakarta.jar</code> → 404). 옛 안내를 따라 classifier를 붙이면 의존성 해석 단계에서 빌드가 실패합니다.</p>
+<p><strong><code>querydsl-jpa</code>에는 <code>:jakarta</code> classifier를 붙이지 마세요.</strong> Querydsl 7.x의 <code>querydsl-jpa</code> 메인 아티팩트는 이미 <code>jakarta.persistence-api</code>에 의존하는 Jakarta 전용이고, <code>:jakarta</code> classifier 파일 <strong>자체가 존재하지 않습니다</strong>(<code>querydsl-jpa-7.6-jakarta.jar</code> → 404). 옛 안내를 따라 classifier를 붙이면 의존성 해석 단계에서 빌드가 실패합니다.</p>
 <p>반대로 <strong><code>querydsl-apt</code>는 <code>:jakarta</code> classifier가 필요합니다.</strong> classifier 없는 기본 <code>querydsl-apt</code> jar에는 애너테이션 프로세서 등록 파일(<code>META-INF/services/javax.annotation.processing.Processor</code>)이 아예 없어서, 넣어도 <strong>Q타입이 하나도 생성되지 않고 조용히 넘어갑니다.</strong> <code>:jakarta</code>(또는 <code>:jpa</code>) classifier jar가 <code>JPAAnnotationProcessor</code>를 등록합니다. <strong>"jpa는 classifier 없이, apt는 jakarta로"</strong> 라고 기억하세요.</p>
 </aside>
 
@@ -51,13 +51,13 @@
 <tbody>
 <tr>
 <td><strong>kapt</strong> (본 부록 기준)</td>
-<td><code>querydsl-apt:7.5:jakarta</code></td>
+<td><code>querydsl-apt:7.6:jakarta</code></td>
 <td>Java Q타입(<code>QBook.java</code>)</td>
 <td>오래 검증된 경로, 자료가 가장 많음</td>
 </tr>
 <tr>
 <td><strong>KSP</strong></td>
-<td><code>querydsl-ksp-codegen:7.5</code></td>
+<td><code>querydsl-ksp-codegen:7.6</code></td>
 <td>Kotlin Q타입</td>
 <td>빌드가 빠르고 Kotlin에 자연스러움</td>
 </tr>
@@ -72,8 +72,8 @@
 }
 
 dependencies {
-    implementation("io.github.openfeign.querydsl:querydsl-jpa:7.5")
-    kapt("io.github.openfeign.querydsl:querydsl-apt:7.5:jakarta")
+    implementation("io.github.openfeign.querydsl:querydsl-jpa:7.6")
+    kapt("io.github.openfeign.querydsl:querydsl-apt:7.6:jakarta")
 }
 // 생성물: build/generated/source/kapt/main/**/QBook.java  (태스크: kaptKotlin)</code></pre>
   </div>
@@ -83,8 +83,8 @@ dependencies {
 }
 
 dependencies {
-    implementation("io.github.openfeign.querydsl:querydsl-jpa:7.5")
-    ksp("io.github.openfeign.querydsl:querydsl-ksp-codegen:7.5")
+    implementation("io.github.openfeign.querydsl:querydsl-jpa:7.6")
+    ksp("io.github.openfeign.querydsl:querydsl-ksp-codegen:7.6")
 }
 // 생성물: build/generated/ksp/main/kotlin/**/QBook.kt  (태스크: kspKotlin)</code></pre>
   </div>
@@ -97,7 +97,7 @@ dependencies {
 <h2>3. 완전한 build.gradle.kts 발췌</h2>
 
 <pre class="code" data-lang="groovy"><code>plugins {
-    id(&quot;org.springframework.boot&quot;) version &quot;4.1.0&quot;
+    id(&quot;org.springframework.boot&quot;) version &quot;4.1.1&quot;
     id(&quot;io.spring.dependency-management&quot;) version &quot;1.1.7&quot;
     kotlin(&quot;jvm&quot;) version &quot;2.3.21&quot;
     kotlin(&quot;plugin.spring&quot;) version &quot;2.3.21&quot;
@@ -118,8 +118,8 @@ repositories {
     mavenCentral()
 }
 
-// Querydsl 버전을 한 곳에서 관리 (2026-07-25 기준 최신 7.5)
-val querydslVersion = &quot;7.5&quot;
+// Querydsl 버전을 한 곳에서 관리 (2026-08-30 기준 최신 7.6)
+val querydslVersion = &quot;7.6&quot;
 
 dependencies {
     implementation(&quot;org.springframework.boot:spring-boot-starter-data-jpa&quot;)
@@ -253,7 +253,7 @@ class BookQueryRepository(
 <p>kapt가 유지보수 모드라는 점이 신경 쓰이거나 빌드 속도를 개선하고 싶다면, OpenFeign 포크가 제공하는 <strong>KSP 코드젠</strong>(<code>querydsl-ksp-codegen</code>)을 쓸 수 있습니다. kapt 대신 KSP 플러그인을 적용하고, 프로세서 의존성을 <code>ksp(...)</code>로 선언합니다.</p>
 
 <pre class="code" data-lang="kotlin"><code>plugins {
-    id(&quot;org.springframework.boot&quot;) version &quot;4.1.0&quot;
+    id(&quot;org.springframework.boot&quot;) version &quot;4.1.1&quot;
     id(&quot;io.spring.dependency-management&quot;) version &quot;1.1.7&quot;
     kotlin(&quot;jvm&quot;) version &quot;2.3.21&quot;
     kotlin(&quot;plugin.spring&quot;) version &quot;2.3.21&quot;
@@ -261,7 +261,7 @@ class BookQueryRepository(
     id(&quot;com.google.devtools.ksp&quot;) version &quot;2.3.10&quot;   // kapt 대신 KSP
 }
 
-val querydslVersion = &quot;7.5&quot;
+val querydslVersion = &quot;7.6&quot;
 
 dependencies {
     implementation(&quot;org.springframework.boot:spring-boot-starter-data-jpa&quot;)
@@ -314,7 +314,7 @@ kotlin {
 </table>
 
 <aside class="callout note">
-<p><strong>KSP 버전 표기 주의</strong>: KSP는 <strong>2.3.0부터 Kotlin 버전과 분리된 독립 버전 체계</strong>를 씁니다(예전 <code>2.2.21-2.0.5</code> 형식 → 지금은 <code>2.3.10</code>). 따라서 플러그인 버전이 내 Kotlin 버전과 숫자가 달라도 정상이며, 2026-07-25 기준 최신인 <strong>2.3.10</strong>이 Kotlin 2.3.21에서 문제없이 동작합니다.</p>
+<p><strong>KSP 버전 표기 주의</strong>: KSP는 <strong>2.3.0부터 Kotlin 버전과 분리된 독립 버전 체계</strong>를 씁니다(예전 <code>2.2.21-2.0.5</code> 형식 → 지금은 <code>2.3.10</code>). 따라서 플러그인 버전이 내 Kotlin 버전과 숫자가 달라도 정상이며, 2026-08-30 기준 최신인 <strong>2.3.10</strong>이 Kotlin 2.3.21에서 문제없이 동작합니다.</p>
 <p>KSP 코드젠은 Kotlin Q타입을 생성하지만 <code>@QueryProjection</code>을 지원하고 <code>QBook.book</code> 같은 기본 인스턴스도 함께 만들어 주므로, 본 부록 이후의 예제 코드는 kapt/KSP 어느 쪽에서도 대부분 그대로 동작합니다. 도입 시 <code>./gradlew kspKotlin</code>으로 Q타입이 기대대로 생성되는지 한 번 확인하세요.</p>
 </aside>
 

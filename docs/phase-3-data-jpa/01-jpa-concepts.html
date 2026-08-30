@@ -59,6 +59,7 @@
   <a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
   <a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
   <a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+  <a href="../phase-5-production-features/05-api-versioning.html">API 버전 관리</a>
   <div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
   <a href="../phase-6-build-deploy/README.html">📄 개요</a>
   <a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
@@ -97,6 +98,12 @@
   <a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
   <a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
   <a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+  <div class="nav-section">부록 E: 규모·도메인별 설계 전략</div>
+  <a href="../appendix-e-scale-and-domain/README.html">📄 개요</a>
+  <a href="../appendix-e-scale-and-domain/01-scale-tiers.html">규모 단계별 설계</a>
+  <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
+  <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
+  <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
 </nav></aside>
   <main class="content">
 <h1>Spring Data JPA 개념</h1>
@@ -210,7 +217,7 @@
 <span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;jvm&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span>
 <span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;plugin.spring&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span>
 <span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;plugin.jpa&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span><span class="w">        </span><span class="c1">// ← JPA Entity용 no-arg 플러그인</span>
-<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;org.springframework.boot&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;4.1.0&quot;</span>
+<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;org.springframework.boot&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;4.1.1&quot;</span>
 <span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;io.spring.dependency-management&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;1.1.7&quot;</span>
 <span class="p">}</span>
 
@@ -231,7 +238,7 @@
 </div>
 
 <aside class="callout note">
-<p>이 스타터가 가져오는 구현체는 <strong>Hibernate ORM 7.4.1</strong>(Spring Boot 4.1.0 관리 버전)이고, 커넥션 풀은 HikariCP 7.0입니다. Spring Data JPA는 Spring Data 2026.0.0 릴리스 트레인에 속합니다.</p>
+<p>이 스타터가 가져오는 구현체는 <strong>Hibernate ORM 7.4.5</strong>(Spring Boot 4.1.1 관리 버전)이고, 커넥션 풀은 HikariCP 7.0입니다. Spring Data JPA는 Spring Data 2026.0.1 릴리스 트레인에 속합니다.</p>
 </aside>
 
 <aside class="callout warning">

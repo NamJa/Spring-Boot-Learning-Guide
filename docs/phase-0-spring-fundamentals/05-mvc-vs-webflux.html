@@ -59,6 +59,7 @@
   <a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
   <a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
   <a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+  <a href="../phase-5-production-features/05-api-versioning.html">API 버전 관리</a>
   <div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
   <a href="../phase-6-build-deploy/README.html">📄 개요</a>
   <a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
@@ -97,6 +98,12 @@
   <a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
   <a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
   <a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+  <div class="nav-section">부록 E: 규모·도메인별 설계 전략</div>
+  <a href="../appendix-e-scale-and-domain/README.html">📄 개요</a>
+  <a href="../appendix-e-scale-and-domain/01-scale-tiers.html">규모 단계별 설계</a>
+  <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
+  <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
+  <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
 </nav></aside>
   <main class="content">
 <h1>Spring MVC vs WebFlux</h1>
@@ -106,7 +113,7 @@
 <p><strong>Spring MVC</strong>는 Java <strong>서블릿(Servlet)</strong> 위에서 동작하는 전통적인 동기 웹 스택입니다.</p>
 
 <ul>
-<li>기반: 서블릿 컨테이너 — 본 가이드 기준 <strong>Tomcat 11.0.22 (Servlet 6.1)</strong></li>
+<li>기반: 서블릿 컨테이너 — 본 가이드 기준 <strong>Tomcat 11.0.24 (Servlet 6.1)</strong></li>
 <li>실행 모델: <strong>요청 1건당 스레드 1개(thread-per-request)</strong>. 스레드가 요청을 받아 처리가 끝날 때까지 점유하며, DB 호출이나 외부 API 응답을 <strong>기다리는 동안 그 스레드는 블로킹</strong>됩니다.</li>
 <li>프로그래밍 모델: 명령형(imperative). 위에서 아래로 읽히는 평범한 순차 코드.</li>
 </ul>

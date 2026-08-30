@@ -30,7 +30,7 @@ class BookService(private val repository: BookRepository) {
 
 <h2>2. Spring Boot가 더한 것</h2>
 <p>Spring Framework는 강력하지만, 옛날에는 설정이 <strong>악명 높게 번거로웠습니다</strong>. XML 수백 줄, DispatcherServlet 등록, 뷰 리졸버 설정, 데이터소스 빈 구성... 애플리케이션 코드를 한 줄도 쓰기 전에 설정 지옥을 겪어야 했습니다.</p>
-<p><strong>Spring Boot</strong>(2014년 등장)는 이 문제를 해결하기 위한 <strong>Spring Framework 위의 레이어</strong>입니다. 본 가이드에서 사용하는 <strong>Spring Boot 4.1.0</strong>(2026-06-10 GA)은 <strong>Spring Framework 7</strong> 위에서 동작합니다. Spring Boot가 더하는 핵심 가치는 다음과 같습니다.</p>
+<p><strong>Spring Boot</strong>(2014년 등장)는 이 문제를 해결하기 위한 <strong>Spring Framework 위의 레이어</strong>입니다. 본 가이드에서 사용하는 <strong>Spring Boot 4.1.1</strong>(2026-06-10 GA)은 <strong>Spring Framework 7</strong> 위에서 동작합니다. Spring Boot가 더하는 핵심 가치는 다음과 같습니다.</p>
 
 <table>
 <thead>
@@ -50,7 +50,7 @@ class BookService(private val repository: BookRepository) {
 </tr>
 <tr>
 <td><strong>내장 서버 (Embedded server)</strong></td>
-<td>Tomcat/Jetty/Netty를 jar 안에 내장. 별도 WAS 설치·배포 없이 <code>java -jar</code>로 실행 (기본 Tomcat 11.0.22)</td>
+<td>Tomcat/Jetty/Netty를 jar 안에 내장. 별도 WAS 설치·배포 없이 <code>java -jar</code>로 실행 (기본 Tomcat 11.0.24)</td>
 </tr>
 <tr>
 <td><strong>No XML</strong></td>
@@ -94,7 +94,7 @@ class BookService(private val repository: BookRepository) {
 <li><strong>선언적 HTTP 클라이언트</strong> — 인터페이스에 <code>@HttpExchange</code>만 붙이고 <code>@ImportHttpServices</code>로 등록하면 구현 없이 HTTP 호출 가능 (Feign과 유사). (<a href="../phase-5-production-features/01-http-interface-client.html">Phase 5-1</a>)</li>
 <li><strong>모듈화된 스타터</strong> — <code>spring-boot-starter-web</code> → <strong><code>spring-boot-starter-webmvc</code></strong>, <code>spring-boot-starter-aop</code> → <strong><code>spring-boot-starter-aspectj</code></strong> 처럼 이름이 기술 단위로 정리되고, <code>spring-boot-starter-restclient</code>·<code>spring-boot-starter-webclient</code>로 HTTP 클라이언트 의존성이 분리됐습니다. 테스트도 <code>spring-boot-starter-&lt;기술&gt;-test</code>로 쪼개졌습니다.</li>
 <li><strong>회복탄력성(resilience)</strong> — <code>@Retryable</code>(재시도), <code>@ConcurrencyLimit</code>(동시성 제한)을 코어에 내장.</li>
-<li><strong>API 버저닝</strong> — <code>/api/v1</code> 같은 버전 라우팅을 프레임워크 차원에서 지원.</li>
+<li><strong>API 버저닝</strong> — <code>@GetMapping(version = &quot;1.1+&quot;)</code> 처럼 매핑 애너테이션에 버전을 직접 선언하고, 헤더·쿼리·경로·미디어 타입 중 무엇으로 버전을 받을지 프로퍼티로 고릅니다. (<a href="../phase-5-production-features/05-api-versioning.html">Phase 5-5</a>)</li>
 </ul>
 <p>4.0에서 4.1로 올라오며 추가된 것들도 짚어 둡니다.</p>
 
@@ -131,7 +131,7 @@ class BookService(private val repository: BookRepository) {
 </tr>
 <tr>
 <td><strong>Spring Security</strong></td>
-<td>인증·인가, OAuth2, JWT 등 보안 (본 가이드 기준 7.1.0)</td>
+<td>인증·인가, OAuth2, JWT 등 보안 (본 가이드 기준 7.1.1)</td>
 </tr>
 <tr>
 <td><strong>Spring Web (MVC)</strong></td>
@@ -240,6 +240,40 @@ class BookController(
 <ul>
 <li><strong>확장 함수 / DSL</strong> — Spring은 Kotlin 전용 확장(예: <code>beans { }</code> DSL, <code>runApplication</code>, MockMvc Kotlin DSL)을 제공해 Java보다 더 자연스러운 코드를 쓸 수 있습니다.</li>
 </ul>
+
+<h3>5.1 JSpecify — 널 안전성이 자바 경계까지 정확해지다</h3>
+<p>Kotlin과 자바 라이브러리가 만나는 지점의 문제는 <strong>플랫폼 타입</strong>(<code>String!</code>)입니다. 컴파일러가 "널일 수 있는지 모르겠다"고 판단하면 널 검사를 강제하지 않고, 결국 Kotlin을 쓰면서도 런타임 NPE가 터집니다.</p>
+<p>Spring은 예전부터 이 문제를 자체 애너테이션(<code>org.springframework.lang.@Nullable</code>)으로 막아 왔습니다. <strong>Spring Framework 7은 이것을 업계 표준인 <a href="https://jspecify.dev/">JSpecify</a>로 전면 교체했습니다.</strong> 이제 Spring의 모든 패키지는 <code>@NullMarked</code>(기본은 널 아님)로 선언되고, 널이 될 수 있는 자리만 <code>org.jspecify.annotations.@Nullable</code>로 표시됩니다. 기존 <code>org.springframework.lang.*</code> 애너테이션은 7.0부터 <strong>deprecated</strong> 입니다.</p>
+
+<figure class="dg">
+<figcaption>널 가능성 표기: Spring 6 → Spring 7</figcaption>
+<div class="dg-vs">
+  <div class="col">
+    <h4>Spring 6까지 — 자체 + JSR-305</h4>
+    <ul>
+      <li><code>org.springframework.lang.@Nullable</code> (Spring 전용)</li>
+      <li>바탕이 된 <strong>JSR-305는 표준화가 중단된 명세</strong> — 도구마다 해석이 제각각</li>
+      <li><strong>선언</strong>에 붙는 애너테이션이라 <code>List&lt;String&gt;</code>의 <strong>원소</strong>가 널일 수 있는지는 표현하지 못함</li>
+      <li>Kotlin은 <code>-Xjsr305=strict</code> 옵션을 켜야 엄격하게 해석</li>
+    </ul>
+  </div>
+  <div class="mid"><span>교체</span></div>
+  <div class="col is-good">
+    <h4>Spring 7 — JSpecify</h4>
+    <ul>
+      <li><code>org.jspecify.annotations.@Nullable</code> + 패키지 단위 <code>@NullMarked</code></li>
+      <li>여러 벤더가 함께 만든 <strong>표준</strong> — IDE·정적 분석·Kotlin이 같은 규칙을 공유</li>
+      <li><strong>타입 사용</strong> 애너테이션이라 <code>List&lt;@Nullable String&gt;</code> 처럼 <strong>제네릭 안쪽</strong>까지 정확히 표기</li>
+      <li>Kotlin 2.1+는 <strong>기본으로 엄격하게</strong> 해석 (위반 시 컴파일 에러)</li>
+    </ul>
+  </div>
+</div>
+<p class="dg-foot">Kotlin 쪽에서 할 일은 없습니다. Spring 7 API를 호출하는 것만으로, 반환값이 <code>String!</code>이 아니라 <code>String?</code> 또는 <code>String</code>으로 <strong>확정되어</strong> 들어옵니다.</p>
+</figure>
+
+<aside class="callout note">
+<p><strong>컨퍼런스 인사이트 (Spring I/O 2026).</strong> Sébastien Deleuze는 <em>Null-safe applications with Spring Boot 4</em> 세션에서 JSpecify를 "10억 달러짜리 실수를 <strong>비용 없는 추상화</strong>로 바꾸는 것"이라고 소개했습니다. 발표에서 다룬 핵심은 세 가지입니다 — 기존 애플리케이션을 널 안전하게 전환하는 절차, 자바 코드에 <strong>NullAway</strong>를 붙여 Kotlin이 이미 하고 있는 검사를 <strong>빌드 시점</strong>에 재현하는 방법, 그리고 자바가 앞으로 도입할 <strong>널 제한 타입</strong>(null-restricted types)에 미리 대비한다는 점입니다. Kotlin 프로젝트라면 NullAway는 필요 없습니다 — 컴파일러가 그 일을 이미 하고 있고, JSpecify는 그 검사가 <em>자바 경계 너머까지</em> 정확해지도록 해 주는 조각입니다.</p>
+</aside>
 
 <aside class="callout warning">
 <p>Kotlin 클래스는 기본이 <code>final</code>입니다. Spring AOP(프록시)는 클래스를 상속해 동작하므로, <code>@Configuration</code>이나 <code>@Transactional</code>이 붙는 클래스에는 <code>kotlin-spring</code> 컴파일러 플러그인이 자동으로 <code>open</code>을 붙여 줍니다. Spring Boot 프로젝트를 생성하면 이 플러그인이 기본 포함되니 걱정하지 않아도 됩니다. (Phase 1에서 다룹니다.)</p>

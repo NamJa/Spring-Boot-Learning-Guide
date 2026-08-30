@@ -16,7 +16,7 @@
 <tr>
 <td>1</td>
 <td><a href="01-executable-jar.html">실행 가능 JAR 빌드</a></td>
-<td><code>bootJar</code>, layered jar 구조, <code>bootRun</code> vs <code>bootJar</code>, 실행 옵션</td>
+<td><code>bootJar</code>, layered jar 구조, <strong>CDS·AOT 캐시로 시작 시간 단축</strong>, <code>bootRun</code> vs <code>bootJar</code>, 실행 옵션</td>
 </tr>
 <tr>
 <td>2</td>
@@ -41,6 +41,7 @@
 
 <ul>
 <li><code>./gradlew bootJar</code>로 <strong>실행 가능한 layered jar</strong>를 빌드하고 <code>java -jar</code>로 실행할 수 있다.</li>
+<li><strong>CDS / AOT 캐시</strong>의 훈련 실행을 이해하고, 코드를 고치지 않고 JVM 시작 시간을 줄일 수 있다.</li>
 <li><strong>Buildpacks</strong>와 <strong>직접 작성한 Dockerfile</strong> 두 방식으로 컨테이너 이미지를 만들 수 있다.</li>
 <li><strong>GraalVM 네이티브 이미지</strong>가 무엇이고 언제 쓰며, 언제 쓰지 말아야 하는지 판단할 수 있다.</li>
 <li><strong>환경변수 기반 설정</strong>으로 같은 이미지를 여러 환경에 배포할 수 있다.</li>

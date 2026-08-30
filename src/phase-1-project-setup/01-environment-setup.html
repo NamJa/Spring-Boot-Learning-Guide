@@ -2,7 +2,7 @@
 <p>Spring Boot 프로젝트를 시작하기 전에 필요한 도구를 갖춰야 합니다. 다행히 Kotlin 개발자라면 이미 대부분 익숙한 도구들입니다. 이 페이지에서는 <strong>JDK, IDE, 빌드 도구, 보조 도구</strong>를 차례대로 설정합니다.</p>
 
 <h2>1. JDK 21 LTS 설치</h2>
-<p>Spring Boot 4.1.0은 <strong>JDK 17 이상 ~ 26</strong>까지 지원합니다. 이 가이드는 <strong>JDK 21 LTS</strong> 를 표준으로 사용합니다.</p>
+<p>Spring Boot 4.1.1은 <strong>JDK 17 이상 ~ 26</strong>까지 지원합니다. 이 가이드는 <strong>JDK 21 LTS</strong> 를 표준으로 사용합니다.</p>
 
 <h3>왜 JDK 21인가?</h3>
 
@@ -48,22 +48,22 @@ source &quot;$HOME/.sdkman/bin/sdkman-init.sh&quot;
 sdk list java | grep &#x27;21\.&#x27;
 
 # 3. Temurin(Eclipse Adoptium) 21 설치 — 식별자는 목록에서 확인 후 사용
-sdk install java 21.0.11-tem
+sdk install java 21.0.12+1.1-tem
 
 # 4. 기본 JDK로 지정
-sdk default java 21.0.11-tem</code></pre>
+sdk default java 21.0.12+1.1-tem</code></pre>
 
 <h3>설치 확인</h3>
 
 <pre class="code" data-lang="bash"><code>java -version</code></pre>
 <p>다음과 비슷한 출력이 나오면 성공입니다.</p>
 
-<pre class="code" data-lang="text"><code>openjdk version &quot;21.0.11&quot; 2026-04-21 LTS
-OpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)
-OpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)</code></pre>
+<pre class="code" data-lang="text"><code>openjdk version &quot;21.0.12&quot; 2026-07-21 LTS
+OpenJDK Runtime Environment Temurin-21.0.12+8 (build 21.0.12+8-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.12+8 (build 21.0.12+8-LTS, mixed mode, sharing)</code></pre>
 
 <aside class="callout tip">
-<p>패치 번호는 분기별 보안 업데이트(CPU)마다 올라갑니다. 2026-07-25 기준 Temurin 21의 최신 태그는 <strong>21.0.12+8</strong>(2026-07 CPU)이지만, macOS(Apple Silicon) 바이너리와 SDKMAN 인덱스에는 아직 반영되지 않아 실제로 설치되는 것은 <strong>21.0.11-tem</strong>(2026-04 CPU)입니다. 항상 <code>sdk list java | grep '21\.'</code>로 그 시점에 설치 가능한 최신 식별자를 확인해 쓰면 됩니다.</p>
+<p>패치 번호는 분기별 보안 업데이트(CPU)마다 올라갑니다. 2026-08-30 기준 Temurin 21의 최신 릴리스는 <strong>21.0.12.1+1</strong>(2026-07 CPU 이후 패치)이고, macOS(Apple Silicon) SDKMAN 인덱스에도 <code>21.0.12+1.1-tem</code>이 올라와 있어 그대로 설치됩니다. 항상 <code>sdk list java | grep '21\.'</code>로 그 시점에 설치 가능한 최신 식별자를 확인해 쓰면 됩니다.</p>
 </aside>
 
 <aside class="callout warning">
@@ -98,7 +98,7 @@ OpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, s
 ./gradlew bootRun        # 애플리케이션 실행</code></pre>
 
 <aside class="callout tip">
-<p>이 가이드는 <strong>Gradle 9.x</strong> 를 기준으로 합니다(2026-07-25 기준 Initializr가 넣어 주는 래퍼는 <strong>9.5.1</strong>, Gradle 최신 릴리스는 <strong>9.6.1</strong>). 래퍼 버전을 그대로 사용하면 되고, 8.14+에서도 동작합니다. Maven(3.6.3+)도 가능하지만 이 가이드는 Gradle - Kotlin DSL을 사용합니다.</p>
+<p>이 가이드는 <strong>Gradle 9.x</strong> 를 기준으로 합니다(2026-08-30 기준 Initializr가 넣어 주는 래퍼와 Gradle 최신 릴리스가 모두 <strong>9.7.1</strong>(2026-08-19)). 래퍼 버전을 그대로 사용하면 되고, 8.14+에서도 동작합니다. Maven(3.6.3+)도 가능하지만 이 가이드는 Gradle - Kotlin DSL을 사용합니다.</p>
 </aside>
 
 <h2>4. 보조 도구 (선택)</h2>
@@ -132,7 +132,7 @@ http GET :8080/api/books</code></pre>
 <tr>
 <td>JDK 21</td>
 <td><code>java -version</code></td>
-<td><code>21.x</code> LTS (설치본 21.0.11, 최신 태그 21.0.12)</td>
+<td><code>21.x</code> LTS (2026-08-30 기준 설치본 21.0.12)</td>
 </tr>
 <tr>
 <td>IntelliJ IDEA</td>
@@ -142,7 +142,7 @@ http GET :8080/api/books</code></pre>
 <tr>
 <td>Gradle Wrapper</td>
 <td><code>./gradlew --version</code></td>
-<td>9.x (Initializr 기본 9.5.1)</td>
+<td>9.x (Initializr 기본 9.7.1)</td>
 </tr>
 <tr>
 <td>curl/HTTPie</td>

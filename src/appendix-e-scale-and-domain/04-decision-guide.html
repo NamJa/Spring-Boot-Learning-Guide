@@ -1,0 +1,178 @@
+<h1>04. 의사결정 가이드</h1>
+<p>앞의 세 문서를 하나로 합칩니다. 이 페이지는 읽는 문서라기보다 <strong>결정 앞에서 펼쳐 보는 문서</strong>입니다.</p>
+
+<h2>1. "지금 도입해야 하나?" — 공통 판단 흐름</h2>
+<p>새 기술·새 구조를 검토할 때마다 이 순서로 물어보세요. 대부분 3번에서 멈춥니다.</p>
+
+<figure class="dg" data-focusable>
+<figcaption>도입 판단 5문</figcaption>
+<div class="dg-fork">
+  <div class="q">1. 지금 <strong>실제로 겪고 있는</strong> 문제인가, 겪을까 봐 걱정하는 문제인가?</div>
+  <div class="paths">
+    <div class="path"><span class="tag no">걱정</span><span class="arw">→</span>
+      <span class="out">도입하지 않는다. 겪게 되면 그때 한다</span><span class="st ok">STOP</span></div>
+    <div class="path"><span class="tag yes">겪는 중</span><span class="arw">→</span><span class="out">2번으로</span><span class="st warn">계속</span></div>
+  </div>
+</div>
+<div class="dg-fork" style="margin-top:14px">
+  <div class="q">2. 그 문제를 <strong>숫자로</strong> 말할 수 있는가? (p99 응답, 쿼리 수, 머지 충돌 빈도…)</div>
+  <div class="paths">
+    <div class="path"><span class="tag no">아니오</span><span class="arw">→</span>
+      <span class="out">먼저 측정한다. <a href="../phase-5-production-features/03-actuator-observability.html">Actuator·메트릭·추적</a>이 그것을 위한 도구다</span><span class="st ok">STOP</span></div>
+    <div class="path"><span class="tag yes">예</span><span class="arw">→</span><span class="out">3번으로</span><span class="st warn">계속</span></div>
+  </div>
+</div>
+<div class="dg-fork" style="margin-top:14px">
+  <div class="q">3. <strong>지금 코드 안에서</strong> 고칠 수 있는가? (쿼리·인덱스·트랜잭션 경계·캐시 한 줄)</div>
+  <div class="paths">
+    <div class="path"><span class="tag yes">예</span><span class="arw">→</span>
+      <span class="out">그것부터 한다. 인프라는 코드로 못 고칠 때 붙인다</span><span class="st ok">STOP</span></div>
+    <div class="path"><span class="tag no">아니오</span><span class="arw">→</span><span class="out">4번으로</span><span class="st warn">계속</span></div>
+  </div>
+</div>
+<div class="dg-fork" style="margin-top:14px">
+  <div class="q">4. 도입하면 <strong>새로 생기는 실패 모드</strong>를 감당할 수 있는가?</div>
+  <div class="paths">
+    <div class="path"><span class="tag alt">캐시</span><span class="arw">→</span><span class="out">무효화 · 스탬피드 · 오래된 데이터</span><span class="st warn">비용</span></div>
+    <div class="path"><span class="tag alt">이벤트</span><span class="arw">→</span><span class="out">중복 · 순서 · 유실 · 추적 난이도</span><span class="st warn">비용</span></div>
+    <div class="path"><span class="tag alt">서비스 분리</span><span class="arw">→</span><span class="out">분산 트랜잭션 · 네트워크 실패 · 배포 조율</span><span class="st err">큰 비용</span></div>
+  </div>
+  <div class="sum">감당할 <strong>사람과 시간</strong>이 없다면 도입은 부채입니다.<span class="badge">정직하게</span></div>
+</div>
+<div class="dg-fork" style="margin-top:14px">
+  <div class="q">5. <strong>되돌릴 수 있는가?</strong></div>
+  <div class="paths">
+    <div class="path"><span class="tag yes">되돌릴 수 있음</span><span class="arw">→</span>
+      <span class="out">해 본다. 틀려도 손실이 작다 (캐시·인덱스·타임아웃 조정)</span><span class="st ok">GO</span></div>
+    <div class="path"><span class="tag no">되돌리기 어려움</span><span class="arw">→</span>
+      <span class="out">더 작은 단위로 쪼개서 실험한다 (서비스 분리·DB 분리·스키마 변경)</span><span class="st warn">신중히</span></div>
+  </div>
+</div>
+</figure>
+
+<h2>2. 규모 × 도메인 매트릭스</h2>
+<p><a href="01-scale-tiers.html">규모 단계</a>와 <a href="03-domain-shapes.html">도메인 성격</a>이 만나는 지점에서 "지금 할 일"입니다. 빈칸은 "아직 필요 없음"을 뜻합니다.</p>
+
+<figure class="dg">
+<figcaption>지금 우리 팀이 할 일 — 두 축의 교차점</figcaption>
+<table class="dg-cross">
+  <thead>
+    <tr><th>도메인 성격</th><th>S0 MVP</th><th>S1 프로덕션</th><th>S2 성장기</th><th>S3 대규모</th></tr>
+  </thead>
+  <tbody>
+    <tr><th>① CRUD</th><td>3계층 그대로</td><td>검증·감사 로그</td><td>모듈 분리</td><td>백오피스 분리</td></tr>
+    <tr><th>② 읽기 중심</th><td>—</td><td>N+1 제거·인덱스</td><td>DTO 프로젝션·캐시</td><td>읽기 복제본·검색엔진</td></tr>
+    <tr><th>③ 쓰기·정합성</th><td>@Transactional</td><td>원자 UPDATE·낙관 락</td><td>재시도·동시성 제한</td><td>사가·보상 트랜잭션</td></tr>
+    <tr><th>④ 이벤트·비동기</th><td>—</td><td>커밋 후 리스너</td><td>Modulith 이벤트+아웃박스</td><td>브로커·DLQ·멱등</td></tr>
+    <tr><th>⑤ 배치·대량</th><td>스크립트</td><td>청크 커밋·JDBC 배치</td><td>배치 전용 데이터소스</td><td>Spring Batch·별도 배포</td></tr>
+    <tr><th>공통 기반</th><td>health</td><td>메트릭·로그·타임아웃</td><td>추적·모듈 검증 테스트</td><td>API 버전·계약 테스트</td></tr>
+  </tbody>
+</table>
+<p class="dg-foot">왼쪽 칸을 건너뛰고 오른쪽 칸을 하는 것이 <strong>과설계</strong>이고, 오른쪽 칸에 도달했는데 왼쪽 칸이 비어 있는 것이 <strong>기술 부채</strong>입니다.</p>
+</figure>
+
+<h2>3. 자주 보는 안티패턴</h2>
+
+<table>
+<thead>
+<tr>
+<th>안티패턴</th>
+<th>이렇게 보인다</th>
+<th>대신</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>분산 모놀리스</strong></td>
+<td>서비스는 5개인데 기능 하나 추가에 5개를 다 배포한다. 서비스들이 같은 DB 테이블을 쓴다</td>
+<td>모듈 경계를 먼저 잡고(<a href="02-modular-monolith.html">02</a>), <strong>테이블 소유권이 갈린 뒤에</strong> 배포를 나눈다</td>
+</tr>
+<tr>
+<td><strong>추측 튜닝</strong></td>
+<td>느리다는 제보에 캐시부터 붙인다. 빨라졌는지 아무도 모른다</td>
+<td>측정 → 원인 → 조치 → 재측정. <a href="../phase-5-production-features/03-actuator-observability.html">메트릭</a>이 먼저다</td>
+</tr>
+<tr>
+<td><strong>인터페이스 증식</strong></td>
+<td><code>BookService</code> / <code>BookServiceImpl</code>. 구현체는 영원히 하나</td>
+<td>구현이 하나면 클래스 하나로 충분하다. 두 번째 구현이 <strong>실제로 생길 때</strong> 인터페이스를 뽑는다</td>
+</tr>
+<tr>
+<td><strong>이벤트 만능주의</strong></td>
+<td>같은 트랜잭션에서 끝나야 할 일까지 이벤트로 던진다. 어디서 실패했는지 추적이 안 된다</td>
+<td>같은 트랜잭션이 필요하면 <strong>그냥 호출</strong>한다 (<a href="02-modular-monolith.html">02-3</a>의 분기)</td>
+</tr>
+<tr>
+<td><strong>공통 라이브러리 조기 추출</strong></td>
+<td>서비스 2개가 생기자마자 <code>common</code> 모듈을 만든다. 이제 모든 서비스가 그 버전에 묶인다</td>
+<td>중복을 <strong>세 번</strong> 볼 때까지 기다린다. 공유 모듈은 결합이지 재사용이 아니다</td>
+</tr>
+<tr>
+<td><strong>Boot 3 예제 복사</strong></td>
+<td><code>@MockBean</code>·<code>spring-boot-starter-web</code>·<code>com.fasterxml.jackson</code>이 컴파일되지 않는다</td>
+<td><a href="../index.html">기준 버전 표</a>와 각 Phase의 경고 박스를 확인 (Boot 4에서 이름·패키지가 바뀐 것들)</td>
+</tr>
+<tr>
+<td><strong>트랜잭션 안 외부 호출</strong></td>
+<td>평소엔 멀쩡하다가 외부 API가 느린 날 커넥션 풀이 마르고 전체가 멈춘다</td>
+<td>외부 호출은 트랜잭션 <strong>바깥</strong>으로. 타임아웃은 필수 (<a href="../phase-5-production-features/01-http-interface-client.html">Phase 5-1</a>)</td>
+</tr>
+</tbody>
+</table>
+
+<h2>4. 분기점에서 물어볼 한 문장</h2>
+
+<figure class="dg">
+<figcaption>결정별 핵심 질문</figcaption>
+<div class="dg-grid c2">
+  <div class="cell">
+    <div class="k">모듈로 나눌까?</div>
+    <div class="v">"같은 파일을 서로 다른 팀이 고치고 있는가?"</div>
+  </div>
+  <div class="cell">
+    <div class="k">서비스로 쪼갤까?</div>
+    <div class="v">"저쪽 배포를 기다리느라 우리가 못 나가는 일이 <strong>반복</strong>되는가?"</div>
+  </div>
+  <div class="cell">
+    <div class="k">캐시를 붙일까?</div>
+    <div class="v">"무엇을, 얼마나 오래, 언제 지울지 <strong>한 문장으로</strong> 말할 수 있는가?"</div>
+  </div>
+  <div class="cell">
+    <div class="k">이벤트로 바꿀까?</div>
+    <div class="v">"이 둘이 <strong>따로 실패해도</strong> 괜찮은가?"</div>
+  </div>
+  <div class="cell">
+    <div class="k">헥사고날을 도입할까?</div>
+    <div class="v">"교체할 어댑터가 <strong>실제로</strong> 있는가?"</div>
+  </div>
+  <div class="cell is-accent">
+    <div class="k">아무거나 도입할까?</div>
+    <div class="v">"이걸 운영할 사람이 <strong>지금 팀에</strong> 있는가?"</div>
+  </div>
+</div>
+</figure>
+
+<h2>5. 이 부록의 결론</h2>
+
+<aside class="callout important">
+<p>설계에 정답은 없지만 <strong>순서는 있습니다.</strong></p>
+<p><strong>측정 → 코드로 고치기 → 경계 긋기 → 배포 나누기.</strong> 이 순서를 지키면 대부분의 결정이 되돌릴 수 있는 상태로 남습니다. 순서를 뒤집으면 — 측정 없이 인프라를 붙이고, 경계 없이 배포를 나누면 — 되돌릴 수 없는 복잡도만 남습니다.</p>
+<p>2026년 Spring 커뮤니티가 <strong>모듈러 모놀리스</strong>와 <strong>도구로 강제하는 경계</strong>를 다시 이야기하는 이유가 여기에 있습니다. 마이크로서비스가 틀렸다는 것이 아니라, <strong>그 앞에 건너뛴 단계가 있었다</strong>는 뒤늦은 합의입니다.</p>
+</aside>
+
+<h2>더 읽을거리</h2>
+
+<ul>
+<li><a href="https://docs.spring.io/spring-modulith/reference/">Spring Modulith Reference</a> — 모듈 정의·검증·이벤트·문서 생성</li>
+<li><a href="https://www.archunit.org/">ArchUnit</a> — 테스트로 아키텍처 규칙 강제하기</li>
+<li><a href="https://12factor.net">The Twelve-Factor App</a> — 설정·로그·프로세스에 대한 고전적 기준 (<a href="../phase-6-build-deploy/04-deploy-operations.html">Phase 6-4</a>에서 사용)</li>
+<li><a href="https://2026.springio.net/sessions/">Spring I/O 2026 세션 목록</a> — 이 부록이 인용한 발표들</li>
+</ul>
+
+<h2>다음 단계</h2>
+
+<ul>
+<li>🏠 <strong><a href="../index.html">가이드 홈으로 돌아가기</a></strong></li>
+<li>🧩 <strong><a href="02-modular-monolith.html">02. 패키지 구조와 모듈러 모놀리스</a></strong> — 실제로 손을 대기 시작할 곳</li>
+</ul>
+<p>여기까지 왔다면, 이제 필요한 것은 더 많은 패턴이 아니라 <strong>여러분의 서비스에서 나온 숫자</strong>입니다. 측정부터 시작하세요. 📊</p>

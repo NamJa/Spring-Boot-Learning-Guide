@@ -59,6 +59,7 @@
   <a href="02-security-basics.html">Spring Security 7 기초</a>
   <a href="03-actuator-observability.html">Actuator와 관측성</a>
   <a href="04-testing.html" class="active">테스트 전략</a>
+  <a href="05-api-versioning.html">API 버전 관리</a>
   <div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
   <a href="../phase-6-build-deploy/README.html">📄 개요</a>
   <a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
@@ -97,6 +98,12 @@
   <a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
   <a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
   <a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+  <div class="nav-section">부록 E: 규모·도메인별 설계 전략</div>
+  <a href="../appendix-e-scale-and-domain/README.html">📄 개요</a>
+  <a href="../appendix-e-scale-and-domain/01-scale-tiers.html">규모 단계별 설계</a>
+  <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
+  <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
+  <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
 </nav></aside>
   <main class="content">
 <h1>테스트 전략</h1>
@@ -512,8 +519,8 @@
 </aside>
 
 <h2 id="다음-단계">다음 단계</h2>
-<p>축하합니다. 이제 Book API는 외부와 통신하고, 보안이 적용되고, 관측 가능하며, 테스트로 검증됩니다. 운영에 필요한 기능을 모두 갖췄으니, 마지막 Phase에서 이 애플리케이션을 <strong>실제로 빌드하고 배포</strong>합니다.</p>
-<p>→ <a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a></p>
+<p>축하합니다. 이제 Book API는 외부와 통신하고, 보안이 적용되고, 관측 가능하며, 테스트로 검증됩니다. 마지막으로 남은 운영 관심사는 <strong>"이미 배포된 클라이언트를 깨뜨리지 않고 API를 바꾸는 법"</strong> 입니다.</p>
+<p>→ <a href="05-api-versioning.html">API 버전 관리</a></p>
 
   </main>
 <aside class="toc" aria-label="페이지 목차">

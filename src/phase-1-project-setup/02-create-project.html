@@ -25,8 +25,8 @@
 </tr>
 <tr>
 <td><strong>Spring Boot</strong></td>
-<td>4.1.0</td>
-<td>2026-06-10 GA (2026-07-25 기준 최신)</td>
+<td>4.1.1</td>
+<td>2026-08-20 릴리스 (2026-08-30 기준 최신 GA)</td>
 </tr>
 <tr>
 <td><strong>Packaging</strong></td>
@@ -120,7 +120,7 @@
 <pre class="code" data-lang="bash"><code>curl https://start.spring.io/starter.zip \
   -d type=gradle-project-kotlin \
   -d language=kotlin \
-  -d bootVersion=4.1.0 \
+  -d bootVersion=4.1.1 \
   -d javaVersion=21 \
   -d packaging=jar \
   -d groupId=com.example \
@@ -155,7 +155,7 @@ cd book-api</code></pre>
 </tr>
 <tr>
 <td><code>bootVersion</code></td>
-<td><code>4.1.0</code></td>
+<td><code>4.1.1</code></td>
 <td>Spring Boot 버전</td>
 </tr>
 <tr>
@@ -187,7 +187,7 @@ cd book-api</code></pre>
 </ol>
 
 <aside class="callout warning">
-<p>내장 마법사는 내부적으로 start.spring.io API를 호출하므로 인터넷 연결이 필요합니다. 또한 IntelliJ가 제안하는 기본 Spring Boot 버전이 4.1.0이 아닐 수 있고, Initializr의 Java 기본값은 <strong>17</strong>이므로, 목록에서 <strong>4.1.0</strong>과 <strong>21</strong>을 직접 선택하세요.</p>
+<p>내장 마법사는 내부적으로 start.spring.io API를 호출하므로 인터넷 연결이 필요합니다. 또한 IntelliJ가 제안하는 기본 Spring Boot 버전이 4.1.1이 아닐 수 있고, Initializr의 Java 기본값은 <strong>17</strong>이므로, 목록에서 <strong>4.1.1</strong>과 <strong>21</strong>을 직접 선택하세요.</p>
 </aside>
 
 <h2>5. 생성된 파일 트리</h2>
@@ -207,12 +207,12 @@ cd book-api</code></pre>
 <ul><li class="ft-file"><span class="ft-row"><span class="ft-icon">📄</span><span class="ft-name">BookApiApplicationTests.kt</span></span></li></ul></li></ul></li></ul></li></ul></li></ul></figure>
 
 <h2>6. 첫 실행 확인</h2>
-<p>프로젝트 루트에서 다음을 실행하면 내장 Tomcat(11.0.22, Servlet 6.1)에서 애플리케이션이 뜹니다.</p>
+<p>프로젝트 루트에서 다음을 실행하면 내장 Tomcat(11.0.24, Servlet 6.1)에서 애플리케이션이 뜹니다.</p>
 
 <pre class="code" data-lang="bash"><code>./gradlew bootRun</code></pre>
 <p>콘솔에 다음과 같은 로그와 함께 8080 포트에서 기동되면 정상입니다. (아직 엔드포인트가 없으므로 404가 정상입니다.)</p>
 
-<pre class="code" data-lang="text"><code> :: Spring Boot ::                (v4.1.0)
+<pre class="code" data-lang="text"><code> :: Spring Boot ::                (v4.1.1)
 ...
 Tomcat started on port 8080 (http) with context path &#x27;/&#x27;
 Started BookApiApplicationKt in 1.2 seconds</code></pre>

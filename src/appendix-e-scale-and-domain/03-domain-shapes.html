@@ -1,0 +1,331 @@
+<h1>03. 도메인 성격별 전략</h1>
+<p>같은 규모라도 <strong>도메인의 성격</strong>이 다르면 쓰는 도구가 달라집니다. 초당 5,000건을 <em>읽는</em> 서비스와 초당 500건을 <em>쓰는</em> 서비스는 병목도, 해법도, 실패 방식도 전부 다릅니다.</p>
+<p>이 문서는 실무에서 만나는 도메인을 <strong>다섯 가지 성격</strong>으로 나누고, 각각에 대해 "무엇이 먼저 터지고, 무엇으로 막는가"를 정리합니다. 하나의 서비스가 여러 성격을 동시에 갖는 것이 보통이므로, <a href="02-modular-monolith.html">모듈별로</a> 다른 전략을 쓰는 것이 자연스럽습니다.</p>
+
+<figure class="dg">
+<figcaption>다섯 가지 도메인 성격 — Book API가 서점으로 자란 뒤</figcaption>
+<div class="dg-grid c3">
+  <div class="cell">
+    <div class="k">① CRUD 중심</div>
+    <div class="v">관리자 도서 등록, 내부 백오피스<br><strong>병목: 없음</strong> (있다면 설계 실수)</div>
+  </div>
+  <div class="cell">
+    <div class="k">② 읽기 중심</div>
+    <div class="v">도서 목록·검색·상세<br><strong>병목: 쿼리와 커넥션</strong></div>
+  </div>
+  <div class="cell">
+    <div class="k">③ 쓰기·정합성 중심</div>
+    <div class="v">주문·결제·재고 차감<br><strong>병목: 락과 경합</strong></div>
+  </div>
+  <div class="cell">
+    <div class="k">④ 이벤트·비동기</div>
+    <div class="v">주문 알림·정산·외부 연동<br><strong>병목: 순서·중복·유실</strong></div>
+  </div>
+  <div class="cell">
+    <div class="k">⑤ 배치·대량</div>
+    <div class="v">도서 일괄 등록, 야간 집계<br><strong>병목: 메모리와 트랜잭션 길이</strong></div>
+  </div>
+  <div class="cell is-accent">
+    <div class="k">🎯 판별 기준</div>
+    <div class="v">"이 기능이 <strong>10배 느려지면</strong> 무엇 때문일까"를 먼저 답하세요. 그 답이 성격입니다.</div>
+  </div>
+</div>
+</figure>
+
+<h2>① CRUD 중심 — 아무것도 하지 마세요</h2>
+<p>사내 관리 도구, 백오피스, 설정 화면처럼 <strong>동시 사용자가 수십 명</strong>인 도메인입니다. 이 가이드 Phase 2~4의 구조 그대로가 정답이고, 여기에 무엇을 더하는 것은 대부분 손해입니다.</p>
+
+<table>
+<thead>
+<tr>
+<th>하지 말 것</th>
+<th>이유</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>캐시</td>
+<td>데이터가 자주 바뀌는데 조회는 드물다 — <strong>캐시 무효화 버그만 얻는다</strong></td>
+</tr>
+<tr>
+<td>CQRS · 읽기 모델 분리</td>
+<td>읽기 부하가 없다. 동기화 코드만 늘어난다</td>
+</tr>
+<tr>
+<td>비동기 처리</td>
+<td>관리자는 결과를 <strong>지금 화면에서</strong> 확인하고 싶어 한다</td>
+</tr>
+<tr>
+<td>DTO 계층 3중 분리</td>
+<td>엔티티 → 도메인 → 응답 3단 매핑. 필드 추가에 파일 6개를 고치게 된다</td>
+</tr>
+</tbody>
+</table>
+
+<aside class="callout tip">
+<p>CRUD 도메인에서 유일하게 값이 확실한 투자는 <strong>입력 검증</strong>(<a href="../phase-4-validation-config/01-bean-validation.html">Phase 4-1</a>)과 <strong>감사 로그</strong>입니다. "누가 언제 이 값을 바꿨는가"는 백오피스에서 가장 자주 나오는 질문입니다. Spring Data JPA의 <code>@CreatedDate</code>·<code>@LastModifiedBy</code> 감사 기능으로 거의 공짜로 얻을 수 있습니다.</p>
+</aside>
+
+<h2>② 읽기 중심 — 순서대로 올라가세요</h2>
+<p>도서 목록·검색·상세처럼 <strong>조회가 쓰기보다 압도적으로 많은</strong> 도메인입니다. 여기서 흔한 실수는 문제를 진단하기 전에 Redis부터 붙이는 것입니다. <strong>대부분의 조회 성능 문제는 캐시가 아니라 쿼리 문제</strong>입니다.</p>
+
+<figure class="dg" data-focusable>
+<figcaption>읽기 성능 개선 — 위에서부터 순서대로</figcaption>
+<ol class="dg-steps">
+  <li><span class="n">1</span><div class="dg-node is-accent"><div class="t">N+1 부터 잡는다</div><div class="s">목록 1건 조회에 쿼리 101개가 나가고 있지 않은지. <code>fetch join</code>·<code>@EntityGraph</code>·배치 사이즈 (<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">부록 A-4</a>)</div></div></li>
+  <li><span class="n">2</span><div class="dg-node"><div class="t">필요한 컬럼만 가져온다</div><div class="s">엔티티 전체 대신 <strong>DTO 프로젝션</strong>. 목록 화면에 본문 텍스트를 실어 나르지 않는다 (<a href="../appendix-b-querydsl/05-dto-and-repository.html">부록 B-5</a>)</div></div></li>
+  <li><span class="n">3</span><div class="dg-node"><div class="t">인덱스와 페이징</div><div class="s">정렬·필터 컬럼에 인덱스. 깊은 offset 페이징은 <strong>커서 기반</strong>으로 바꾼다</div></div></li>
+  <li><span class="n">4</span><div class="dg-node"><div class="t">읽기 전용 트랜잭션</div><div class="s"><code>@Transactional(readOnly = true)</code> — 더티 체킹 스냅샷을 만들지 않아 메모리와 시간을 아낀다</div></div></li>
+  <li><span class="n">5</span><div class="dg-node"><div class="t">캐시</div><div class="s">여기까지 하고도 부족할 때. <strong>무엇을 얼마나 오래 캐시할지 답할 수 있을 때만</strong></div></div></li>
+  <li><span class="n">6</span><div class="dg-node is-muted"><div class="t">읽기 복제본 · 검색 엔진</div><div class="s">DB 자체가 한계일 때. 복제 지연이라는 새 문제를 받아들이는 대가</div></div></li>
+</ol>
+<p class="dg-foot">1~4번은 <strong>인프라 추가 없이</strong> 코드만으로 됩니다. 대부분의 서비스는 여기서 끝납니다.</p>
+</figure>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi.service
+
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+
+@Service
+@Transactional(readOnly = true)          // 클래스 기본값을 읽기 전용으로
+class BookService(
+    private val bookRepository: BookRepository,
+) {
+
+    // 자주 조회되고 거의 안 바뀌는 단건 — 캐시 대상으로 적합
+    @Cacheable(cacheNames = [&quot;books&quot;], key = &quot;#id&quot;)
+    fun findById(id: Long): BookResponse = ...
+
+    // 목록은 캐시하지 않는다 — 필터 조합마다 키가 폭발한다
+    fun findAll(): List&lt;BookResponse&gt; = ...
+
+    @Transactional                        // 쓰기 메서드만 개별로 되돌린다
+    fun create(request: CreateBookRequest): BookResponse = ...
+}</code></pre>
+
+<aside class="callout warning">
+<p><strong>목록 조회를 캐시하지 마세요.</strong> 필터·정렬·페이지 조합마다 캐시 키가 생겨 히트율은 낮고 메모리만 먹습니다. 게다가 도서 한 권이 바뀌면 <strong>그 책이 포함된 모든 목록 캐시</strong>를 지워야 하는데, 그게 어느 것인지 알 방법이 없습니다. 캐시는 <strong>키가 명확한 단건 조회</strong>부터 시작합니다.</p>
+</aside>
+
+<h2>③ 쓰기·정합성 중심 — 트랜잭션 경계가 전부</h2>
+<p>주문·결제·재고처럼 <strong>틀리면 돈이 되는</strong> 도메인입니다. 여기서 성능보다 먼저 걱정할 것은 정합성입니다.</p>
+
+<h3>가장 흔한 사고: 재고 차감 경쟁</h3>
+<p>재고 1권을 두 사람이 동시에 주문했습니다. 두 트랜잭션이 모두 "재고 1권 남음"을 읽고, 각자 0으로 만들어 저장합니다. <strong>2권이 팔렸는데 재고는 0</strong>이 됩니다.</p>
+
+<figure class="dg">
+<figcaption>세 가지 방어선</figcaption>
+<div class="dg-grid c3">
+  <div class="cell">
+    <div class="k">낙관적 락 <code>@Version</code></div>
+    <div class="v">충돌이 <strong>드물 때</strong>. 충돌하면 예외가 나고 재시도한다. 락을 잡지 않아 처리량이 높다</div>
+  </div>
+  <div class="cell">
+    <div class="k">비관적 락 <code>SELECT … FOR UPDATE</code></div>
+    <div class="v">충돌이 <strong>잦을 때</strong>(인기 상품). 확실하지만 대기가 생기고 데드락 위험이 있다</div>
+  </div>
+  <div class="cell is-accent">
+    <div class="k">원자적 UPDATE</div>
+    <div class="v"><code>UPDATE … SET stock = stock - 1 WHERE id = ? AND stock &gt;= 1</code><br>가장 단순하고 가장 빠르다. <strong>가능하면 이것부터</strong></div>
+  </div>
+</div>
+<p class="dg-foot">읽고-고치고-쓰는 대신 <strong>DB에 조건부 갱신을 시키는 것</strong>이 세 방법 중 가장 값싸게 옳습니다.</p>
+</figure>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi.repository
+
+import com.example.bookapi.domain.Book
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
+
+interface BookRepository : JpaRepository&lt;Book, Long&gt; {
+
+    // 조건부 원자 갱신 — 재고가 충분할 때만 차감되고, 갱신된 행 수를 돌려준다
+    @Modifying(clearAutomatically = true)
+    @Query(&quot;update Book b set b.stock = b.stock - :qty where b.id = :id and b.stock &gt;= :qty&quot;)
+    fun decreaseStock(@Param(&quot;id&quot;) id: Long, @Param(&quot;qty&quot;) qty: Int): Int
+}</code></pre>
+
+<pre class="code" data-lang="kotlin"><code>@Transactional
+fun decreaseStock(id: Long, quantity: Int) {
+    val updated = bookRepository.decreaseStock(id, quantity)
+    if (updated == 0) {
+        // 0행이 갱신됐다 = 재고가 부족했다. 예외로 명확히 구분한다
+        throw OutOfStockException(id)
+    }
+}</code></pre>
+
+<h3>트랜잭션 경계에서 지킬 것</h3>
+
+<table>
+<thead>
+<tr>
+<th>규칙</th>
+<th>이유</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>트랜잭션 안에서 <strong>외부 HTTP 호출 금지</strong></td>
+<td>외부가 5초 느려지면 DB 커넥션을 5초 붙잡는다. 커넥션 풀이 먼저 마른다</td>
+</tr>
+<tr>
+<td>트랜잭션은 <strong>짧게</strong></td>
+<td>긴 트랜잭션은 락 유지 시간을 늘려 경합을 키운다</td>
+</tr>
+<tr>
+<td>커밋 이후 작업은 <code>@TransactionalEventListener</code></td>
+<td>"주문 저장 후 알림 발송"을 같은 트랜잭션에 넣으면 알림 실패로 주문이 롤백된다</td>
+</tr>
+<tr>
+<td>자기 호출로는 <code>@Transactional</code>이 안 걸린다</td>
+<td>프록시를 거치지 않기 때문 (<a href="../appendix-c-aop/03-pitfalls-and-internals.html">부록 C-3</a>)</td>
+</tr>
+</tbody>
+</table>
+
+<aside class="callout tip">
+<p>낙관적 락 충돌은 <strong>재시도하면 대부분 성공</strong>합니다. Spring Framework 7의 <code>@Retryable</code>(<a href="../phase-5-production-features/01-http-interface-client.html">Phase 5-1</a>)을 쓰면 외부 라이브러리 없이 처리할 수 있습니다. 단, 재시도는 <strong>트랜잭션 바깥</strong>에서 걸어야 합니다 — 이미 롤백된 트랜잭션 안에서 다시 시도해도 소용없습니다.</p>
+</aside>
+
+<h2>④ 이벤트·비동기 중심 — 결합을 끊는 대신 어려움을 산다</h2>
+<p>주문 완료 알림, 정산 집계, 외부 시스템 연동처럼 <strong>지금 당장 끝나지 않아도 되는</strong> 일입니다. 이벤트로 옮기면 응답이 빨라지고 모듈 결합이 끊어집니다. 대신 <strong>동기 호출에는 없던 문제들</strong>이 따라옵니다.</p>
+
+<aside class="callout note">
+<p><strong>컨퍼런스 인사이트 (Spring I/O 2026).</strong> Victor Rentea는 <em>Top 10 Event-Driven Architecture Pitfalls</em> 세션을 <strong>"REST API를 부르는 대신 메시지를 보낸다 — 뭐가 잘못될 수 있겠어?"</strong> 라는 문장으로 엽니다. 150개 조직에서 실제로 목격한 함정으로 <strong>중복 전달, 순서 뒤바뀜, 경쟁 조건, dual-write, 소비자 오류, 메시지 유실, 메시지에 담긴 개인정보</strong> 등을 꼽았습니다. 요지는 명확합니다 — 이벤트는 결합을 끊어 주지만, <strong>끊긴 자리에 새로운 실패 모드가 들어옵니다.</strong></p>
+</aside>
+
+<figure class="dg">
+<figcaption>이벤트를 쓰기로 했다면 반드시 함께 준비할 것</figcaption>
+<div class="dg-grid c2">
+  <div class="cell">
+    <div class="k">🔁 중복 전달 → <strong>멱등 처리</strong></div>
+    <div class="v">대부분의 브로커는 "최소 1회" 전달입니다. 같은 이벤트가 두 번 와도 결과가 같아야 합니다. 이벤트 ID를 저장해 두고 이미 처리한 것은 건너뜁니다.</div>
+  </div>
+  <div class="cell">
+    <div class="k">✍️ dual-write → <strong>아웃박스 패턴</strong></div>
+    <div class="v">"DB에 저장하고 브로커에 발행"은 원자적이지 않습니다. 저장은 됐는데 발행이 실패하면 이벤트가 사라집니다. <strong>같은 트랜잭션에서 DB 테이블에 이벤트를 적고</strong>, 별도 프로세스가 발행합니다.</div>
+  </div>
+  <div class="cell">
+    <div class="k">💥 소비자 오류 → <strong>DLQ · 재시도</strong></div>
+    <div class="v">처리 실패한 이벤트가 조용히 사라지지 않게 실패 큐로 보내고, 재처리 수단을 만들어 둡니다.</div>
+  </div>
+  <div class="cell">
+    <div class="k">🔀 순서 → <strong>키 기반 파티션</strong></div>
+    <div class="v">전역 순서는 포기하고, <strong>같은 주문 ID의 이벤트만</strong> 순서를 보장합니다. 그것으로 충분한 경우가 대부분입니다.</div>
+  </div>
+</div>
+</figure>
+
+<p>단일 애플리케이션 안에서 시작한다면 <a href="02-modular-monolith.html">Spring Modulith의 이벤트</a>가 가장 값싼 출발점입니다. <code>spring-modulith-starter-jpa</code>가 <strong>아웃박스를 대신 구현</strong>해 주므로, 브로커를 도입하지 않고도 유실 방지와 재발행을 얻습니다. 나중에 브로커로 옮길 때도 리스너 코드는 그대로 둘 수 있습니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi.service
+
+import org.springframework.context.ApplicationEventPublisher
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+
+@Service
+class OrderService(
+    private val events: ApplicationEventPublisher,
+) {
+    @Transactional
+    fun placeOrder(command: PlaceOrderCommand): OrderResponse {
+        val order = ...    // 저장
+
+        // 발행 시점은 트랜잭션 안이지만, 리스너는 커밋 후에 실행된다
+        events.publishEvent(OrderPlaced(order.id, command.bookId, command.quantity))
+        return order.toResponse()
+    }
+}</code></pre>
+
+<h2>⑤ 배치·대량 처리 — 메모리와 트랜잭션 길이</h2>
+<p>도서 10만 건 일괄 등록, 야간 정산 집계 같은 작업입니다. 웹 요청과 완전히 다른 규칙이 적용됩니다.</p>
+
+<table>
+<thead>
+<tr>
+<th>증상</th>
+<th>원인</th>
+<th>대응</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OutOfMemoryError</code></td>
+<td>영속성 컨텍스트가 10만 엔티티를 모두 들고 있다</td>
+<td>일정 건수마다 <code>flush()</code> + <code>clear()</code>, 또는 청크 단위 처리</td>
+</tr>
+<tr>
+<td>INSERT가 10만 번 나감</td>
+<td>JDBC 배치가 꺼져 있다</td>
+<td><code>spring.jpa.properties.hibernate.jdbc.batch_size</code> 설정 + <code>IDENTITY</code> 대신 시퀀스 사용</td>
+</tr>
+<tr>
+<td>배치 도는 동안 API가 느려짐</td>
+<td>같은 커넥션 풀·같은 DB를 쓴다</td>
+<td>배치 전용 데이터소스, 또는 읽기 복제본·별도 시간대로 분리</td>
+</tr>
+<tr>
+<td>중간에 실패하면 처음부터</td>
+<td>전체를 하나의 트랜잭션으로 묶었다</td>
+<td>청크 단위 커밋 + 재시작 지점 기록 (Spring Batch가 이 문제를 위해 존재합니다)</td>
+</tr>
+</tbody>
+</table>
+
+<aside class="callout warning">
+<p><code>@GeneratedValue(strategy = IDENTITY)</code>를 쓰면 <strong>Hibernate의 JDBC 배치가 무력화</strong>됩니다. INSERT를 실제로 실행해야 ID를 알 수 있으므로 쓰기를 모아 둘 수 없기 때문입니다. 대량 INSERT가 있는 도메인이라면 <code>SEQUENCE</code> 전략을 쓰세요. (<a href="../phase-3-data-jpa/02-entity-mapping.html">Phase 3-2</a>)</p>
+</aside>
+
+<h2>정리 — 성격별 요약</h2>
+
+<table>
+<thead>
+<tr>
+<th>성격</th>
+<th>먼저 터지는 곳</th>
+<th>첫 번째 해법</th>
+<th>과설계 신호</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① CRUD</td>
+<td>거의 없음</td>
+<td>검증 + 감사 로그</td>
+<td>캐시·CQRS 도입</td>
+</tr>
+<tr>
+<td>② 읽기 중심</td>
+<td>쿼리 수 · 커넥션 풀</td>
+<td>N+1 제거 → DTO 프로젝션</td>
+<td>진단 전에 Redis</td>
+</tr>
+<tr>
+<td>③ 쓰기·정합성</td>
+<td>락 경합 · 트랜잭션 길이</td>
+<td>조건부 원자 UPDATE</td>
+<td>분산 락부터 검토</td>
+</tr>
+<tr>
+<td>④ 이벤트·비동기</td>
+<td>중복 · 유실 · 순서</td>
+<td>아웃박스 + 멱등 처리</td>
+<td>모든 호출을 이벤트로</td>
+</tr>
+<tr>
+<td>⑤ 배치·대량</td>
+<td>메모리 · 트랜잭션 길이</td>
+<td>청크 커밋 + JDBC 배치</td>
+<td>실시간 스트리밍 파이프라인</td>
+</tr>
+</tbody>
+</table>
+
+<h2>다음 단계</h2>
+<p>→ <strong><a href="04-decision-guide.html">04. 의사결정 가이드</a></strong> 에서 두 축을 합쳐 "지금 무엇을 할 것인가"를 정리합니다.</p>

@@ -59,6 +59,7 @@
   <a href="02-security-basics.html" class="active">Spring Security 7 기초</a>
   <a href="03-actuator-observability.html">Actuator와 관측성</a>
   <a href="04-testing.html">테스트 전략</a>
+  <a href="05-api-versioning.html">API 버전 관리</a>
   <div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
   <a href="../phase-6-build-deploy/README.html">📄 개요</a>
   <a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
@@ -97,6 +98,12 @@
   <a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
   <a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
   <a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+  <div class="nav-section">부록 E: 규모·도메인별 설계 전략</div>
+  <a href="../appendix-e-scale-and-domain/README.html">📄 개요</a>
+  <a href="../appendix-e-scale-and-domain/01-scale-tiers.html">규모 단계별 설계</a>
+  <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
+  <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
+  <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
 </nav></aside>
   <main class="content">
 <h1>Spring Security 7 기초</h1>
@@ -104,7 +111,8 @@
 <p>이 문서에서는 <strong>Spring Security 7</strong> 의 핵심 개념과, Spring Boot 4 / Security 7에서 권장되는 <strong>컴포넌트 스타일 <code>SecurityFilterChain</code></strong> 구성을 Kotlin DSL로 다룹니다. 그리고 운영의 정석인 JWT / OAuth2 Resource Server로 가는 길을 짚어 줍니다.</p>
 
 <aside class="callout note">
-<p>Spring Boot 4.1.0이 관리하는 Spring Security 버전은 <strong>7.1.0</strong>(2026-06 GA)입니다. 7.0 대비 다요소 인가(<code>AllRequiredFactorsAuthorizationManager.anyOf()</code>), CORS 프리플라이트 전용 필터(<code>PreFlightRequestFilter</code>) 지원, <code>InetAddressMatcher</code> 같은 항목이 추가됐지만, 아래에서 다루는 <code>SecurityFilterChain</code> 구성 방식은 7.0과 동일합니다.</p>
+<p>Spring Boot 4.1.1이 관리하는 Spring Security 버전은 <strong>7.1.1</strong>(2026-08-20, 7.1 라인 GA는 2026-06-09)입니다. 7.x의 간판 기능은 <strong>다요소 인증/인가(MFA)</strong> 로, <code>FactorGrantedAuthority</code>와 <code>AllRequiredFactorsAuthorizationManager</code>(<code>anyOf()</code>·<code>Builder</code>)로 "비밀번호 <em>그리고</em> OTP를 통과한 사용자만" 같은 규칙을 선언할 수 있습니다. IP 대역 매칭을 위한 <code>InetAddressMatcher</code>/<code>InetAddressMatchers</code>도 이 라인에서 추가됐습니다. 다만 <strong>아래에서 다루는 <code>SecurityFilterChain</code> 구성 방식 자체는 7.0과 동일</strong>하므로, 기초를 익히는 데는 차이가 없습니다.</p>
+<p>MFA는 Spring I/O 2026에서 Daniel Garnier-Moiroux가 <em>New in Spring Security 7: MFA, OAuth2 and more</em> 세션에서 "10년 넘게 요청되어 온 기능"으로 소개한 항목입니다. 이 문서의 범위를 넘으므로, 기본 인증을 이해한 뒤 공식 문서로 이어가세요.</p>
 </aside>
 
 <h2 id="1-시작-스타터만-추가하면-벌어지는-일">1. 시작: 스타터만 추가하면 벌어지는 일</h2>

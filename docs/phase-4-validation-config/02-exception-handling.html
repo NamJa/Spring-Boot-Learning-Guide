@@ -59,6 +59,7 @@
   <a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
   <a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
   <a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+  <a href="../phase-5-production-features/05-api-versioning.html">API 버전 관리</a>
   <div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
   <a href="../phase-6-build-deploy/README.html">📄 개요</a>
   <a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
@@ -97,13 +98,19 @@
   <a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
   <a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
   <a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+  <div class="nav-section">부록 E: 규모·도메인별 설계 전략</div>
+  <a href="../appendix-e-scale-and-domain/README.html">📄 개요</a>
+  <a href="../appendix-e-scale-and-domain/01-scale-tiers.html">규모 단계별 설계</a>
+  <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
+  <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
+  <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
 </nav></aside>
   <main class="content">
 <h1>전역 예외 처리</h1>
 <p>지금 우리 API에서 예외가 발생하면 어떤 일이 벌어질까요? 존재하지 않는 도서를 조회해 <code>BookNotFoundException</code>이 던져지면, Spring Boot의 기본 에러 처리기가 작동해 다음과 같은 다소 투박한 JSON을 돌려줍니다.</p>
 
 <div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-07-25T01:30:00.123+00:00&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-08-30T01:30:00.123+00:00&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Internal Server Error&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/books/999&quot;</span>
@@ -237,7 +244,7 @@
 <p>이제 검증 실패 시 응답은 다음과 같이 풍부해집니다.</p>
 
 <div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-07-25T01:30:00.123+09:00&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-08-30T01:30:00.123+09:00&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">400</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bad Request&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;입력 검증에 실패했습니다&quot;</span><span class="p">,</span>
@@ -355,7 +362,7 @@
 <span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">404</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;detail&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ID가 999인 도서를 찾을 수 없습니다&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">&quot;instance&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/books/999&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-07-25T01:30:00.123+09:00&quot;</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-08-30T01:30:00.123+09:00&quot;</span>
 <span class="p">}</span>
 </pre></div>
 </div>

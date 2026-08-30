@@ -59,6 +59,7 @@
   <a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
   <a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
   <a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+  <a href="../phase-5-production-features/05-api-versioning.html">API 버전 관리</a>
   <div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
   <a href="../phase-6-build-deploy/README.html">📄 개요</a>
   <a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
@@ -97,6 +98,12 @@
   <a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
   <a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
   <a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+  <div class="nav-section">부록 E: 규모·도메인별 설계 전략</div>
+  <a href="../appendix-e-scale-and-domain/README.html">📄 개요</a>
+  <a href="../appendix-e-scale-and-domain/01-scale-tiers.html">규모 단계별 설계</a>
+  <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
+  <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
+  <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
 </nav></aside>
   <main class="content">
 <h1>CI/CD와 운영</h1>
@@ -275,10 +282,13 @@ gcloud<span class="w"> </span>run<span class="w"> </span>deploy<span class="w"> 
 <div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># 최근 로그 보기</span>
 gcloud<span class="w"> </span>run<span class="w"> </span>services<span class="w"> </span>logs<span class="w"> </span><span class="nb">read</span><span class="w"> </span>book-api<span class="w"> </span>--region<span class="w"> </span>asia-northeast3<span class="w"> </span>--limit<span class="w"> </span><span class="m">50</span>
 
-<span class="c1"># 실시간 추적</span>
-gcloud<span class="w"> </span>run<span class="w"> </span>services<span class="w"> </span>logs<span class="w"> </span>tail<span class="w"> </span>book-api<span class="w"> </span>--region<span class="w"> </span>asia-northeast3
+<span class="c1"># 실시간 추적 — tail 은 아직 beta 트랙에만 있습니다 (GA 에는 read 만 존재)</span>
+gcloud<span class="w"> </span>beta<span class="w"> </span>run<span class="w"> </span>services<span class="w"> </span>logs<span class="w"> </span>tail<span class="w"> </span>book-api<span class="w"> </span>--region<span class="w"> </span>asia-northeast3
 </pre></div>
 </div>
+<aside class="callout note">
+<p><code>gcloud run services logs</code> 의 GA 하위 명령은 <strong><code>read</code> 하나뿐</strong>입니다. 실시간 <code>tail</code> 은 <code>gcloud beta …</code> 로 호출해야 하며, 처음 실행할 때 beta 컴포넌트 설치를 물어봅니다. 스크립트나 CI 에서는 안정성을 위해 <code>read</code> 를 쓰는 편이 안전합니다.</p>
+</aside>
 <p>Cloud Console의 Cloud Run 서비스 페이지에서는 <strong>요청 수, 지연 시간(p50/p95/p99), 인스턴스 수, CPU/메모리 사용량, 에러율</strong>을 그래프로 볼 수 있습니다.</p>
 
 <h2 id="7-트러블슈팅">7. 트러블슈팅</h2>

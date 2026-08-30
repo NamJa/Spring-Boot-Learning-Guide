@@ -162,8 +162,11 @@ server:
 <pre class="code" data-lang="bash"><code># 최근 로그 보기
 gcloud run services logs read book-api --region asia-northeast3 --limit 50
 
-# 실시간 추적
-gcloud run services logs tail book-api --region asia-northeast3</code></pre>
+# 실시간 추적 — tail 은 아직 beta 트랙에만 있습니다 (GA 에는 read 만 존재)
+gcloud beta run services logs tail book-api --region asia-northeast3</code></pre>
+<aside class="callout note">
+<p><code>gcloud run services logs</code> 의 GA 하위 명령은 <strong><code>read</code> 하나뿐</strong>입니다. 실시간 <code>tail</code> 은 <code>gcloud beta …</code> 로 호출해야 하며, 처음 실행할 때 beta 컴포넌트 설치를 물어봅니다. 스크립트나 CI 에서는 안정성을 위해 <code>read</code> 를 쓰는 편이 안전합니다.</p>
+</aside>
 <p>Cloud Console의 Cloud Run 서비스 페이지에서는 <strong>요청 수, 지연 시간(p50/p95/p99), 인스턴스 수, CPU/메모리 사용량, 에러율</strong>을 그래프로 볼 수 있습니다.</p>
 
 <h2>7. 트러블슈팅</h2>

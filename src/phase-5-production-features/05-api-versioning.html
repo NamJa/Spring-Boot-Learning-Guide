@@ -1,0 +1,393 @@
+<h1>API 버전 관리 (Spring Framework 7 내장)</h1>
+<p>지금까지 만든 Book API는 <strong>아직 아무도 쓰지 않는 API</strong>였습니다. 배포하는 순간부터는 사정이 달라집니다. 응답에서 필드 하나를 빼거나 이름을 바꾸는 것만으로도 이미 배포된 모바일 앱이 깨질 수 있습니다. 서버는 언제든 다시 배포할 수 있지만, <strong>사용자의 휴대폰에 깔린 앱은 우리가 되돌릴 수 없습니다.</strong></p>
+<p>그래서 실무의 REST API는 거의 예외 없이 <strong>버전</strong>을 갖습니다. 그리고 Spring Boot 4(Spring Framework 7)부터는 이 버전 관리가 <strong>프레임워크 기본 기능</strong>이 되었습니다. 그전까지 각자 손으로 만들던 것을 이제 애너테이션 속성 하나로 처리합니다.</p>
+
+<aside class="callout important">
+<p><strong>Spring Boot 4의 신기능입니다.</strong> 인터넷에 있는 Spring Boot 3 이하의 "API 버전 관리" 글은 전부 <strong>직접 구현하는 우회 방법</strong>(경로에 <code>/v1</code> 하드코딩, <code>headers = "X-API-Version=1"</code> 조건, 커스텀 <code>RequestCondition</code>)을 설명합니다. 아래에서 다루는 <code>version</code> 속성과 <code>spring.mvc.apiversion.*</code> 설정은 <strong>Spring Framework 7 / Spring Boot 4에서 새로 들어온 것</strong>이라 Boot 3에서는 동작하지 않습니다.</p>
+</aside>
+
+<h2>1. 버전을 붙이지 않으면 생기는 일</h2>
+<p>Book API의 응답에 할인가 필드를 추가하고, 동시에 <code>price</code>의 의미를 "정가"로 바꾸고 싶다고 해봅시다. 버전이 없으면 선택지는 둘뿐입니다.</p>
+
+<figure class="dg">
+<figcaption>버전 없는 API를 바꿀 때의 두 갈래</figcaption>
+<div class="dg-vs">
+  <div class="col is-bad">
+    <h4>그냥 바꾼다</h4>
+    <ul>
+      <li>서버 배포 즉시 <strong>구버전 클라이언트가 깨진다</strong></li>
+      <li>모바일 앱은 강제 업데이트 외에 방법이 없다</li>
+      <li>롤백해도 이미 나간 응답은 되돌릴 수 없다</li>
+    </ul>
+  </div>
+  <div class="mid"><span>또는</span></div>
+  <div class="col is-bad">
+    <h4>영원히 안 바꾼다</h4>
+    <ul>
+      <li>잘못 설계한 필드를 <strong>평생 끌고 간다</strong></li>
+      <li>새 요구사항은 계속 <code>*_v2</code>, <code>*_new</code> 필드로 덧붙는다</li>
+      <li>DTO가 누더기가 되고 아무도 손대지 못한다</li>
+    </ul>
+  </div>
+</div>
+<p class="dg-foot">API 버전 관리는 이 두 나쁜 선택지 사이에 <strong>세 번째 길</strong>을 놓는 일입니다. 구버전은 그대로 응답하면서, 새 클라이언트에게만 새 표현을 준다.</p>
+</figure>
+
+<h2>2. 버전을 어디에 실을 것인가 — 네 가지 전략</h2>
+<p>클라이언트가 "나는 1.1 버전으로 이야기하겠다"를 서버에 알리는 방법은 네 가지입니다. Spring Boot 4는 넷 다 기본 제공하며, <code>spring.mvc.apiversion.use.*</code> 프로퍼티로 고릅니다.</p>
+
+<table>
+<thead>
+<tr>
+<th>전략</th>
+<th>프로퍼티</th>
+<th>요청 예</th>
+<th>특징</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>요청 헤더</strong></td>
+<td><code>use.header</code></td>
+<td><code>X-API-Version: 1.1</code></td>
+<td>URL이 깨끗하다. 가장 많이 쓰이는 기본값</td>
+</tr>
+<tr>
+<td><strong>쿼리 파라미터</strong></td>
+<td><code>use.query-parameter</code></td>
+<td><code>/api/books?version=1.1</code></td>
+<td>브라우저 주소창·curl로 테스트하기 가장 쉽다</td>
+</tr>
+<tr>
+<td><strong>경로 세그먼트</strong></td>
+<td><code>use.path-segment</code></td>
+<td><code>/v1.1/api/books</code></td>
+<td>눈에 보이고 캐시·라우팅에 유리. 인덱스(0부터)를 지정</td>
+</tr>
+<tr>
+<td><strong>미디어 타입 파라미터</strong></td>
+<td><code>use.media-type-parameter</code></td>
+<td><code>Accept: application/json;version=1.1</code></td>
+<td>콘텐츠 협상과 한 몸. 가장 "REST 원리주의"에 가깝다</td>
+</tr>
+</tbody>
+</table>
+
+<aside class="callout warning">
+<p><strong>넷 중 하나만 고르세요.</strong> 여러 전략을 동시에 켜면 클라이언트마다 다른 방식을 쓰게 되고, 어느 쪽이 이겼는지 추적하기 어려운 버그가 생깁니다. 팀에서 하나를 정하고 문서에 못 박는 편이 낫습니다. 또한 <strong>Java 설정(<code>WebMvcConfigurer</code>)과 <code>application.yml</code>을 동시에 쓰지 마세요.</strong> 둘 다 설정하면 어느 쪽이 실제로 적용됐는지 읽는 사람이 알 수 없습니다.</p>
+</aside>
+
+<h3>application.yml로 설정하기 (권장)</h3>
+<p>Book API는 헤더 방식을 쓰겠습니다. <a href="../phase-1-project-setup/05-application-yml.html">Phase 1-05</a>에서 만든 설정 파일에 다음을 추가합니다.</p>
+
+<pre class="code" data-lang="yaml"><code>spring:
+  mvc:
+    apiversion:
+      use:
+        header: X-API-Version    # 이 헤더에서 버전을 읽는다
+      default: "1.0"             # 헤더가 없는 요청은 1.0으로 취급
+      required: false            # true면 헤더 없는 요청을 400으로 거절
+      # supported: ["1.0", "1.1"]   # 매핑에 없는 버전까지 허용하고 싶을 때만
+      # detect-supported: true      # (기본값) 컨트롤러의 version 속성에서 자동 수집</code></pre>
+
+<p>이것만으로 자동 설정이 <code>ApiVersionStrategy</code> 빈을 만들고 <code>DispatcherServlet</code>에 연결합니다. <a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정</a>의 전형적인 모습입니다 — 프로퍼티 하나가 인프라 한 덩어리를 켭니다.</p>
+
+<h3>코드로 설정하기</h3>
+<p>조건부 로직이 필요하거나 커스텀 리졸버를 끼워야 한다면 <code>WebMvcConfigurer</code>를 씁니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi.config
+
+import org.springframework.context.annotation.Configuration
+import org.springframework.web.servlet.config.annotation.ApiVersionConfigurer
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+
+@Configuration
+class ApiVersionConfig : WebMvcConfigurer {
+
+    override fun configureApiVersioning(configurer: ApiVersionConfigurer) {
+        configurer
+            .useRequestHeader(&quot;X-API-Version&quot;)   // 또는 useQueryParam / usePathSegment / useMediaTypeParameter
+            .setDefaultVersion(&quot;1.0&quot;)
+            .setVersionRequired(false)
+            .detectSupportedVersions(true)        // 기본값 — 매핑에 선언된 버전을 자동 수집
+    }
+}</code></pre>
+
+<h2>3. 컨트롤러에 버전 붙이기</h2>
+<p><code>@RequestMapping</code>과 <code>@GetMapping</code>·<code>@PostMapping</code> 등 모든 매핑 애너테이션에 <strong><code>version</code> 속성</strong>이 생겼습니다. Book API에 1.1을 추가해 봅시다. 먼저 1.1에서 내려줄 새 표현을 DTO로 만듭니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi.dto
+
+import java.time.LocalDate
+
+// 1.1부터 내려주는 확장 표현 — 기존 BookResponse는 손대지 않는다
+data class BookDetailResponse(
+    val id: Long,
+    val title: String,
+    val author: String,
+    val isbn: String,
+    val price: Int,
+    val publishedAt: LocalDate,
+    val discountedPrice: Int,      // 1.1에서 추가된 필드
+) {
+    companion object {
+        fun from(book: BookResponse): BookDetailResponse = BookDetailResponse(
+            id = book.id,
+            title = book.title,
+            author = book.author,
+            isbn = book.isbn,
+            price = book.price,
+            publishedAt = book.publishedAt,
+            discountedPrice = (book.price * 0.9).toInt(),
+        )
+    }
+}</code></pre>
+
+<p>이제 컨트롤러에 두 개의 매핑을 나란히 둡니다. <strong><code>BookService</code>는 전혀 건드리지 않습니다</strong> — 버전은 표현(presentation)의 문제이지 도메인의 문제가 아니기 때문입니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi.controller
+
+import com.example.bookapi.dto.BookDetailResponse
+import com.example.bookapi.dto.BookResponse
+import com.example.bookapi.service.BookService
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+
+@RestController
+@RequestMapping(&quot;/api/books&quot;)
+class BookController(
+    private val bookService: BookService,
+) {
+
+    // 버전 미지정 — 모든 버전에 매칭되지만, 버전이 붙은 매핑이 있으면 그쪽에 밀린다
+    @GetMapping(&quot;/{id}&quot;)
+    fun getOne(@PathVariable id: Long): BookResponse =
+        bookService.findById(id)
+
+    // 1.1 이상 — 할인가를 포함한 확장 응답
+    @GetMapping(&quot;/{id}&quot;, version = &quot;1.1+&quot;)
+    fun getOneV11(@PathVariable id: Long): BookDetailResponse =
+        BookDetailResponse.from(bookService.findById(id))
+
+    // ... 나머지 매핑은 Phase 2와 동일
+}</code></pre>
+
+<h2>4. 매칭 규칙 — 고정 · 베이스라인 · 미지정</h2>
+<p><code>version</code> 속성에는 세 가지 형태를 쓸 수 있고, 여러 개가 동시에 조건을 만족하면 <strong>요청 버전 이하 중 가장 높은 것</strong>이 이깁니다.</p>
+
+<table>
+<thead>
+<tr>
+<th>표기</th>
+<th>의미</th>
+<th>언제 쓰나</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>version = "1.1"</code></td>
+<td><strong>고정</strong> — 정확히 1.1 요청만</td>
+<td>딱 그 버전에서만 존재했던 임시 동작</td>
+</tr>
+<tr>
+<td><code>version = "1.1+"</code></td>
+<td><strong>베이스라인</strong> — 1.1과 그 이상 전부</td>
+<td>대부분의 경우. 새 동작을 도입한 시점을 표시</td>
+</tr>
+<tr>
+<td>(속성 없음)</td>
+<td>모든 버전에 매칭하되 <strong>가장 낮은 우선순위</strong></td>
+<td>버전 도입 이전부터 있던 기존 매핑</td>
+</tr>
+</tbody>
+</table>
+
+<figure class="dg" data-focusable>
+<figcaption>같은 <code>GET /api/books/1</code> 요청이 버전에 따라 갈리는 경로</figcaption>
+<div class="dg-fork">
+  <div class="q">요청 헤더의 <code>X-API-Version</code> 값은?</div>
+  <div class="paths">
+    <div class="path"><span class="tag alt">없음</span><span class="arw">→</span>
+      <span class="out"><code>default: "1.0"</code>이 적용 → <code>getOne()</code></span><span class="st ok">200 BookResponse</span></div>
+    <div class="path"><span class="tag alt">1.0</span><span class="arw">→</span>
+      <span class="out">1.1+ 조건 미달 → 버전 미지정 매핑 <code>getOne()</code></span><span class="st ok">200 BookResponse</span></div>
+    <div class="path"><span class="tag yes">1.1</span><span class="arw">→</span>
+      <span class="out">1.1+ 매칭, 더 구체적이므로 우선 → <code>getOneV11()</code></span><span class="st ok">200 BookDetailResponse</span></div>
+    <div class="path"><span class="tag yes">1.2</span><span class="arw">→</span>
+      <span class="out">1.1+ 는 여전히 매칭 → <code>getOneV11()</code></span><span class="st ok">200 BookDetailResponse</span></div>
+    <div class="path"><span class="tag no">9.9</span><span class="arw">→</span>
+      <span class="out">지원 목록에 없는 버전 → <code>InvalidApiVersionException</code></span><span class="st err">400</span></div>
+  </div>
+  <div class="sum">버전 미지정 매핑은 <strong>안전망</strong>입니다. 버전을 모르는 옛 클라이언트도 계속 응답을 받습니다.<span class="badge">지우지 말 것</span></div>
+</div>
+<p class="dg-hint">각 갈래를 클릭하면 그 경로만 강조됩니다.</p>
+</figure>
+
+<aside class="callout note">
+<p>버전 문자열은 기본적으로 <strong>시맨틱 버전 파서</strong>(<code>SemanticApiVersionParser</code>)로 해석되므로 <code>"1.1"</code>과 <code>"1.1.0"</code>은 같은 값이고, <code>"1.10" &gt; "1.9"</code> 처럼 <strong>숫자로</strong> 비교됩니다. 문자열 비교가 아닙니다. 날짜 기반 버전(<code>2026-08-30</code>) 같은 다른 체계를 쓰고 싶다면 <code>ApiVersionParser</code>를 직접 구현해 <code>setVersionParser()</code>로 끼웁니다.</p>
+</aside>
+
+<h2>5. 지원하지 않는 버전 · 빠진 버전</h2>
+<p>지원 버전 목록은 기본적으로 <strong>컨트롤러에 선언된 <code>version</code> 값들에서 자동으로 수집</strong>됩니다(<code>detect-supported</code>). 그 목록에 없는 버전이 들어오면 요청은 400으로 거절됩니다.</p>
+
+<table>
+<thead>
+<tr>
+<th>상황</th>
+<th>예외</th>
+<th>응답</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>지원하지 않는 버전</td>
+<td><code>InvalidApiVersionException</code></td>
+<td><strong>400</strong> Bad Request</td>
+</tr>
+<tr>
+<td>버전은 유효하나 매칭되는 매핑이 없음</td>
+<td><code>NotAcceptableApiVersionException</code></td>
+<td><strong>400</strong> Bad Request</td>
+</tr>
+<tr>
+<td><code>required: true</code>인데 버전이 빠짐</td>
+<td><code>MissingApiVersionException</code></td>
+<td><strong>400</strong> Bad Request</td>
+</tr>
+</tbody>
+</table>
+
+<p>세 예외 모두 <code>ResponseStatusException</code>을 상속하므로, <a href="../phase-4-validation-config/02-exception-handling.html">Phase 4-02</a>에서 만든 <code>ProblemDetail</code> 기반 전역 예외 처리에 <strong>그대로 얹힙니다</strong>. 별도 핸들러를 쓸 필요가 없습니다.</p>
+
+<figure class="dg">
+<figcaption>버전 협상이 실제로 오가는 모습</figcaption>
+<div class="dg-http">
+  <div class="ln"><span class="c"><span class="m">GET</span> /api/books/1 HTTP/1.1</span><span class="note">경로는 버전과 무관하게 동일</span></div>
+  <div class="ln"><span class="c"><span class="k">X-API-Version</span>: <span class="v">1.1</span></span><span class="note">여기서 버전이 결정된다</span></div>
+  <div class="ln"><span class="c"><span class="k">Accept</span>: <span class="v">application/json</span></span><span class="note">콘텐츠 협상은 그대로</span></div>
+  <div class="ln is-blank"><span class="c"></span><span class="note"></span></div>
+  <div class="ln"><span class="c">HTTP/1.1 <span class="m">200 OK</span></span><span class="note">getOneV11() 이 처리</span></div>
+  <div class="ln"><span class="c">{"id":1,...,"price":36000,"discountedPrice":32400}</span><span class="note">1.1에서만 나오는 필드</span></div>
+</div>
+<p class="dg-foot">같은 헤더를 <code>X-API-Version: 9.9</code>로 바꾸면 컨트롤러에 닿기도 전에 <strong>400</strong>이 나갑니다. 디스패치 단계에서 걸러지므로 서비스 코드에는 버전 분기가 하나도 생기지 않습니다.</p>
+</figure>
+
+<pre class="code" data-lang="bash"><code># 버전 없음 → default 1.0 → 기존 응답
+curl -s localhost:8080/api/books/1
+
+# 1.1 → 확장 응답
+curl -s -H &#x27;X-API-Version: 1.1&#x27; localhost:8080/api/books/1
+
+# 지원하지 않는 버전 → 400 (ProblemDetail JSON)
+curl -si -H &#x27;X-API-Version: 9.9&#x27; localhost:8080/api/books/1 | head -1</code></pre>
+
+<h2>6. 은퇴 예고 — Deprecation · Sunset 헤더</h2>
+<p>버전을 만드는 것보다 어려운 일이 <strong>버전을 없애는 것</strong>입니다. Spring Framework 7은 표준 헤더(RFC 9745 <code>Deprecation</code>, RFC 8594 <code>Sunset</code>)로 "이 버전은 언제 죽습니다"를 클라이언트에 자동으로 알려 주는 핸들러를 제공합니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi.config
+
+import org.springframework.context.annotation.Configuration
+import org.springframework.web.accept.StandardApiVersionDeprecationHandler
+import org.springframework.web.servlet.config.annotation.ApiVersionConfigurer
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import java.net.URI
+import java.time.ZonedDateTime
+
+@Configuration
+class ApiVersionConfig : WebMvcConfigurer {
+
+    override fun configureApiVersioning(configurer: ApiVersionConfigurer) {
+        val deprecation = StandardApiVersionDeprecationHandler()
+        deprecation.configureVersion(&quot;1.0&quot;)
+            .setDeprecationDate(ZonedDateTime.parse(&quot;2026-09-01T00:00:00Z&quot;))
+            .setSunsetDate(ZonedDateTime.parse(&quot;2027-01-01T00:00:00Z&quot;))
+            .setDeprecationLink(URI.create(&quot;https://example.com/docs/api/migration-1.1&quot;))
+
+        configurer
+            .useRequestHeader(&quot;X-API-Version&quot;)
+            .setDefaultVersion(&quot;1.0&quot;)
+            .setDeprecationHandler(deprecation)
+    }
+}</code></pre>
+
+<p>이제 1.0으로 들어온 요청의 응답에는 <code>Deprecation</code>·<code>Sunset</code>·<code>Link</code> 헤더가 자동으로 붙습니다. 클라이언트 팀에게 이메일 대신 <strong>응답 자체로</strong> 통보하는 셈이라, 로그·모니터링으로 "아직 1.0을 쓰는 클라이언트가 얼마나 남았는지" 추적하기도 쉬워집니다.</p>
+
+<h2>7. 버전별 테스트</h2>
+<p><a href="04-testing.html">테스트 전략</a>에서 쓴 <code>MockMvcTester</code>로 버전 분기까지 검증합니다. 버전은 그냥 헤더이므로 특별한 API가 필요 없습니다.</p>
+
+<pre class="code" data-lang="kotlin"><code>package com.example.bookapi.controller
+
+import com.example.bookapi.service.BookService
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest   // ⚠️ Boot 4에서 패키지 이동
+import org.springframework.test.context.bean.override.mockito.MockitoBean
+import org.springframework.test.web.servlet.assertj.MockMvcTester
+
+@WebMvcTest(BookController::class)
+class BookControllerVersionTest(
+    @Autowired private val mvc: MockMvcTester,
+) {
+    @MockitoBean
+    private lateinit var bookService: BookService
+
+    @Test
+    fun `버전이 없으면 기본 응답에 discountedPrice가 없다`() {
+        // given: bookService.findById(1) 스텁 설정 …
+
+        assertThat(mvc.get().uri(&quot;/api/books/1&quot;))
+            .hasStatusOk()
+            .bodyJson().doesNotHavePath(&quot;$.discountedPrice&quot;)
+    }
+
+    @Test
+    fun `1_1 요청에는 discountedPrice가 포함된다`() {
+        assertThat(mvc.get().uri(&quot;/api/books/1&quot;).header(&quot;X-API-Version&quot;, &quot;1.1&quot;))
+            .hasStatusOk()
+            .bodyJson().extractingPath(&quot;$.discountedPrice&quot;).isEqualTo(32400)
+    }
+
+    @Test
+    fun `지원하지 않는 버전은 400`() {
+        assertThat(mvc.get().uri(&quot;/api/books/1&quot;).header(&quot;X-API-Version&quot;, &quot;9.9&quot;))
+            .hasStatus(400)
+    }
+}</code></pre>
+
+<aside class="callout tip">
+<p><strong>버전마다 테스트를 복제하지 마세요.</strong> 버전이 늘어날수록 테스트가 기하급수로 불어납니다. 실무에서는 "각 버전의 <strong>계약(응답 스키마)</strong>"만 버전별로 검증하고, 비즈니스 로직 테스트는 <a href="../phase-2-first-api/04-service-layer.html">서비스 계층</a>에서 버전과 무관하게 한 번만 작성합니다. 컨트롤러 버전 분기는 얇게 유지하는 것이 핵심입니다.</p>
+</aside>
+
+<h2>8. 실무 체크리스트</h2>
+
+<figure class="dg">
+<figcaption>API 버전을 도입할 때 팀에서 먼저 정할 것</figcaption>
+<ol class="dg-steps">
+  <li><span class="n">1</span><div class="dg-node"><div class="t">전달 방식 하나를 고정한다</div><div class="s">헤더 · 쿼리 · 경로 · 미디어 타입 중 하나. 문서에 못 박고 섞지 않는다</div></div></li>
+  <li><span class="n">2</span><div class="dg-node"><div class="t">기본 버전을 정한다</div><div class="s"><code>default</code>가 없고 <code>required: true</code>면, 버전을 모르는 옛 클라이언트가 전부 400을 받는다</div></div></li>
+  <li><span class="n">3</span><div class="dg-node"><div class="t">언제 올릴지 기준을 정한다</div><div class="s">필드 <strong>추가</strong>는 보통 버전을 올리지 않는다. <strong>삭제·이름 변경·의미 변경</strong>만 올린다</div></div></li>
+  <li><span class="n">4</span><div class="dg-node"><div class="t">은퇴 정책을 함께 정한다</div><div class="s">deprecation 시점과 sunset 날짜를 <code>StandardApiVersionDeprecationHandler</code>로 응답에 실어 보낸다</div></div></li>
+  <li><span class="n">5</span><div class="dg-node is-accent"><div class="t">버전별 트래픽을 관측한다</div><div class="s"><a href="03-actuator-observability.html">Micrometer 태그</a>에 버전을 넣으면 "1.0을 아직 쓰는 클라이언트"를 그래프로 볼 수 있다</div></div></li>
+</ol>
+</figure>
+
+<aside class="callout note">
+<p><strong>컨퍼런스 인사이트 (Spring I/O 2026, 바르셀로나).</strong> Spring Boot 4를 다룬 두 세션이 모두 API 버전 관리를 "직접 만들 필요가 없어진 대표적 기능"으로 꼽았습니다. Moritz Halbritter의 <em>Inside Spring Boot 4: Restructuring for the Future</em>는 자동 설정 모듈화·JSpecify 널 안정성·Jackson 3 전환과 함께 API 버전 관리를 4.x의 핵심 추가 기능으로 정리했고, Sébastien Deleuze의 <em>Idiomatic Kotlin applications with Spring Boot 4</em>는 2026년 Kotlin 서버 개발자가 챙길 항목 목록에 널 안정성·직렬화·관측성·복원력과 나란히 API 버전 관리를 올렸습니다.</p>
+</aside>
+
+<h2>정리</h2>
+
+<ul>
+<li><strong><code>version</code> 속성</strong>이 <code>@RequestMapping</code> 계열에 추가되어, 같은 경로를 버전별로 다른 메서드에 매핑할 수 있습니다. Spring Framework 7 / Spring Boot 4의 신기능입니다.</li>
+<li>버전 전달 방식은 <strong>헤더 · 쿼리 파라미터 · 경로 세그먼트 · 미디어 타입 파라미터</strong> 네 가지이며 <code>spring.mvc.apiversion.use.*</code>로 하나만 고릅니다.</li>
+<li><strong><code>"1.1+"</code> 베이스라인 표기</strong>가 실무의 기본값입니다. 버전 미지정 매핑은 옛 클라이언트를 위한 안전망으로 남겨 둡니다.</li>
+<li>지원하지 않는 버전은 <strong>디스패치 단계에서 400</strong>으로 걸러지므로, 서비스 코드에는 버전 분기가 들어가지 않습니다.</li>
+<li><code>StandardApiVersionDeprecationHandler</code>로 <strong>은퇴 예고를 응답 헤더에 실어</strong> 보낼 수 있습니다.</li>
+</ul>
+
+<h2>다음 단계</h2>
+<p>이것으로 Phase 5가 끝났습니다. Book API는 외부와 통신하고, 보안이 걸려 있고, 관측 가능하며, 테스트로 검증되고, 이제 <strong>깨지지 않게 진화할 수 있는</strong> 상태가 되었습니다. 마지막 Phase에서 이 애플리케이션을 실제로 빌드하고 배포합니다.</p>
+<p>→ <a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a></p>

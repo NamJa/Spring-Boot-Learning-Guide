@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>부록 E. 서비스 규모·도메인별 설계 전략 · Spring Boot 학습 가이드</title>
+<meta name="description" content="Phase 0부터 7까지는 &quot;어떻게 만드는가&quot; 를 다뤘습니다. 컨트롤러를 만들고, 엔티티를 매핑하고, 예외를 처리하고, 배포했죠. 그 과정에서 이 가이드는 계속 하나의 정답을 제시했습니다. 입문자에게는 그게 맞습니다. 선택지를 늘리는 것보다 하나를 끝까지 해 보는 편이">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+  <div class="nav-section">개요</div>
+  <a href="../index.html">🏠 홈</a>
+  <a href="../glossary.html">📖 용어집</a>
+  <div class="nav-section">Phase 0: Spring 핵심 개념</div>
+  <a href="../phase-0-spring-fundamentals/README.html">📄 개요</a>
+  <a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+  <a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+  <a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+  <a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+  <a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+  <a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+  <div class="nav-section">Phase 1: 프로젝트 설정</div>
+  <a href="../phase-1-project-setup/README.html">📄 개요</a>
+  <a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+  <a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+  <a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+  <a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+  <a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+  <div class="nav-section">Phase 2: 첫 번째 REST API</div>
+  <a href="../phase-2-first-api/README.html">📄 개요</a>
+  <a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+  <a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+  <a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+  <a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+  <a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+  <div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+  <a href="../phase-3-data-jpa/README.html">📄 개요</a>
+  <a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+  <a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+  <a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+  <a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+  <a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+  <div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+  <a href="../phase-4-validation-config/README.html">📄 개요</a>
+  <a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+  <a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+  <a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+  <a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+  <div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+  <a href="../phase-5-production-features/README.html">📄 개요</a>
+  <a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+  <a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+  <a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+  <a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+  <a href="../phase-5-production-features/05-api-versioning.html">API 버전 관리</a>
+  <div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+  <a href="../phase-6-build-deploy/README.html">📄 개요</a>
+  <a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+  <a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+  <a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+  <a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+  <div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+  <a href="../phase-7-cloud-run/README.html">📄 개요</a>
+  <a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+  <a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+  <a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+  <a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+  <a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+  <div class="nav-section">부록 A: JPA 심화</div>
+  <a href="../appendix-a-jpa-advanced/README.html">📄 개요</a>
+  <a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+  <a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+  <a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+  <a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+  <a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+  <div class="nav-section">부록 B: Querydsl</div>
+  <a href="../appendix-b-querydsl/README.html">📄 개요</a>
+  <a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+  <a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+  <a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+  <a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+  <a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+  <div class="nav-section">부록 C: AOP / 프록시 고급</div>
+  <a href="../appendix-c-aop/README.html">📄 개요</a>
+  <a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+  <a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+  <a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+  <div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+  <a href="../appendix-d-mvc-internals/README.html">📄 개요</a>
+  <a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+  <a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+  <a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+  <a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+  <div class="nav-section">부록 E: 규모·도메인별 설계 전략</div>
+  <a href="README.html" class="active">📄 개요</a>
+  <a href="01-scale-tiers.html">규모 단계별 설계</a>
+  <a href="02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
+  <a href="03-domain-shapes.html">도메인 성격별 전략</a>
+  <a href="04-decision-guide.html">의사결정 가이드</a>
+</nav></aside>
+  <main class="content">
+<h1>부록 E. 서비스 규모·도메인별 설계 전략</h1>
+<p>Phase 0부터 7까지는 <strong>"어떻게 만드는가"</strong> 를 다뤘습니다. 컨트롤러를 만들고, 엔티티를 매핑하고, 예외를 처리하고, 배포했죠. 그 과정에서 이 가이드는 계속 <strong>하나의 정답</strong>을 제시했습니다. 입문자에게는 그게 맞습니다. 선택지를 늘리는 것보다 하나를 끝까지 해 보는 편이 훨씬 빨리 배웁니다.</p>
+<p>하지만 실무에 나가면 사정이 달라집니다. <strong>"컨트롤러 → 서비스 → 리포지토리로 나누는 게 맞나요?"</strong> 라는 질문의 답은 <em>서비스 규모와 도메인 성격에 따라 달라집니다.</em> 3명이 쓰는 사내 관리 도구와, 초당 수천 건을 처리하는 주문 시스템에 같은 설계를 쓰는 것이 오히려 이상합니다.</p>
+<p>이 부록은 <strong>두 개의 축</strong>으로 그 답을 정리합니다.</p>
+
+<figure class="dg">
+<figcaption>설계 결정을 좌우하는 두 축</figcaption>
+<div class="dg-grid c2">
+  <div class="cell is-accent">
+    <div class="k">📏 규모 축 — 얼마나 큰가</div>
+    <div class="v">팀이 몇 명인가, 하루에 몇 번 배포하는가, 도메인이 몇 개인가. <strong>트래픽보다 조직의 크기</strong>가 설계를 먼저 바꿉니다.</div>
+  </div>
+  <div class="cell is-accent">
+    <div class="k">🧩 도메인 축 — 어떤 성격인가</div>
+    <div class="v">읽기가 많은가 쓰기가 많은가, 강한 정합성이 필요한가, 비동기로 흘려도 되는가. <strong>같은 규모라도 도메인이 다르면 다른 스택</strong>을 씁니다.</div>
+  </div>
+</div>
+<p class="dg-foot">이 두 축이 만나는 지점이 여러분의 설계입니다. 어느 한 축만 보면 과설계 아니면 과소설계가 됩니다.</p>
+</figure>
+
+<h2 id="1-이-부록이-반복해서-말하는-것">1. 이 부록이 반복해서 말하는 것</h2>
+<p>먼저 결론부터 말하겠습니다. 네 페이지를 다 읽어도 남는 문장은 하나입니다.</p>
+
+<aside class="callout important">
+<p><strong>지금 필요한 것만 하고, 나중에 바꿀 수 있게 열어 두세요.</strong> 대부분의 설계 실패는 "너무 단순하게 시작해서"가 아니라 <strong>"쓰지도 않을 확장성을 미리 만들어서"</strong> 일어납니다. 3명짜리 팀이 마이크로서비스로 시작하면, 얻는 것은 독립 배포가 아니라 <strong>분산된 채로 여전히 얽혀 있는 시스템</strong>입니다.</p>
+</aside>
+
+<p>2026년 Spring 커뮤니티의 논조도 정확히 이쪽입니다. Spring I/O 2026에서 Julien Topçu와 Thomas Pierrain은 <em>Live Coding The Hive</em> 세션에서 <strong>"잘못 설계된 마이크로서비스는 스파게티 모놀리스보다 더 나쁜 분산 모놀리스가 되기 쉽다"</strong> 고 지적했고, Oliver Drotbohm은 <em>Domain-centric? Why Hexagonal- and Onion-Architecture are answers to the wrong question</em> 에서 <strong>"이 연습의 실제 목표가 무엇이고, 꼭 이렇게 복잡해야 하는가"</strong> 를 물었습니다. 유행하는 아키텍처를 따라가는 대신, <strong>지금 겪는 문제</strong>에서 출발하라는 뜻입니다.</p>
+
+<h2 id="2-이-부록의-구성">2. 이 부록의 구성</h2>
+
+<ol>
+<li><strong><a href="01-scale-tiers.html">01. 규모 단계별 설계</a></strong> — 규모를 재는 기준(팀·배포 빈도·도메인 수), 4단계(S0~S3)별로 <strong>지금 할 것과 미룰 것</strong>, 단계마다 달라지는 Spring Boot 설정.</li>
+<li><strong><a href="02-modular-monolith.html">02. 패키지 구조와 모듈러 모놀리스</a></strong> — 계층 우선 vs 도메인 우선 패키지, 모듈 경계를 <strong>코드로 강제</strong>하는 Spring Modulith·ArchUnit, 헥사고날/어니언 재평가, 마이크로서비스로 쪼개는 시점.</li>
+<li><strong><a href="03-domain-shapes.html">03. 도메인 성격별 전략</a></strong> — CRUD·읽기 중심·쓰기 정합성·이벤트 비동기·배치 다섯 유형별로 스프링 스택을 고르는 법과 각각의 함정.</li>
+<li><strong><a href="04-decision-guide.html">04. 의사결정 가이드</a></strong> — "지금 도입해야 하나?" 판단 흐름, 규모×도메인 매트릭스, 자주 보는 안티패턴 모음.</li>
+</ol>
+
+<h2 id="3-선수-지식">3. 선수 지식</h2>
+
+<ul>
+<li><strong>Phase 2~3</strong> — 컨트롤러·서비스·리포지토리 3계층과 <a href="../phase-3-data-jpa/04-transactions.html">트랜잭션</a>. 이 부록은 그 구조를 <strong>언제 바꾸는지</strong>를 다룹니다.</li>
+<li><strong>Phase 5</strong> — <a href="../phase-5-production-features/01-http-interface-client.html">HTTP 클라이언트</a>·<a href="../phase-5-production-features/03-actuator-observability.html">관측성</a>·<a href="../phase-5-production-features/05-api-versioning.html">API 버전 관리</a>. 서비스를 쪼개는 순간 이 셋이 전부 필수가 됩니다.</li>
+<li><strong>부록 A·B</strong> — <a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">N+1</a>과 <a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션</a>. 읽기 중심 도메인의 첫 번째 해법입니다.</li>
+</ul>
+
+<aside class="callout note">
+<p>이 부록의 예제는 계속 <strong>Book API</strong>를 씁니다. 다만 규모 이야기를 하려면 도메인이 하나로는 부족하므로, 도서 API가 <strong>온라인 서점</strong>으로 자라 <code>catalog</code>(도서) · <code>order</code>(주문) · <code>member</code>(회원) 세 영역을 갖게 된 상황을 가정합니다. 패키지 루트는 여전히 <code>com.example.bookapi</code> 입니다.</p>
+</aside>
+
+<h2 id="다음-단계">다음 단계</h2>
+<p>→ <strong><a href="01-scale-tiers.html">01. 규모 단계별 설계</a></strong> 에서 "우리 서비스는 지금 어느 단계인가"부터 진단합니다.</p>
+
+  </main>
+<aside class="toc" aria-label="페이지 목차">
+<div class="toc-title">이 페이지</div>
+<a class="lvl2" href="#1-이-부록이-반복해서-말하는-것">1. 이 부록이 반복해서 말하는 것</a>
+<a class="lvl2" href="#2-이-부록의-구성">2. 이 부록의 구성</a>
+<a class="lvl2" href="#3-선수-지식">3. 선수 지식</a>
+<a class="lvl2" href="#다음-단계">다음 단계</a>
+</aside>
+</div>
+<label for="navtoggle" class="scrim"></label>
+<script src="../assets/app.js" defer></script>
+</body>
+</html>

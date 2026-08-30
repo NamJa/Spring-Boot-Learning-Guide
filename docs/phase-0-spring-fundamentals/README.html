@@ -59,6 +59,7 @@
   <a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
   <a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
   <a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+  <a href="../phase-5-production-features/05-api-versioning.html">API 버전 관리</a>
   <div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
   <a href="../phase-6-build-deploy/README.html">📄 개요</a>
   <a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
@@ -97,6 +98,12 @@
   <a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
   <a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
   <a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+  <div class="nav-section">부록 E: 규모·도메인별 설계 전략</div>
+  <a href="../appendix-e-scale-and-domain/README.html">📄 개요</a>
+  <a href="../appendix-e-scale-and-domain/01-scale-tiers.html">규모 단계별 설계</a>
+  <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
+  <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
+  <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
 </nav></aside>
   <main class="content">
 <h1>Phase 0. Spring 핵심 개념 다지기</h1>
@@ -145,7 +152,7 @@
 </div>
 <p>Phase 0에서는 아직 이 도메인을 본격적으로 다루지 않지만, 개념 설명마다 이 예제를 끌어와 "실제로 어디에 쓰이는지" 감을 잡아 둡니다.</p>
 
-<h2 id="사용하는-버전-2026-07-25-기준">사용하는 버전 (2026-07-25 기준)</h2>
+<h2 id="사용하는-버전-2026-08-30-기준">사용하는 버전 (2026-08-30 기준)</h2>
 
 <table>
 <thead>
@@ -157,11 +164,11 @@
 <tbody>
 <tr>
 <td>Spring Boot</td>
-<td><strong>4.1.0</strong> (GA 2026-06-10, 현재 최신 GA)</td>
+<td><strong>4.1.1</strong> (2026-08-20 릴리스, 현재 최신 GA)</td>
 </tr>
 <tr>
 <td>Spring Framework</td>
-<td><strong>7.0.8</strong></td>
+<td><strong>7.0.9</strong></td>
 </tr>
 <tr>
 <td>Kotlin</td>
@@ -173,15 +180,15 @@
 </tr>
 <tr>
 <td>Gradle</td>
-<td>9.x (Initializr 래퍼 9.5.1)</td>
+<td>9.x (Initializr 래퍼 9.7.1)</td>
 </tr>
 <tr>
 <td>Spring Security</td>
-<td><strong>7.1.0</strong></td>
+<td><strong>7.1.1</strong></td>
 </tr>
 <tr>
 <td>Jackson</td>
-<td><strong>3.1.4</strong> (<code>tools.jackson</code>, Boot 4 기본)</td>
+<td><strong>3.1.5</strong> (<code>tools.jackson</code>, Boot 4 기본)</td>
 </tr>
 </tbody>
 </table>
@@ -206,7 +213,7 @@
 <a class="lvl2" href="#이-phase에서-배우는-것">이 Phase에서 배우는 것</a>
 <a class="lvl2" href="#왜-코딩-전에-개념부터-잡아야-하는가">왜 코딩 전에 개념부터 잡아야 하는가</a>
 <a class="lvl2" href="#가이드-전체를-관통하는-예제">가이드 전체를 관통하는 예제</a>
-<a class="lvl2" href="#사용하는-버전-2026-07-25-기준">사용하는 버전 (2026-07-25 기준)</a>
+<a class="lvl2" href="#사용하는-버전-2026-08-30-기준">사용하는 버전 (2026-08-30 기준)</a>
 <a class="lvl2" href="#페이지-목록">페이지 목록</a>
 <a class="lvl2" href="#다음-단계">다음 단계</a>
 </aside>

@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01. 규모 단계별 설계 · Spring Boot 학습 가이드</title>
+<meta name="description" content="&quot;규모가 커지면 어떻게 해야 하나요?&quot;라는 질문에 답하려면, 먼저 규모를 무엇으로 재는지부터 정해야 합니다. 대부분의 사람은 트래픽(RPS·MAU)을 떠올리지만, 설계를 실제로 바꾸는 것은 트래픽이 아니라 조직입니다.">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+  <div class="nav-section">개요</div>
+  <a href="../index.html">🏠 홈</a>
+  <a href="../glossary.html">📖 용어집</a>
+  <div class="nav-section">Phase 0: Spring 핵심 개념</div>
+  <a href="../phase-0-spring-fundamentals/README.html">📄 개요</a>
+  <a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+  <a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+  <a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+  <a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+  <a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+  <a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+  <div class="nav-section">Phase 1: 프로젝트 설정</div>
+  <a href="../phase-1-project-setup/README.html">📄 개요</a>
+  <a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+  <a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+  <a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+  <a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+  <a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+  <div class="nav-section">Phase 2: 첫 번째 REST API</div>
+  <a href="../phase-2-first-api/README.html">📄 개요</a>
+  <a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+  <a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+  <a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+  <a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+  <a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+  <div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+  <a href="../phase-3-data-jpa/README.html">📄 개요</a>
+  <a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+  <a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+  <a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+  <a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+  <a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+  <div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+  <a href="../phase-4-validation-config/README.html">📄 개요</a>
+  <a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+  <a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+  <a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+  <a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+  <div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+  <a href="../phase-5-production-features/README.html">📄 개요</a>
+  <a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+  <a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+  <a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+  <a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+  <a href="../phase-5-production-features/05-api-versioning.html">API 버전 관리</a>
+  <div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+  <a href="../phase-6-build-deploy/README.html">📄 개요</a>
+  <a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+  <a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+  <a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+  <a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+  <div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+  <a href="../phase-7-cloud-run/README.html">📄 개요</a>
+  <a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+  <a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+  <a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+  <a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+  <a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+  <div class="nav-section">부록 A: JPA 심화</div>
+  <a href="../appendix-a-jpa-advanced/README.html">📄 개요</a>
+  <a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+  <a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+  <a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+  <a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+  <a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+  <div class="nav-section">부록 B: Querydsl</div>
+  <a href="../appendix-b-querydsl/README.html">📄 개요</a>
+  <a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+  <a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+  <a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+  <a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+  <a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+  <div class="nav-section">부록 C: AOP / 프록시 고급</div>
+  <a href="../appendix-c-aop/README.html">📄 개요</a>
+  <a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+  <a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+  <a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+  <div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+  <a href="../appendix-d-mvc-internals/README.html">📄 개요</a>
+  <a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+  <a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+  <a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+  <a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+  <div class="nav-section">부록 E: 규모·도메인별 설계 전략</div>
+  <a href="README.html">📄 개요</a>
+  <a href="01-scale-tiers.html" class="active">규모 단계별 설계</a>
+  <a href="02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
+  <a href="03-domain-shapes.html">도메인 성격별 전략</a>
+  <a href="04-decision-guide.html">의사결정 가이드</a>
+</nav></aside>
+  <main class="content">
+<h1>01. 규모 단계별 설계</h1>
+<p>"규모가 커지면 어떻게 해야 하나요?"라는 질문에 답하려면, 먼저 <strong>규모를 무엇으로 재는지</strong>부터 정해야 합니다. 대부분의 사람은 트래픽(RPS·MAU)을 떠올리지만, <strong>설계를 실제로 바꾸는 것은 트래픽이 아니라 조직</strong>입니다.</p>
+
+<h2 id="1-규모를-재는-세-가지-눈금">1. 규모를 재는 세 가지 눈금</h2>
+
+<figure class="dg">
+<figcaption>설계를 바꾸는 진짜 신호</figcaption>
+<div class="dg-grid c3">
+  <div class="cell is-accent">
+    <div class="k">👥 팀 크기</div>
+    <div class="v">한 코드베이스를 <strong>몇 명이 동시에</strong> 고치는가. 8명을 넘으면 머지 충돌과 "누가 이걸 바꿨지"가 병목이 됩니다.</div>
+  </div>
+  <div class="cell is-accent">
+    <div class="k">🚀 배포 빈도·독립성</div>
+    <div class="v">A 기능을 고치려고 <strong>B 팀의 배포를 기다려야 하는가</strong>. 기다림이 일상이 되면 배포 단위를 나눌 때입니다.</div>
+  </div>
+  <div class="cell is-accent">
+    <div class="k">🧩 도메인 수</div>
+    <div class="v">서로 다른 <strong>업무 언어</strong>가 몇 개인가. 도서·주문·정산이 한 서비스 클래스에 섞이기 시작하면 경계가 필요합니다.</div>
+  </div>
+</div>
+<p class="dg-foot">트래픽은 <strong>이 셋을 바꾸지 않는 한</strong> 대개 인스턴스를 늘려서 해결됩니다. 설계 변경은 그다음입니다.</p>
+</figure>
+
+<aside class="callout tip">
+<p>트래픽이 설계를 바꿔야 할 때도 물론 있습니다. 다만 그 시점은 <strong>수평 확장(인스턴스 증설)과 캐시로 더는 감당이 안 될 때</strong>입니다. 그전까지 트래픽 문제의 답은 거의 항상 "인스턴스를 늘리고, 쿼리를 고치고, 캐시를 붙인다"입니다. 자세한 것은 <a href="03-domain-shapes.html">03. 도메인 성격별 전략</a>에서 다룹니다.</p>
+</aside>
+
+<h2 id="2-네-단계-s0-s3">2. 네 단계 (S0 → S3)</h2>
+
+<figure class="dg">
+<figcaption>서비스가 자라는 경로 — 각 단계는 되돌아갈 수 있습니다</figcaption>
+<div class="dg-timeline">
+  <div class="tl"><div class="dot">S0</div><div class="t">프로토타입 · MVP</div><div class="s">1~2명 · 단일 모듈<br>“동작하는가”</div></div>
+  <div class="tl"><div class="dot">S1</div><div class="t">프로덕션 초기</div><div class="s">3~8명 · 단일 배포 단위<br>“안 죽는가”</div></div>
+  <div class="tl"><div class="dot">S2</div><div class="t">성장기</div><div class="s">여러 팀 · 모듈러 모놀리스<br>“서로 안 밟는가”</div></div>
+  <div class="tl"><div class="dot">S3</div><div class="t">대규모</div><div class="s">조직 단위 · 독립 배포<br>“독립적으로 움직이는가”</div></div>
+</div>
+<p class="dg-foot">각 단계의 질문이 다릅니다. <strong>S1의 질문을 S0에서 던지면 과설계</strong>고, S2의 질문을 S3까지 미루면 이미 늦습니다.</p>
+</figure>
+
+<h3 id="s0-프로토타입-mvp">S0 — 프로토타입 · MVP</h3>
+<p>가설을 검증하는 단계입니다. 이 코드는 <strong>버려질 확률이 높다는 것을 전제</strong>로 씁니다.</p>
+
+<div class="dg-vs">
+  <div class="col is-good">
+    <h4>지금 할 것</h4>
+    <ul>
+      <li>단일 Gradle 모듈, <a href="../phase-1-project-setup/03-project-structure.html">계층 우선 패키지</a></li>
+      <li><code>@RestController</code> → <code>@Service</code> → <code>@Repository</code> 3계층 그대로</li>
+      <li>H2 또는 Docker 한 줄짜리 PostgreSQL</li>
+      <li>Actuator <code>health</code>만 노출</li>
+      <li>가장 중요한 흐름 하나에만 통합 테스트</li>
+    </ul>
+  </div>
+  <div class="mid"><span>vs</span></div>
+  <div class="col is-bad">
+    <h4>지금 하지 말 것</h4>
+    <ul>
+      <li>모듈 분리, 헥사고날 포트/어댑터</li>
+      <li>캐시·메시지 브로커·읽기 복제본</li>
+      <li>마이크로서비스, 서비스 메시</li>
+      <li>커버리지 목표, 100% 테스트</li>
+      <li>커스텀 프레임워크·공통 라이브러리</li>
+    </ul>
+  </div>
+</div>
+
+<h3 id="s1-프로덕션-초기">S1 — 프로덕션 초기</h3>
+<p>진짜 사용자가 들어왔습니다. 질문이 "동작하는가"에서 <strong>"안 죽는가, 죽으면 아는가"</strong> 로 바뀝니다. 이 가이드의 Phase 4~6이 정확히 이 단계를 위한 내용입니다.</p>
+
+<table>
+<thead>
+<tr>
+<th>도입할 것</th>
+<th>이유</th>
+<th>가이드</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>전역 예외 처리 + <code>ProblemDetail</code></td>
+<td>스택 트레이스가 클라이언트로 새는 것을 막는다</td>
+<td><a href="../phase-4-validation-config/02-exception-handling.html">Phase 4-2</a></td>
+</tr>
+<tr>
+<td>프로파일 분리 · 환경변수 설정</td>
+<td>같은 이미지를 dev/prod에 쓰기 위한 최소 조건</td>
+<td><a href="../phase-4-validation-config/03-profiles-config.html">Phase 4-3</a></td>
+</tr>
+<tr>
+<td>Actuator + 메트릭 + 구조화 로그</td>
+<td>장애를 <strong>사용자보다 먼저</strong> 알기 위해</td>
+<td><a href="../phase-5-production-features/03-actuator-observability.html">Phase 5-3</a></td>
+</tr>
+<tr>
+<td>외부 호출 타임아웃 + 재시도</td>
+<td>외부 지연이 우리 스레드를 잠그는 장애 전파 차단</td>
+<td><a href="../phase-5-production-features/01-http-interface-client.html">Phase 5-1</a></td>
+</tr>
+<tr>
+<td>DB 마이그레이션(Flyway)</td>
+<td><code>ddl-auto: update</code>로는 운영 스키마를 되돌릴 수 없다</td>
+<td><a href="../phase-3-data-jpa/05-database-setup.html">Phase 3-5</a></td>
+</tr>
+<tr>
+<td>readiness/liveness + 그레이스풀 셧다운</td>
+<td>배포마다 요청이 끊기지 않게</td>
+<td><a href="../phase-6-build-deploy/04-deploy-operations.html">Phase 6-4</a></td>
+</tr>
+<tr>
+<td>API 버전 관리 준비</td>
+<td>클라이언트가 생긴 순간부터 응답 스펙은 계약이 된다</td>
+<td><a href="../phase-5-production-features/05-api-versioning.html">Phase 5-5</a></td>
+</tr>
+</tbody>
+</table>
+
+<aside class="callout warning">
+<p>S1에서 가장 자주 빠뜨리는 것은 <strong>외부 호출 타임아웃</strong>입니다. 정상일 때는 아무 문제가 없다가, 외부 API가 한 번 느려지는 날 전체 서비스가 같이 멈춥니다. 톰캣 스레드가 전부 그 호출을 기다리며 묶이기 때문입니다. 코드 한 줄짜리 설정이 <strong>전면 장애와 부분 실패를 가르는 지점</strong>입니다.</p>
+</aside>
+
+<h3 id="s2-성장기">S2 — 성장기</h3>
+<p>팀이 늘고 도메인이 여러 개가 되었습니다. 이제 문제는 성능이 아니라 <strong>사람 사이의 간섭</strong>입니다.</p>
+
+<figure class="dg" data-focusable>
+<figcaption>S2에 도달했다는 신호들</figcaption>
+<ol class="dg-steps">
+  <li><span class="n is-warn"></span><div class="dg-node is-warn"><div class="t">"이 서비스 클래스는 아무도 안 건드리려 한다"</div><div class="s">한 클래스가 여러 도메인의 규칙을 다 알고 있다 — <strong>경계 부재</strong></div></div></li>
+  <li><span class="n is-warn"></span><div class="dg-node is-warn"><div class="t">머지 충돌이 매일 난다</div><div class="s">서로 다른 팀이 같은 파일을 고친다 — <strong>소유권 부재</strong></div></div></li>
+  <li><span class="n is-warn"></span><div class="dg-node is-warn"><div class="t">작은 수정에도 전체 회귀 테스트를 돌린다</div><div class="s">무엇이 영향을 받는지 아무도 확신하지 못한다 — <strong>의존성 불투명</strong></div></div></li>
+  <li><span class="n is-bad"></span><div class="dg-node is-bad"><div class="t">"저쪽 팀 배포 끝나면 우리도 나갑니다"</div><div class="s">배포가 직렬화되기 시작했다 — <strong>배포 단위 분리 검토 시점</strong></div></div></li>
+</ol>
+<p class="dg-foot">1~3번은 <strong>모듈러 모놀리스</strong>로 해결됩니다. 4번이 반복될 때 비로소 서비스 분리를 검토합니다.</p>
+</figure>
+
+<p>S2의 정답은 대부분 <strong>서비스를 쪼개는 것이 아니라 모듈을 나누는 것</strong>입니다. 같은 배포 단위 안에서 코드의 경계만 명확히 하는 것이죠. 방법은 <a href="02-modular-monolith.html">다음 문서</a>에서 자세히 다룹니다.</p>
+
+<h3 id="s3-대규모">S3 — 대규모</h3>
+<p>조직이 여러 개고, 각 조직이 <strong>독립적으로 배포하고 독립적으로 장애를 감당</strong>해야 하는 단계입니다. 여기서 비로소 서비스 분리가 값을 합니다.</p>
+
+<aside class="callout important">
+<p><strong>서비스를 쪼개면 얻는 것과 잃는 것이 동시에 생깁니다.</strong> 얻는 것은 독립 배포·독립 확장·장애 격리입니다. 잃는 것은 <strong>로컬 트랜잭션</strong>입니다. <code>@Transactional</code> 한 줄로 끝나던 정합성이 <strong>사가(saga)·아웃박스·보상 트랜잭션</strong>이 됩니다. 이 비용을 감당할 준비가 되지 않았다면, 아직 S2에 머무는 편이 낫습니다.</p>
+</aside>
+
+<h2 id="3-단계별로-달라지는-spring-boot-설정">3. 단계별로 달라지는 Spring Boot 설정</h2>
+<p>같은 Book API라도 단계마다 <code>application.yml</code>이 이렇게 달라집니다.</p>
+
+<div class="tabs">
+<div class="tab-panel" data-title="S0 · MVP">
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">spring</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">application</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">book-api</span>
+<span class="w">  </span><span class="nt">datasource</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jdbc:h2:mem:bookdb</span>
+<span class="w">  </span><span class="nt">jpa</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">hibernate</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">ddl-auto</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">create-drop</span><span class="w">     </span><span class="c1"># 스키마는 매번 새로 — 아직 지킬 데이터가 없다</span>
+<span class="w">    </span><span class="nt">show-sql</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="nt">management</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">endpoints</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">web</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">exposure</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">include</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">health</span><span class="w">         </span><span class="c1"># 이것만으로 충분</span>
+</pre></div>
+</div>
+</div>
+<div class="tab-panel" data-title="S1 · 프로덕션">
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">spring</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">application</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">book-api</span>
+<span class="w">  </span><span class="nt">datasource</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${DB_URL}</span>
+<span class="w">    </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${DB_USER}</span>
+<span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${DB_PASSWORD}</span>
+<span class="w">    </span><span class="nt">hikari</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">maximum-pool-size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span><span class="w">     </span><span class="c1"># DB max_connections / 인스턴스 수 를 넘지 않게</span>
+<span class="w">  </span><span class="nt">jpa</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">hibernate</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">ddl-auto</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">validate</span><span class="w">        </span><span class="c1"># 스키마 변경은 Flyway가 담당</span>
+<span class="w">    </span><span class="nt">open-in-view</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">         </span><span class="c1"># 뷰 렌더링까지 커넥션을 붙잡지 않는다</span>
+<span class="w">  </span><span class="nt">flyway</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">http</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">clients</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">connect-timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2s</span><span class="w">       </span><span class="c1"># 외부 호출은 반드시 타임아웃</span>
+<span class="w">      </span><span class="nt">read-timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5s</span>
+
+<span class="nt">server</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">shutdown</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">graceful</span>
+
+<span class="nt">management</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">endpoints</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">web</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">exposure</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">include</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">health,info,metrics,prometheus</span>
+<span class="w">  </span><span class="nt">endpoint</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">health</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">probes</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">           </span><span class="c1"># /readiness · /liveness</span>
+</pre></div>
+</div>
+</div>
+<div class="tab-panel" data-title="S2 · 성장기">
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="c1"># S1 설정에 더해서 —</span>
+<span class="nt">spring</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">cache</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis</span><span class="w">                 </span><span class="c1"># 읽기 중심 조회를 캐시로 흡수</span>
+<span class="w">  </span><span class="nt">data</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">redis</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${REDIS_URL}</span>
+<span class="w">  </span><span class="nt">jpa</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">hibernate</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">jdbc</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">batch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50</span><span class="w">        </span><span class="c1"># 대량 쓰기 배치</span>
+
+<span class="nt">management</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">tracing</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">sampling</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">probability</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span><span class="w">          </span><span class="c1"># 분산 추적 — 모듈 간 호출 경로 추적</span>
+<span class="w">  </span><span class="nt">otlp</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">tracing</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${OTLP_ENDPOINT}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+<aside class="callout note">
+<p><code>open-in-view: false</code>는 S1에서 가장 값싸게 얻는 개선입니다. 기본값 <code>true</code>는 <strong>뷰가 렌더링될 때까지 DB 커넥션을 붙잡고 있어</strong>, 트래픽이 오르면 커넥션 풀이 먼저 마릅니다. 끄면 지연 로딩이 컨트롤러에서 터지는데, 그건 <strong>버그가 드러난 것</strong>이지 새로 생긴 것이 아닙니다. (<a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">부록 A-4</a>)</p>
+</aside>
+
+<h2 id="4-단계를-건너뛰면-생기는-일">4. 단계를 건너뛰면 생기는 일</h2>
+
+<table>
+<thead>
+<tr>
+<th>건너뛴 것</th>
+<th>겉으로 보이는 증상</th>
+<th>실제 원인</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S0 → S3 (바로 마이크로서비스)</td>
+<td>기능 하나 추가에 서비스 4개를 고치고 4번 배포</td>
+<td>도메인 경계를 모르는 채로 물리적으로 먼저 쪼갬 → <strong>분산 모놀리스</strong></td>
+</tr>
+<tr>
+<td>S1 생략 (관측성 없이 성장)</td>
+<td>"느리다"는 제보는 오는데 어디가 느린지 모름</td>
+<td>메트릭·추적이 없어 <strong>추측으로 튜닝</strong></td>
+</tr>
+<tr>
+<td>S2 생략 (경계 없이 커짐)</td>
+<td>신규 입사자가 3개월째 코드를 못 읽음</td>
+<td>모든 것이 모든 것을 참조 — <strong>변경 영향 예측 불가</strong></td>
+</tr>
+<tr>
+<td>과설계 (S1인데 S3 구조)</td>
+<td>인터페이스와 어댑터가 구현체보다 많음</td>
+<td>추상화 비용만 지불하고 <strong>교체는 한 번도 안 함</strong></td>
+</tr>
+</tbody>
+</table>
+
+<aside class="callout note">
+<p><strong>컨퍼런스 인사이트 (Spring I/O 2026).</strong> Julien Topçu·Thomas Pierrain의 <em>Live Coding The Hive: building a microservices-ready modular monolith</em> 세션은 이 함정을 정면으로 다룹니다. 핵심 주장은 <strong>"모듈을 느슨하게 유지한 모놀리스는 필요할 때 서비스로 꺼낼 수 있지만, 강하게 결합된 채 쪼갠 서비스는 되돌릴 수 없다"</strong> 는 것입니다. 순서가 중요합니다 — <strong>경계를 먼저 긋고, 배포를 나중에 나눕니다.</strong></p>
+</aside>
+
+<h2 id="정리">정리</h2>
+
+<ul>
+<li>규모는 트래픽이 아니라 <strong>팀 크기 · 배포 독립성 · 도메인 수</strong>로 잽니다.</li>
+<li><strong>S0</strong>는 버릴 코드를 빨리, <strong>S1</strong>은 안 죽고 보이게, <strong>S2</strong>는 서로 안 밟게, <strong>S3</strong>는 독립적으로.</li>
+<li>S2의 답은 대개 <strong>서비스 분리가 아니라 모듈 분리</strong>입니다.</li>
+<li>서비스를 쪼개는 순간 <strong><code>@Transactional</code>을 잃습니다.</strong> 그 비용을 감당할 수 있을 때만 쪼갭니다.</li>
+</ul>
+
+<h2 id="다음-단계">다음 단계</h2>
+<p>→ <strong><a href="02-modular-monolith.html">02. 패키지 구조와 모듈러 모놀리스</a></strong> 에서 "경계를 먼저 긋는" 구체적 방법을 봅니다.</p>
+
+  </main>
+<aside class="toc" aria-label="페이지 목차">
+<div class="toc-title">이 페이지</div>
+<a class="lvl2" href="#1-규모를-재는-세-가지-눈금">1. 규모를 재는 세 가지 눈금</a>
+<a class="lvl2" href="#2-네-단계-s0-s3">2. 네 단계 (S0 → S3)</a>
+<a class="lvl3" href="#s0-프로토타입-mvp">S0 — 프로토타입 · MVP</a>
+<a class="lvl3" href="#s1-프로덕션-초기">S1 — 프로덕션 초기</a>
+<a class="lvl3" href="#s2-성장기">S2 — 성장기</a>
+<a class="lvl3" href="#s3-대규모">S3 — 대규모</a>
+<a class="lvl2" href="#3-단계별로-달라지는-spring-boot-설정">3. 단계별로 달라지는 Spring Boot 설정</a>
+<a class="lvl2" href="#4-단계를-건너뛰면-생기는-일">4. 단계를 건너뛰면 생기는 일</a>
+<a class="lvl2" href="#정리">정리</a>
+<a class="lvl2" href="#다음-단계">다음 단계</a>
+</aside>
+</div>
+<label for="navtoggle" class="scrim"></label>
+<script src="../assets/app.js" defer></script>
+</body>
+</html>

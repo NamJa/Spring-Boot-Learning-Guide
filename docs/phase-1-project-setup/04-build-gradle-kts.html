@@ -59,6 +59,7 @@
   <a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
   <a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
   <a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+  <a href="../phase-5-production-features/05-api-versioning.html">API 버전 관리</a>
   <div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
   <a href="../phase-6-build-deploy/README.html">📄 개요</a>
   <a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
@@ -97,13 +98,19 @@
   <a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
   <a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
   <a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+  <div class="nav-section">부록 E: 규모·도메인별 설계 전략</div>
+  <a href="../appendix-e-scale-and-domain/README.html">📄 개요</a>
+  <a href="../appendix-e-scale-and-domain/01-scale-tiers.html">규모 단계별 설계</a>
+  <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
+  <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
+  <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
 </nav></aside>
   <main class="content">
 <h1>build.gradle.kts 해부</h1>
 <p><code>build.gradle.kts</code>는 Gradle의 <strong>Kotlin DSL</strong> 빌드 스크립트입니다. Kotlin 개발자라면 문법 자체는 친숙할 것입니다. 다만 Spring Boot 프로젝트에는 <strong>kotlin-spring 플러그인, 스타터 의존성, JSR-305 엄격 모드</strong> 같은 Spring/Kotlin 특화 설정이 들어갑니다. 이 페이지에서 한 줄씩 해부합니다.</p>
 
 <h2 id="1-전체-build-gradle-kts">1. 전체 build.gradle.kts</h2>
-<p>아래는 <strong>Spring Initializr가 Spring Boot 4.1.0 + Kotlin으로 실제 생성하는 파일</strong>에 주석만 붙인 것입니다(2026-07-25 확인). Spring Boot 3 시절 예제와 다른 지점이 여러 곳 있으니, 인터넷 예제를 복사하기 전에 이 파일을 기준으로 삼으세요.</p>
+<p>아래는 <strong>Spring Initializr가 Spring Boot 4.1.1 + Kotlin으로 실제 생성하는 파일</strong>에 주석만 붙인 것입니다(2026-08-30 확인). Spring Boot 3 시절 예제와 다른 지점이 여러 곳 있으니, 인터넷 예제를 복사하기 전에 이 파일을 기준으로 삼으세요.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">plugins</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// Kotlin JVM 컴파일 지원</span>
@@ -111,7 +118,7 @@
 <span class="w">    </span><span class="c1">// kotlin-spring: @Component/@Configuration 등 Spring 어노테이션이 붙은 클래스를 자동 open</span>
 <span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;plugin.spring&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span>
 <span class="w">    </span><span class="c1">// Spring Boot Gradle 플러그인: bootJar/bootRun, BOM 버전 관리 연동</span>
-<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;org.springframework.boot&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;4.1.0&quot;</span>
+<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;org.springframework.boot&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;4.1.1&quot;</span>
 <span class="w">    </span><span class="c1">// 의존성 버전을 Spring Boot BOM에 맞춰 자동 관리 (Initializr 기본 출력)</span>
 <span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;io.spring.dependency-management&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;1.1.7&quot;</span>
 <span class="w">    </span><span class="c1">// kotlin-jpa(noArg): @Entity 클래스에 기본 생성자 합성 — JPA를 선택하면 함께 붙는다</span>
@@ -229,7 +236,7 @@
 </table>
 
 <aside class="callout tip">
-<p>Kotlin 버전 <code>2.3.21</code>은 Spring Boot 4.1.0 BOM이 관리하는 버전과 일치시킨 값입니다. 임의의 다른 버전으로 바꾸지 마세요.</p>
+<p>Kotlin 버전 <code>2.3.21</code>은 Spring Boot 4.1.1 BOM이 관리하는 버전과 일치시킨 값입니다. 임의의 다른 버전으로 바꾸지 마세요.</p>
 </aside>
 
 <h3 id="kotlin-springallopen-플러그인이-필요한-이유">kotlin-spring(allOpen) 플러그인이 필요한 이유</h3>
@@ -294,7 +301,7 @@
 <p>핵심 의존성 요약:</p>
 
 <ul>
-<li><code>spring-boot-starter-webmvc</code>: REST 컨트롤러, 내장 <strong>Tomcat 11.0.22(Servlet 6.1)</strong>, Jackson 3. (Boot 3의 <code>spring-boot-starter-web</code>을 대체)</li>
+<li><code>spring-boot-starter-webmvc</code>: REST 컨트롤러, 내장 <strong>Tomcat 11.0.24(Servlet 6.1)</strong>, Jackson 3. (Boot 3의 <code>spring-boot-starter-web</code>을 대체)</li>
 <li><code>spring-boot-starter-data-jpa</code>: Hibernate 7.4 기반 JPA.</li>
 <li><code>spring-boot-starter-validation</code>: Bean Validation 구현체. <strong>web 스타터에 포함되지 않으므로 직접 추가해야 합니다.</strong></li>
 <li><code>spring-boot-starter-actuator</code>: 헬스/메트릭 엔드포인트.</li>
@@ -321,7 +328,10 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p><strong><code>-Xjsr305=strict</code></strong>: Spring은 자바 코드에 JSR-305 nullability 어노테이션(<code>@NonNull</code>, <code>@Nullable</code>)을 광범위하게 붙여 두었습니다. 이 옵션을 켜면 Kotlin 컴파일러가 그 어노테이션을 <strong>엄격하게</strong> 해석합니다. 즉, 자바 API에서 넘어오는 값을 모호한 <strong>플랫폼 타입</strong>이 아니라 <strong>정확한 null 가능/불가능 타입</strong>으로 다뤄, Kotlin의 null 안전성 이점을 Spring API에서도 온전히 누릴 수 있습니다.</p>
+<p><strong><code>-Xjsr305=strict</code></strong>: 자바 라이브러리가 붙여 둔 JSR-305 nullability 애너테이션(<code>@NonNull</code>, <code>@Nullable</code>)을 Kotlin 컴파일러가 <strong>엄격하게</strong> 해석하게 합니다. 자바 API에서 넘어오는 값을 모호한 <strong>플랫폼 타입</strong>(<code>String!</code>)이 아니라 <strong>정확한 null 가능/불가능 타입</strong>으로 다루게 되죠.</p>
+<aside class="callout note">
+<p><strong>Spring 7은 이미 JSpecify로 옮겨 갔습니다.</strong> Spring Framework 7의 API는 JSR-305가 아니라 <a href="https://jspecify.dev/">JSpecify</a>(<code>org.jspecify.annotations</code> + 패키지 단위 <code>@NullMarked</code>)로 널 가능성을 표기하고, 예전의 <code>org.springframework.lang.@Nullable</code>은 7.0부터 deprecated 입니다. <strong>JSpecify는 Kotlin 2.1+가 옵션 없이 기본으로 엄격하게 해석</strong>하므로, <code>-Xjsr305=strict</code>는 이제 Spring이 아니라 <strong>아직 JSR-305를 쓰는 다른 라이브러리</strong>를 위한 안전장치입니다. Initializr가 여전히 넣어 주니 그대로 두면 됩니다. (<a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Phase 0-1 §5.1</a>)</p>
+</aside>
 <p><strong><code>-Xannotation-default-target=param-property</code></strong>: Kotlin 2.2에서 도입된 옵션으로, 주생성자 프로퍼티에 붙인 애너테이션을 <strong>생성자 파라미터와 프로퍼티 양쪽에</strong> 적용합니다. 덕분에 Bean Validation(<code>@NotBlank</code>)이나 Jackson 애너테이션을 <code>@field:</code> 없이 붙여도 프레임워크가 인식합니다. Spring Initializr가 Kotlin 프로젝트에 기본으로 넣어 주며, 자세한 배경은 <a href="../phase-4-validation-config/01-bean-validation.html">Phase 4-1</a>에서 다룹니다.</p>
 <p>바이트코드 타깃(<code>jvmTarget</code>)은 위 <code>java { toolchain { ... } }</code> 설정이 21로 맞춰 주므로 따로 지정하지 않아도 됩니다.</p>
 
@@ -347,7 +357,7 @@
 <div class="code-block" data-lang="toml"><span class="code-lang">toml</span><div class="hl"><pre><span></span><span class="c1"># gradle/libs.versions.toml</span>
 <span class="k">[versions]</span>
 <span class="n">kotlin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;2.3.21&quot;</span>
-<span class="n">springBoot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;4.1.0&quot;</span>
+<span class="n">springBoot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;4.1.1&quot;</span>
 
 <span class="k">[plugins]</span>
 <span class="n">kotlin-jvm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;org.jetbrains.kotlin.jvm&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="p">.</span><span class="n">ref</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;kotlin&quot;</span><span class="w"> </span><span class="p">}</span>

@@ -59,6 +59,7 @@
   <a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
   <a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
   <a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+  <a href="../phase-5-production-features/05-api-versioning.html">API 버전 관리</a>
   <div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
   <a href="../phase-6-build-deploy/README.html">📄 개요</a>
   <a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
@@ -97,6 +98,12 @@
   <a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
   <a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
   <a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+  <div class="nav-section">부록 E: 규모·도메인별 설계 전략</div>
+  <a href="../appendix-e-scale-and-domain/README.html">📄 개요</a>
+  <a href="../appendix-e-scale-and-domain/01-scale-tiers.html">규모 단계별 설계</a>
+  <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
+  <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
+  <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
 </nav></aside>
   <main class="content">
 <h1>gcloud CLI 설치와 프로젝트 설정</h1>
@@ -112,7 +119,7 @@ brew<span class="w"> </span>install<span class="w"> </span>--cask<span class="w"
 gcloud<span class="w"> </span>--version
 </pre></div>
 </div>
-<p><code>gcloud --version</code>을 실행했을 때 <code>Google Cloud SDK 5xx.x.x</code> 같은 버전 정보가 나오면 성공입니다. (2026-07-25 기준 최신은 <strong>577.0.0</strong>이며, <code>gcloud components update</code>로 갱신합니다.)</p>
+<p><code>gcloud --version</code>을 실행했을 때 <code>Google Cloud SDK 5xx.x.x</code> 같은 버전 정보가 나오면 성공입니다. (2026-08-30 기준 최신은 <strong>577.0.0</strong>이며, <code>gcloud components update</code>로 갱신합니다.)</p>
 
 <blockquote>
 <p><strong>Linux/Windows 사용자</strong>: Homebrew가 없다면 공식 설치 스크립트를 사용하세요. 이 가이드는 macOS + zsh 기준으로 설명합니다.</p>

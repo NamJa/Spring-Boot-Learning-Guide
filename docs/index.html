@@ -59,6 +59,7 @@
   <a href="phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
   <a href="phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
   <a href="phase-5-production-features/04-testing.html">테스트 전략</a>
+  <a href="phase-5-production-features/05-api-versioning.html">API 버전 관리</a>
   <div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
   <a href="phase-6-build-deploy/README.html">📄 개요</a>
   <a href="phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
@@ -97,11 +98,17 @@
   <a href="appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
   <a href="appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
   <a href="appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+  <div class="nav-section">부록 E: 규모·도메인별 설계 전략</div>
+  <a href="appendix-e-scale-and-domain/README.html">📄 개요</a>
+  <a href="appendix-e-scale-and-domain/01-scale-tiers.html">규모 단계별 설계</a>
+  <a href="appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
+  <a href="appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
+  <a href="appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
 </nav></aside>
   <main class="content">
 <h1>Spring Boot 학습 가이드 (Kotlin)</h1>
 <p><a href="https://namja.github.io/Spring-Boot-Learning-Guide/"><img alt="Live Site" src="https://img.shields.io/badge/Live-namja.github.io-6DB33F?style=flat-square&amp;logo=githubpages&amp;logoColor=white" /></a>
-<a href="https://docs.spring.io/spring-boot/index.html"><img alt="Spring Boot" src="https://img.shields.io/badge/Spring%20Boot-4.1.0-6DB33F?style=flat-square&amp;logo=springboot&amp;logoColor=white" /></a>
+<a href="https://docs.spring.io/spring-boot/index.html"><img alt="Spring Boot" src="https://img.shields.io/badge/Spring%20Boot-4.1.1-6DB33F?style=flat-square&amp;logo=springboot&amp;logoColor=white" /></a>
 <a href="https://kotlinlang.org/"><img alt="Kotlin" src="https://img.shields.io/badge/Kotlin-2.3.21-7F52FF?style=flat-square&amp;logo=kotlin&amp;logoColor=white" /></a>
 <a href="https://adoptium.net/"><img alt="JDK" src="https://img.shields.io/badge/JDK-21%20LTS-orange?style=flat-square&amp;logo=openjdk&amp;logoColor=white" /></a></p>
 
@@ -110,7 +117,7 @@
 </blockquote>
 <p>Kotlin은 알지만 Spring 생태계는 처음인 분들을 위한 실습형 입문 가이드입니다. IoC/DI 같은 Spring의 핵심 철학부터 시작해, Kotlin으로 REST API를 만들고, Spring Data JPA로 데이터를 다루며, 검증·예외·보안·관측성을 더한 뒤, JAR·Docker·네이티브 이미지로 배포하는 전 과정을 단계별로 다룹니다.</p>
 
-<h2 id="기준-버전-2026-07-25-기준">📦 기준 버전 (2026-07-25 기준)</h2>
+<h2 id="기준-버전-2026-08-30-기준">📦 기준 버전 (2026-08-30 기준)</h2>
 
 <table>
 <thead>
@@ -123,38 +130,38 @@
 <tbody>
 <tr>
 <td><strong>Spring Boot</strong></td>
-<td>4.1.0</td>
-<td>2026-06-10 GA. 2026-07-25 기준 최신 GA</td>
+<td>4.1.1</td>
+<td>2026-08-20 릴리스. 2026-08-30 기준 최신 GA (4.1 라인 GA는 2026-06-10)</td>
 </tr>
 <tr>
 <td><strong>Spring Framework</strong></td>
-<td>7.0.8</td>
-<td>Spring Boot 4.1.0 BOM 관리 버전</td>
+<td>7.0.9</td>
+<td>Spring Boot 4.1.1 BOM 관리 버전</td>
 </tr>
 <tr>
 <td><strong>Spring Security</strong></td>
-<td>7.1.0</td>
-<td>Spring Boot 4.1.0 BOM 관리 버전</td>
+<td>7.1.1</td>
+<td>Spring Boot 4.1.1 BOM 관리 버전</td>
 </tr>
 <tr>
 <td><strong>Spring Data</strong></td>
-<td>2026.0.0</td>
+<td>2026.0.1</td>
 <td>BOM(<code>spring-data-bom</code>) 버전</td>
 </tr>
 <tr>
 <td><strong>Kotlin</strong></td>
 <td>2.3.21</td>
-<td>Spring Boot 4.1.0 BOM이 관리 (스탠드얼론 최신은 2.4.10)</td>
+<td>Spring Boot 4.1.1 BOM이 관리 (스탠드얼론 최신은 2.4.10)</td>
 </tr>
 <tr>
 <td><strong>JDK</strong></td>
 <td>17 (최소) ~ 26</td>
-<td>빌드·런타임. 본 가이드는 LTS인 JDK 21 기준 (Temurin 최신 태그 21.0.12, SDKMAN 설치본 21.0.11)</td>
+<td>빌드·런타임. 본 가이드는 LTS인 JDK 21 기준 (Temurin·SDKMAN 최신 <code>21.0.12+1.1-tem</code>)</td>
 </tr>
 <tr>
 <td><strong>Gradle</strong></td>
-<td>9.x (Initializr 래퍼 9.5.1)</td>
-<td>Kotlin DSL(<code>build.gradle.kts</code>). 8.14+도 동작</td>
+<td>9.x (Initializr 래퍼 9.7.1)</td>
+<td>Kotlin DSL(<code>build.gradle.kts</code>). Gradle 최신 릴리스도 9.7.1. 8.14+도 동작</td>
 </tr>
 <tr>
 <td><strong>Maven</strong></td>
@@ -163,17 +170,17 @@
 </tr>
 <tr>
 <td><strong>내장 서버</strong></td>
-<td>Tomcat 11.0.22 (Servlet 6.1)</td>
-<td>기본값. Jetty 12.1.10도 지원</td>
+<td>Tomcat 11.0.24 (Servlet 6.1)</td>
+<td>기본값. Jetty 12.1.12도 지원</td>
 </tr>
 <tr>
 <td><strong>Hibernate ORM</strong></td>
-<td>7.4.1.Final</td>
+<td>7.4.5.Final</td>
 <td>Spring Data JPA의 구현체</td>
 </tr>
 <tr>
 <td><strong>Jackson</strong></td>
-<td>3.1.4 (<code>tools.jackson</code>)</td>
+<td>3.1.5 (<code>tools.jackson</code>)</td>
 <td><strong>Spring Boot 4의 기본 JSON 엔진</strong></td>
 </tr>
 <tr>
@@ -188,20 +195,20 @@
 </tr>
 <tr>
 <td><strong>Querydsl (OpenFeign)</strong></td>
-<td>7.5</td>
-<td>부록 B 기준</td>
+<td>7.6</td>
+<td>부록 B 기준 (2026-08-19 릴리스)</td>
 </tr>
 <tr>
 <td><strong>GraalVM</strong></td>
-<td>Community 25 + Native Build Tools 1.1.1</td>
+<td>Community 25(<code>25.3.4+1.r25-graalce</code>) + Native Build Tools 1.1.8</td>
 <td>네이티브 이미지</td>
 </tr>
 </tbody>
 </table>
 
 <blockquote>
-<p>Spring Boot 4.1.0은 <strong>Java 17을 최소 버전</strong>으로 요구하며 <strong>Java 26까지</strong> 호환됩니다. 본 가이드는 가장 무난한 LTS인 <strong>JDK 21</strong>을 기준으로 작성했습니다. 현재 오픈소스 유지보수 라인은 <strong>4.0.7</strong> 하나이며, <strong>3.5.x는 2026-06-30에 오픈소스 지원이 종료</strong>되어(마지막 OSS 릴리스 3.5.16) 이후 패치는 상용 지원 대상입니다. Initializr도 4.1.x / 4.0.x만 제공하므로, 새 프로젝트는 최신 GA인 <strong>4.1.0</strong>으로 시작하세요.</p>
-<p><strong>Kotlin 버전에 관하여:</strong> 2026-07-25 기준 Kotlin의 스탠드얼론 최신 릴리스는 <strong>2.4.10</strong>(2026-07-14)이지만, Spring Boot 4.1.0의 BOM은 <strong>Kotlin 2.3.21</strong>을 관리합니다. Spring Boot 프로젝트에서는 BOM이 검증한 버전을 그대로 쓰는 것이 안전하므로, 본 가이드는 <strong>2.3.21</strong>을 기준으로 합니다. (Spring Boot 4.0.0은 2.2.21을 관리했습니다.)</p>
+<p>Spring Boot 4.1.1은 <strong>Java 17을 최소 버전</strong>으로 요구하며 <strong>Java 26까지</strong> 호환됩니다. 본 가이드는 가장 무난한 LTS인 <strong>JDK 21</strong>을 기준으로 작성했습니다. 현재 오픈소스 유지보수 라인은 <strong>4.0.8</strong> 하나이며(다음 피처 릴리스 <strong>4.2.0-M1</strong>이 2026-08-20에 공개되었습니다), <strong>3.5.x는 2026-06-30에 오픈소스 지원이 종료</strong>되어(마지막 OSS 릴리스 3.5.16) 이후 패치는 상용 지원 대상입니다. Initializr도 4.1.x / 4.0.x만 제공하므로, 새 프로젝트는 최신 GA인 <strong>4.1.1</strong>으로 시작하세요.</p>
+<p><strong>Kotlin 버전에 관하여:</strong> 2026-08-30 기준 Kotlin의 스탠드얼론 최신 정식 릴리스는 <strong>2.4.10</strong>(2026-07-14, 다음 버전 2.4.20은 RC 단계)이지만, Spring Boot 4.1.1의 BOM은 <strong>Kotlin 2.3.21</strong>을 관리합니다. Spring Boot 프로젝트에서는 BOM이 검증한 버전을 그대로 쓰는 것이 안전하므로, 본 가이드는 <strong>2.3.21</strong>을 기준으로 합니다. (Spring Boot 4.0.0은 2.2.21을 관리했습니다.)</p>
 </blockquote>
 
 <h3 id="spring-boot-4에서-달라진-것-boot-3-예제와-다른-부분">⚠️ Spring Boot 4에서 달라진 것 (Boot 3 예제와 다른 부분)</h3>
@@ -264,6 +271,18 @@
 <td><code>h2</code> 의존성만으로 사용</td>
 <td><strong><code>spring-boot-h2console</code></strong> 모듈 추가 필요</td>
 <td><a href="phase-3-data-jpa/05-database-setup.html">Phase 3-5</a></td>
+</tr>
+<tr>
+<td><strong>API 버전 관리</strong></td>
+<td>경로에 <code>/v1</code> 하드코딩, 커스텀 <code>RequestCondition</code></td>
+<td><strong><code>@GetMapping(version = "1.1+")</code></strong> + <code>spring.mvc.apiversion.*</code></td>
+<td><a href="phase-5-production-features/05-api-versioning.html">Phase 5-5</a></td>
+</tr>
+<tr>
+<td><strong>재시도·동시성 제한</strong></td>
+<td>Spring Retry / Resilience4j 등 외부 라이브러리</td>
+<td>코어 내장 <strong><code>@Retryable</code>·<code>@ConcurrencyLimit</code></strong> (<code>org.springframework.resilience.annotation</code>)</td>
+<td><a href="phase-5-production-features/01-http-interface-client.html">Phase 5-1</a></td>
 </tr>
 <tr>
 <td><strong>Kotlin 애너테이션 타깃</strong></td>
@@ -335,7 +354,7 @@
 <tr>
 <td style="text-align: center;">8</td>
 <td><strong>Phase 5</strong> 실전 기능</td>
-<td>HTTP 클라이언트·Security 7.1·Actuator·테스트</td>
+<td>HTTP 클라이언트·Security 7.1·Actuator·테스트·API 버전 관리</td>
 <td style="text-align: center;">4</td>
 </tr>
 <tr>
@@ -362,11 +381,17 @@
 <td>DispatcherServlet·Thymeleaf·필터/인터셉터·세션</td>
 <td style="text-align: center;">2(+5)</td>
 </tr>
+<tr>
+<td style="text-align: center;">13</td>
+<td>📎 <strong>부록 E</strong> 규모·도메인별 설계</td>
+<td>규모 단계(S0~S3)·모듈러 모놀리스·도메인 성격별 전략·의사결정</td>
+<td style="text-align: center;">전체(특히 3·5·6)</td>
+</tr>
 </tbody>
 </table>
 
 <aside class="callout tip">
-<p><strong>부록 선행 관계</strong>: 부록 B는 <strong>부록 A</strong>를, 부록 C는 <strong>Phase 3-4(트랜잭션)</strong> 를, 부록 D는 <strong>Phase 2</strong>를 먼저 보고 오는 것을 권장합니다.</p>
+<p><strong>부록 선행 관계</strong>: 부록 B는 <strong>부록 A</strong>를, 부록 C는 <strong>Phase 3-4(트랜잭션)</strong> 를, 부록 D는 <strong>Phase 2</strong>를 먼저 보고 오는 것을 권장합니다. <strong>부록 E</strong>는 본문을 한 바퀴 돈 뒤에 읽는 것이 가장 좋습니다 — "어떻게 만드는가"를 알고 나서야 "어떻게 설계할 것인가"가 의미를 갖습니다.</p>
 </aside>
 
 <h3 id="목표별-빠른-트랙">🎯 목표별 빠른 트랙</h3>
@@ -378,6 +403,7 @@
 <li><strong>🗄️ 데이터/쿼리 집중</strong>: Phase 0 → 1 → 2 → 3 → 부록 A → 부록 B → Phase 4</li>
 <li><strong>🧠 이론·면접 대비</strong>: Phase 0 → 부록 C(AOP) → 부록 A(JPA) → 부록 D(MVC 내부) <em>(원리 위주)</em></li>
 <li><strong>🌐 화면(SSR)까지</strong>: 본문 완주 → 부록 D(Thymeleaf·세션 로그인)</li>
+<li><strong>🏗️ 설계·아키텍처 판단</strong>: 본문 완주 → <strong>부록 E</strong>(규모 단계 → 모듈러 모놀리스 → 도메인 성격 → 의사결정) <em>(팀 리드·설계 결정을 앞둔 경우)</em></li>
 </ul>
 <hr />
 
@@ -447,6 +473,7 @@
 <li><a href="phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a></li>
 <li><a href="phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a></li>
 <li><a href="phase-5-production-features/04-testing.html">테스트 전략</a></li>
+<li><a href="phase-5-production-features/05-api-versioning.html">API 버전 관리</a></li>
 </ul>
 
 <h3 id="phase-6-빌드-배포">Phase 6 — 빌드 &amp; 배포</h3>
@@ -470,7 +497,7 @@
 <hr />
 
 <h2 id="부록-심화">📎 부록 (심화)</h2>
-<p>본문이 "넓고 빠르게" 한 바퀴 도는 입문 과정이라면, 부록은 실무·중급으로 들어가는 <strong>심화 과정</strong>입니다. (인프런 김영한 강사 로드맵의 <em>JPA 기본편 / Querydsl / 핵심원리 고급편 / MVC 1·2편</em> 영역을 Kotlin·Spring Boot 4 기준으로 보강)</p>
+<p>본문이 "넓고 빠르게" 한 바퀴 도는 입문 과정이라면, 부록은 실무·중급으로 들어가는 <strong>심화 과정</strong>입니다. (부록 A~D는 인프런 김영한 강사 로드맵의 <em>JPA 기본편 / Querydsl / 핵심원리 고급편 / MVC 1·2편</em> 영역을 Kotlin·Spring Boot 4 기준으로 보강한 것이고, <strong>부록 E</strong>는 "언제 무엇을 도입할 것인가"라는 설계 판단을 다룹니다.)</p>
 
 <h3 id="부록-a-jpa-심화">부록 A — JPA 심화</h3>
 
@@ -508,7 +535,86 @@
 <li><a href="appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a></li>
 <li><a href="appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a></li>
 </ul>
+
+<h3 id="부록-e-서비스-규모도메인별-설계-전략">부록 E — 서비스 규모·도메인별 설계 전략</h3>
+
+<ul>
+<li><a href="appendix-e-scale-and-domain/README.html">부록 E 개요 — 두 개의 축</a></li>
+<li><a href="appendix-e-scale-and-domain/01-scale-tiers.html">규모 단계별 설계 (S0~S3)</a></li>
+<li><a href="appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a></li>
+<li><a href="appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a></li>
+<li><a href="appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a></li>
+</ul>
 <hr />
+
+<h2 id="2026년-spring-생태계-동향">🌐 2026년 Spring 생태계 동향</h2>
+<p>버전 번호만으로는 보이지 않는 것이 있습니다. <strong>커뮤니티가 지금 무엇을 이야기하고 있는가</strong>입니다. 2026년 5월 바르셀로나에서 열린 <a href="https://2026.springio.net/">Spring I/O 2026</a>(5개 트랙 약 60개 세션)의 프로그램을 기준으로, 이 가이드가 다루는 주제가 실무 논의에서 어디쯤 있는지 정리했습니다.</p>
+
+<table>
+<thead>
+<tr>
+<th>주제</th>
+<th>커뮤니티에서 이야기되는 것</th>
+<th>이 가이드에서</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Boot 4 구조 변화</strong></td>
+<td>Moritz Halbritter <em>Inside Spring Boot 4: Restructuring for the Future</em> — 의존성 트리 정리, 자동 설정 모듈화, JSpecify, Jackson 3, API 버전 관리를 "4.x의 실체"로 정리</td>
+<td><a href="phase-0-spring-fundamentals/01-what-is-spring.html">Phase 0-1</a>, <a href="phase-1-project-setup/04-build-gradle-kts.html">1-4</a></td>
+</tr>
+<tr>
+<td><strong>Kotlin 관용구</strong></td>
+<td>Sébastien Deleuze <em>Idiomatic Kotlin applications with Spring Boot 4</em> — 빌드·널 안전성·직렬화·관측성·API 버전 관리·복원력·테스트를 Kotlin 관점에서 한 바퀴</td>
+<td>가이드 전체 (모든 예제가 Kotlin)</td>
+</tr>
+<tr>
+<td><strong>널 안전성</strong></td>
+<td>Deleuze <em>Null-safe applications with Spring Boot 4</em> — JSpecify로 플랫폼 타입 제거, 자바 쪽은 NullAway로 빌드 시점 검증</td>
+<td><a href="phase-0-spring-fundamentals/01-what-is-spring.html">Phase 0-1 §5.1</a></td>
+</tr>
+<tr>
+<td><strong>복원력</strong></td>
+<td>Juergen Hoeller <em>Core Resilience Features in Spring Framework 7</em> — <code>RetryTemplate</code>·<code>@Retryable</code>·<code>@ConcurrencyLimit</code>이 가상 스레드와 맞물리는 방식</td>
+<td><a href="phase-5-production-features/01-http-interface-client.html">Phase 5-1 §7</a></td>
+</tr>
+<tr>
+<td><strong>API 버전 관리</strong></td>
+<td>직접 만들던 것이 프레임워크 기능이 된 대표 사례로 반복 언급</td>
+<td><a href="phase-5-production-features/05-api-versioning.html">Phase 5-5</a></td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>Daniel Garnier-Moiroux <em>New in Spring Security 7</em> — 10년 넘게 요청되던 <strong>다요소 인증(MFA)</strong>이 드디어 들어옴, Jackson 3 지원, 기본값 강화</td>
+<td><a href="phase-5-production-features/02-security-basics.html">Phase 5-2</a></td>
+</tr>
+<tr>
+<td><strong>기동 성능</strong></td>
+<td>Alina Yurenko <em>Spring Native</em> — Spring 사용자의 <strong>37%가 네이티브를 운영 중이거나 검토 중</strong>. Anthony Dahanne의 Paketo Buildpacks 세션도 같은 맥락</td>
+<td><a href="phase-6-build-deploy/01-executable-jar.html">Phase 6-1(CDS·AOT 캐시)</a>, <a href="phase-6-build-deploy/03-native-image.html">6-3</a></td>
+</tr>
+<tr>
+<td><strong>동시성</strong></td>
+<td>Rossen Stoyanchev·Dariusz Jędrzejczyk <em>Concurrency and Streaming in the Age of Loom</em> — 가상 스레드 이후 MVC/WebFlux 선택 기준이 달라짐</td>
+<td><a href="phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Phase 0-5</a></td>
+</tr>
+<tr>
+<td><strong>마이그레이션</strong></td>
+<td>Tim te Beek <em>Prepare Your Next Spring Boot Migration</em>, Raquel Pau <em>Hybrid Modernization</em> — OpenRewrite의 정확성과 LLM을 조합하는 방식이 주류가 됨</td>
+<td>(범위 밖 — 이 가이드는 신규 프로젝트 기준)</td>
+</tr>
+<tr>
+<td><strong>AI · 에이전트</strong></td>
+<td>메인 트랙의 <strong>약 1/3</strong>이 Spring AI·MCP·에이전트. Rod Johnson의 Embabel 발표를 포함해 "웹 프레임워크에서 에이전트 플랫폼으로"가 올해의 서사</td>
+<td>(범위 밖 — Spring Boot를 익힌 다음 단계)</td>
+</tr>
+</tbody>
+</table>
+
+<aside class="callout note">
+<p><strong>이 가이드는 Spring AI를 다루지 않습니다.</strong> 의도적인 선택입니다. Spring AI도 결국 <strong>스타터를 추가하고, 자동 설정된 빈을 주입받고, <code>@Configuration</code>으로 커스터마이징하는</strong> Spring 애플리케이션이기 때문입니다. Phase 0~7을 마치면 그 문법이 이미 손에 익어 있고, <a href="https://docs.spring.io/spring-ai/reference/">Spring AI 공식 문서</a>는 그 위에 얹기만 하면 됩니다. 순서를 바꾸면 자동 설정도 DI도 모르는 채로 프롬프트만 붙여넣게 됩니다.</p>
+</aside>
 
 <h2 id="공식-문서">📚 공식 문서</h2>
 
@@ -520,13 +626,13 @@
 </ul>
 
 <blockquote>
-<p>본 문서의 모든 버전·API는 <strong>2026년 7월 25일</strong> 기준 공식 문서·Spring Boot 4.1.0 BOM·Spring Initializr 실제 출력으로 검증했습니다.</p>
+<p>본 문서의 모든 버전·API는 <strong>2026년 8월 30일</strong> 기준 공식 문서·Spring Boot 4.1.1 BOM·Spring Initializr 실제 출력으로 검증했습니다.</p>
 </blockquote>
 
   </main>
 <aside class="toc" aria-label="페이지 목차">
 <div class="toc-title">이 페이지</div>
-<a class="lvl2" href="#기준-버전-2026-07-25-기준">📦 기준 버전 (2026-07-25 기준)</a>
+<a class="lvl2" href="#기준-버전-2026-08-30-기준">📦 기준 버전 (2026-08-30 기준)</a>
 <a class="lvl3" href="#spring-boot-4에서-달라진-것-boot-3-예제와-다른-부분">⚠️ Spring Boot 4에서 달라진 것 (Boot 3 예제와 다른 부분)</a>
 <a class="lvl2" href="#추천-학습-경로">🧭 추천 학습 경로</a>
 <a class="lvl3" href="#권장-통합-순서-본문-부록">✅ 권장 통합 순서 (본문 + 부록)</a>
@@ -546,6 +652,8 @@
 <a class="lvl3" href="#부록-b-querydsl">부록 B — Querydsl</a>
 <a class="lvl3" href="#부록-c-aop-프록시-고급">부록 C — AOP / 프록시 고급</a>
 <a class="lvl3" href="#부록-d-spring-mvc-내부-원리-ssr">부록 D — Spring MVC 내부 원리 &amp;amp; SSR</a>
+<a class="lvl3" href="#부록-e-서비스-규모도메인별-설계-전략">부록 E — 서비스 규모·도메인별 설계 전략</a>
+<a class="lvl2" href="#2026년-spring-생태계-동향">🌐 2026년 Spring 생태계 동향</a>
 <a class="lvl2" href="#공식-문서">📚 공식 문서</a>
 </aside>
 </div>

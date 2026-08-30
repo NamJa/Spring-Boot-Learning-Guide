@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>용어집 (Glossary) · Spring Boot 학습 가이드</title>
-<meta name="description" content="이 가이드 68개 페이지에 등장하는 용어를 한곳에 모았습니다. 읽다가 낯선 단어를 만나면 여기서 한 줄 정의를 확인하고, 필요하면 자세히 다루는 페이지로 바로 이동하세요. Spring Boot 4 기준이며, Boot 3까지와 이름·패키지가 달라진 항목은 마지막 절에 따">
+<meta name="description" content="이 가이드 75개 페이지에 등장하는 용어를 한곳에 모았습니다. 읽다가 낯선 단어를 만나면 여기서 한 줄 정의를 확인하고, 필요하면 자세히 다루는 페이지로 바로 이동하세요. Spring Boot 4 기준이며, Boot 3까지와 이름·패키지가 달라진 항목은 마지막 절에 따">
 <link rel="stylesheet" href="./assets/style.css">
 </head>
 <body>
@@ -59,6 +59,7 @@
   <a href="phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
   <a href="phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
   <a href="phase-5-production-features/04-testing.html">테스트 전략</a>
+  <a href="phase-5-production-features/05-api-versioning.html">API 버전 관리</a>
   <div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
   <a href="phase-6-build-deploy/README.html">📄 개요</a>
   <a href="phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
@@ -97,10 +98,16 @@
   <a href="appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
   <a href="appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
   <a href="appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+  <div class="nav-section">부록 E: 규모·도메인별 설계 전략</div>
+  <a href="appendix-e-scale-and-domain/README.html">📄 개요</a>
+  <a href="appendix-e-scale-and-domain/01-scale-tiers.html">규모 단계별 설계</a>
+  <a href="appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
+  <a href="appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
+  <a href="appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
 </nav></aside>
   <main class="content">
 <h1>용어집 (Glossary)</h1>
-<p>이 가이드 68개 페이지에 등장하는 용어를 한곳에 모았습니다. 읽다가 낯선 단어를 만나면 여기서 한 줄 정의를 확인하고, 필요하면 <strong>자세히 다루는 페이지</strong>로 바로 이동하세요. Spring Boot 4 기준이며, Boot 3까지와 이름·패키지가 달라진 항목은 마지막 절에 따로 모았습니다.</p>
+<p>이 가이드 75개 페이지에 등장하는 용어를 한곳에 모았습니다. 읽다가 낯선 단어를 만나면 여기서 한 줄 정의를 확인하고, 필요하면 <strong>자세히 다루는 페이지</strong>로 바로 이동하세요. Spring Boot 4 기준이며, Boot 3까지와 이름·패키지가 달라진 항목은 마지막 절에 따로 모았습니다.</p>
 
 <div class="gl-tools">
   <input type="search" id="gl-filter" class="gl-filter" placeholder="용어 검색 — 예: 프록시, @Transactional, Jackson" autocomplete="off" aria-label="용어 검색">
@@ -117,6 +124,7 @@
   <a href="#gl-observability">관측성 · 테스트</a>
   <a href="#gl-build">빌드 · 배포 · 클라우드</a>
   <a href="#gl-kotlin">Kotlin · 빌드 도구</a>
+  <a href="#gl-design">설계 전략</a>
   <a href="#gl-boot4">Boot 4에서 바뀐 이름</a>
 </nav>
 
@@ -126,11 +134,11 @@
 
 <div class="gl-item">
   <div class="gl-term">Spring Framework <span class="gl-tag">기반</span></div>
-  <div class="gl-def">IoC 컨테이너와 AOP를 핵심으로 하는 경량 애플리케이션 프레임워크. 2003년 등장했고 본 가이드 기준은 <code>7.0.8</code>. Spring Boot·Data·Security 등 모든 프로젝트가 이 위에 올라간다. <a href="phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a></div>
+  <div class="gl-def">IoC 컨테이너와 AOP를 핵심으로 하는 경량 애플리케이션 프레임워크. 2003년 등장했고 본 가이드 기준은 <code>7.0.9</code>. Spring Boot·Data·Security 등 모든 프로젝트가 이 위에 올라간다. <a href="phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a></div>
 </div>
 <div class="gl-item">
   <div class="gl-term">Spring Boot <span class="gl-tag">기반</span></div>
-  <div class="gl-def">Spring Framework를 <em>관례에 따라 자동으로 설정해 주는</em> 레이어. 새 프레임워크가 아니다. 자동 설정·스타터·내장 서버·Actuator를 더한다. 본 가이드 기준 <code>4.1.0</code>. <a href="phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a></div>
+  <div class="gl-def">Spring Framework를 <em>관례에 따라 자동으로 설정해 주는</em> 레이어. 새 프레임워크가 아니다. 자동 설정·스타터·내장 서버·Actuator를 더한다. 본 가이드 기준 <code>4.1.1</code>. <a href="phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a></div>
 </div>
 <div class="gl-item">
   <div class="gl-term">IoC (Inversion of Control, 제어의 역전) <span class="gl-tag">핵심</span></div>
@@ -241,7 +249,7 @@
 </div>
 <div class="gl-item">
   <div class="gl-term">서블릿 (Servlet) · 서블릿 컨테이너</div>
-  <div class="gl-def">HTTP 요청 하나를 처리하는 Java 표준 객체와 그 실행 환경. Spring Boot는 <strong>Tomcat 11.0.22(Servlet 6.1)</strong>를 내장하며 패키지는 <code>jakarta.servlet.*</code>. <a href="appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 처리 흐름</a></div>
+  <div class="gl-def">HTTP 요청 하나를 처리하는 Java 표준 객체와 그 실행 환경. Spring Boot는 <strong>Tomcat 11.0.24(Servlet 6.1)</strong>를 내장하며 패키지는 <code>jakarta.servlet.*</code>. <a href="appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 처리 흐름</a></div>
 </div>
 <div class="gl-item">
   <div class="gl-term">DispatcherServlet (프런트 컨트롤러)</div>
@@ -304,6 +312,15 @@
   <div class="gl-def">세션 값을 컨트롤러 파라미터로 바로 주입받는 애너테이션. <code>session.getAttribute()</code> + 캐스팅을 대신한다. <a href="appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a></div>
 </div>
 
+<div class="gl-item">
+  <div class="gl-term">API 버전 관리 · <code>version</code> 속성 <span class="gl-tag">Boot 4</span></div>
+  <div class="gl-def">같은 경로를 클라이언트가 요청한 버전에 따라 다른 핸들러로 보내는 기능. Spring Framework 7부터 <code>@GetMapping(version = "1.1+")</code> 처럼 매핑 애너테이션에 직접 쓰고, 버전을 헤더·쿼리·경로·미디어 타입 중 어디서 읽을지는 <code>spring.mvc.apiversion.use.*</code>로 고른다. 지원하지 않는 버전은 디스패치 단계에서 400. <a href="phase-5-production-features/05-api-versioning.html">API 버전 관리</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Deprecation · Sunset 헤더</div>
+  <div class="gl-def">"이 버전은 언제 폐기되고 언제 죽는다"를 응답 헤더로 알리는 표준(RFC 9745 · RFC 8594). <code>StandardApiVersionDeprecationHandler</code>로 자동 부착한다. <a href="phase-5-production-features/05-api-versioning.html">API 버전 관리</a></div>
+</div>
+
 <h2 id="gl-data">데이터 · JPA</h2>
 
 <div class="gl-item">
@@ -312,7 +329,7 @@
 </div>
 <div class="gl-item">
   <div class="gl-term">JPA · Hibernate · Spring Data JPA</div>
-  <div class="gl-def">차례로 <em>표준 명세</em>(<code>jakarta.persistence.*</code>), <em>구현체</em>(본 가이드 <code>7.4.1</code>), <em>Repository 추상화</em>. Spring Data JPA를 써도 아래에서는 Hibernate가 SQL을 만든다. <a href="phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a></div>
+  <div class="gl-def">차례로 <em>표준 명세</em>(<code>jakarta.persistence.*</code>), <em>구현체</em>(본 가이드 <code>7.4.5</code>), <em>Repository 추상화</em>. Spring Data JPA를 써도 아래에서는 Hibernate가 SQL을 만든다. <a href="phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a></div>
 </div>
 <div class="gl-item">
   <div class="gl-term">영속성 컨텍스트 (Persistence Context)</div>
@@ -459,7 +476,7 @@
 </div>
 <div class="gl-item">
   <div class="gl-term">Querydsl</div>
-  <div class="gl-def">코드로 <strong>타입 안전한</strong> 쿼리를 작성하는 라이브러리. 오타가 컴파일 에러가 되고 동적 쿼리를 우아하게 조립한다. 현재 표준은 OpenFeign 포크(<code>io.github.openfeign.querydsl</code> 7.5). <a href="appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a></div>
+  <div class="gl-def">코드로 <strong>타입 안전한</strong> 쿼리를 작성하는 라이브러리. 오타가 컴파일 에러가 되고 동적 쿼리를 우아하게 조립한다. 현재 표준은 OpenFeign 포크(<code>io.github.openfeign.querydsl</code> 7.6). <a href="appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a></div>
 </div>
 <div class="gl-item">
   <div class="gl-term">Q타입 (<code>QBook</code>)</div>
@@ -553,7 +570,7 @@
 
 <div class="gl-item">
   <div class="gl-term">Spring Security</div>
-  <div class="gl-def">인증·인가 프레임워크(본 가이드 <code>7.1.0</code>). 스타터만 추가해도 <strong>모든 엔드포인트가 잠기는</strong> secure-by-default 철학. 내부는 거대한 서블릿 필터 체인. <a href="phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a></div>
+  <div class="gl-def">인증·인가 프레임워크(본 가이드 <code>7.1.1</code>). 스타터만 추가해도 <strong>모든 엔드포인트가 잠기는</strong> secure-by-default 철학. 내부는 거대한 서블릿 필터 체인. <a href="phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a></div>
 </div>
 <div class="gl-item">
   <div class="gl-term"><code>SecurityFilterChain</code></div>
@@ -662,6 +679,10 @@
   <div class="gl-def">jar 내부를 변경 빈도에 따라 4개 레이어(dependencies · spring-boot-loader · snapshot-dependencies · application)로 나눈 구조와, 그것을 추출하는 도구 모드. <a href="phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a></div>
 </div>
 <div class="gl-item">
+  <div class="gl-term">CDS · AOT 캐시 · 훈련 실행 <span class="gl-tag">Boot 4</span></div>
+  <div class="gl-def">클래스 로딩·링크 결과를 파일에 저장해 두고 다음 기동부터 재사용해 시작 시간을 줄이는 JVM 기능. CDS는 JDK 17+·Boot 3.3+, 후계인 AOT 캐시는 JDK 25+·Boot 4+. 둘 다 <code>-Dspring.context.exit=onRefresh</code>로 컨텍스트만 띄웠다 끄는 <strong>훈련 실행</strong>이 필요하고, 푼 형태(<code>extract</code>)에서만 동작한다. <a href="phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a></div>
+</div>
+<div class="gl-item">
   <div class="gl-term">Cloud Native Buildpacks · Paketo · <code>bootBuildImage</code></div>
   <div class="gl-def">Dockerfile 없이 소스/jar를 분석해 OCI 이미지를 만들어 주는 표준과 그 구현, 그리고 이를 실행하는 Gradle 태스크. OS 패치를 빌드팩 업데이트로 흡수한다. <a href="phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a></div>
 </div>
@@ -726,7 +747,7 @@
 </div>
 <div class="gl-item">
   <div class="gl-term"><code>-Xjsr305=strict</code></div>
-  <div class="gl-def">Java API의 nullability 애너테이션을 엄격히 해석해, 플랫폼 타입 대신 정확한 null 가능/불가능 타입으로 다루게 하는 컴파일러 옵션. <a href="phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a></div>
+  <div class="gl-def">JSR-305 nullability 애너테이션을 엄격히 해석해, 플랫폼 타입 대신 정확한 null 가능/불가능 타입으로 다루게 하는 컴파일러 옵션. Initializr 기본값이지만, Spring 7 자체는 JSpecify로 옮겨 갔고 그쪽은 Kotlin 2.1+가 기본으로 엄격 해석한다. <a href="phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a></div>
 </div>
 <div class="gl-item">
   <div class="gl-term"><code>-Xannotation-default-target=param-property</code></div>
@@ -747,6 +768,50 @@
 <div class="gl-item">
   <div class="gl-term">DevTools</div>
   <div class="gl-def">클래스 변경 시 애플리케이션을 자동 재시작해 주는 개발 편의 모듈(<code>developmentOnly</code> 스코프라 운영 산출물에는 빠진다). 재시작하면 메모리 데이터는 초기화된다. <a href="phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a></div>
+</div>
+
+<div class="gl-item">
+  <div class="gl-term">JSpecify · 플랫폼 타입 <span class="gl-tag">Boot 4</span></div>
+  <div class="gl-def">자바 API의 널 가능성을 표준 애너테이션(<code>@Nullable</code>·<code>@NonNull</code>·<code>@NullMarked</code>)으로 표기하는 명세. Spring Framework 7이 전체 API에 적용해, Kotlin에서 <code>String!</code>(널 검사를 강제하지 않는 플랫폼 타입) 대신 <code>String?</code>·<code>String</code>이 정확히 잡힌다. 자바 코드에서는 NullAway로 빌드 시점 검증을 붙인다. <a href="phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a></div>
+</div>
+
+<h2 id="gl-design">설계 전략</h2>
+
+<div class="gl-item">
+  <div class="gl-term">모듈러 모놀리스 (modular monolith)</div>
+  <div class="gl-def">배포 단위는 하나로 두되, <strong>코드 안에서 도메인 경계를 명확히 나눈</strong> 구조. 마이크로서비스의 경계 이점을 얻으면서 분산 시스템의 비용은 내지 않는다. 2026년 Spring 커뮤니티의 기본 권장 출발점. <a href="appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">분산 모놀리스 <span class="gl-tag">안티패턴</span></div>
+  <div class="gl-def">서비스는 물리적으로 나뉘었는데 <strong>여전히 함께 배포해야 하고 같은 테이블을 공유하는</strong> 상태. 마이크로서비스의 비용만 내고 이점은 없다. 경계를 긋기 전에 배포부터 나눌 때 생긴다. <a href="appendix-e-scale-and-domain/01-scale-tiers.html">규모 단계별 설계</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Spring Modulith</div>
+  <div class="gl-def">모듈 경계를 <strong>테스트로 검증</strong>하고 문서를 자동 생성하는 Spring 프로젝트(2026-08-30 기준 2.1.1). <code>ApplicationModules.of(...).verify()</code> 한 줄이 경계 위반을 빌드 실패로 바꾼다. Boot BOM이 관리하지 않으므로 자체 BOM을 import 한다. <a href="appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">계층 우선 vs 도메인 우선 패키지</div>
+  <div class="gl-def">최상위 폴더를 <code>controller/service/repository</code>로 나누는가(계층 우선, 입문에 유리), <code>catalog/order/member</code>로 나누는가(도메인 우선, 규모에 유리). 후자는 폴더 하나가 곧 <strong>소유권 단위이자 추출 단위</strong>가 된다. <a href="appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">헥사고날 · 포트&amp;어댑터 · 어니언</div>
+  <div class="gl-def">도메인을 가운데 두고 DB·웹·외부 API를 인터페이스(포트) 뒤로 숨기는 구조. 교체 가능성을 사는 대신 인터페이스 증식과 이중 매핑 비용을 낸다. <strong>교체가 실제로 일어날 때만</strong> 값을 한다. <a href="appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">아웃박스 패턴 · dual-write</div>
+  <div class="gl-def">"DB 저장 + 브로커 발행"은 원자적이지 않아 이벤트가 유실될 수 있다(dual-write 문제). <strong>같은 트랜잭션에서 이벤트를 DB 테이블에 적고</strong> 별도 프로세스가 발행하는 것이 아웃박스 패턴. <code>spring-modulith-starter-jpa</code>가 이를 제공한다. <a href="appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">멱등성 (idempotency)</div>
+  <div class="gl-def">같은 요청·이벤트를 여러 번 처리해도 결과가 같은 성질. 대부분의 메시지 브로커가 "최소 1회" 전달이므로 <strong>중복 수신을 전제로</strong> 설계해야 한다. 보통 이벤트 ID를 저장해 이미 처리한 것을 건너뛴다. <a href="appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">낙관적 락 <code>@Version</code> · 비관적 락 · 원자 UPDATE</div>
+  <div class="gl-def">동시 갱신을 막는 세 가지. 충돌이 드물면 낙관적 락(충돌 시 예외 → 재시도), 잦으면 비관적 락(<code>FOR UPDATE</code>), 그리고 가장 값싼 방법은 <code>UPDATE … WHERE stock &gt;= :qty</code> 같은 <strong>조건부 원자 갱신</strong>. <a href="appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">ArchUnit</div>
+  <div class="gl-def">자바 바이트코드를 읽어 <strong>아키텍처 규칙을 테스트로 검증</strong>하는 라이브러리(2026-08-30 기준 1.5.0). "컨트롤러는 리포지토리를 직접 참조하지 않는다" 같은 규칙을 코드로 쓴다. Spring Modulith도 내부적으로 사용한다. <a href="appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a></div>
 </div>
 
 <h2 id="gl-boot4">Boot 4에서 바뀐 이름 (빠른 대조)</h2>
@@ -793,6 +858,7 @@
 <a class="lvl2" href="#gl-observability">관측성 · 테스트</a>
 <a class="lvl2" href="#gl-build">빌드 · 배포 · 클라우드</a>
 <a class="lvl2" href="#gl-kotlin">Kotlin · 빌드 도구</a>
+<a class="lvl2" href="#gl-design">설계 전략</a>
 <a class="lvl2" href="#gl-boot4">Boot 4에서 바뀐 이름 (빠른 대조)</a>
 </aside>
 </div>

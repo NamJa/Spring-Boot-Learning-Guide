@@ -59,6 +59,7 @@
   <a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
   <a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
   <a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+  <a href="../phase-5-production-features/05-api-versioning.html">API 버전 관리</a>
   <div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
   <a href="README.html">📄 개요</a>
   <a href="01-executable-jar.html" class="active">실행 가능 JAR 빌드</a>
@@ -97,10 +98,16 @@
   <a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
   <a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
   <a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+  <div class="nav-section">부록 E: 규모·도메인별 설계 전략</div>
+  <a href="../appendix-e-scale-and-domain/README.html">📄 개요</a>
+  <a href="../appendix-e-scale-and-domain/01-scale-tiers.html">규모 단계별 설계</a>
+  <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
+  <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
+  <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
 </nav></aside>
   <main class="content">
 <h1>실행 가능 JAR 빌드</h1>
-<p>모든 배포는 <strong>하나의 실행 가능한 산출물</strong>에서 출발합니다. Spring Boot의 Gradle 플러그인은 애플리케이션 코드와 모든 의존성을 단일 jar에 담은 <strong>실행 가능 jar</strong>(흔히 <em>fat jar</em> 또는 <em>uber jar</em>)를 만들어 줍니다. 별도의 톰캣 설치 없이 <code>java -jar</code>만으로 내장 톰캣(Tomcat 11.0.22)을 띄우고 8080 포트에서 서비스가 시작됩니다.</p>
+<p>모든 배포는 <strong>하나의 실행 가능한 산출물</strong>에서 출발합니다. Spring Boot의 Gradle 플러그인은 애플리케이션 코드와 모든 의존성을 단일 jar에 담은 <strong>실행 가능 jar</strong>(흔히 <em>fat jar</em> 또는 <em>uber jar</em>)를 만들어 줍니다. 별도의 톰캣 설치 없이 <code>java -jar</code>만으로 내장 톰캣(Tomcat 11.0.24)을 띄우고 8080 포트에서 서비스가 시작됩니다.</p>
 <p>이 문서에서는 Book API를 빌드해 산출물을 만들고, 그 내부 구조(특히 <strong>layered jar</strong>)를 이해하고, 실행 시 프로파일·인자·JVM 옵션을 주입하는 방법을 다룹니다.</p>
 
 <h2 id="bootjar로-빌드하기">bootJar로 빌드하기</h2>
@@ -224,7 +231,114 @@ java<span class="w"> </span>-Djarmode<span class="o">=</span>tools<span class="w
 </div>
 
 <aside class="callout tip">
-<p>Spring Boot 3.3+부터 레이어 추출 도구가 <code>-Djarmode=layertools</code>에서 <strong><code>-Djarmode=tools</code></strong> 로 통합되었습니다. Spring Boot 4에서도 동일하게 <code>tools</code> jarmode를 사용합니다.</p>
+<p>Spring Boot 3.3+부터 레이어 추출 도구가 <code>-Djarmode=layertools</code>에서 <strong><code>-Djarmode=tools</code></strong> 로 통합되었고, <strong>Spring Boot 4.1에서 옛 <code>layertools</code> 모드는 완전히 제거</strong>되었습니다. 인터넷 예제나 옛 Dockerfile에 <code>layertools</code>가 보이면 <code>tools</code>로 바꿔야 합니다.</p>
+</aside>
+
+<h2 id="같은-jar로-더-빨리-뜨기-cds와-aot-캐시">같은 jar로 더 빨리 뜨기 — CDS와 AOT 캐시</h2>
+<p>방금 본 <code>extract</code>는 Docker 레이어를 나누는 용도만이 아닙니다. <strong>애플리케이션을 푼 형태(extracted)로 실행하면 시작 시간을 크게 줄일 수 있는 길</strong>이 열립니다.</p>
+<p>JVM은 매번 뜰 때마다 수천 개의 클래스를 <em>읽고 · 검증하고 · 링크</em>합니다. Spring 애플리케이션은 이 클래스가 특히 많죠. 그런데 <strong>이 작업의 결과는 매번 똑같습니다.</strong> 그렇다면 한 번 해 두고 파일로 저장했다가 다음 실행부터 재사용하면 되지 않을까 — 이것이 <strong>CDS</strong>(Class Data Sharing)와 그 후계인 <strong>AOT 캐시</strong>의 발상입니다.</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th>CDS</th>
+<th>AOT 캐시</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>필요한 JDK</strong></td>
+<td>17+ (본 가이드의 JDK 21에서 사용 가능)</td>
+<td><strong>25+</strong> (JDK 24의 JEP 483에서 도입, 25에서 확장)</td>
+</tr>
+<tr>
+<td><strong>저장하는 것</strong></td>
+<td>로딩·파싱이 끝난 클래스 이미지</td>
+<td>클래스 + 링크·프로파일 정보까지</td>
+</tr>
+<tr>
+<td><strong>Spring Boot 지원</strong></td>
+<td>3.3+</td>
+<td><strong>4.0+</strong></td>
+</tr>
+<tr>
+<td><strong>플래그</strong></td>
+<td><code>-XX:ArchiveClassesAtExit</code> → <code>-XX:SharedArchiveFile</code></td>
+<td><code>-XX:AOTCacheOutput</code> → <code>-XX:AOTCache</code></td>
+</tr>
+</tbody>
+</table>
+
+<aside class="callout note">
+<p>둘 중 <strong>쓸 수 있으면 AOT 캐시</strong>가 낫습니다. 다만 <strong>JDK 25 이상</strong>이 필요합니다. 본 가이드의 기준은 JDK 21이므로 아래 예제는 <strong>CDS</strong>를 기본으로 두고, AOT 캐시 명령을 나란히 적어 둡니다. 명령의 <strong>모양은 똑같고 플래그 이름만 다릅니다.</strong></p>
+</aside>
+
+<h3 id="훈련-실행training-run">훈련 실행(training run)</h3>
+<p>두 방식 모두 <strong>"한 번 띄웠다 끄면서 결과물을 받아 적는"</strong> 훈련 실행이 필요합니다. 여기서 Spring Boot가 제공하는 열쇠가 <code>spring.context.exit=onRefresh</code> 입니다 — <strong>ApplicationContext 초기화가 끝나는 순간 JVM을 종료</strong>시켜, 웹 서버를 띄우거나 요청을 받지 않고도 "실제로 로드되는 클래스 전부"를 확보합니다.</p>
+
+<figure class="dg" data-focusable>
+<figcaption>CDS·AOT 캐시를 만들고 쓰는 3단계</figcaption>
+<ol class="dg-steps">
+  <li><span class="n">1</span><div class="dg-node"><div class="t">푼 형태로 추출</div><div class="s"><code>java -Djarmode=tools -jar app.jar extract --destination application</code> — 캐시는 <strong>fat jar 상태에서는 동작하지 않습니다</strong></div></div></li>
+  <li><span class="n">2</span><div class="dg-node"><div class="t">훈련 실행 — 캐시 파일 생성</div><div class="s"><code>-Dspring.context.exit=onRefresh</code> 로 컨텍스트 초기화 직후 종료. 이때 아카이브가 기록된다</div></div></li>
+  <li><span class="n">3</span><div class="dg-node is-accent"><div class="t">캐시를 얹어 실행</div><div class="s">생성된 파일을 지정해 기동. 애플리케이션이나 JDK를 바꾸면 <strong>2번부터 다시</strong></div></div></li>
+</ol>
+</figure>
+
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># 1) 실행 가능 jar를 푼 형태로 추출</span>
+java<span class="w"> </span>-Djarmode<span class="o">=</span>tools<span class="w"> </span>-jar<span class="w"> </span>build/libs/book-api-0.0.1-SNAPSHOT.jar<span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>extract<span class="w"> </span>--destination<span class="w"> </span>application
+<span class="nb">cd</span><span class="w"> </span>application
+
+<span class="c1"># 2) 훈련 실행 — 컨텍스트가 뜨자마자 종료하며 아카이브를 남긴다</span>
+<span class="c1">#    [CDS · JDK 17+]</span>
+java<span class="w"> </span>-XX:ArchiveClassesAtExit<span class="o">=</span>application.jsa<span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>-Dspring.context.exit<span class="o">=</span>onRefresh<span class="w"> </span>-jar<span class="w"> </span>book-api-0.0.1-SNAPSHOT.jar
+<span class="c1">#    [AOT 캐시 · JDK 25+]</span>
+java<span class="w"> </span>-XX:AOTCacheOutput<span class="o">=</span>app.aot<span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>-Dspring.context.exit<span class="o">=</span>onRefresh<span class="w"> </span>-jar<span class="w"> </span>book-api-0.0.1-SNAPSHOT.jar
+
+<span class="c1"># 3) 캐시를 사용해 기동</span>
+java<span class="w"> </span>-XX:SharedArchiveFile<span class="o">=</span>application.jsa<span class="w"> </span>-jar<span class="w"> </span>book-api-0.0.1-SNAPSHOT.jar<span class="w">   </span><span class="c1"># CDS</span>
+java<span class="w"> </span>-XX:AOTCache<span class="o">=</span>app.aot<span class="w"> </span>-jar<span class="w"> </span>book-api-0.0.1-SNAPSHOT.jar<span class="w">                    </span><span class="c1"># AOT 캐시</span>
+</pre></div>
+</div>
+
+<aside class="callout warning">
+<p>훈련 실행은 <strong>애플리케이션을 실제로 초기화</strong>합니다. 운영 DB나 외부 API에 연결되는 설정으로 훈련하면 빌드 중에 운영 시스템을 건드리게 됩니다. 훈련 전용 프로파일(<a href="../phase-4-validation-config/03-profiles-config.html">Phase 4-3</a>)로 인메모리 DB·모의 엔드포인트를 쓰게 하세요. 그리고 캐시 파일은 <strong>애플리케이션과 JDK 버전에 묶여 있으므로</strong>, 배포마다 새로 만들어야 합니다.</p>
+</aside>
+
+<h3 id="spring-aot와-함께-쓰기">Spring AOT와 함께 쓰기</h3>
+<p>여기까지가 <strong>JVM 레벨</strong>의 최적화라면, <strong>Spring AOT</strong>(<code>processAot</code>)는 <em>프레임워크 레벨</em>에서 빈 정의·프록시·설정 분석 결과를 빌드 시점에 코드로 생성해 둡니다. 둘은 겹치지 않고 <strong>곱해집니다.</strong></p>
+
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># Spring AOT 처리까지 켠 상태로 기동 (AOT로 빌드한 jar에서만 의미가 있다)</span>
+java<span class="w"> </span>-Dspring.aot.enabled<span class="o">=</span><span class="nb">true</span><span class="w"> </span>-XX:SharedArchiveFile<span class="o">=</span>application.jsa<span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>-jar<span class="w"> </span>book-api-0.0.1-SNAPSHOT.jar
+</pre></div>
+</div>
+
+<p>Spring 팀이 공개한 최소 Spring MVC + Tomcat 애플리케이션 기준 측정에서, <strong>CDS만으로 시작 시간 약 1.5배 단축 · 메모리 16% 감소</strong>, 여기에 <strong>Spring AOT를 더하면 약 2배 단축 · 메모리 27% 감소</strong>가 보고되었습니다. 애플리케이션마다 편차가 크므로 반드시 <strong>여러분의 앱에서 직접 재 보세요</strong> — 빈이 많고 초기화가 무거울수록 이득이 큽니다.</p>
+
+<h3 id="buildpacks로-자동화하기">Buildpacks로 자동화하기</h3>
+<p>위 3단계를 손으로 하는 대신, <a href="02-docker.html">Buildpacks</a>에 맡길 수 있습니다. 환경 변수 하나면 빌드팩이 훈련 실행까지 대신해 줍니다.</p>
+
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
+<span class="n">tasks</span><span class="p">.</span><span class="na">named</span><span class="o">&lt;</span><span class="n">org</span><span class="p">.</span><span class="na">springframework</span><span class="p">.</span><span class="na">boot</span><span class="p">.</span><span class="na">gradle</span><span class="p">.</span><span class="na">tasks</span><span class="p">.</span><span class="na">bundling</span><span class="p">.</span><span class="na">BootBuildImage</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;bootBuildImage&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">environment</span><span class="p">.</span><span class="na">set</span><span class="p">(</span>
+<span class="w">        </span><span class="n">mapOf</span><span class="p">(</span>
+<span class="w">            </span><span class="c1">// CDS (JDK 17+)</span>
+<span class="w">            </span><span class="s">&quot;BP_JVM_CDS_ENABLED&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="s">&quot;true&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="c1">// 또는 AOT 캐시 (JDK 25+)</span>
+<span class="w">            </span><span class="c1">// &quot;BP_JVM_AOTCACHE_ENABLED&quot; to &quot;true&quot;,</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<aside class="callout tip">
+<p><strong>네이티브 이미지와 무엇이 다른가?</strong> <a href="03-native-image.html">GraalVM 네이티브 이미지</a>는 밀리초 단위 기동과 훨씬 적은 메모리를 주지만, 빌드가 오래 걸리고 리플렉션에 힌트가 필요하며 JIT의 피크 성능을 포기합니다. CDS·AOT 캐시는 <strong>JVM을 그대로 두고</strong> 코드 수정 없이 시작 시간을 깎는 방법입니다. Cloud Run처럼 콜드 스타트가 중요한 환경(<a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Phase 7-1</a>)에서 <strong>가장 먼저 시도해 볼 카드</strong>입니다.</p>
 </aside>
 
 <h2 id="bootrun-vs-bootjar">bootRun vs bootJar</h2>
@@ -319,6 +433,10 @@ java<span class="w"> </span><span class="nv">$JAVA_OPTS</span><span class="w"> <
 <a class="lvl2" href="#plain-jar-vs-boot-jar">plain jar vs boot jar</a>
 <a class="lvl2" href="#실행-가능-jar의-내부-구조-layered-jar">실행 가능 jar의 내부 구조 (layered jar)</a>
 <a class="lvl3" href="#왜-레이어가-docker-캐싱에-중요한가">왜 레이어가 Docker 캐싱에 중요한가</a>
+<a class="lvl2" href="#같은-jar로-더-빨리-뜨기-cds와-aot-캐시">같은 jar로 더 빨리 뜨기 — CDS와 AOT 캐시</a>
+<a class="lvl3" href="#훈련-실행training-run">훈련 실행(training run)</a>
+<a class="lvl3" href="#spring-aot와-함께-쓰기">Spring AOT와 함께 쓰기</a>
+<a class="lvl3" href="#buildpacks로-자동화하기">Buildpacks로 자동화하기</a>
 <a class="lvl2" href="#bootrun-vs-bootjar">bootRun vs bootJar</a>
 <a class="lvl2" href="#실행-시-설정-주입-인자-프로파일-jvm-옵션">실행 시 설정 주입: 인자 · 프로파일 · JVM 옵션</a>
 <a class="lvl3" href="#프로파일-활성화">프로파일 활성화</a>

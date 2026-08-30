@@ -10,7 +10,7 @@ Served as a **generated static HTML site**. **`src/**/*.html` (content HTML frag
 
 ## Structure
 
-- `src/phase-{0..7}-*/`, `src/appendix-{a..d}-*/` — **edit these.** Content HTML fragments: no `<html>`/`<head>`/nav, just the page body (`<h1>` first). 부록: A=JPA 심화, B=Querydsl, C=AOP/프록시 고급, D=Spring MVC 내부 원리 & SSR. Querydsl은 OpenFeign 포크(`io.github.openfeign.querydsl`; `querydsl-jpa`는 classifier 없이, `querydsl-apt`는 `:jakarta`) 기준.
+- `src/phase-{0..7}-*/`, `src/appendix-{a..d}-*/` — **edit these.** Content HTML fragments: no `<html>`/`<head>`/nav, just the page body (`<h1>` first). 부록: A=JPA 심화, B=Querydsl, C=AOP/프록시 고급, D=Spring MVC 내부 원리 & SSR, E=서비스 규모·도메인별 설계 전략(모듈러 모놀리스 / Spring Modulith 2.1.1 — Boot BOM 관리 대상 아님 / 도메인 성격별 전략). Querydsl은 OpenFeign 포크(`io.github.openfeign.querydsl`; `querydsl-jpa`는 classifier 없이, `querydsl-apt`는 `:jakarta`) 기준.
 - `src/index.html` — home page (→ `docs/index.html`).
 - `src/_nav.html` — nav tree source; links are **root-relative** and the build rewrites them per page and marks the current one `active`. Update when adding/renaming pages.
 - `tools/build_site.py` — generator. `tools/verify_site.py` — link/feature verifier.
@@ -26,7 +26,7 @@ After editing anything in `src/` or `tools/`, rebuild **and** verify:
 ```bash
 python3 -m venv .venv && . .venv/bin/activate   # first time only
 pip install pygments                            # first time only (markdown 은 더 이상 필요 없음)
-python tools/build_site.py                      # 68 pages + assets → docs/
+python tools/build_site.py                      # 75 pages + assets → docs/
 python tools/verify_site.py                     # 링크·앵커·CSS·JS 훅 검증 (오류 시 exit 1)
 ```
 
@@ -45,15 +45,15 @@ python tools/verify_site.py                     # 링크·앵커·CSS·JS 훅 �
 
 ## Content Conventions
 
-- **One running example across the whole guide.** Every phase and appendix builds the same Book API under the package root `com.example.bookapi` (subpackages: `controller`, `service`, `repository`, `domain`, `dto`, `config`, `exception`, `validation`, `client`). The canonical types are `BookService` / `BookController` / `BookRepository`. Reuse these names and package paths when adding examples — do **not** introduce a new sample domain.
+- **One running example across the whole guide.** Every phase and appendix builds the same Book API under the package root `com.example.bookapi` (subpackages: `controller`, `service`, `repository`, `domain`, `dto`, `config`, `exception`, `validation`, `client`, plus `aop`, `health`, `mapper` in the appendices). The canonical types are `BookService` / `BookController` / `BookRepository`. Reuse these names and package paths when adding examples — do **not** introduce a new sample domain.
 - **Cross-phase continuity is actively maintained.** The git history shows repeated "연속성 검증 / 정합화" passes that keep package names, class names, and service-method contracts identical across pages. When editing one page, check that signatures and package paths still match the phases/appendices that reference the same code, so a reader following along never hits a contradiction.
-- Appendix code targets the same example but at intermediate/advanced depth (mirrors 김영한 roadmap: JPA 기본편 / Querydsl / 핵심원리 고급편 / MVC 1·2편).
+- Appendix code targets the same example but at intermediate/advanced depth (A~D mirror the 김영한 roadmap: JPA 기본편 / Querydsl / 핵심원리 고급편 / MVC 1·2편). Appendix E is architecture guidance, not a lecture mirror; to discuss modules it assumes the Book API grew into a bookstore with `catalog` / `order` / `member` subpackages under the same `com.example.bookapi` root — that is an extension of the running example, not a new sample domain.
 
 ## Language & Tech Baseline
 
 - All documentation is written in **Korean (한국어)**. Maintain Korean when editing or adding content.
 - All code examples use **Kotlin**.
-- Reference versions (verified 2026-07-25 against the Spring Boot 4.1.0 BOM and real Spring Initializr output): **Spring Boot 4.1.0** (latest GA; 4.0.7 / 3.5.16 are the maintenance lines), Spring Framework 7.0.8, Spring Security 7.1.0, Spring Data 2026.0.0, Hibernate ORM 7.4.1.Final, Kotlin 2.3.21 (standalone latest 2.4.10), JDK 21 (17~26 supported, latest patch 21.0.11), Gradle 9.x (Initializr wrapper 9.5.1), Tomcat 11.0.22, Jackson **3**.1.4, JUnit 6.0.3, Testcontainers 2.0.5, Querydsl (OpenFeign) 7.5, GraalVM CE 25 + Native Build Tools 1.1.1. Keep version claims consistent with `src/index.html`.
+- Reference versions (verified 2026-08-30 against the Spring Boot 4.1.1 BOM and real Spring Initializr output): **Spring Boot 4.1.1** (2026-08-20, latest GA; 4.0.8 is the maintenance line, 3.5.x OSS support ended 2026-06-30 at 3.5.16; 4.2.0-M1 is the next feature line), Spring Framework 7.0.9, Spring Security 7.1.1, Spring Data 2026.0.1, Hibernate ORM 7.4.5.Final, Hibernate Validator 9.1.3.Final, Kotlin 2.3.21 (standalone latest 2.4.10), JDK 21 (17~26 supported, latest patch 21.0.12; SDKMAN `21.0.12+1.1-tem`), Gradle 9.7.1 (Initializr wrapper and upstream latest), io.spring.dependency-management 1.1.7, Tomcat 11.0.24, Jetty 12.1.12, Jackson **3**.1.5, JUnit 6.0.3, Testcontainers 2.0.5, Micrometer 1.17.1, Flyway 12.4.0, HikariCP 7.0.2, H2 2.4.240, Thymeleaf 3.1.5, Querydsl (OpenFeign) 7.6, GraalVM CE 25 (`25.3.4+1.r25-graalce`) + Native Build Tools 1.1.8 (BOM-managed; upstream latest 1.1.11). Keep version claims consistent with `src/index.html`.
 - **Spring Boot 4 conventions to preserve when editing examples** (these differ from every Boot 3 example on the web):
   - Jackson 3: `tools.jackson.*` packages, `tools.jackson.module:jackson-module-kotlin`, immutable `JsonMapper`; annotations stay in `com.fasterxml.jackson.annotation`. `spring.jackson.datatype.datetime.*` holds the date/time features (`WRITE_DATES_AS_TIMESTAMPS` moved to `DateTimeFeature`).
   - Starters: `spring-boot-starter-webmvc` (not `-web`), `spring-boot-starter-aspectj` (not `-aop`), `spring-boot-h2console` for the H2 console, per-technology test starters `spring-boot-starter-<tech>-test`.
@@ -61,6 +61,8 @@ python tools/verify_site.py                     # 링크·앵커·CSS·JS 훅 �
   - Health: `org.springframework.boot.health.contributor.{Health, HealthIndicator}`.
   - Declarative HTTP clients: `@ImportHttpServices` from `org.springframework.web.service.registry`; config keys `spring.http.clients.*` (defaults) and `spring.http.serviceclient.<group>.*` (per group).
   - Resilience: `org.springframework.resilience.annotation.{Retryable, ConcurrencyLimit, EnableResilientMethods}`; `@Retryable` uses `maxRetries`/`delay`(ms)/`multiplier` — there is no `maxAttempts`.
+  - API versioning (new in Framework 7): `version` attribute on `@RequestMapping`/`@GetMapping` etc. — `"1.1"` fixed, `"1.1+"` baseline, absent = matches any version at lowest precedence. Config via `spring.mvc.apiversion.*` (`use.header` / `use.query-parameter` / `use.path-segment` / `use.media-type-parameter`, plus `default`, `supported`, `detect-supported`, `required`) or `WebMvcConfigurer.configureApiVersioning(ApiVersionConfigurer)`. Unsupported/unmatched/missing versions → `InvalidApiVersionException` / `NotAcceptableApiVersionException` / `MissingApiVersionException`, all HTTP 400.
+  - Startup optimization: CDS (`-XX:ArchiveClassesAtExit` → `-XX:SharedArchiveFile`, JDK 17+) and the AOT cache (`-XX:AOTCacheOutput` → `-XX:AOTCache`, JDK 25+); both need `-Djarmode=tools … extract` plus a training run with `-Dspring.context.exit=onRefresh`. Buildpack env vars `BP_JVM_CDS_ENABLED` / `BP_JVM_AOTCACHE_ENABLED`.
   - Kotlin: Initializr emits `-Xannotation-default-target=param-property` and an `allOpen { … }` block for JPA annotations.
 
 ## Verifying links & features
