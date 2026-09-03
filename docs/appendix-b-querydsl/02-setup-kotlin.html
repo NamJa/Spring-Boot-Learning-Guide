@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>02. Kotlin + Gradle 설정</h1>
@@ -176,12 +183,12 @@
 <div class="tabs">
   <div class="tab-panel" data-title="kapt (본문 기준)">
     <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">plugins</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;kapt&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">"kapt"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"2.3.21"</span>
 <span class="p">}</span>
 
 <span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;io.github.openfeign.querydsl:querydsl-jpa:7.6&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="n">kapt</span><span class="p">(</span><span class="s">&quot;io.github.openfeign.querydsl:querydsl-apt:7.6:jakarta&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"io.github.openfeign.querydsl:querydsl-jpa:7.6"</span><span class="p">)</span>
+<span class="w">    </span><span class="n">kapt</span><span class="p">(</span><span class="s">"io.github.openfeign.querydsl:querydsl-apt:7.6:jakarta"</span><span class="p">)</span>
 <span class="p">}</span>
 <span class="c1">// 생성물: build/generated/source/kapt/main/**/QBook.java  (태스크: kaptKotlin)</span>
 </pre></div>
@@ -189,12 +196,12 @@
   </div>
   <div class="tab-panel" data-title="KSP (대안)">
     <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">plugins</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;com.google.devtools.ksp&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.10&quot;</span>
+<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">"com.google.devtools.ksp"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"2.3.10"</span>
 <span class="p">}</span>
 
 <span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;io.github.openfeign.querydsl:querydsl-jpa:7.6&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="n">ksp</span><span class="p">(</span><span class="s">&quot;io.github.openfeign.querydsl:querydsl-ksp-codegen:7.6&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"io.github.openfeign.querydsl:querydsl-jpa:7.6"</span><span class="p">)</span>
+<span class="w">    </span><span class="n">ksp</span><span class="p">(</span><span class="s">"io.github.openfeign.querydsl:querydsl-ksp-codegen:7.6"</span><span class="p">)</span>
 <span class="p">}</span>
 <span class="c1">// 생성물: build/generated/ksp/main/kotlin/**/QBook.kt  (태스크: kspKotlin)</span>
 </pre></div>
@@ -209,16 +216,16 @@
 <h2 id="3-완전한-build-gradle-kts-발췌">3. 완전한 build.gradle.kts 발췌</h2>
 
 <div class="code-block" data-lang="groovy"><span class="code-lang">groovy</span><div class="hl"><pre><span></span><span class="n">plugins</span><span class="w"> </span><span class="o">{</span>
-<span class="w">    </span><span class="n">id</span><span class="o">(</span><span class="s2">&quot;org.springframework.boot&quot;</span><span class="o">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s2">&quot;4.1.1&quot;</span>
-<span class="w">    </span><span class="n">id</span><span class="o">(</span><span class="s2">&quot;io.spring.dependency-management&quot;</span><span class="o">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s2">&quot;1.1.7&quot;</span>
-<span class="w">    </span><span class="n">kotlin</span><span class="o">(</span><span class="s2">&quot;jvm&quot;</span><span class="o">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s2">&quot;2.3.21&quot;</span>
-<span class="w">    </span><span class="n">kotlin</span><span class="o">(</span><span class="s2">&quot;plugin.spring&quot;</span><span class="o">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s2">&quot;2.3.21&quot;</span>
-<span class="w">    </span><span class="n">kotlin</span><span class="o">(</span><span class="s2">&quot;plugin.jpa&quot;</span><span class="o">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s2">&quot;2.3.21&quot;</span>
-<span class="w">    </span><span class="n">kotlin</span><span class="o">(</span><span class="s2">&quot;kapt&quot;</span><span class="o">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s2">&quot;2.3.21&quot;</span><span class="w">          </span><span class="c1">// ← Querydsl Q타입 생성을 위한 kapt 플러그인</span>
+<span class="w">    </span><span class="n">id</span><span class="o">(</span><span class="s2">"org.springframework.boot"</span><span class="o">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s2">"4.1.1"</span>
+<span class="w">    </span><span class="n">id</span><span class="o">(</span><span class="s2">"io.spring.dependency-management"</span><span class="o">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s2">"1.1.7"</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="o">(</span><span class="s2">"jvm"</span><span class="o">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s2">"2.3.21"</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="o">(</span><span class="s2">"plugin.spring"</span><span class="o">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s2">"2.3.21"</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="o">(</span><span class="s2">"plugin.jpa"</span><span class="o">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s2">"2.3.21"</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="o">(</span><span class="s2">"kapt"</span><span class="o">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s2">"2.3.21"</span><span class="w">          </span><span class="c1">// ← Querydsl Q타입 생성을 위한 kapt 플러그인</span>
 <span class="o">}</span>
 
-<span class="n">group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;com.example&quot;</span>
-<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;0.0.1-SNAPSHOT&quot;</span>
+<span class="n">group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"com.example"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.0.1-SNAPSHOT"</span>
 
 <span class="n">java</span><span class="w"> </span><span class="o">{</span>
 <span class="w">    </span><span class="n">toolchain</span><span class="w"> </span><span class="o">{</span>
@@ -231,25 +238,25 @@
 <span class="o">}</span>
 
 <span class="c1">// Querydsl 버전을 한 곳에서 관리 (2026-08-30 기준 최신 7.6)</span>
-<span class="n">val</span><span class="w"> </span><span class="n">querydslVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;7.6&quot;</span>
+<span class="n">val</span><span class="w"> </span><span class="n">querydslVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"7.6"</span>
 
 <span class="n">dependencies</span><span class="w"> </span><span class="o">{</span>
-<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">&quot;org.springframework.boot:spring-boot-starter-data-jpa&quot;</span><span class="o">)</span>
-<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">&quot;org.springframework.boot:spring-boot-starter-webmvc&quot;</span><span class="o">)</span>
-<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">&quot;org.jetbrains.kotlin:kotlin-reflect&quot;</span><span class="o">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">"org.springframework.boot:spring-boot-starter-data-jpa"</span><span class="o">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">"org.springframework.boot:spring-boot-starter-webmvc"</span><span class="o">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">"org.jetbrains.kotlin:kotlin-reflect"</span><span class="o">)</span>
 
 <span class="w">    </span><span class="c1">// ── Querydsl (OpenFeign 포크) ──────────────────────────────</span>
 <span class="w">    </span><span class="c1">// JPA 모듈: classifier 없음 (7.x 메인 아티팩트가 이미 jakarta 전용)</span>
-<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">&quot;io.github.openfeign.querydsl:querydsl-jpa:$querydslVersion&quot;</span><span class="o">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">"io.github.openfeign.querydsl:querydsl-jpa:$querydslVersion"</span><span class="o">)</span>
 <span class="w">    </span><span class="c1">// 애너테이션 프로세서: kapt로 구동, :jakarta classifier 필요</span>
-<span class="w">    </span><span class="n">kapt</span><span class="o">(</span><span class="s2">&quot;io.github.openfeign.querydsl:querydsl-apt:$querydslVersion:jakarta&quot;</span><span class="o">)</span>
+<span class="w">    </span><span class="n">kapt</span><span class="o">(</span><span class="s2">"io.github.openfeign.querydsl:querydsl-apt:$querydslVersion:jakarta"</span><span class="o">)</span>
 <span class="w">    </span><span class="c1">// (선택) jakarta 애너테이션 — @Generated 등 참조용</span>
-<span class="w">    </span><span class="n">kapt</span><span class="o">(</span><span class="s2">&quot;jakarta.annotation:jakarta.annotation-api&quot;</span><span class="o">)</span>
-<span class="w">    </span><span class="n">kapt</span><span class="o">(</span><span class="s2">&quot;jakarta.persistence:jakarta.persistence-api&quot;</span><span class="o">)</span>
+<span class="w">    </span><span class="n">kapt</span><span class="o">(</span><span class="s2">"jakarta.annotation:jakarta.annotation-api"</span><span class="o">)</span>
+<span class="w">    </span><span class="n">kapt</span><span class="o">(</span><span class="s2">"jakarta.persistence:jakarta.persistence-api"</span><span class="o">)</span>
 
-<span class="w">    </span><span class="n">runtimeOnly</span><span class="o">(</span><span class="s2">&quot;com.h2database:h2&quot;</span><span class="o">)</span>
+<span class="w">    </span><span class="n">runtimeOnly</span><span class="o">(</span><span class="s2">"com.h2database:h2"</span><span class="o">)</span>
 
-<span class="w">    </span><span class="n">testImplementation</span><span class="o">(</span><span class="s2">&quot;org.springframework.boot:spring-boot-starter-data-jpa-test&quot;</span><span class="o">)</span>
+<span class="w">    </span><span class="n">testImplementation</span><span class="o">(</span><span class="s2">"org.springframework.boot:spring-boot-starter-data-jpa-test"</span><span class="o">)</span>
 <span class="o">}</span>
 
 <span class="n">tasks</span><span class="o">.</span><span class="na">withType</span><span class="o">&lt;</span><span class="n">Test</span><span class="o">&gt;</span><span class="w"> </span><span class="o">{</span>
@@ -329,7 +336,7 @@
 <p><code>QBook</code>이 보이면 성공입니다. 코드에서는 보통 미리 만들어진 정적 인스턴스를 씁니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QBook</span><span class="p">.</span><span class="na">book</span><span class="w">          </span><span class="c1">// 권장: 기본 인스턴스 사용</span>
-<span class="c1">// val book = QBook(&quot;b&quot;)       // 별칭이 필요할 때(자기 조인 등)만 직접 생성</span>
+<span class="c1">// val book = QBook("b")       // 별칭이 필요할 때(자기 조인 등)만 직접 생성</span>
 </pre></div>
 </div>
 
@@ -375,28 +382,28 @@
 <p>kapt가 유지보수 모드라는 점이 신경 쓰이거나 빌드 속도를 개선하고 싶다면, OpenFeign 포크가 제공하는 <strong>KSP 코드젠</strong>(<code>querydsl-ksp-codegen</code>)을 쓸 수 있습니다. kapt 대신 KSP 플러그인을 적용하고, 프로세서 의존성을 <code>ksp(...)</code>로 선언합니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">plugins</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;org.springframework.boot&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;4.1.1&quot;</span>
-<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;io.spring.dependency-management&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;1.1.7&quot;</span>
-<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;jvm&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span>
-<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;plugin.spring&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span>
-<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;plugin.jpa&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span>
-<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;com.google.devtools.ksp&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.10&quot;</span><span class="w">   </span><span class="c1">// kapt 대신 KSP</span>
+<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">"org.springframework.boot"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"4.1.1"</span>
+<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">"io.spring.dependency-management"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"1.1.7"</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">"jvm"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"2.3.21"</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">"plugin.spring"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"2.3.21"</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">"plugin.jpa"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"2.3.21"</span>
+<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">"com.google.devtools.ksp"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"2.3.10"</span><span class="w">   </span><span class="c1">// kapt 대신 KSP</span>
 <span class="p">}</span>
 
-<span class="kd">val</span><span class="w"> </span><span class="nv">querydslVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;7.6&quot;</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">querydslVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"7.6"</span>
 
 <span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-data-jpa&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;io.github.openfeign.querydsl:querydsl-jpa:</span><span class="si">$</span><span class="n">querydslVersion</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-data-jpa"</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"io.github.openfeign.querydsl:querydsl-jpa:</span><span class="si">$</span><span class="n">querydslVersion</span><span class="s">"</span><span class="p">)</span>
 <span class="w">    </span><span class="c1">// Kotlin Q타입을 생성하는 KSP 프로세서 (classifier 없음)</span>
-<span class="w">    </span><span class="n">ksp</span><span class="p">(</span><span class="s">&quot;io.github.openfeign.querydsl:querydsl-ksp-codegen:</span><span class="si">$</span><span class="n">querydslVersion</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">ksp</span><span class="p">(</span><span class="s">"io.github.openfeign.querydsl:querydsl-ksp-codegen:</span><span class="si">$</span><span class="n">querydslVersion</span><span class="s">"</span><span class="p">)</span>
 <span class="p">}</span>
 
 <span class="c1">// (선택) 생성 경로를 소스셋에 명시 — KSP 플러그인이 보통 자동으로 엮어 주므로</span>
 <span class="c1">// 컴파일에는 필요 없고, IDE가 생성 코드를 못 볼 때만 넣으면 됩니다.</span>
 <span class="n">kotlin</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">sourceSets</span><span class="p">.</span><span class="na">main</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">kotlin</span><span class="p">.</span><span class="na">srcDir</span><span class="p">(</span><span class="s">&quot;build/generated/ksp/main/kotlin&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="n">kotlin</span><span class="p">.</span><span class="na">srcDir</span><span class="p">(</span><span class="s">"build/generated/ksp/main/kotlin"</span><span class="p">)</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>

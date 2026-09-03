@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>Bean 생명주기와 스코프</h1>
@@ -144,14 +151,14 @@
 <span class="w">    </span><span class="nd">@PostConstruct</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">warmUp</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// 모든 의존성 주입이 끝난 직후 1회 실행. 캐시 예열 등 준비 작업에 적합</span>
-<span class="w">        </span><span class="n">println</span><span class="p">(</span><span class="s">&quot;도서 캐시 예열 시작&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="n">println</span><span class="p">(</span><span class="s">"도서 캐시 예열 시작"</span><span class="p">)</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="nd">@PreDestroy</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">cleanUp</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// 컨테이너 종료 직전 1회 실행. 리소스 정리에 적합</span>
 <span class="w">        </span><span class="n">cache</span><span class="p">.</span><span class="na">clear</span><span class="p">()</span>
-<span class="w">        </span><span class="n">println</span><span class="p">(</span><span class="s">&quot;도서 캐시 정리 완료&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="n">println</span><span class="p">(</span><span class="s">"도서 캐시 정리 완료"</span><span class="p">)</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -164,7 +171,7 @@
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Configuration</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">AppConfig</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nd">@Bean</span><span class="p">(</span><span class="n">initMethod</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;start&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">destroyMethod</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;stop&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@Bean</span><span class="p">(</span><span class="n">initMethod</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"start"</span><span class="p">,</span><span class="w"> </span><span class="n">destroyMethod</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"stop"</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">connectionPool</span><span class="p">():</span><span class="w"> </span><span class="n">ConnectionPool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ConnectionPool</span><span class="p">()</span>
 <span class="p">}</span>
 </pre></div>
@@ -226,7 +233,7 @@
 <h3 id="3-2-prototype-요청마다-새-객체">3.2 prototype — 요청마다 새 객체</h3>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Component</span>
-<span class="nd">@Scope</span><span class="p">(</span><span class="s">&quot;prototype&quot;</span><span class="p">)</span>
+<span class="nd">@Scope</span><span class="p">(</span><span class="s">"prototype"</span><span class="p">)</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookImportJob</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// 주입/조회할 때마다 매번 새 인스턴스가 생성됨</span>
 <span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">processedIds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mutableListOf</span><span class="o">&lt;</span><span class="kt">Long</span><span class="o">&gt;</span><span class="p">()</span>
@@ -252,7 +259,7 @@
 <h3 id="3-3-request-스코프-예시">3.3 request 스코프 예시</h3>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Component</span>
-<span class="nd">@Scope</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;request&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">proxyMode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ScopedProxyMode</span><span class="p">.</span><span class="na">TARGET_CLASS</span><span class="p">)</span>
+<span class="nd">@Scope</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"request"</span><span class="p">,</span><span class="w"> </span><span class="n">proxyMode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ScopedProxyMode</span><span class="p">.</span><span class="na">TARGET_CLASS</span><span class="p">)</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">RequestContext</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">requestId</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">UUID</span><span class="p">.</span><span class="na">randomUUID</span><span class="p">().</span><span class="na">toString</span><span class="p">()</span>
 <span class="p">}</span>
@@ -266,7 +273,7 @@
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
 <span class="nd">@Lazy</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">HeavyReportService</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">init</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">println</span><span class="p">(</span><span class="s">&quot;무거운 리포트 서비스 초기화&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c1">// 처음 사용될 때 출력됨</span>
+<span class="w">    </span><span class="k">init</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">println</span><span class="p">(</span><span class="s">"무거운 리포트 서비스 초기화"</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="c1">// 처음 사용될 때 출력됨</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -287,7 +294,7 @@
 <p>Bean 간 의존 관계가 코드에 드러나지 않지만(예: 정적 초기화, 외부 부수 효과) <strong>특정 Bean을 먼저 만들어야 할 때</strong> <code>@DependsOn</code>으로 순서를 강제합니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
-<span class="nd">@DependsOn</span><span class="p">(</span><span class="s">&quot;schemaInitializer&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// schemaInitializer Bean을 먼저 생성한 뒤 이 Bean 생성</span>
+<span class="nd">@DependsOn</span><span class="p">(</span><span class="s">"schemaInitializer"</span><span class="p">)</span><span class="w"> </span><span class="c1">// schemaInitializer Bean을 먼저 생성한 뒤 이 Bean 생성</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span><span class="p">)</span>
 </pre></div>
 </div>

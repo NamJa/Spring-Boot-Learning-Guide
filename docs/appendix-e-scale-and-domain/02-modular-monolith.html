@@ -104,6 +104,13 @@
   <a href="02-modular-monolith.html" class="active">패키지 구조와 모듈러 모놀리스</a>
   <a href="03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>02. 패키지 구조와 모듈러 모놀리스</h1>
@@ -217,13 +224,13 @@
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
 <span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// Spring Modulith BOM — Boot BOM이 관리하지 않으므로 직접 import</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="n">platform</span><span class="p">(</span><span class="s">&quot;org.springframework.modulith:spring-modulith-bom:2.1.1&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="n">platform</span><span class="p">(</span><span class="s">"org.springframework.modulith:spring-modulith-bom:2.1.1"</span><span class="p">))</span>
 
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.modulith:spring-modulith-starter-core&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.modulith:spring-modulith-starter-core"</span><span class="p">)</span>
 <span class="w">    </span><span class="c1">// 모듈 간 이벤트를 DB에 기록해 유실을 막고 싶다면 (아웃박스)</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.modulith:spring-modulith-starter-jpa&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.modulith:spring-modulith-starter-jpa"</span><span class="p">)</span>
 
-<span class="w">    </span><span class="n">testImplementation</span><span class="p">(</span><span class="s">&quot;org.springframework.modulith:spring-modulith-starter-test&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">testImplementation</span><span class="p">(</span><span class="s">"org.springframework.modulith:spring-modulith-starter-test"</span><span class="p">)</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -265,10 +272,10 @@
 <span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.modulith.ApplicationModule</span>
 
 <span class="c1">// Java 라면 package-info.java 에 붙이지만, Kotlin 에는 그런 파일이 없다.</span>
-<span class="c1">// Spring Modulith 는 이 경우를 위해 &quot;모듈 루트 패키지의 타입 하나&quot;에 붙이는 것도 허용한다.</span>
+<span class="c1">// Spring Modulith 는 이 경우를 위해 "모듈 루트 패키지의 타입 하나"에 붙이는 것도 허용한다.</span>
 <span class="nd">@ApplicationModule</span><span class="p">(</span>
-<span class="w">    </span><span class="n">displayName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;주문&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="n">allowedDependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s">&quot;catalog&quot;</span><span class="o">]</span><span class="p">,</span><span class="w">   </span><span class="c1">// member 는 참조 금지</span>
+<span class="w">    </span><span class="n">displayName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"주문"</span><span class="p">,</span>
+<span class="w">    </span><span class="n">allowedDependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s">"catalog"</span><span class="o">]</span><span class="p">,</span><span class="w">   </span><span class="c1">// member 는 참조 금지</span>
 <span class="p">)</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">OrderModuleMetadata</span>
 </pre></div>
@@ -330,10 +337,10 @@
 
 <span class="w">    </span><span class="nd">@Test</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="err">`컨트롤러는 리포지토리를 직접 참조하지 않는다`() {</span>
-<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">classes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ClassFileImporter</span><span class="p">().</span><span class="na">importPackages</span><span class="p">(</span><span class="s">&quot;com.example.bookapi&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">classes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ClassFileImporter</span><span class="p">().</span><span class="na">importPackages</span><span class="p">(</span><span class="s">"com.example.bookapi"</span><span class="p">)</span>
 
-<span class="w">        </span><span class="n">noClasses</span><span class="p">().</span><span class="na">that</span><span class="p">().</span><span class="na">resideInAPackage</span><span class="p">(</span><span class="s">&quot;..controller..&quot;</span><span class="p">)</span>
-<span class="w">            </span><span class="p">.</span><span class="na">should</span><span class="p">().</span><span class="na">dependOnClassesThat</span><span class="p">().</span><span class="na">resideInAPackage</span><span class="p">(</span><span class="s">&quot;..repository..&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="n">noClasses</span><span class="p">().</span><span class="na">that</span><span class="p">().</span><span class="na">resideInAPackage</span><span class="p">(</span><span class="s">"..controller.."</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">should</span><span class="p">().</span><span class="na">dependOnClassesThat</span><span class="p">().</span><span class="na">resideInAPackage</span><span class="p">(</span><span class="s">"..repository.."</span><span class="p">)</span>
 <span class="w">            </span><span class="p">.</span><span class="na">check</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>

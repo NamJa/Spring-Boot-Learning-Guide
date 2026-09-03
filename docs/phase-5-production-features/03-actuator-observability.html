@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>Actuator와 관측성</h1>
@@ -114,7 +121,7 @@
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
 <span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-actuator&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-actuator"</span><span class="p">)</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -219,11 +226,11 @@
 
 <span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">health</span><span class="p">():</span><span class="w"> </span><span class="n">Health</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">metadataClient</span><span class="p">.</span><span class="na">findByIsbn</span><span class="p">(</span><span class="s">&quot;PING&quot;</span><span class="p">)</span><span class="w">   </span><span class="c1">// 가벼운 핑 호출</span>
-<span class="w">            </span><span class="n">Health</span><span class="p">.</span><span class="na">up</span><span class="p">().</span><span class="na">withDetail</span><span class="p">(</span><span class="s">&quot;metadata-api&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;reachable&quot;</span><span class="p">).</span><span class="na">build</span><span class="p">()</span>
+<span class="w">            </span><span class="n">metadataClient</span><span class="p">.</span><span class="na">findByIsbn</span><span class="p">(</span><span class="s">"PING"</span><span class="p">)</span><span class="w">   </span><span class="c1">// 가벼운 핑 호출</span>
+<span class="w">            </span><span class="n">Health</span><span class="p">.</span><span class="na">up</span><span class="p">().</span><span class="na">withDetail</span><span class="p">(</span><span class="s">"metadata-api"</span><span class="p">,</span><span class="w"> </span><span class="s">"reachable"</span><span class="p">).</span><span class="na">build</span><span class="p">()</span>
 <span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">ex</span><span class="p">:</span><span class="w"> </span><span class="n">Exception</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="c1">// DOWN을 반환하면 전체 health도 DOWN이 된다</span>
-<span class="w">            </span><span class="n">Health</span><span class="p">.</span><span class="na">down</span><span class="p">(</span><span class="n">ex</span><span class="p">).</span><span class="na">withDetail</span><span class="p">(</span><span class="s">&quot;metadata-api&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;unreachable&quot;</span><span class="p">).</span><span class="na">build</span><span class="p">()</span>
+<span class="w">            </span><span class="n">Health</span><span class="p">.</span><span class="na">down</span><span class="p">(</span><span class="n">ex</span><span class="p">).</span><span class="na">withDetail</span><span class="p">(</span><span class="s">"metadata-api"</span><span class="p">,</span><span class="w"> </span><span class="s">"unreachable"</span><span class="p">).</span><span class="na">build</span><span class="p">()</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
@@ -255,13 +262,13 @@
 <span class="w">    </span><span class="n">registry</span><span class="p">:</span><span class="w"> </span><span class="n">MeterRegistry</span><span class="p">,</span>
 <span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// 도서 등록 누적 횟수</span>
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">createdCounter</span><span class="p">:</span><span class="w"> </span><span class="n">Counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Counter</span><span class="p">.</span><span class="na">builder</span><span class="p">(</span><span class="s">&quot;books.created&quot;</span><span class="p">)</span>
-<span class="w">        </span><span class="p">.</span><span class="na">description</span><span class="p">(</span><span class="s">&quot;등록된 도서 수&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">createdCounter</span><span class="p">:</span><span class="w"> </span><span class="n">Counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Counter</span><span class="p">.</span><span class="na">builder</span><span class="p">(</span><span class="s">"books.created"</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">description</span><span class="p">(</span><span class="s">"등록된 도서 수"</span><span class="p">)</span>
 <span class="w">        </span><span class="p">.</span><span class="na">register</span><span class="p">(</span><span class="n">registry</span><span class="p">)</span>
 
 <span class="w">    </span><span class="c1">// 등록 처리 시간 분포</span>
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">createTimer</span><span class="p">:</span><span class="w"> </span><span class="n">Timer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Timer</span><span class="p">.</span><span class="na">builder</span><span class="p">(</span><span class="s">&quot;books.create.duration&quot;</span><span class="p">)</span>
-<span class="w">        </span><span class="p">.</span><span class="na">description</span><span class="p">(</span><span class="s">&quot;도서 등록 처리 시간&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">createTimer</span><span class="p">:</span><span class="w"> </span><span class="n">Timer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Timer</span><span class="p">.</span><span class="na">builder</span><span class="p">(</span><span class="s">"books.create.duration"</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">description</span><span class="p">(</span><span class="s">"도서 등록 처리 시간"</span><span class="p">)</span>
 <span class="w">        </span><span class="p">.</span><span class="na">register</span><span class="p">(</span><span class="n">registry</span><span class="p">)</span>
 
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">CreateBookRequest</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span><span class="w"> </span><span class="o">=</span>
@@ -283,7 +290,7 @@
 <p>Prometheus로 메트릭을 수집하려면 레지스트리 의존성을 추가하고 엔드포인트를 엽니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
-<span class="n">runtimeOnly</span><span class="p">(</span><span class="s">&quot;io.micrometer:micrometer-registry-prometheus&quot;</span><span class="p">)</span>
+<span class="n">runtimeOnly</span><span class="p">(</span><span class="s">"io.micrometer:micrometer-registry-prometheus"</span><span class="p">)</span>
 </pre></div>
 </div>
 
@@ -300,8 +307,8 @@
 <p>메트릭(무엇이 얼마나)만으로는 부족합니다. "이 느린 요청이 <strong>어디서</strong> 시간을 썼나"를 알려면 <strong>분산 추적(distributed tracing)</strong> 이 필요합니다. Spring Boot 4는 <strong>Micrometer Tracing</strong>(1.7.0) + <strong>OpenTelemetry</strong>로 이를 표준 지원하며, 4.1에서 OpenTelemetry 지원이 한 차례 더 갱신됐습니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
-<span class="n">implementation</span><span class="p">(</span><span class="s">&quot;io.micrometer:micrometer-tracing-bridge-otel&quot;</span><span class="p">)</span><span class="w">     </span><span class="c1">// Micrometer ↔ OTel 연결</span>
-<span class="n">implementation</span><span class="p">(</span><span class="s">&quot;io.opentelemetry:opentelemetry-exporter-otlp&quot;</span><span class="p">)</span><span class="w">     </span><span class="c1">// OTLP로 추적 전송</span>
+<span class="n">implementation</span><span class="p">(</span><span class="s">"io.micrometer:micrometer-tracing-bridge-otel"</span><span class="p">)</span><span class="w">     </span><span class="c1">// Micrometer ↔ OTel 연결</span>
+<span class="n">implementation</span><span class="p">(</span><span class="s">"io.opentelemetry:opentelemetry-exporter-otlp"</span><span class="p">)</span><span class="w">     </span><span class="c1">// OTLP로 추적 전송</span>
 </pre></div>
 </div>
 

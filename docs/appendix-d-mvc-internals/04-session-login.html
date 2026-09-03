@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>쿠키·세션과 로그인</h1>
@@ -206,9 +213,9 @@
 <span class="kd">val</span><span class="w"> </span><span class="nv">session2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">getSession</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span><span class="w">  </span><span class="c1">// 있으면 반환, 없으면 null (조회 전용)</span>
 
 <span class="c1">// 저장 / 읽기 / 삭제</span>
-<span class="n">session</span><span class="p">.</span><span class="na">setAttribute</span><span class="p">(</span><span class="s">&quot;loginMember&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">member</span><span class="p">)</span>
-<span class="kd">val</span><span class="w"> </span><span class="nv">member</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="na">getAttribute</span><span class="p">(</span><span class="s">&quot;loginMember&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">Member?</span>
-<span class="n">session</span><span class="p">.</span><span class="na">removeAttribute</span><span class="p">(</span><span class="s">&quot;loginMember&quot;</span><span class="p">)</span>
+<span class="n">session</span><span class="p">.</span><span class="na">setAttribute</span><span class="p">(</span><span class="s">"loginMember"</span><span class="p">,</span><span class="w"> </span><span class="n">member</span><span class="p">)</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">member</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="na">getAttribute</span><span class="p">(</span><span class="s">"loginMember"</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">Member?</span>
+<span class="n">session</span><span class="p">.</span><span class="na">removeAttribute</span><span class="p">(</span><span class="s">"loginMember"</span><span class="p">)</span>
 
 <span class="c1">// 세션 전체 만료 (로그아웃)</span>
 <span class="n">session</span><span class="p">.</span><span class="na">invalidate</span><span class="p">()</span>
@@ -236,11 +243,11 @@
 <span class="kd">class</span><span class="w"> </span><span class="nc">LoginController</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">memberService</span><span class="p">:</span><span class="w"> </span><span class="n">MemberService</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 
 <span class="w">    </span><span class="c1">// 로그인 폼</span>
-<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">&quot;/login&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">loginForm</span><span class="p">():</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;login/form&quot;</span><span class="w">   </span><span class="c1">// templates/login/form.html</span>
+<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">"/login"</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">loginForm</span><span class="p">():</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"login/form"</span><span class="w">   </span><span class="c1">// templates/login/form.html</span>
 
 <span class="w">    </span><span class="c1">// 로그인 처리</span>
-<span class="w">    </span><span class="nd">@PostMapping</span><span class="p">(</span><span class="s">&quot;/login&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@PostMapping</span><span class="p">(</span><span class="s">"/login"</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">login</span><span class="p">(</span>
 <span class="w">        </span><span class="nd">@RequestParam</span><span class="w"> </span><span class="n">loginId</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
 <span class="w">        </span><span class="nd">@RequestParam</span><span class="w"> </span><span class="n">password</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
@@ -248,21 +255,21 @@
 <span class="w">        </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">HttpServletRequest</span><span class="p">,</span>
 <span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">member</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">memberService</span><span class="p">.</span><span class="na">authenticate</span><span class="p">(</span><span class="n">loginId</span><span class="p">,</span><span class="w"> </span><span class="n">password</span><span class="p">)</span>
-<span class="w">            </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;redirect:/login?error&quot;</span><span class="w">      </span><span class="c1">// 인증 실패 → 폼으로</span>
+<span class="w">            </span><span class="o">?:</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">"redirect:/login?error"</span><span class="w">      </span><span class="c1">// 인증 실패 → 폼으로</span>
 
 <span class="w">        </span><span class="c1">// 인증 성공: 세션을 만들고 회원 정보를 저장</span>
 <span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">session</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">getSession</span><span class="p">()</span><span class="w">         </span><span class="c1">// 여기서 JSESSIONID 발급</span>
-<span class="w">        </span><span class="n">session</span><span class="p">.</span><span class="na">setAttribute</span><span class="p">(</span><span class="s">&quot;loginMember&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">member</span><span class="p">)</span>
+<span class="w">        </span><span class="n">session</span><span class="p">.</span><span class="na">setAttribute</span><span class="p">(</span><span class="s">"loginMember"</span><span class="p">,</span><span class="w"> </span><span class="n">member</span><span class="p">)</span>
 
 <span class="w">        </span><span class="c1">// 원래 가려던 곳이 있으면 거기로, 없으면 목록으로 (3번 문서 인터셉터와 연동)</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;redirect:</span><span class="si">${</span><span class="n">redirect</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;</span><span class="o">/</span><span class="n">books</span><span class="s">&quot;</span><span class="si">}</span><span class="s">&quot;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">"redirect:</span><span class="si">${</span><span class="n">redirect</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">"</span><span class="o">/</span><span class="n">books</span><span class="s">"</span><span class="si">}</span><span class="s">"</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="c1">// 로그아웃</span>
-<span class="w">    </span><span class="nd">@PostMapping</span><span class="p">(</span><span class="s">&quot;/logout&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@PostMapping</span><span class="p">(</span><span class="s">"/logout"</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">logout</span><span class="p">(</span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">HttpServletRequest</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">request</span><span class="p">.</span><span class="na">getSession</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span><span class="o">?.</span><span class="na">invalidate</span><span class="p">()</span><span class="w">    </span><span class="c1">// 세션 폐기 (없으면 무시)</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;redirect:/login&quot;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">"redirect:/login"</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -275,17 +282,17 @@
 <p>매번 <code>session.getAttribute(...)</code>를 캐스팅하는 대신, <code>@SessionAttribute</code>를 쓰면 아규먼트 리졸버(<a href="01-dispatcher-servlet.html">1번 문서</a>)가 세션에서 값을 꺼내 줍니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Controller</span>
-<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;/books&quot;</span><span class="p">)</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">"/books"</span><span class="p">)</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookViewController</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookService</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 
 <span class="w">    </span><span class="nd">@GetMapping</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span>
-<span class="w">        </span><span class="nd">@SessionAttribute</span><span class="p">(</span><span class="s">&quot;loginMember&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">member</span><span class="p">:</span><span class="w"> </span><span class="n">Member</span><span class="p">,</span><span class="w">  </span><span class="c1">// 세션에서 자동 주입</span>
+<span class="w">        </span><span class="nd">@SessionAttribute</span><span class="p">(</span><span class="s">"loginMember"</span><span class="p">)</span><span class="w"> </span><span class="n">member</span><span class="p">:</span><span class="w"> </span><span class="n">Member</span><span class="p">,</span><span class="w">  </span><span class="c1">// 세션에서 자동 주입</span>
 <span class="w">        </span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="n">Model</span><span class="p">,</span>
 <span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">&quot;loginName&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">member</span><span class="p">.</span><span class="na">name</span><span class="p">)</span><span class="w">      </span><span class="c1">// 화면에 &quot;kim님 환영&quot;</span>
-<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">&quot;books&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">findAll</span><span class="p">())</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;books/list&quot;</span>
+<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">"loginName"</span><span class="p">,</span><span class="w"> </span><span class="n">member</span><span class="p">.</span><span class="na">name</span><span class="p">)</span><span class="w">      </span><span class="c1">// 화면에 "kim님 환영"</span>
+<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">"books"</span><span class="p">,</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">findAll</span><span class="p">())</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">"books/list"</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>

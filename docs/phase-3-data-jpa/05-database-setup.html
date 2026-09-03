@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>데이터베이스 설정 (H2 / PostgreSQL)</h1>
@@ -123,7 +130,7 @@
 <span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jdbc:h2:mem:bookdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</span>
 <span class="w">    </span><span class="nt">driver-class-name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org.h2.Driver</span>
 <span class="w">    </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sa</span>
-<span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="s">""</span>
 <span class="w">  </span><span class="nt">h2</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">console</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">        </span><span class="c1"># 브라우저에서 DB를 들여다보는 콘솔</span>
@@ -152,8 +159,8 @@
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
 <span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">runtimeOnly</span><span class="p">(</span><span class="s">&quot;com.h2database:h2&quot;</span><span class="p">)</span><span class="w">          </span><span class="c1">// 개발/테스트용</span>
-<span class="w">    </span><span class="n">runtimeOnly</span><span class="p">(</span><span class="s">&quot;org.postgresql:postgresql&quot;</span><span class="p">)</span><span class="w">  </span><span class="c1">// 운영용 PostgreSQL 드라이버 (BOM 관리 버전 42.7.11)</span>
+<span class="w">    </span><span class="n">runtimeOnly</span><span class="p">(</span><span class="s">"com.h2database:h2"</span><span class="p">)</span><span class="w">          </span><span class="c1">// 개발/테스트용</span>
+<span class="w">    </span><span class="n">runtimeOnly</span><span class="p">(</span><span class="s">"org.postgresql:postgresql"</span><span class="p">)</span><span class="w">  </span><span class="c1">// 운영용 PostgreSQL 드라이버 (BOM 관리 버전 42.7.11)</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -180,9 +187,9 @@
 
 <div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># 환경 변수로 활성 프로필 지정</span>
 <span class="nb">export</span><span class="w"> </span><span class="nv">SPRING_PROFILES_ACTIVE</span><span class="o">=</span>prod
-<span class="nb">export</span><span class="w"> </span><span class="nv">DB_URL</span><span class="o">=</span><span class="s2">&quot;jdbc:postgresql://db.internal:5432/bookdb&quot;</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">DB_USERNAME</span><span class="o">=</span><span class="s2">&quot;bookapp&quot;</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">DB_PASSWORD</span><span class="o">=</span><span class="s2">&quot;••••••••&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DB_URL</span><span class="o">=</span><span class="s2">"jdbc:postgresql://db.internal:5432/bookdb"</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DB_USERNAME</span><span class="o">=</span><span class="s2">"bookapp"</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DB_PASSWORD</span><span class="o">=</span><span class="s2">"••••••••"</span>
 java<span class="w"> </span>-jar<span class="w"> </span>build/libs/bookapi-0.0.1.jar
 
 <span class="c1"># 또는 JVM 인자로</span>
@@ -275,8 +282,8 @@ java<span class="w"> </span>-jar<span class="w"> </span>bookapi.jar<span class="
 
 <div class="code-block" data-lang="sql"><span class="code-lang">sql</span><div class="hl"><pre><span></span><span class="c1">-- src/main/resources/data.sql</span>
 <span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">books</span><span class="w"> </span><span class="p">(</span><span class="n">title</span><span class="p">,</span><span class="w"> </span><span class="n">author</span><span class="p">,</span><span class="w"> </span><span class="n">isbn</span><span class="p">,</span><span class="w"> </span><span class="n">price</span><span class="p">,</span><span class="w"> </span><span class="n">published_at</span><span class="p">)</span><span class="w"> </span><span class="k">VALUES</span>
-<span class="w">  </span><span class="p">(</span><span class="s1">&#39;코틀린 인 액션&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;드미트리 제메로프&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;9788966262366&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">36000</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;2017-05-25&#39;</span><span class="p">),</span>
-<span class="w">  </span><span class="p">(</span><span class="s1">&#39;이펙티브 코틀린&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;마르친 모스카와&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;9791165215897&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">32000</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;2022-01-01&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="p">(</span><span class="s1">'코틀린 인 액션'</span><span class="p">,</span><span class="w"> </span><span class="s1">'드미트리 제메로프'</span><span class="p">,</span><span class="w"> </span><span class="s1">'9788966262366'</span><span class="p">,</span><span class="w"> </span><span class="mi">36000</span><span class="p">,</span><span class="w"> </span><span class="s1">'2017-05-25'</span><span class="p">),</span>
+<span class="w">  </span><span class="p">(</span><span class="s1">'이펙티브 코틀린'</span><span class="p">,</span><span class="w"> </span><span class="s1">'마르친 모스카와'</span><span class="p">,</span><span class="w"> </span><span class="s1">'9791165215897'</span><span class="p">,</span><span class="w"> </span><span class="mi">32000</span><span class="p">,</span><span class="w"> </span><span class="s1">'2022-01-01'</span><span class="p">);</span>
 </pre></div>
 </div>
 
@@ -304,7 +311,7 @@ java<span class="w"> </span>-jar<span class="w"> </span>bookapi.jar<span class="
 <span class="k">import</span><span class="w"> </span><span class="nn">java.time.LocalDate</span>
 
 <span class="nd">@Configuration</span>
-<span class="nd">@Profile</span><span class="p">(</span><span class="s">&quot;!prod&quot;</span><span class="p">)</span><span class="w">   </span><span class="c1">// 운영 프로필에서는 시딩하지 않음</span>
+<span class="nd">@Profile</span><span class="p">(</span><span class="s">"!prod"</span><span class="p">)</span><span class="w">   </span><span class="c1">// 운영 프로필에서는 시딩하지 않음</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">DataSeeder</span><span class="w"> </span><span class="p">{</span>
 
 <span class="w">    </span><span class="nd">@Bean</span>
@@ -313,16 +320,16 @@ java<span class="w"> </span>-jar<span class="w"> </span>bookapi.jar<span class="
 <span class="w">            </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">saveAll</span><span class="p">(</span>
 <span class="w">                </span><span class="n">listOf</span><span class="p">(</span>
 <span class="w">                    </span><span class="n">Book</span><span class="p">(</span>
-<span class="w">                        </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;코틀린 인 액션&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;드미트리 제메로프&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;9788966262366&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"코틀린 인 액션"</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"드미트리 제메로프"</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"9788966262366"</span><span class="p">,</span>
 <span class="w">                        </span><span class="n">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">36000</span><span class="p">,</span>
 <span class="w">                        </span><span class="n">publishedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="m">2017</span><span class="p">,</span><span class="w"> </span><span class="m">5</span><span class="p">,</span><span class="w"> </span><span class="m">25</span><span class="p">),</span>
 <span class="w">                    </span><span class="p">),</span>
 <span class="w">                    </span><span class="n">Book</span><span class="p">(</span>
-<span class="w">                        </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;이펙티브 코틀린&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;마르친 모스카와&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;9791165215897&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"이펙티브 코틀린"</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"마르친 모스카와"</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"9791165215897"</span><span class="p">,</span>
 <span class="w">                        </span><span class="n">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">32000</span><span class="p">,</span>
 <span class="w">                        </span><span class="n">publishedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="m">2022</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span>
 <span class="w">                    </span><span class="p">),</span>

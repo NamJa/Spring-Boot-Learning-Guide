@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>Thymeleaf 서버 사이드 렌더링</h1>
@@ -176,8 +183,8 @@
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
 <span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-webmvc&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-thymeleaf&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// 추가</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-webmvc"</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-thymeleaf"</span><span class="p">)</span><span class="w"> </span><span class="c1">// 추가</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -212,7 +219,7 @@ spring:
 <span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.bind.annotation.*</span>
 
 <span class="nd">@Controller</span><span class="w">                      </span><span class="c1">// @RestController 아님! (1번 문서 3절)</span>
-<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;/books&quot;</span><span class="p">)</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">"/books"</span><span class="p">)</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookViewController</span><span class="p">(</span>
 <span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookService</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="p">,</span><span class="w">   </span><span class="c1">// Phase 2의 서비스 그대로 재사용</span>
 <span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -220,15 +227,15 @@ spring:
 <span class="w">    </span><span class="c1">// 목록 화면: GET /books</span>
 <span class="w">    </span><span class="nd">@GetMapping</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="n">Model</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">&quot;books&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">findAll</span><span class="p">())</span><span class="w">  </span><span class="c1">// 뷰에 넘길 데이터</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;books/list&quot;</span><span class="w">      </span><span class="c1">// → templates/books/list.html</span>
+<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">"books"</span><span class="p">,</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">findAll</span><span class="p">())</span><span class="w">  </span><span class="c1">// 뷰에 넘길 데이터</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">"books/list"</span><span class="w">      </span><span class="c1">// → templates/books/list.html</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="c1">// 상세 화면: GET /books/1</span>
-<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">&quot;/{id}&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">"/{id}"</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">detail</span><span class="p">(</span><span class="nd">@PathVariable</span><span class="w"> </span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">,</span><span class="w"> </span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="n">Model</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">&quot;book&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">id</span><span class="p">))</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;books/detail&quot;</span>
+<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">"book"</span><span class="p">,</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">id</span><span class="p">))</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">"books/detail"</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -290,36 +297,36 @@ spring:
 <h3 id="목록-templatesbookslist-html">목록 — <code>templates/books/list.html</code></h3>
 
 <div class="code-block" data-lang="html"><span class="code-lang">html</span><div class="hl"><pre><span></span><span class="cp">&lt;!DOCTYPE html&gt;</span>
-<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">&quot;ko&quot;</span> <span class="na">xmlns:th</span><span class="o">=</span><span class="s">&quot;http://www.thymeleaf.org&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">"ko"</span> <span class="na">xmlns:th</span><span class="o">=</span><span class="s">"http://www.thymeleaf.org"</span><span class="p">&gt;</span>
 <span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&quot;UTF-8&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">"UTF-8"</span><span class="p">&gt;</span>
     <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>도서 목록<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
 <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
     <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>도서 목록<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
 
     <span class="cm">&lt;!-- 데이터가 없을 때 --&gt;</span>
-    <span class="p">&lt;</span><span class="nt">p</span> <span class="na">th:if</span><span class="o">=</span><span class="s">&quot;${books.isEmpty()}&quot;</span><span class="p">&gt;</span>등록된 도서가 없습니다.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span> <span class="na">th:if</span><span class="o">=</span><span class="s">"${books.isEmpty()}"</span><span class="p">&gt;</span>등록된 도서가 없습니다.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
 
-    <span class="p">&lt;</span><span class="nt">table</span> <span class="na">th:unless</span><span class="o">=</span><span class="s">&quot;${books.isEmpty()}&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">table</span> <span class="na">th:unless</span><span class="o">=</span><span class="s">"${books.isEmpty()}"</span><span class="p">&gt;</span>
         <span class="p">&lt;</span><span class="nt">thead</span><span class="p">&gt;</span>
             <span class="p">&lt;</span><span class="nt">tr</span><span class="p">&gt;&lt;</span><span class="nt">th</span><span class="p">&gt;</span>제목<span class="p">&lt;/</span><span class="nt">th</span><span class="p">&gt;&lt;</span><span class="nt">th</span><span class="p">&gt;</span>저자<span class="p">&lt;/</span><span class="nt">th</span><span class="p">&gt;&lt;</span><span class="nt">th</span><span class="p">&gt;</span>가격<span class="p">&lt;/</span><span class="nt">th</span><span class="p">&gt;&lt;/</span><span class="nt">tr</span><span class="p">&gt;</span>
         <span class="p">&lt;/</span><span class="nt">thead</span><span class="p">&gt;</span>
         <span class="p">&lt;</span><span class="nt">tbody</span><span class="p">&gt;</span>
             <span class="cm">&lt;!-- books 리스트를 한 행씩 반복 --&gt;</span>
-            <span class="p">&lt;</span><span class="nt">tr</span> <span class="na">th:each</span><span class="o">=</span><span class="s">&quot;book : ${books}&quot;</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">tr</span> <span class="na">th:each</span><span class="o">=</span><span class="s">"book : ${books}"</span><span class="p">&gt;</span>
                 <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>
                     <span class="cm">&lt;!-- 상세 페이지로 가는 링크: @{/books/{id}(id=...)} --&gt;</span>
-                    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">th:href</span><span class="o">=</span><span class="s">&quot;@{/books/{id}(id=${book.id})}&quot;</span>
-                       <span class="na">th:text</span><span class="o">=</span><span class="s">&quot;${book.title}&quot;</span><span class="p">&gt;</span>제목<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+                    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">th:href</span><span class="o">=</span><span class="s">"@{/books/{id}(id=${book.id})}"</span>
+                       <span class="na">th:text</span><span class="o">=</span><span class="s">"${book.title}"</span><span class="p">&gt;</span>제목<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
                 <span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
-                <span class="p">&lt;</span><span class="nt">td</span> <span class="na">th:text</span><span class="o">=</span><span class="s">&quot;${book.author}&quot;</span><span class="p">&gt;</span>저자<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
-                <span class="p">&lt;</span><span class="nt">td</span> <span class="na">th:text</span><span class="o">=</span><span class="s">&quot;${book.price}&quot;</span><span class="p">&gt;</span>0<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+                <span class="p">&lt;</span><span class="nt">td</span> <span class="na">th:text</span><span class="o">=</span><span class="s">"${book.author}"</span><span class="p">&gt;</span>저자<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+                <span class="p">&lt;</span><span class="nt">td</span> <span class="na">th:text</span><span class="o">=</span><span class="s">"${book.price}"</span><span class="p">&gt;</span>0<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
             <span class="p">&lt;/</span><span class="nt">tr</span><span class="p">&gt;</span>
         <span class="p">&lt;/</span><span class="nt">tbody</span><span class="p">&gt;</span>
     <span class="p">&lt;/</span><span class="nt">table</span><span class="p">&gt;</span>
 
-    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">th:href</span><span class="o">=</span><span class="s">&quot;@{/books/new}&quot;</span><span class="p">&gt;</span>새 도서 등록<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">th:href</span><span class="o">=</span><span class="s">"@{/books/new}"</span><span class="p">&gt;</span>새 도서 등록<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
 </pre></div>
@@ -328,15 +335,15 @@ spring:
 <h3 id="상세-templatesbooksdetail-html">상세 — <code>templates/books/detail.html</code></h3>
 
 <div class="code-block" data-lang="html"><span class="code-lang">html</span><div class="hl"><pre><span></span><span class="cp">&lt;!DOCTYPE html&gt;</span>
-<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">&quot;ko&quot;</span> <span class="na">xmlns:th</span><span class="o">=</span><span class="s">&quot;http://www.thymeleaf.org&quot;</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&quot;UTF-8&quot;</span><span class="p">&gt;&lt;</span><span class="nt">title</span><span class="p">&gt;</span>도서 상세<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">"ko"</span> <span class="na">xmlns:th</span><span class="o">=</span><span class="s">"http://www.thymeleaf.org"</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">"UTF-8"</span><span class="p">&gt;&lt;</span><span class="nt">title</span><span class="p">&gt;</span>도서 상세<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
 <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">h1</span> <span class="na">th:text</span><span class="o">=</span><span class="s">&quot;${book.title}&quot;</span><span class="p">&gt;</span>제목<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h1</span> <span class="na">th:text</span><span class="o">=</span><span class="s">"${book.title}"</span><span class="p">&gt;</span>제목<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
     <span class="p">&lt;</span><span class="nt">dl</span><span class="p">&gt;</span>
-        <span class="p">&lt;</span><span class="nt">dt</span><span class="p">&gt;</span>저자<span class="p">&lt;/</span><span class="nt">dt</span><span class="p">&gt;&lt;</span><span class="nt">dd</span> <span class="na">th:text</span><span class="o">=</span><span class="s">&quot;${book.author}&quot;</span><span class="p">&gt;</span>저자<span class="p">&lt;/</span><span class="nt">dd</span><span class="p">&gt;</span>
-        <span class="p">&lt;</span><span class="nt">dt</span><span class="p">&gt;</span>가격<span class="p">&lt;/</span><span class="nt">dt</span><span class="p">&gt;&lt;</span><span class="nt">dd</span> <span class="na">th:text</span><span class="o">=</span><span class="s">&quot;${book.price}&quot;</span><span class="p">&gt;</span>0<span class="p">&lt;/</span><span class="nt">dd</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">dt</span><span class="p">&gt;</span>저자<span class="p">&lt;/</span><span class="nt">dt</span><span class="p">&gt;&lt;</span><span class="nt">dd</span> <span class="na">th:text</span><span class="o">=</span><span class="s">"${book.author}"</span><span class="p">&gt;</span>저자<span class="p">&lt;/</span><span class="nt">dd</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">dt</span><span class="p">&gt;</span>가격<span class="p">&lt;/</span><span class="nt">dt</span><span class="p">&gt;&lt;</span><span class="nt">dd</span> <span class="na">th:text</span><span class="o">=</span><span class="s">"${book.price}"</span><span class="p">&gt;</span>0<span class="p">&lt;/</span><span class="nt">dd</span><span class="p">&gt;</span>
     <span class="p">&lt;/</span><span class="nt">dl</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">th:href</span><span class="o">=</span><span class="s">&quot;@{/books}&quot;</span><span class="p">&gt;</span>목록으로<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">th:href</span><span class="o">=</span><span class="s">"@{/books}"</span><span class="p">&gt;</span>목록으로<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
 </pre></div>
@@ -348,38 +355,38 @@ spring:
 <h3 id="폼-컨트롤러">폼 컨트롤러</h3>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Controller</span>
-<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;/books&quot;</span><span class="p">)</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">"/books"</span><span class="p">)</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookFormController</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookService</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 
 <span class="w">    </span><span class="c1">// 등록 폼 보여주기: GET /books/new</span>
-<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">&quot;/new&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">"/new"</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">newForm</span><span class="p">(</span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="n">Model</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// 빈 폼 객체를 모델에 담아 둬야 th:object가 바인딩할 대상이 생긴다</span>
-<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">&quot;form&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">BookForm</span><span class="p">())</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;books/form&quot;</span>
+<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">"form"</span><span class="p">,</span><span class="w"> </span><span class="n">BookForm</span><span class="p">())</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">"books/form"</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="c1">// 등록 처리: POST /books</span>
 <span class="w">    </span><span class="nd">@PostMapping</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span>
-<span class="w">        </span><span class="nd">@Valid</span><span class="w"> </span><span class="nd">@ModelAttribute</span><span class="p">(</span><span class="s">&quot;form&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">form</span><span class="p">:</span><span class="w"> </span><span class="n">BookForm</span><span class="p">,</span><span class="w">  </span><span class="c1">// 폼 → 객체 바인딩 + 검증</span>
+<span class="w">        </span><span class="nd">@Valid</span><span class="w"> </span><span class="nd">@ModelAttribute</span><span class="p">(</span><span class="s">"form"</span><span class="p">)</span><span class="w"> </span><span class="n">form</span><span class="p">:</span><span class="w"> </span><span class="n">BookForm</span><span class="p">,</span><span class="w">  </span><span class="c1">// 폼 → 객체 바인딩 + 검증</span>
 <span class="w">        </span><span class="n">bindingResult</span><span class="p">:</span><span class="w"> </span><span class="n">BindingResult</span><span class="p">,</span><span class="w">                    </span><span class="c1">// 검증 결과 (Phase 4-1 연계)</span>
 <span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bindingResult</span><span class="p">.</span><span class="na">hasErrors</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;books/form&quot;</span><span class="w">          </span><span class="c1">// 오류가 있으면 폼을 다시 보여 줌</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="s">"books/form"</span><span class="w">          </span><span class="c1">// 오류가 있으면 폼을 다시 보여 줌</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">saved</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">form</span><span class="p">.</span><span class="na">toCommand</span><span class="p">())</span>
 <span class="w">        </span><span class="c1">// PRG: 저장 후 상세 페이지로 리다이렉트 (아래 설명)</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;redirect:/books/</span><span class="si">${</span><span class="n">saved</span><span class="p">.</span><span class="na">id</span><span class="si">}</span><span class="s">&quot;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">"redirect:/books/</span><span class="si">${</span><span class="n">saved</span><span class="p">.</span><span class="na">id</span><span class="si">}</span><span class="s">"</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 
 <span class="c1">// 폼 전용 객체 (검증 애너테이션은 Phase 4-1 참고)</span>
 <span class="c1">// 빈 폼 렌더링을 위해 기본값을 둔다(BookForm()). 필드 구성은 본문 CreateBookRequest와 동일.</span>
 <span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BookForm</span><span class="p">(</span>
-<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">NotBlank</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">NotBlank</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">Pattern</span><span class="p">(</span><span class="n">regexp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;^(?:\\d[- ]?){12}\\d</span><span class="err">$</span><span class="s">&quot;</span><span class="p">)</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">NotBlank</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">,</span>
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">NotBlank</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">,</span>
+<span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">Pattern</span><span class="p">(</span><span class="n">regexp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"^(?:\\d[- ]?){12}\\d</span><span class="err">$</span><span class="s">"</span><span class="p">)</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">,</span>
 <span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">Positive</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">price</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span><span class="p">,</span>
 <span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">PastOrPresent</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">publishedAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">.</span><span class="na">now</span><span class="p">(),</span>
 <span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -393,44 +400,44 @@ spring:
 <h3 id="폼-템플릿-templatesbooksform-html">폼 템플릿 — <code>templates/books/form.html</code></h3>
 
 <div class="code-block" data-lang="html"><span class="code-lang">html</span><div class="hl"><pre><span></span><span class="cp">&lt;!DOCTYPE html&gt;</span>
-<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">&quot;ko&quot;</span> <span class="na">xmlns:th</span><span class="o">=</span><span class="s">&quot;http://www.thymeleaf.org&quot;</span><span class="p">&gt;</span>
-<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&quot;UTF-8&quot;</span><span class="p">&gt;&lt;</span><span class="nt">title</span><span class="p">&gt;</span>도서 등록<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">"ko"</span> <span class="na">xmlns:th</span><span class="o">=</span><span class="s">"http://www.thymeleaf.org"</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">"UTF-8"</span><span class="p">&gt;&lt;</span><span class="nt">title</span><span class="p">&gt;</span>도서 등록<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
 <span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
     <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>도서 등록<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
 
     <span class="cm">&lt;!-- th:object: 이 폼이 다룰 모델 객체 지정 --&gt;</span>
-    <span class="p">&lt;</span><span class="nt">form</span> <span class="na">th:action</span><span class="o">=</span><span class="s">&quot;@{/books}&quot;</span> <span class="na">th:object</span><span class="o">=</span><span class="s">&quot;${form}&quot;</span> <span class="na">method</span><span class="o">=</span><span class="s">&quot;post&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">form</span> <span class="na">th:action</span><span class="o">=</span><span class="s">"@{/books}"</span> <span class="na">th:object</span><span class="o">=</span><span class="s">"${form}"</span> <span class="na">method</span><span class="o">=</span><span class="s">"post"</span><span class="p">&gt;</span>
 
-        <span class="cm">&lt;!-- th:field=&quot;*{title}&quot; 가 name/id/value 를 한 번에 처리 --&gt;</span>
+        <span class="cm">&lt;!-- th:field="*{title}" 가 name/id/value 를 한 번에 처리 --&gt;</span>
         <span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
             <span class="p">&lt;</span><span class="nt">label</span><span class="p">&gt;</span>제목<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
-            <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="na">th:field</span><span class="o">=</span><span class="s">&quot;*{title}&quot;</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">"text"</span> <span class="na">th:field</span><span class="o">=</span><span class="s">"*{title}"</span><span class="p">&gt;</span>
             <span class="cm">&lt;!-- 해당 필드의 검증 오류 메시지 --&gt;</span>
-            <span class="p">&lt;</span><span class="nt">span</span> <span class="na">th:if</span><span class="o">=</span><span class="s">&quot;${#fields.hasErrors(&#39;title&#39;)}&quot;</span>
-                  <span class="na">th:errors</span><span class="o">=</span><span class="s">&quot;*{title}&quot;</span><span class="p">&gt;</span>오류<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">span</span> <span class="na">th:if</span><span class="o">=</span><span class="s">"${#fields.hasErrors('title')}"</span>
+                  <span class="na">th:errors</span><span class="o">=</span><span class="s">"*{title}"</span><span class="p">&gt;</span>오류<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
         <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
         <span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
             <span class="p">&lt;</span><span class="nt">label</span><span class="p">&gt;</span>저자<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
-            <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="na">th:field</span><span class="o">=</span><span class="s">&quot;*{author}&quot;</span><span class="p">&gt;</span>
-            <span class="p">&lt;</span><span class="nt">span</span> <span class="na">th:if</span><span class="o">=</span><span class="s">&quot;${#fields.hasErrors(&#39;author&#39;)}&quot;</span> <span class="na">th:errors</span><span class="o">=</span><span class="s">&quot;*{author}&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">"text"</span> <span class="na">th:field</span><span class="o">=</span><span class="s">"*{author}"</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">span</span> <span class="na">th:if</span><span class="o">=</span><span class="s">"${#fields.hasErrors('author')}"</span> <span class="na">th:errors</span><span class="o">=</span><span class="s">"*{author}"</span><span class="p">&gt;&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
         <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
         <span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
             <span class="p">&lt;</span><span class="nt">label</span><span class="p">&gt;</span>ISBN<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
-            <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="na">th:field</span><span class="o">=</span><span class="s">&quot;*{isbn}&quot;</span><span class="p">&gt;</span>
-            <span class="p">&lt;</span><span class="nt">span</span> <span class="na">th:if</span><span class="o">=</span><span class="s">&quot;${#fields.hasErrors(&#39;isbn&#39;)}&quot;</span> <span class="na">th:errors</span><span class="o">=</span><span class="s">&quot;*{isbn}&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">"text"</span> <span class="na">th:field</span><span class="o">=</span><span class="s">"*{isbn}"</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">span</span> <span class="na">th:if</span><span class="o">=</span><span class="s">"${#fields.hasErrors('isbn')}"</span> <span class="na">th:errors</span><span class="o">=</span><span class="s">"*{isbn}"</span><span class="p">&gt;&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
         <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
         <span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
             <span class="p">&lt;</span><span class="nt">label</span><span class="p">&gt;</span>가격<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
-            <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;number&quot;</span> <span class="na">th:field</span><span class="o">=</span><span class="s">&quot;*{price}&quot;</span><span class="p">&gt;</span>
-            <span class="p">&lt;</span><span class="nt">span</span> <span class="na">th:if</span><span class="o">=</span><span class="s">&quot;${#fields.hasErrors(&#39;price&#39;)}&quot;</span> <span class="na">th:errors</span><span class="o">=</span><span class="s">&quot;*{price}&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">"number"</span> <span class="na">th:field</span><span class="o">=</span><span class="s">"*{price}"</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">span</span> <span class="na">th:if</span><span class="o">=</span><span class="s">"${#fields.hasErrors('price')}"</span> <span class="na">th:errors</span><span class="o">=</span><span class="s">"*{price}"</span><span class="p">&gt;&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
         <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
         <span class="p">&lt;</span><span class="nt">div</span><span class="p">&gt;</span>
             <span class="p">&lt;</span><span class="nt">label</span><span class="p">&gt;</span>출판일<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
-            <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;date&quot;</span> <span class="na">th:field</span><span class="o">=</span><span class="s">&quot;*{publishedAt}&quot;</span><span class="p">&gt;</span>
-            <span class="p">&lt;</span><span class="nt">span</span> <span class="na">th:if</span><span class="o">=</span><span class="s">&quot;${#fields.hasErrors(&#39;publishedAt&#39;)}&quot;</span> <span class="na">th:errors</span><span class="o">=</span><span class="s">&quot;*{publishedAt}&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">"date"</span> <span class="na">th:field</span><span class="o">=</span><span class="s">"*{publishedAt}"</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">span</span> <span class="na">th:if</span><span class="o">=</span><span class="s">"${#fields.hasErrors('publishedAt')}"</span> <span class="na">th:errors</span><span class="o">=</span><span class="s">"*{publishedAt}"</span><span class="p">&gt;&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
         <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
 
-        <span class="p">&lt;</span><span class="nt">button</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;submit&quot;</span><span class="p">&gt;</span>저장<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">button</span> <span class="na">type</span><span class="o">=</span><span class="s">"submit"</span><span class="p">&gt;</span>저장<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
     <span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>

@@ -104,16 +104,23 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>전역 예외 처리</h1>
 <p>지금 우리 API에서 예외가 발생하면 어떤 일이 벌어질까요? 존재하지 않는 도서를 조회해 <code>BookNotFoundException</code>이 던져지면, Spring Boot의 기본 에러 처리기가 작동해 다음과 같은 다소 투박한 JSON을 돌려줍니다.</p>
 
 <div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-08-30T01:30:00.123+00:00&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Internal Server Error&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/books/999&quot;</span>
+<span class="w">  </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-08-30T01:30:00.123+00:00"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Internal Server Error"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/books/999"</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -149,14 +156,14 @@
 <span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">ErrorResponse</span><span class="p">(</span>
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">timestamp</span><span class="p">:</span><span class="w"> </span><span class="n">OffsetDateTime</span><span class="p">,</span><span class="w">   </span><span class="c1">// 발생 시각</span>
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">status</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span><span class="w">                 </span><span class="c1">// HTTP 상태 코드 (예: 404)</span>
-<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">error</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w">               </span><span class="c1">// 상태 코드의 이름 (예: &quot;Not Found&quot;)</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">error</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w">               </span><span class="c1">// 상태 코드의 이름 (예: "Not Found")</span>
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">message</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w">             </span><span class="c1">// 사람이 읽을 메시지</span>
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">path</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w">                </span><span class="c1">// 요청 경로</span>
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">fieldErrors</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">FieldError</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emptyList</span><span class="p">(),</span><span class="w"> </span><span class="c1">// 검증 실패 시 필드별 상세</span>
 <span class="p">)</span>
 
 <span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">FieldError</span><span class="p">(</span>
-<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">field</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w">    </span><span class="c1">// 문제가 된 필드명 (예: &quot;title&quot;)</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">field</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w">    </span><span class="c1">// 문제가 된 필드명 (예: "title")</span>
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">message</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w">  </span><span class="c1">// 그 필드의 에러 메시지</span>
 <span class="p">)</span>
 </pre></div>
@@ -192,7 +199,7 @@
 <span class="w">            </span><span class="n">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OffsetDateTime</span><span class="p">.</span><span class="na">now</span><span class="p">(),</span>
 <span class="w">            </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">NOT_FOUND</span><span class="p">.</span><span class="na">value</span><span class="p">(),</span>
 <span class="w">            </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">NOT_FOUND</span><span class="p">.</span><span class="na">reasonPhrase</span><span class="p">,</span>
-<span class="w">            </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ex</span><span class="p">.</span><span class="na">message</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;도서를 찾을 수 없습니다&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ex</span><span class="p">.</span><span class="na">message</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">"도서를 찾을 수 없습니다"</span><span class="p">,</span>
 <span class="w">            </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">requestURI</span><span class="p">,</span>
 <span class="w">        </span><span class="p">)</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="p">.</span><span class="na">status</span><span class="p">(</span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">NOT_FOUND</span><span class="p">).</span><span class="na">body</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
@@ -205,13 +212,13 @@
 <span class="w">        </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">HttpServletRequest</span><span class="p">,</span>
 <span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="o">&lt;</span><span class="n">ErrorResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">fieldErrors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ex</span><span class="p">.</span><span class="na">bindingResult</span><span class="p">.</span><span class="na">fieldErrors</span><span class="p">.</span><span class="na">map</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">FieldError</span><span class="p">(</span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">field</span><span class="p">,</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">defaultMessage</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;유효하지 않은 값&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="n">FieldError</span><span class="p">(</span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">field</span><span class="p">,</span><span class="w"> </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">defaultMessage</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">"유효하지 않은 값"</span><span class="p">)</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">body</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ErrorResponse</span><span class="p">(</span>
 <span class="w">            </span><span class="n">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OffsetDateTime</span><span class="p">.</span><span class="na">now</span><span class="p">(),</span>
 <span class="w">            </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">BAD_REQUEST</span><span class="p">.</span><span class="na">value</span><span class="p">(),</span>
 <span class="w">            </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">BAD_REQUEST</span><span class="p">.</span><span class="na">reasonPhrase</span><span class="p">,</span>
-<span class="w">            </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;입력 검증에 실패했습니다&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"입력 검증에 실패했습니다"</span><span class="p">,</span>
 <span class="w">            </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">requestURI</span><span class="p">,</span>
 <span class="w">            </span><span class="n">fieldErrors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fieldErrors</span><span class="p">,</span>
 <span class="w">        </span><span class="p">)</span>
@@ -224,12 +231,12 @@
 <span class="w">        </span><span class="n">ex</span><span class="p">:</span><span class="w"> </span><span class="n">Exception</span><span class="p">,</span>
 <span class="w">        </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">HttpServletRequest</span><span class="p">,</span>
 <span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="o">&lt;</span><span class="n">ErrorResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">log</span><span class="p">.</span><span class="na">error</span><span class="p">(</span><span class="s">&quot;처리되지 않은 예외 발생&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ex</span><span class="p">)</span><span class="w"> </span><span class="c1">// 내부 상세는 서버 로그에만 남긴다</span>
+<span class="w">        </span><span class="n">log</span><span class="p">.</span><span class="na">error</span><span class="p">(</span><span class="s">"처리되지 않은 예외 발생"</span><span class="p">,</span><span class="w"> </span><span class="n">ex</span><span class="p">)</span><span class="w"> </span><span class="c1">// 내부 상세는 서버 로그에만 남긴다</span>
 <span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">body</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ErrorResponse</span><span class="p">(</span>
 <span class="w">            </span><span class="n">timestamp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">OffsetDateTime</span><span class="p">.</span><span class="na">now</span><span class="p">(),</span>
 <span class="w">            </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">INTERNAL_SERVER_ERROR</span><span class="p">.</span><span class="na">value</span><span class="p">(),</span>
 <span class="w">            </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">INTERNAL_SERVER_ERROR</span><span class="p">.</span><span class="na">reasonPhrase</span><span class="p">,</span>
-<span class="w">            </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;서버 내부 오류가 발생했습니다&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"서버 내부 오류가 발생했습니다"</span><span class="p">,</span>
 <span class="w">            </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="na">requestURI</span><span class="p">,</span>
 <span class="w">        </span><span class="p">)</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="p">.</span><span class="na">internalServerError</span><span class="p">().</span><span class="na">body</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
@@ -244,14 +251,14 @@
 <p>이제 검증 실패 시 응답은 다음과 같이 풍부해집니다.</p>
 
 <div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-08-30T01:30:00.123+09:00&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">400</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bad Request&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;입력 검증에 실패했습니다&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/books&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;fieldErrors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;field&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;title&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;제목은 필수입니다&quot;</span><span class="w"> </span><span class="p">},</span>
-<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;field&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;price&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;가격은 0보다 커야 합니다&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-08-30T01:30:00.123+09:00"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">400</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bad Request"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"입력 검증에 실패했습니다"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/books"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"fieldErrors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">"field"</span><span class="p">:</span><span class="w"> </span><span class="s2">"title"</span><span class="p">,</span><span class="w"> </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"제목은 필수입니다"</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">"field"</span><span class="p">:</span><span class="w"> </span><span class="s2">"price"</span><span class="p">,</span><span class="w"> </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"가격은 0보다 커야 합니다"</span><span class="w"> </span><span class="p">}</span>
 <span class="w">  </span><span class="p">]</span>
 <span class="p">}</span>
 </pre></div>
@@ -266,7 +273,7 @@
 <span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.bind.annotation.ResponseStatus</span>
 
 <span class="nd">@ResponseStatus</span><span class="p">(</span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">NOT_FOUND</span><span class="p">)</span><span class="w"> </span><span class="c1">// 이 예외는 항상 404</span>
-<span class="kd">class</span><span class="w"> </span><span class="nc">BookNotFoundException</span><span class="p">(</span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">RuntimeException</span><span class="p">(</span><span class="s">&quot;ID가 </span><span class="si">${</span><span class="n">id</span><span class="si">}</span><span class="s">인 도서를 찾을 수 없습니다&quot;</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookNotFoundException</span><span class="p">(</span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">RuntimeException</span><span class="p">(</span><span class="s">"ID가 </span><span class="si">${</span><span class="n">id</span><span class="si">}</span><span class="s">인 도서를 찾을 수 없습니다"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>다만 <code>@ResponseStatus</code>만 쓰면 응답 <strong>본문 형태를 커스터마이즈할 수 없습니다.</strong> 본문까지 일관되게 다루려면 결국 <code>@ExceptionHandler</code>가 필요합니다. 둘은 함께 쓸 수 있습니다.</p>
@@ -330,11 +337,11 @@
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">handleNotFound</span><span class="p">(</span><span class="n">ex</span><span class="p">:</span><span class="w"> </span><span class="n">BookNotFoundException</span><span class="p">):</span><span class="w"> </span><span class="n">ProblemDetail</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">problem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ProblemDetail</span><span class="p">.</span><span class="na">forStatusAndDetail</span><span class="p">(</span>
 <span class="w">            </span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">NOT_FOUND</span><span class="p">,</span>
-<span class="w">            </span><span class="n">ex</span><span class="p">.</span><span class="na">message</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;도서를 찾을 수 없습니다&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">ex</span><span class="p">.</span><span class="na">message</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">"도서를 찾을 수 없습니다"</span><span class="p">,</span>
 <span class="w">        </span><span class="p">)</span>
-<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="na">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Book Not Found&quot;</span>
-<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">URI</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="s">&quot;https://api.example.com/problems/book-not-found&quot;</span><span class="p">)</span>
-<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="na">setProperty</span><span class="p">(</span><span class="s">&quot;timestamp&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">OffsetDateTime</span><span class="p">.</span><span class="na">now</span><span class="p">())</span><span class="w"> </span><span class="c1">// 확장 필드</span>
+<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="na">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"Book Not Found"</span>
+<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">URI</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="s">"https://api.example.com/problems/book-not-found"</span><span class="p">)</span>
+<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="na">setProperty</span><span class="p">(</span><span class="s">"timestamp"</span><span class="p">,</span><span class="w"> </span><span class="n">OffsetDateTime</span><span class="p">.</span><span class="na">now</span><span class="p">())</span><span class="w"> </span><span class="c1">// 확장 필드</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">problem</span>
 <span class="w">    </span><span class="p">}</span>
 
@@ -342,13 +349,13 @@
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">handleValidation</span><span class="p">(</span><span class="n">ex</span><span class="p">:</span><span class="w"> </span><span class="n">MethodArgumentNotValidException</span><span class="p">):</span><span class="w"> </span><span class="n">ProblemDetail</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">problem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ProblemDetail</span><span class="p">.</span><span class="na">forStatusAndDetail</span><span class="p">(</span>
 <span class="w">            </span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">BAD_REQUEST</span><span class="p">,</span>
-<span class="w">            </span><span class="s">&quot;입력 검증에 실패했습니다&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">"입력 검증에 실패했습니다"</span><span class="p">,</span>
 <span class="w">        </span><span class="p">)</span>
-<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="na">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Validation Failed&quot;</span>
+<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="na">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"Validation Failed"</span>
 <span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ex</span><span class="p">.</span><span class="na">bindingResult</span><span class="p">.</span><span class="na">fieldErrors</span><span class="p">.</span><span class="na">associate</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nb">it</span><span class="p">.</span><span class="na">field</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="p">(</span><span class="nb">it</span><span class="p">.</span><span class="na">defaultMessage</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;유효하지 않은 값&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="nb">it</span><span class="p">.</span><span class="na">field</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="p">(</span><span class="nb">it</span><span class="p">.</span><span class="na">defaultMessage</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">"유효하지 않은 값"</span><span class="p">)</span>
 <span class="w">        </span><span class="p">}</span>
-<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="na">setProperty</span><span class="p">(</span><span class="s">&quot;errors&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">errors</span><span class="p">)</span><span class="w"> </span><span class="c1">// 필드별 에러를 확장 필드로</span>
+<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="na">setProperty</span><span class="p">(</span><span class="s">"errors"</span><span class="p">,</span><span class="w"> </span><span class="n">errors</span><span class="p">)</span><span class="w"> </span><span class="c1">// 필드별 에러를 확장 필드로</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">problem</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
@@ -357,26 +364,26 @@
 <p>핸들러가 <code>ProblemDetail</code>을 반환하면 Spring이 자동으로 적절한 상태 코드와 <code>application/problem+json</code> Content-Type으로 직렬화합니다. 응답 예시는 다음과 같습니다.</p>
 
 <div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://api.example.com/problems/book-not-found&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Book Not Found&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">404</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;detail&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ID가 999인 도서를 찾을 수 없습니다&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;instance&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/books/999&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-08-30T01:30:00.123+09:00&quot;</span>
+<span class="w">  </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://api.example.com/problems/book-not-found"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Book Not Found"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">404</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"detail"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ID가 999인 도서를 찾을 수 없습니다"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"instance"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/books/999"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-08-30T01:30:00.123+09:00"</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p>검증 실패는 다음과 같습니다.</p>
 
 <div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;about:blank&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Validation Failed&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">400</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;detail&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;입력 검증에 실패했습니다&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;instance&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/books&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;errors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;제목은 필수입니다&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;price&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;가격은 0보다 커야 합니다&quot;</span>
+<span class="w">  </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"about:blank"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Validation Failed"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">400</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"detail"</span><span class="p">:</span><span class="w"> </span><span class="s2">"입력 검증에 실패했습니다"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"instance"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/books"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"errors"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"제목은 필수입니다"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"가격은 0보다 커야 합니다"</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -397,7 +404,7 @@
 <span class="w">    </span><span class="c1">// 여기서는 도메인 예외만 추가한다.</span>
 <span class="w">    </span><span class="nd">@ExceptionHandler</span><span class="p">(</span><span class="n">BookNotFoundException</span><span class="o">::</span><span class="n">class</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">handleNotFound</span><span class="p">(</span><span class="n">ex</span><span class="p">:</span><span class="w"> </span><span class="n">BookNotFoundException</span><span class="p">):</span><span class="w"> </span><span class="n">ProblemDetail</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/* ... */</span>
-<span class="w">        </span><span class="n">ProblemDetail</span><span class="p">.</span><span class="na">forStatusAndDetail</span><span class="p">(</span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">NOT_FOUND</span><span class="p">,</span><span class="w"> </span><span class="n">ex</span><span class="p">.</span><span class="na">message</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="n">ProblemDetail</span><span class="p">.</span><span class="na">forStatusAndDetail</span><span class="p">(</span><span class="n">HttpStatus</span><span class="p">.</span><span class="na">NOT_FOUND</span><span class="p">,</span><span class="w"> </span><span class="n">ex</span><span class="p">.</span><span class="na">message</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="s">""</span><span class="p">)</span>
 <span class="p">}</span>
 </pre></div>
 </div>

@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>외부화된 설정과 프로파일</h1>
@@ -248,7 +255,7 @@ java<span class="w"> </span>-jar<span class="w"> </span>book-api.jar
 java<span class="w"> </span>-jar<span class="w"> </span>book-api.jar<span class="w"> </span>--spring.profiles.active<span class="o">=</span>prod
 
 <span class="c1"># Gradle 로 로컬 실행 시</span>
-./gradlew<span class="w"> </span>bootRun<span class="w"> </span>--args<span class="o">=</span><span class="s1">&#39;--spring.profiles.active=dev&#39;</span>
+./gradlew<span class="w"> </span>bootRun<span class="w"> </span>--args<span class="o">=</span><span class="s1">'--spring.profiles.active=dev'</span>
 </pre></div>
 </div>
 
@@ -293,7 +300,7 @@ java<span class="w"> </span>-jar<span class="w"> </span>book-api.jar<span class=
 <div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">spring</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">datasource</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/bookdb</span>
-<span class="w">    </span><span class="c1">#                       └ 환경변수 없으면 &#39;localhost&#39;  └ 없으면 5432</span>
+<span class="w">    </span><span class="c1">#                       └ 환경변수 없으면 'localhost'  └ 없으면 5432</span>
 <span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${DB_PASSWORD}</span><span class="w">   </span><span class="c1"># 기본값 없음 → 없으면 시작 실패 (의도된 안전장치)</span>
 </pre></div>
 </div>
@@ -322,7 +329,7 @@ java<span class="w"> </span>-jar<span class="w"> </span>book-api.jar<span class=
 </div>
 
 <div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># 실행 환경에서 환경 변수로 실제 값 주입</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">DB_PASSWORD</span><span class="o">=</span><span class="s1">&#39;실제_비밀번호&#39;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DB_PASSWORD</span><span class="o">=</span><span class="s1">'실제_비밀번호'</span>
 </pre></div>
 </div>
 
@@ -347,12 +354,12 @@ java<span class="w"> </span>-jar<span class="w"> </span>book-api.jar<span class=
 
 <span class="w">    </span><span class="c1">// 개발 환경: 콘솔에 출력만 하는 가짜 구현</span>
 <span class="w">    </span><span class="nd">@Bean</span>
-<span class="w">    </span><span class="nd">@Profile</span><span class="p">(</span><span class="s">&quot;dev&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@Profile</span><span class="p">(</span><span class="s">"dev"</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">devNotifier</span><span class="p">():</span><span class="w"> </span><span class="n">Notifier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ConsoleNotifier</span><span class="p">()</span>
 
 <span class="w">    </span><span class="c1">// 운영 환경: 실제 이메일 발송 구현</span>
 <span class="w">    </span><span class="nd">@Bean</span>
-<span class="w">    </span><span class="nd">@Profile</span><span class="p">(</span><span class="s">&quot;prod&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@Profile</span><span class="p">(</span><span class="s">"prod"</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">prodNotifier</span><span class="p">():</span><span class="w"> </span><span class="n">Notifier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EmailNotifier</span><span class="p">()</span>
 <span class="p">}</span>
 </pre></div>

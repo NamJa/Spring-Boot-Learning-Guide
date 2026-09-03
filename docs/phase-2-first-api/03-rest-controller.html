@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>@RestController 구현</h1>
@@ -112,7 +119,7 @@
 <h2 id="1-restcontroller와-requestmapping">1. @RestController와 @RequestMapping</h2>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@RestController</span>
-<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">"/api/books"</span><span class="p">)</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookController</span><span class="p">(</span>
 <span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookService</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="p">,</span>
 <span class="p">)</span>
@@ -199,7 +206,7 @@
 <p>상태 코드 + 헤더 + 본문을 모두 직접 제어합니다. 201 Created에 <code>Location</code> 헤더를 넣는 등 정밀한 응답에 적합합니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">return</span><span class="w"> </span><span class="n">ResponseEntity</span>
-<span class="w">    </span><span class="p">.</span><span class="na">created</span><span class="p">(</span><span class="n">URI</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="s">&quot;/api/books/</span><span class="si">${</span><span class="n">created</span><span class="p">.</span><span class="na">id</span><span class="si">}</span><span class="s">&quot;</span><span class="p">))</span><span class="w">  </span><span class="c1">// 201 + Location 헤더</span>
+<span class="w">    </span><span class="p">.</span><span class="na">created</span><span class="p">(</span><span class="n">URI</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="s">"/api/books/</span><span class="si">${</span><span class="n">created</span><span class="p">.</span><span class="na">id</span><span class="si">}</span><span class="s">"</span><span class="p">))</span><span class="w">  </span><span class="c1">// 201 + Location 헤더</span>
 <span class="w">    </span><span class="p">.</span><span class="na">body</span><span class="p">(</span><span class="n">created</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -237,7 +244,7 @@
 <span class="k">import</span><span class="w"> </span><span class="nn">java.net.URI</span>
 
 <span class="nd">@RestController</span>
-<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">"/api/books"</span><span class="p">)</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookController</span><span class="p">(</span>
 <span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookService</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="p">,</span>
 <span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -255,7 +262,7 @@
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="c1">// GET /api/books/{id}</span>
-<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">&quot;/{id}&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">"/{id}"</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getOne</span><span class="p">(</span><span class="nd">@PathVariable</span><span class="w"> </span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// 존재하지 않으면 서비스가 BookNotFoundException을 던짐 → 404 (Phase 4에서 전역 처리)</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
@@ -267,12 +274,12 @@
 <span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">created</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
 <span class="w">        </span><span class="c1">// 201 Created + Location 헤더(생성된 리소스 위치)</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ResponseEntity</span>
-<span class="w">            </span><span class="p">.</span><span class="na">created</span><span class="p">(</span><span class="n">URI</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="s">&quot;/api/books/</span><span class="si">${</span><span class="n">created</span><span class="p">.</span><span class="na">id</span><span class="si">}</span><span class="s">&quot;</span><span class="p">))</span>
+<span class="w">            </span><span class="p">.</span><span class="na">created</span><span class="p">(</span><span class="n">URI</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="s">"/api/books/</span><span class="si">${</span><span class="n">created</span><span class="p">.</span><span class="na">id</span><span class="si">}</span><span class="s">"</span><span class="p">))</span>
 <span class="w">            </span><span class="p">.</span><span class="na">body</span><span class="p">(</span><span class="n">created</span><span class="p">)</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="c1">// PUT /api/books/{id}</span>
-<span class="w">    </span><span class="nd">@PutMapping</span><span class="p">(</span><span class="s">&quot;/{id}&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@PutMapping</span><span class="p">(</span><span class="s">"/{id}"</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span>
 <span class="w">        </span><span class="nd">@PathVariable</span><span class="w"> </span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">,</span>
 <span class="w">        </span><span class="nd">@RequestBody</span><span class="w"> </span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">UpdateBookRequest</span><span class="p">,</span>
@@ -282,7 +289,7 @@
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="c1">// DELETE /api/books/{id}</span>
-<span class="w">    </span><span class="nd">@DeleteMapping</span><span class="p">(</span><span class="s">&quot;/{id}&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@DeleteMapping</span><span class="p">(</span><span class="s">"/{id}"</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="nd">@PathVariable</span><span class="w"> </span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">):</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">bookService</span><span class="p">.</span><span class="na">delete</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ResponseEntity</span><span class="p">.</span><span class="na">noContent</span><span class="p">().</span><span class="na">build</span><span class="p">()</span><span class="w">  </span><span class="c1">// 204 No Content</span>
@@ -304,14 +311,14 @@
 <h3 id="post-도서-등록-201">POST — 도서 등록 (201)</h3>
 
 <div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>curl<span class="w"> </span>-i<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/api/books<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;title&quot;: &quot;채식주의자&quot;,</span>
-<span class="s1">    &quot;author&quot;: &quot;한강&quot;,</span>
-<span class="s1">    &quot;isbn&quot;: &quot;9788936433598&quot;,</span>
-<span class="s1">    &quot;price&quot;: 13500,</span>
-<span class="s1">    &quot;publishedAt&quot;: &quot;2007-10-30&quot;</span>
-<span class="s1">  }&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "title": "채식주의자",</span>
+<span class="s1">    "author": "한강",</span>
+<span class="s1">    "isbn": "9788936433598",</span>
+<span class="s1">    "price": 13500,</span>
+<span class="s1">    "publishedAt": "2007-10-30"</span>
+<span class="s1">  }'</span>
 </pre></div>
 </div>
 <p>응답:</p>
@@ -321,12 +328,12 @@ Location: /api/books/1
 Content-Type: application/json</code></pre></div>
 
 <div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;채식주의자&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;author&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;한강&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;isbn&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;9788936433598&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;price&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">13500</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;publishedAt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2007-10-30&quot;</span>
+<span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"채식주의자"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"author"</span><span class="p">:</span><span class="w"> </span><span class="s2">"한강"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"isbn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9788936433598"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mi">13500</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"publishedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2007-10-30"</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -339,12 +346,12 @@ Content-Type: application/json</code></pre></div>
 
 <div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">[</span>
 <span class="w">  </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;채식주의자&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;author&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;한강&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;isbn&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;9788936433598&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;price&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">13500</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;publishedAt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2007-10-30&quot;</span>
+<span class="w">    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"채식주의자"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"author"</span><span class="p">:</span><span class="w"> </span><span class="s2">"한강"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"isbn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9788936433598"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mi">13500</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"publishedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2007-10-30"</span>
 <span class="w">  </span><span class="p">}</span>
 <span class="p">]</span>
 </pre></div>
@@ -352,7 +359,7 @@ Content-Type: application/json</code></pre></div>
 
 <h3 id="get-목록-저자-필터-200">GET 목록 — 저자 필터 (200)</h3>
 
-<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>curl<span class="w"> </span><span class="s2">&quot;http://localhost:8080/api/books?author=한강&quot;</span>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>curl<span class="w"> </span><span class="s2">"http://localhost:8080/api/books?author=한강"</span>
 </pre></div>
 </div>
 <p><code>author</code> 쿼리 파라미터가 <code>findByAuthor</code>로 전달되어 해당 저자의 책만 반환됩니다.</p>
@@ -364,12 +371,12 @@ Content-Type: application/json</code></pre></div>
 </div>
 
 <div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;채식주의자&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;author&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;한강&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;isbn&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;9788936433598&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;price&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">13500</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;publishedAt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2007-10-30&quot;</span>
+<span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"채식주의자"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"author"</span><span class="p">:</span><span class="w"> </span><span class="s2">"한강"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"isbn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9788936433598"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mi">13500</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"publishedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2007-10-30"</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -377,24 +384,24 @@ Content-Type: application/json</code></pre></div>
 <h3 id="put-수정-200">PUT — 수정 (200)</h3>
 
 <div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span>http://localhost:8080/api/books/1<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
-<span class="s1">    &quot;title&quot;: &quot;채식주의자 (개정판)&quot;,</span>
-<span class="s1">    &quot;author&quot;: &quot;한강&quot;,</span>
-<span class="s1">    &quot;isbn&quot;: &quot;9788936433598&quot;,</span>
-<span class="s1">    &quot;price&quot;: 15000,</span>
-<span class="s1">    &quot;publishedAt&quot;: &quot;2007-10-30&quot;</span>
-<span class="s1">  }&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+<span class="s1">    "title": "채식주의자 (개정판)",</span>
+<span class="s1">    "author": "한강",</span>
+<span class="s1">    "isbn": "9788936433598",</span>
+<span class="s1">    "price": 15000,</span>
+<span class="s1">    "publishedAt": "2007-10-30"</span>
+<span class="s1">  }'</span>
 </pre></div>
 </div>
 
 <div class="code-block" data-lang="json"><span class="code-lang">json</span><div class="hl"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;채식주의자 (개정판)&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;author&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;한강&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;isbn&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;9788936433598&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;price&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">15000</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;publishedAt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2007-10-30&quot;</span>
+<span class="w">  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"채식주의자 (개정판)"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"author"</span><span class="p">:</span><span class="w"> </span><span class="s2">"한강"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"isbn"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9788936433598"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="mi">15000</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"publishedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2007-10-30"</span>
 <span class="p">}</span>
 </pre></div>
 </div>

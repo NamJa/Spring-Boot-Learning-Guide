@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>Spring Data JPA 개념</h1>
@@ -189,14 +196,14 @@
 <p>순수 JPA만 쓰면 단순 조회 하나에도 다음과 같은 코드를 직접 작성해야 합니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 순수 JPA (Spring Data 없이) - 직접 EntityManager를 다뤄야 한다</span>
-<span class="kd">fun</span><span class="w"> </span><span class="nf">findById</span><span class="p">(</span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">):</span><span class="w"> </span><span class="n">Book? </span><span class="p">{</span>
+<span class="kd">fun</span><span class="w"> </span><span class="nf">findById</span><span class="p">(</span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">):</span><span class="w"> </span><span class="n">Book?</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">entityManager</span><span class="p">.</span><span class="na">find</span><span class="p">(</span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">)</span>
 <span class="p">}</span>
 
 <span class="kd">fun</span><span class="w"> </span><span class="nf">findByAuthor</span><span class="p">(</span><span class="n">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">entityManager</span>
-<span class="w">        </span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="s">&quot;SELECT b FROM Book b WHERE b.author = :author&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
-<span class="w">        </span><span class="p">.</span><span class="na">setParameter</span><span class="p">(</span><span class="s">&quot;author&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">author</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="s">"SELECT b FROM Book b WHERE b.author = :author"</span><span class="p">,</span><span class="w"> </span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">setParameter</span><span class="p">(</span><span class="s">"author"</span><span class="p">,</span><span class="w"> </span><span class="n">author</span><span class="p">)</span>
 <span class="w">        </span><span class="p">.</span><span class="na">resultList</span>
 <span class="p">}</span>
 </pre></div>
@@ -214,25 +221,25 @@
 <p>Spring Data JPA를 사용하려면 <code>build.gradle.kts</code>에 스타터 하나만 추가하면 됩니다. 이 스타터가 Spring Data JPA, Hibernate, 트랜잭션 관리, 커넥션 풀(HikariCP) 등을 한꺼번에 가져옵니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">plugins</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;jvm&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span>
-<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;plugin.spring&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span>
-<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;plugin.jpa&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span><span class="w">        </span><span class="c1">// ← JPA Entity용 no-arg 플러그인</span>
-<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;org.springframework.boot&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;4.1.1&quot;</span>
-<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;io.spring.dependency-management&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;1.1.7&quot;</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">"jvm"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"2.3.21"</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">"plugin.spring"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"2.3.21"</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">"plugin.jpa"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"2.3.21"</span><span class="w">        </span><span class="c1">// ← JPA Entity용 no-arg 플러그인</span>
+<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">"org.springframework.boot"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"4.1.1"</span>
+<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">"io.spring.dependency-management"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"1.1.7"</span>
 <span class="p">}</span>
 
 <span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-data-jpa&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-h2console&quot;</span><span class="p">)</span><span class="w">  </span><span class="c1">// H2 웹 콘솔(개발용)</span>
-<span class="w">    </span><span class="n">runtimeOnly</span><span class="p">(</span><span class="s">&quot;com.h2database:h2&quot;</span><span class="p">)</span><span class="w">             </span><span class="c1">// 개발용 인메모리 DB</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-data-jpa"</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-h2console"</span><span class="p">)</span><span class="w">  </span><span class="c1">// H2 웹 콘솔(개발용)</span>
+<span class="w">    </span><span class="n">runtimeOnly</span><span class="p">(</span><span class="s">"com.h2database:h2"</span><span class="p">)</span><span class="w">             </span><span class="c1">// 개발용 인메모리 DB</span>
 <span class="w">    </span><span class="c1">// 운영용 PostgreSQL은 Phase 3-5에서 추가</span>
 <span class="p">}</span>
 
-<span class="c1">// kotlin(&quot;plugin.jpa&quot;)가 함께 넣어 주는 블록 (Initializr 기본 출력)</span>
+<span class="c1">// kotlin("plugin.jpa")가 함께 넣어 주는 블록 (Initializr 기본 출력)</span>
 <span class="n">allOpen</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">annotation</span><span class="p">(</span><span class="s">&quot;jakarta.persistence.Entity&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="n">annotation</span><span class="p">(</span><span class="s">&quot;jakarta.persistence.MappedSuperclass&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="n">annotation</span><span class="p">(</span><span class="s">&quot;jakarta.persistence.Embeddable&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">annotation</span><span class="p">(</span><span class="s">"jakarta.persistence.Entity"</span><span class="p">)</span>
+<span class="w">    </span><span class="n">annotation</span><span class="p">(</span><span class="s">"jakarta.persistence.MappedSuperclass"</span><span class="p">)</span>
+<span class="w">    </span><span class="n">annotation</span><span class="p">(</span><span class="s">"jakarta.persistence.Embeddable"</span><span class="p">)</span>
 <span class="p">}</span>
 </pre></div>
 </div>

@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>프록시와 동적 프록시</h1>
@@ -124,7 +131,7 @@
 <span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="na">toEntity</span><span class="p">()).</span><span class="na">toResponse</span><span class="p">()</span>
 <span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="kd">val</span><span class="w"> </span><span class="nv">took</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="w">   </span><span class="c1">// ← 부가 기능</span>
-<span class="w">            </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;create() 실행 시간 = {}ms&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">took</span><span class="p">)</span><span class="w">        </span><span class="c1">// ← 부가 기능</span>
+<span class="w">            </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">"create() 실행 시간 = {}ms"</span><span class="p">,</span><span class="w"> </span><span class="n">took</span><span class="p">)</span><span class="w">        </span><span class="c1">// ← 부가 기능</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
@@ -167,7 +174,7 @@
 <span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">target</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">request</span><span class="p">)</span><span class="w">        </span><span class="c1">// 원본에 위임</span>
 <span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;create() = {}ms&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">)</span>
+<span class="w">            </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">"create() = {}ms"</span><span class="p">,</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">)</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
@@ -217,13 +224,13 @@
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">val</span><span class="w"> </span><span class="nv">proxy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Proxy</span><span class="p">.</span><span class="na">newProxyInstance</span><span class="p">(</span>
 <span class="w">    </span><span class="n">BookService</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">.</span><span class="na">classLoader</span><span class="p">,</span>
-<span class="w">    </span><span class="n">arrayOf</span><span class="p">(</span><span class="n">BookService</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">),</span><span class="w">     </span><span class="c1">// ← 반드시 &quot;인터페이스&quot;가 필요</span>
+<span class="w">    </span><span class="n">arrayOf</span><span class="p">(</span><span class="n">BookService</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">),</span><span class="w">     </span><span class="c1">// ← 반드시 "인터페이스"가 필요</span>
 <span class="w">    </span><span class="n">InvocationHandler</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">_</span><span class="p">,</span><span class="w"> </span><span class="n">method</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span>
 <span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="n">method</span><span class="p">.</span><span class="na">invoke</span><span class="p">(</span><span class="n">target</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="p">(</span><span class="n">args</span><span class="w"> </span><span class="o">?:</span><span class="w"> </span><span class="n">emptyArray</span><span class="p">()))</span><span class="w">   </span><span class="c1">// 원본에 위임</span>
 <span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;{}() = {}ms&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">method</span><span class="p">.</span><span class="na">name</span><span class="p">,</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">)</span>
+<span class="w">            </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">"{}() = {}ms"</span><span class="p">,</span><span class="w"> </span><span class="n">method</span><span class="p">.</span><span class="na">name</span><span class="p">,</span><span class="w"> </span><span class="n">System</span><span class="p">.</span><span class="na">currentTimeMillis</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">)</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">BookService</span>
@@ -296,14 +303,14 @@ CGLIB:           프록시  extends     BookServiceImpl(클래스)</code></pre><
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1">// Kotlin에서 이 클래스는 사실상 final</span>
 
 <span class="c1">// → CGLIB이 상속하려다 실패</span>
-<span class="c1">//   &quot;Cannot subclass final class ...&quot; 같은 에러 또는 프록시 미적용</span>
+<span class="c1">//   "Cannot subclass final class ..." 같은 에러 또는 프록시 미적용</span>
 </pre></div>
 </div>
 <p>해결책이 <strong>Phase 1에서 이미 적용한</strong> <code>kotlin("plugin.spring")</code>(내부적으로 all-open) 플러그인입니다. 이 플러그인은 <code>@Component</code>, <code>@Service</code>, <code>@Repository</code>, <code>@Configuration</code>, <code>@Transactional</code>, <code>@Async</code>, <code>@Aspect</code> 등이 붙은 클래스와 그 멤버를 <strong>자동으로 <code>open</code></strong> 으로 바꿔 줍니다. 따라서 우리가 직접 <code>open</code>을 붙이지 않아도 프록시가 정상 생성됩니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts (Phase 1에서 설정 완료)</span>
 <span class="n">plugins</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;plugin.spring&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span><span class="w">   </span><span class="c1">// all-open: 스프링 애너테이션 클래스를 open 처리</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">"plugin.spring"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"2.3.21"</span><span class="w">   </span><span class="c1">// all-open: 스프링 애너테이션 클래스를 open 처리</span>
 <span class="p">}</span>
 </pre></div>
 </div>

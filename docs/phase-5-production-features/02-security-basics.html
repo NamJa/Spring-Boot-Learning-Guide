@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>Spring Security 7 기초</h1>
@@ -119,7 +126,7 @@
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
 <span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-security&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-security"</span><span class="p">)</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -193,13 +200,13 @@
 
 <span class="w">            </span><span class="n">authorizeHttpRequests</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                </span><span class="c1">// 조회는 누구나</span>
-<span class="w">                </span><span class="n">authorize</span><span class="p">(</span><span class="n">HttpMethod</span><span class="p">.</span><span class="na">GET</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/api/books/**&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">permitAll</span><span class="p">)</span>
+<span class="w">                </span><span class="n">authorize</span><span class="p">(</span><span class="n">HttpMethod</span><span class="p">.</span><span class="na">GET</span><span class="p">,</span><span class="w"> </span><span class="s">"/api/books/**"</span><span class="p">,</span><span class="w"> </span><span class="n">permitAll</span><span class="p">)</span>
 <span class="w">                </span><span class="c1">// 변경은 인증 필요</span>
-<span class="w">                </span><span class="n">authorize</span><span class="p">(</span><span class="n">HttpMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/api/books/**&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">authenticated</span><span class="p">)</span>
-<span class="w">                </span><span class="n">authorize</span><span class="p">(</span><span class="n">HttpMethod</span><span class="p">.</span><span class="na">PUT</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/api/books/**&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">authenticated</span><span class="p">)</span>
-<span class="w">                </span><span class="n">authorize</span><span class="p">(</span><span class="n">HttpMethod</span><span class="p">.</span><span class="na">DELETE</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/api/books/**&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">authenticated</span><span class="p">)</span>
+<span class="w">                </span><span class="n">authorize</span><span class="p">(</span><span class="n">HttpMethod</span><span class="p">.</span><span class="na">POST</span><span class="p">,</span><span class="w"> </span><span class="s">"/api/books/**"</span><span class="p">,</span><span class="w"> </span><span class="n">authenticated</span><span class="p">)</span>
+<span class="w">                </span><span class="n">authorize</span><span class="p">(</span><span class="n">HttpMethod</span><span class="p">.</span><span class="na">PUT</span><span class="p">,</span><span class="w"> </span><span class="s">"/api/books/**"</span><span class="p">,</span><span class="w"> </span><span class="n">authenticated</span><span class="p">)</span>
+<span class="w">                </span><span class="n">authorize</span><span class="p">(</span><span class="n">HttpMethod</span><span class="p">.</span><span class="na">DELETE</span><span class="p">,</span><span class="w"> </span><span class="s">"/api/books/**"</span><span class="p">,</span><span class="w"> </span><span class="n">authenticated</span><span class="p">)</span>
 <span class="w">                </span><span class="c1">// Actuator 헬스 체크는 공개 (Phase 5-3 참고)</span>
-<span class="w">                </span><span class="n">authorize</span><span class="p">(</span><span class="s">&quot;/actuator/health/**&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">permitAll</span><span class="p">)</span>
+<span class="w">                </span><span class="n">authorize</span><span class="p">(</span><span class="s">"/actuator/health/**"</span><span class="p">,</span><span class="w"> </span><span class="n">permitAll</span><span class="p">)</span>
 <span class="w">                </span><span class="c1">// 나머지는 모두 인증</span>
 <span class="w">                </span><span class="n">authorize</span><span class="p">(</span><span class="n">anyRequest</span><span class="p">,</span><span class="w"> </span><span class="n">authenticated</span><span class="p">)</span>
 <span class="w">            </span><span class="p">}</span>
@@ -233,9 +240,9 @@
 
 <span class="w">    </span><span class="nd">@Bean</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">userDetailsService</span><span class="p">(</span><span class="n">encoder</span><span class="p">:</span><span class="w"> </span><span class="n">PasswordEncoder</span><span class="p">):</span><span class="w"> </span><span class="n">UserDetailsService</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">admin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">User</span><span class="p">.</span><span class="na">withUsername</span><span class="p">(</span><span class="s">&quot;admin&quot;</span><span class="p">)</span>
-<span class="w">            </span><span class="p">.</span><span class="na">password</span><span class="p">(</span><span class="n">encoder</span><span class="p">.</span><span class="na">encode</span><span class="p">(</span><span class="s">&quot;admin-secret&quot;</span><span class="p">))</span><span class="w">  </span><span class="c1">// 저장 시 BCrypt 해시로 변환</span>
-<span class="w">            </span><span class="p">.</span><span class="na">roles</span><span class="p">(</span><span class="s">&quot;ADMIN&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">admin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">User</span><span class="p">.</span><span class="na">withUsername</span><span class="p">(</span><span class="s">"admin"</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">password</span><span class="p">(</span><span class="n">encoder</span><span class="p">.</span><span class="na">encode</span><span class="p">(</span><span class="s">"admin-secret"</span><span class="p">))</span><span class="w">  </span><span class="c1">// 저장 시 BCrypt 해시로 변환</span>
+<span class="w">            </span><span class="p">.</span><span class="na">roles</span><span class="p">(</span><span class="s">"ADMIN"</span><span class="p">)</span>
 <span class="w">            </span><span class="p">.</span><span class="na">build</span><span class="p">()</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">InMemoryUserDetailsManager</span><span class="p">(</span><span class="n">admin</span><span class="p">)</span>
 <span class="w">    </span><span class="p">}</span>
@@ -248,11 +255,11 @@
 curl<span class="w"> </span>http://localhost:8080/api/books
 
 <span class="c1"># 인증 없이 등록 (401)</span>
-curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/api/books<span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;{...}&#39;</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/api/books<span class="w"> </span>-d<span class="w"> </span><span class="s1">'{...}'</span>
 
 <span class="c1"># 인증하여 등록 (성공)</span>
 curl<span class="w"> </span>-u<span class="w"> </span>admin:admin-secret<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/api/books<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;title&quot;:&quot;코틀린 인 액션&quot;,&quot;price&quot;:35000}&#39;</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">'{"title":"코틀린 인 액션","price":35000}'</span>
 </pre></div>
 </div>
 
@@ -288,7 +295,7 @@ curl<span class="w"> </span>-u<span class="w"> </span>admin:admin-secret<span cl
 <p>HTTP Basic은 학습엔 좋지만 운영 REST API의 표준은 아닙니다. 실무에서는 <strong>토큰 기반 인증</strong>이 정석입니다. 우리 API는 보통 <strong>OAuth2 Resource Server</strong> 역할을 합니다. 즉 인증 서버(Keycloak, Auth0, Cognito 등)가 발급한 <strong>JWT를 검증만</strong> 합니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
-<span class="c1">// implementation(&quot;org.springframework.boot:spring-boot-starter-oauth2-resource-server&quot;)</span>
+<span class="c1">// implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")</span>
 </pre></div>
 </div>
 
@@ -297,7 +304,7 @@ curl<span class="w"> </span>-u<span class="w"> </span>admin:admin-secret<span cl
 <span class="w">    </span><span class="n">http</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">csrf</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">disable</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
 <span class="w">        </span><span class="n">authorizeHttpRequests</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="n">authorize</span><span class="p">(</span><span class="n">HttpMethod</span><span class="p">.</span><span class="na">GET</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/api/books/**&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">permitAll</span><span class="p">)</span>
+<span class="w">            </span><span class="n">authorize</span><span class="p">(</span><span class="n">HttpMethod</span><span class="p">.</span><span class="na">GET</span><span class="p">,</span><span class="w"> </span><span class="s">"/api/books/**"</span><span class="p">,</span><span class="w"> </span><span class="n">permitAll</span><span class="p">)</span>
 <span class="w">            </span><span class="n">authorize</span><span class="p">(</span><span class="n">anyRequest</span><span class="p">,</span><span class="w"> </span><span class="n">authenticated</span><span class="p">)</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">        </span><span class="c1">// 들어오는 요청의 Bearer JWT를 검증</span>
@@ -330,7 +337,7 @@ curl<span class="w"> </span>-u<span class="w"> </span>admin:admin-secret<span cl
 
 <span class="nd">@Service</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span><span class="cm">/* ... */</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nd">@PreAuthorize</span><span class="p">(</span><span class="s">&quot;hasRole(&#39;ADMIN&#39;)&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@PreAuthorize</span><span class="p">(</span><span class="s">"hasRole('ADMIN')"</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>

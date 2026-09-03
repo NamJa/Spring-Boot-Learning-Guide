@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>05. DTO 프로젝션 &amp; 리포지토리 통합</h1>
@@ -153,7 +160,7 @@
 <span class="w">    </span><span class="n">BookResponse</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">,</span>
 <span class="w">    </span><span class="n">book</span><span class="p">.</span><span class="na">id</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">title</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">isbn</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">,</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">publishedAt</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="c1">// 이름이 다르면: book.title.`as`(&quot;title&quot;) 처럼 별칭 지정</span>
+<span class="c1">// 이름이 다르면: book.title.`as`("title") 처럼 별칭 지정</span>
 </pre></div>
 </div>
 
@@ -268,7 +275,7 @@
 
 <h3 id="2-2-구현-클래스-이름-규칙이-핵심">2.2 구현 클래스 — 이름 규칙이 핵심</h3>
 
-<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 클래스 이름은 반드시 &quot;BookRepository&quot; + &quot;Impl&quot;  → BookRepositoryImpl</span>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 클래스 이름은 반드시 "BookRepository" + "Impl"  → BookRepositoryImpl</span>
 <span class="c1">// 이 규칙을 지켜야 Spring Data가 자동으로 엮어 준다.</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookRepositoryImpl</span><span class="p">(</span>
 <span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">queryFactory</span><span class="p">:</span><span class="w"> </span><span class="n">JPAQueryFactory</span><span class="p">,</span>
@@ -290,7 +297,7 @@
 <span class="w">            </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
 
 <span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">searchPage</span><span class="p">(</span><span class="n">cond</span><span class="p">:</span><span class="w"> </span><span class="n">BookSearchCond</span><span class="p">,</span><span class="w"> </span><span class="n">pageable</span><span class="p">:</span><span class="w"> </span><span class="n">Pageable</span><span class="p">):</span><span class="w"> </span><span class="n">Page</span><span class="o">&lt;</span><span class="n">BookResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">TODO</span><span class="p">(</span><span class="s">&quot;3절에서 구현&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="n">TODO</span><span class="p">(</span><span class="s">"3절에서 구현"</span><span class="p">)</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -318,7 +325,7 @@
 <span class="w">    </span><span class="c1">// CreateBookRequest.toEntity() / Book.toResponse() 를 그대로 쓴다.</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">CreateBookRequest</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span><span class="w"> </span><span class="o">=</span>
 <span class="w">        </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="na">toEntity</span><span class="p">()).</span><span class="na">toResponse</span><span class="p">()</span><span class="w">               </span><span class="c1">// Spring Data + 매핑</span>
-<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">byIsbn</span><span class="p">(</span><span class="n">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse? </span><span class="o">=</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">byIsbn</span><span class="p">(</span><span class="n">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse?</span><span class="w"> </span><span class="o">=</span>
 <span class="w">        </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">findByIsbn</span><span class="p">(</span><span class="n">isbn</span><span class="p">)</span><span class="o">?.</span><span class="na">toResponse</span><span class="p">()</span><span class="w">                      </span><span class="c1">// 파생 쿼리</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">t</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">:</span><span class="w"> </span><span class="kt">Int?</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">BookResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span>
 <span class="w">        </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">searchByConditions</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="w">                          </span><span class="c1">// Querydsl(이미 DTO 프로젝션)</span>
@@ -355,7 +362,7 @@
 <span class="p">}</span>
 
 <span class="c1">// where 조건을 content/count가 공유</span>
-<span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">conds</span><span class="p">(</span><span class="n">c</span><span class="p">:</span><span class="w"> </span><span class="n">BookSearchCond</span><span class="p">):</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">BooleanExpression?&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">conds</span><span class="p">(</span><span class="n">c</span><span class="p">:</span><span class="w"> </span><span class="n">BookSearchCond</span><span class="p">):</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">BooleanExpression?</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QBook</span><span class="p">.</span><span class="na">book</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">arrayOf</span><span class="p">(</span>
 <span class="w">        </span><span class="n">c</span><span class="p">.</span><span class="na">title</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">title</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>

@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04. 컨테이너 속 JVM과 Kubernetes — 메모리·GC·프로브·종료 예산 · Spring Boot 학습 가이드</title>
+<meta name="description" content="&quot;힙은 절반도 안 썼는데 OOMKilled가 떴다&quot;, &quot;배포마다 5xx가 몇 개씩 튄다&quot;, &quot;DB가 잠깐 느려졌는데 파드가 전부 재시작됐다&quot;. 2026년 Kubernetes 위 Spring Boot 운영 글이 다루는 사고는 거의 이 셋입니다. 셋 모두 JVM이 아는 세">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+  <div class="nav-section">개요</div>
+  <a href="../index.html">🏠 홈</a>
+  <a href="../glossary.html">📖 용어집</a>
+  <div class="nav-section">Phase 0: Spring 핵심 개념</div>
+  <a href="../phase-0-spring-fundamentals/README.html">📄 개요</a>
+  <a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+  <a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+  <a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+  <a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+  <a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+  <a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+  <div class="nav-section">Phase 1: 프로젝트 설정</div>
+  <a href="../phase-1-project-setup/README.html">📄 개요</a>
+  <a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+  <a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+  <a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+  <a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+  <a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+  <div class="nav-section">Phase 2: 첫 번째 REST API</div>
+  <a href="../phase-2-first-api/README.html">📄 개요</a>
+  <a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+  <a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+  <a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+  <a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+  <a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+  <div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+  <a href="../phase-3-data-jpa/README.html">📄 개요</a>
+  <a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+  <a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+  <a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+  <a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+  <a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+  <div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+  <a href="../phase-4-validation-config/README.html">📄 개요</a>
+  <a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+  <a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+  <a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+  <a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+  <div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+  <a href="../phase-5-production-features/README.html">📄 개요</a>
+  <a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+  <a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+  <a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+  <a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+  <a href="../phase-5-production-features/05-api-versioning.html">API 버전 관리</a>
+  <div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+  <a href="../phase-6-build-deploy/README.html">📄 개요</a>
+  <a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+  <a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+  <a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+  <a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+  <div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+  <a href="../phase-7-cloud-run/README.html">📄 개요</a>
+  <a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+  <a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+  <a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+  <a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+  <a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+  <div class="nav-section">부록 A: JPA 심화</div>
+  <a href="../appendix-a-jpa-advanced/README.html">📄 개요</a>
+  <a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+  <a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+  <a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+  <a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+  <a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+  <div class="nav-section">부록 B: Querydsl</div>
+  <a href="../appendix-b-querydsl/README.html">📄 개요</a>
+  <a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+  <a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+  <a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+  <a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+  <a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+  <div class="nav-section">부록 C: AOP / 프록시 고급</div>
+  <a href="../appendix-c-aop/README.html">📄 개요</a>
+  <a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+  <a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+  <a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+  <div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+  <a href="../appendix-d-mvc-internals/README.html">📄 개요</a>
+  <a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+  <a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+  <a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+  <a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+  <div class="nav-section">부록 E: 규모·도메인별 설계 전략</div>
+  <a href="../appendix-e-scale-and-domain/README.html">📄 개요</a>
+  <a href="../appendix-e-scale-and-domain/01-scale-tiers.html">규모 단계별 설계</a>
+  <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
+  <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
+  <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="README.html">📄 개요</a>
+  <a href="01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="04-jvm-in-containers-kubernetes.html" class="active">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="05-stack-radar-2026.html">2026 스택 레이더</a>
+</nav></aside>
+  <main class="content">
+<h1>04. 컨테이너 속 JVM과 Kubernetes — 메모리·GC·프로브·종료 예산</h1>
+<p>"힙은 절반도 안 썼는데 <code>OOMKilled</code>가 떴다", "배포마다 5xx가 몇 개씩 튄다", "DB가 잠깐 느려졌는데 파드가 전부 재시작됐다". 2026년 Kubernetes 위 Spring Boot 운영 글이 다루는 사고는 거의 이 셋입니다. 셋 모두 <strong>JVM이 아는 세계와 컨테이너 런타임이 아는 세계가 어긋나서</strong> 생깁니다. 이 페이지는 그 어긋남을 하나씩 맞춥니다. <a href="../phase-6-build-deploy/04-deploy-operations.html">Phase 6-4</a>·<a href="../phase-7-cloud-run/05-cicd-operations.html">Phase 7-5</a>에서 "무엇을 켜는지"를 배웠다면, 여기서는 <strong>"왜 그 숫자인지"</strong>를 다룹니다.</p>
+
+<h2 id="1-jvm-메모리는-힙만이-아니다">1. JVM 메모리는 힙만이 아니다</h2>
+<p><code>-XX:MaxRAMPercentage=75.0</code>(<a href="../phase-6-build-deploy/02-docker.html">Phase 6-2</a>)이 왜 100이 아니라 75인지가 이 절의 전부입니다. 컨테이너의 메모리 제한(<code>limits.memory</code>)은 <strong>프로세스 전체</strong>의 RSS에 걸리지만, <code>MaxRAMPercentage</code>는 <strong>힙</strong>에만 걸립니다. 나머지 25%가 아래 항목들의 몫입니다.</p>
+
+<figure class="dg">
+<figcaption>컨테이너 메모리 1GiB 안의 JVM — 힙 밖에도 많다</figcaption>
+<div class="dg-grid c3">
+  <div class="cell is-accent"><div class="k">힙 (≤ 75% = 768Mi)</div><div class="v">객체. <code>MaxRAMPercentage</code>가 제어하는 유일한 영역</div></div>
+  <div class="cell"><div class="k">메타스페이스</div><div class="v">클래스 메타데이터. Spring 앱 50~150Mi. <code>-XX:MaxMetaspaceSize</code>로 상한</div></div>
+  <div class="cell"><div class="k">스레드 스택</div><div class="v">플랫폼 스레드 × ~1MB. Tomcat 200개 = 200Mi 예약. <strong>가상 스레드가 이것을 크게 줄인다</strong></div></div>
+  <div class="cell"><div class="k">코드 캐시</div><div class="v">JIT 컴파일 결과. 기본 최대 240Mi(실사용 50~100Mi)</div></div>
+  <div class="cell"><div class="k">다이렉트 버퍼 · 네이티브</div><div class="v">Netty, JDBC 드라이버, 압축, GC 자체 자료구조. <strong>가장 보이지 않는 곳</strong></div></div>
+  <div class="cell is-warn"><div class="k">⚠️ 합계 &gt; limit → OOMKilled(137)</div><div class="v">이때 JVM은 <code>OutOfMemoryError</code>를 <strong>던지지 않습니다</strong>. 커널이 프로세스를 죽입니다. 로그가 없는 이유</div></div>
+</div>
+<p class="dg-foot">"힙은 여유 있었는데 죽었다" = 힙 밖이 넘친 것. 두 가지 죽음을 구분하세요: <strong>exit 137(커널 OOM killer)</strong> vs <strong>OutOfMemoryError(JVM 힙 부족)</strong>.</p>
+</figure>
+
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># 힙 밖을 보는 도구 — 네이티브 메모리 추적 (NMT). 운영에서 잠깐 켜도 오버헤드 5~10%</span>
+<span class="nv">JAVA_TOOL_OPTIONS</span><span class="o">=</span><span class="s2">"-XX:MaxRAMPercentage=75.0 -XX:NativeMemoryTracking=summary -XX:+ExitOnOutOfMemoryError"</span>
+<span class="c1"># 실행 중 확인</span>
+jcmd<span class="w"> </span>&lt;pid&gt;<span class="w"> </span>VM.native_memory<span class="w"> </span>summary
+</pre></div>
+</div>
+
+<ul>
+<li><strong><code>-XX:+ExitOnOutOfMemoryError</code></strong>: 힙 OOM이 나면 JVM이 즉시 종료 → Kubernetes가 재시작. "반쯤 죽은 채로 readiness만 통과하는" 좀비 상태를 막습니다.</li>
+<li><strong>가상 스레드 켠 뒤 메모리가 줄었다</strong>는 후기의 실체는 스레드 스택 예약이 사라진 것입니다. 힙이 아니라 <strong>RSS</strong>가 줍니다.</li>
+<li>limit을 정할 때 <strong>힙 필요량 ÷ 0.75</strong>로 역산하고, Grafana에서 <code>container_memory_working_set_bytes</code>와 <code>jvm.memory.used{area=heap}</code>의 차이(= 힙 밖)를 한 달 추세로 봅니다.</li>
+</ul>
+
+<h2 id="2-cpu-제한과-스레드-수-스로틀링이라는-숨은-지연">2. CPU 제한과 스레드 수 — 스로틀링이라는 숨은 지연</h2>
+<p>JDK 10부터 JVM은 cgroup의 CPU quota를 읽어 <code>availableProcessors()</code>를 결정합니다. <code>limits.cpu: 1000m</code>이면 JVM은 <strong>1코어</strong>라고 믿고 GC 스레드·JIT 컴파일러 스레드·<code>ForkJoinPool</code>(가상 스레드의 캐리어!) 병렬성을 모두 1로 잡습니다. 반대로 <code>requests.cpu: 250m</code>만 있고 limit이 없으면 노드 코어 수 전체를 보고 스레드를 만듭니다.</p>
+
+<table>
+<thead>
+<tr><th>설정</th><th>JVM이 보는 코어</th><th>일어나는 일</th></tr>
+</thead>
+<tbody>
+<tr><td><code>limits.cpu: 1000m</code></td><td>1</td><td>CFS 스로틀링: 100ms 주기에 100ms 쓰면 나머지 시간 <strong>정지</strong>. GC·JIT가 요청 스레드와 1코어를 다툼 → p99 지연 급증, <strong>기동 시간 2~3배</strong></td></tr>
+<tr><td><code>limits.cpu: 2000m</code>, <code>requests: 500m</code></td><td>2</td><td>버스트 허용. 2026년 가장 흔한 절충</td></tr>
+<tr><td>limit 없음 (requests만)</td><td>노드 코어 수</td><td>스로틀링 없음. 노드 공유 위험은 requests로 스케줄러가 관리. <strong>"CPU limit을 걷어내라"</strong>는 조류의 근거</td></tr>
+<tr><td><code>-XX:ActiveProcessorCount=2</code></td><td>2 (강제)</td><td>limit과 무관하게 JVM 스레드 수를 고정. limit 없이 쓸 때 스레드 폭증 방지</td></tr>
+</tbody>
+</table>
+
+<aside class="callout tip">
+<p>기동이 느리다면 <strong>CPU 스로틀링을 먼저 의심</strong>하세요. Spring 컨텍스트 초기화는 CPU 바운드이고 JIT도 이 시점에 가장 바쁩니다. 해법은 (a) limit 상향 또는 제거, (b) <a href="../phase-6-build-deploy/01-executable-jar.html">Phase 6-1</a>의 <strong>CDS/AOT 캐시</strong>로 기동 시 할 일을 줄이기, (c) startup 프로브로 시간을 벌어 주기(§4)입니다.</p>
+</aside>
+
+<h2 id="3-2026년의-gc-선택-기본은-g1-바꿀-땐-이유와-함께">3. 2026년의 GC 선택 — 기본은 G1, 바꿀 땐 이유와 함께</h2>
+<p>JDK 21에서 25로 넘어오며 GC 지형이 정리됐습니다. 핵심은 <strong>Generational ZGC가 "실험적 옵션"에서 "유일한 ZGC"가 된 것</strong>과 <strong>Compact Object Headers(JEP 519)</strong>입니다.</p>
+
+<table>
+<thead>
+<tr><th>GC</th><th>켜는 법</th><th>강점</th><th>대가</th><th>Book API에서</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>G1</strong> (기본)</td><td>없음 (2코어·2GiB 이상이면 자동)</td><td>처리량·RSS 균형. JDK 25에서 remembered set 메모리 60% 절감</td><td>수백 ms 멈춤이 가끔 (힙 수 GB 이상에서)</td><td><strong>기본값 유지</strong>. 힙 4GiB 이하 서비스는 여기서 끝</td></tr>
+<tr><td><strong>Generational ZGC</strong></td><td>JDK 21: <code>-XX:+UseZGC -XX:+ZGenerational</code><br>JDK 24+: <code>-XX:+UseZGC</code> (플래그 제거, 유일 모드)</td><td>멈춤 &lt; 1ms. Netflix가 "GC 멈춤 사실상 0, 에러율 감소" 보고</td><td>CPU 사용 ↑, <strong>힙 25% 이상 헤드룸</strong> 필요, RSS ↑</td><td>p99 지연 SLA가 있고 힙이 크면(8GiB+) 측정 후 전환</td></tr>
+<tr><td><strong>Generational Shenandoah</strong></td><td><code>-XX:+UseShenandoahGC</code> (JEP 521, JDK 25 정식)</td><td>ZGC와 유사한 저지연, 작은 힙에서도 무난</td><td>배포판에 따라 미포함(Oracle JDK)</td><td>ZGC 대안으로 벤치마크 후 결정</td></tr>
+<tr><td><strong>Serial</strong></td><td><code>-XX:+UseSerialGC</code></td><td>오버헤드 최소, 메모리 최소</td><td>단일 스레드 멈춤</td><td>CPU 1개·512Mi 이하의 소형 인스턴스(Cloud Run 최소 사양)</td></tr>
+</tbody>
+</table>
+
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># JDK 25 기준 저지연 프로파일 — 반드시 운영과 같은 컨테이너 limit에서 부하 테스트 후 적용</span>
+<span class="nv">JAVA_TOOL_OPTIONS</span><span class="o">=</span><span class="s2">"-XX:MaxRAMPercentage=75.0 -XX:+UseZGC -XX:+UseCompactObjectHeaders -XX:+ExitOnOutOfMemoryError"</span>
+<span class="c1"># UseCompactObjectHeaders(JEP 519, JDK 25 정식): 객체 헤더 12→8바이트. 힙 5~10% 절감, 캐시 적중 ↑</span>
+</pre></div>
+</div>
+
+<aside class="callout warning">
+<p><strong>GC를 바꾸는 유일한 정당한 이유는 측정입니다.</strong> 같은 컨테이너 limit, 같은 부하로 <strong>GC 멈춤 시간 · 할당률 · CPU 오버헤드 · RSS · p99</strong> 다섯 가지를 함께 비교하세요. ZGC는 멈춤을 없애는 대신 CPU와 메모리를 더 씁니다 — 그 CPU가 §2의 limit에 걸리면 오히려 느려집니다.</p>
+</aside>
+
+<h2 id="4-프로브-3종-각각-다른-질문에-답한다">4. 프로브 3종 — 각각 다른 질문에 답한다</h2>
+<p>Kubernetes는 컨테이너에 세 가지 질문을 던지고, Spring Boot Actuator는 그 답을 <a href="../phase-5-production-features/03-actuator-observability.html">Phase 5-3</a>의 헬스 그룹으로 제공합니다. Kubernetes 위에서는 <code>spring.main.cloud-platform</code>이 자동 감지되어 <code>/actuator/health/liveness</code>·<code>/readiness</code>가 <strong>자동으로 켜집니다</strong>(다른 환경에서는 <code>management.endpoint.health.probes.enabled=true</code>).</p>
+
+<figure class="dg">
+<figcaption>프로브의 생애 — 순서대로 다른 질문</figcaption>
+<div class="dg-timeline">
+  <div class="tl"><div class="dot">1</div><div class="t">startup</div><div class="s">"아직 뜨는 중인가?"<br>성공할 때까지 liveness·readiness를 <strong>보류</strong></div></div>
+  <div class="tl"><div class="dot">2</div><div class="t">readiness</div><div class="s">"트래픽을 받을 수 있나?"<br>실패 → Service 엔드포인트에서 <strong>제외</strong>(재시작 안 함)</div></div>
+  <div class="tl"><div class="dot">3</div><div class="t">liveness</div><div class="s">"살아 있나?"<br>실패 → <strong>재시작</strong></div></div>
+</div>
+<p class="dg-foot">가장 흔한 사고: liveness에 DB 검사를 넣기. DB가 30초 느려지면 <strong>모든 파드가 동시에 재시작</strong>되고, 재시작한 파드들이 DB에 커넥션을 새로 맺으며 DB를 더 느리게 만듭니다(연쇄 장애).</p>
+</figure>
+
+<table>
+<thead>
+<tr><th>프로브</th><th>Actuator 경로</th><th>포함할 것</th><th>포함하지 <strong>말</strong> 것</th></tr>
+</thead>
+<tbody>
+<tr><td>startup</td><td><code>/actuator/health/liveness</code> (같은 경로, <code>failureThreshold</code>만 크게)</td><td>컨텍스트 기동 완료</td><td>—</td></tr>
+<tr><td>readiness</td><td><code>/actuator/health/readiness</code></td><td><code>readinessState</code> + <strong>없으면 요청을 처리할 수 없는 것</strong>(DB)</td><td>외부 API, 캐시, 브로커(없어도 일부 기능은 됨 → 서킷 브레이커의 영역)</td></tr>
+<tr><td>liveness</td><td><code>/actuator/health/liveness</code></td><td><code>livenessState</code>만 — "JVM이 응답하는가"</td><td><strong>모든 외부 의존성</strong>. 데드락·OOM처럼 <em>재시작만이 답인</em> 상태만</td></tr>
+</tbody>
+</table>
+
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">management</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">endpoint</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">health</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">probes</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">                      </span><span class="c1"># Kubernetes 밖(로컬·Cloud Run)에서도 같은 경로를 쓰려면</span>
+<span class="w">      </span><span class="nt">group</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">readiness</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">include</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">readinessState,db</span><span class="w">       </span><span class="c1"># DB 없으면 트래픽을 받지 않는다</span>
+<span class="w">        </span><span class="nt">liveness</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">include</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">livenessState</span><span class="w">           </span><span class="c1"># 절대 외부 의존성을 넣지 않는다</span>
+<span class="w">  </span><span class="nt">endpoints</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">web</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">exposure</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">include</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">health,prometheus</span>
+</pre></div>
+</div>
+
+<h2 id="5-종료-예산-배포마다-5xx가-튀는-진짜-이유">5. 종료 예산 — 배포마다 5xx가 튀는 진짜 이유</h2>
+<p>Spring Boot 4는 그레이스풀 셧다운이 <strong>기본</strong>입니다(<a href="../phase-6-build-deploy/04-deploy-operations.html">Phase 6-4</a>). 그런데도 롤링 배포 때 5xx가 튄다면, 원인은 거의 항상 <strong>Kubernetes와 JVM의 타이머가 서로를 모르기 때문</strong>입니다. 파드가 종료될 때 두 시스템에서 <strong>동시에</strong> 벌어지는 일을 시간축에 놓아 보면:</p>
+
+<figure class="dg" data-focusable>
+<figcaption>파드 종료 시퀀스 — 두 타이머가 동시에 돈다</figcaption>
+<div class="dg-timeline">
+  <div class="tl"><div class="dot">0s</div><div class="t">삭제 결정</div><div class="s">파드 Terminating.<br>EndpointSlice에서 제거 시작 + preStop 실행 — <strong>동시에</strong></div></div>
+  <div class="tl"><div class="dot">~5s</div><div class="t">전파 지연</div><div class="s">kube-proxy·Ingress·메시가 <strong>비동기로</strong> 라우팅 갱신. 그 사이 새 요청이 <strong>계속 들어옴</strong></div></div>
+  <div class="tl"><div class="dot">5s</div><div class="t">preStop 종료 → SIGTERM</div><div class="s">Boot: readiness → <code>REFUSING_TRAFFIC</code>, 새 연결 거절, 진행 중 요청 처리</div></div>
+  <div class="tl"><div class="dot">5~25s</div><div class="t">timeout-per-shutdown-phase</div><div class="s">진행 중 요청·<code>@Scheduled</code>·리스너가 마무리할 시간(기본 30s)</div></div>
+  <div class="tl"><div class="dot">40s</div><div class="t">terminationGracePeriodSeconds</div><div class="s">여기까지 안 끝나면 <strong>SIGKILL</strong>. 기본 30s</div></div>
+</div>
+<p class="dg-foot"><strong>preStop이 없으면</strong> SIGTERM이 0초에 오고, Boot는 즉시 새 요청을 거절하는데 라우터는 5초 동안 계속 보냅니다 → 그 요청들이 5xx입니다. <strong>preStop만 있고 grace가 짧으면</strong> 긴 요청이 SIGKILL로 잘립니다.</p>
+</figure>
+
+<p>세 숫자는 하나의 부등식으로 묶입니다.</p>
+
+<aside class="callout important">
+<p><strong>terminationGracePeriodSeconds ≥ preStop sleep + timeout-per-shutdown-phase + 여유(5s)</strong></p>
+<p>예: 라우팅 전파 p99가 5초, 가장 긴 요청이 15초, 아웃박스 릴레이 한 배치가 3초라면 → preStop <strong>5s</strong>, <code>timeout-per-shutdown-phase</code> <strong>20s</strong>, grace <strong>30s</strong>. 기본값 30s는 preStop 없이 딱 맞춰져 있어 <strong>preStop을 넣는 순간 부족</strong>해집니다.</p>
+</aside>
+
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="c1"># application.yml</span>
+<span class="nt">server</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">shutdown</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">graceful</span><span class="w">                      </span><span class="c1"># Boot 4 기본값 — 명시는 문서화 목적</span>
+<span class="nt">spring</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lifecycle</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">timeout-per-shutdown-phase</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20s</span><span class="w">       </span><span class="c1"># 단계별 상한이지 보장은 아님 — 커스텀 SmartLifecycle이 있으면 더 걸릴 수 있다</span>
+</pre></div>
+</div>
+
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="c1"># k8s/deployment.yaml — Book API</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">book-api</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">  </span><span class="nt">strategy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">rollingUpdate</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> maxSurge</span><span class="p">:</span><span class="w"> </span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="nt"> maxUnavailable</span><span class="p">:</span><span class="w"> </span><span class="nv">0</span><span class="w"> </span><span class="p p-Indicator">}</span><span class="w">     </span><span class="c1"># 항상 3개는 살아 있게</span>
+<span class="w">  </span><span class="nt">template</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">terminationGracePeriodSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w">                     </span><span class="c1"># ≥ 5 (preStop) + 20 (shutdown phase) + 5</span>
+<span class="w">      </span><span class="nt">containers</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">book-api</span>
+<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">asia-northeast3-docker.pkg.dev/my-project/book-api/book-api:1.1.0</span>
+<span class="w">          </span><span class="nt">ports</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[{</span><span class="nt"> containerPort</span><span class="p">:</span><span class="w"> </span><span class="nv">8080</span><span class="w"> </span><span class="p p-Indicator">}]</span>
+<span class="w">          </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">JAVA_TOOL_OPTIONS</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">"-XX:MaxRAMPercentage=75.0</span><span class="nv"> </span><span class="s">-XX:+ExitOnOutOfMemoryError"</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SPRING_PROFILES_ACTIVE</span>
+<span class="w">              </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">prod</span>
+<span class="w">          </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">requests</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> cpu</span><span class="p">:</span><span class="w"> </span><span class="nv">500m</span><span class="p p-Indicator">,</span><span class="nt"> memory</span><span class="p">:</span><span class="w"> </span><span class="nv">1Gi</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">            </span><span class="nt">limits</span><span class="p">:</span><span class="w">   </span><span class="p p-Indicator">{</span><span class="nt"> cpu</span><span class="p">:</span><span class="w"> </span><span class="nv">2000m</span><span class="p p-Indicator">,</span><span class="nt"> memory</span><span class="p">:</span><span class="w"> </span><span class="nv">1Gi</span><span class="w"> </span><span class="p p-Indicator">}</span><span class="w">           </span><span class="c1"># 메모리는 requests = limits (OOM 예측 가능), CPU는 버스트 허용</span>
+<span class="w">          </span><span class="nt">lifecycle</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">preStop</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">sleep</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> seconds</span><span class="p">:</span><span class="w"> </span><span class="nv">5</span><span class="w"> </span><span class="p p-Indicator">}</span><span class="w">                         </span><span class="c1"># K8s 1.30+ 네이티브 sleep — 이미지에 /bin/sh가 없어도 된다</span>
+<span class="w">          </span><span class="nt">startupProbe</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">httpGet</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> path</span><span class="p">:</span><span class="w"> </span><span class="nv">/actuator/health/liveness</span><span class="p p-Indicator">,</span><span class="nt"> port</span><span class="p">:</span><span class="w"> </span><span class="nv">8080</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">            </span><span class="nt">periodSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">            </span><span class="nt">failureThreshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w">                            </span><span class="c1"># 최대 150초 기동 허용 — CPU 스로틀링·콜드 스타트 대비</span>
+<span class="w">          </span><span class="nt">readinessProbe</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">httpGet</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> path</span><span class="p">:</span><span class="w"> </span><span class="nv">/actuator/health/readiness</span><span class="p p-Indicator">,</span><span class="nt"> port</span><span class="p">:</span><span class="w"> </span><span class="nv">8080</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">            </span><span class="nt">periodSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">            </span><span class="nt">failureThreshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">          </span><span class="nt">livenessProbe</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">httpGet</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> path</span><span class="p">:</span><span class="w"> </span><span class="nv">/actuator/health/liveness</span><span class="p p-Indicator">,</span><span class="nt"> port</span><span class="p">:</span><span class="w"> </span><span class="nv">8080</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">            </span><span class="nt">periodSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">            </span><span class="nt">failureThreshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+</pre></div>
+</div>
+
+<h2 id="6-cloud-run은-어디가-다른가">6. Cloud Run은 어디가 다른가</h2>
+<p><a href="../phase-7-cloud-run/README.html">Phase 7</a>의 Cloud Run은 이 페이지의 대부분을 <strong>플랫폼이 대신</strong> 해 줍니다. 그러나 대응표를 알아야 같은 실수를 피합니다.</p>
+
+<table>
+<thead>
+<tr><th>주제</th><th>Kubernetes</th><th>Cloud Run</th></tr>
+</thead>
+<tbody>
+<tr><td>메모리 제한</td><td><code>limits.memory</code></td><td><code>--memory</code>. 초과 시 같은 방식으로 인스턴스 종료 — <code>MaxRAMPercentage=75</code> 그대로 유효</td></tr>
+<tr><td>CPU</td><td>requests/limits, 스로틀링</td><td><strong>요청 처리 중에만 CPU 할당</strong>(기본). <code>@Scheduled</code> 아웃박스 릴레이(<a href="03-reliability-outbox-idempotency.html">03</a>)가 멈춤 → "CPU always allocated" 또는 Cloud Scheduler로 엔드포인트 호출</td></tr>
+<tr><td>프로브</td><td>startup · readiness · liveness</td><td>startup · liveness만. readiness는 없음 — 트래픽 제외는 플랫폼이 판단</td></tr>
+<tr><td>종료</td><td>preStop + grace 30s(조정 가능)</td><td>SIGTERM 후 <strong>10초</strong> 고정 → <code>timeout-per-shutdown-phase</code>를 <strong>8s 이하</strong>로</td></tr>
+<tr><td>GC</td><td>자유</td><td>0.5~1 vCPU 인스턴스가 많음 → G1(2코어 미만이면 JVM이 자동으로 Serial 선택)</td></tr>
+</tbody>
+</table>
+
+<h2 id="7-체크리스트">7. 체크리스트</h2>
+
+<table>
+<thead>
+<tr><th>증상</th><th>먼저 볼 것</th><th>조치</th></tr>
+</thead>
+<tbody>
+<tr><td>exit 137, JVM 로그 없음</td><td>RSS vs 힙 사용량 차이</td><td>limit = 힙 ÷ 0.75 재계산, NMT로 힙 밖 항목 확인, 가상 스레드로 스택 예약 축소</td></tr>
+<tr><td>기동 90초 이상</td><td>CPU 스로틀링 메트릭(<code>container_cpu_cfs_throttled_seconds_total</code>)</td><td>CPU limit 상향/제거, CDS·AOT 캐시, startup 프로브 여유</td></tr>
+<tr><td>배포마다 5xx 수십 개</td><td>preStop 유무, grace 부등식</td><td>preStop 5s + phase 20s + grace 30s</td></tr>
+<tr><td>DB 느려지면 파드 전체 재시작</td><td>liveness 그룹 구성</td><td>liveness에서 <code>db</code> 제거, readiness에만</td></tr>
+<tr><td>p99만 튄다</td><td>GC 멈춤 시간(<code>jvm.gc.pause</code>)</td><td>힙 확대가 먼저, 그다음 Generational ZGC 측정</td></tr>
+</tbody>
+</table>
+
+<h2 id="더-읽을거리">더 읽을거리</h2>
+<ul>
+<li><a href="https://blog.devops-monk.com/2026/05/spring-boot-kubernetes-guide/">Spring Boot on Kubernetes: Health Checks, Graceful Shutdown, and Config Management</a> (2026-05) · <a href="https://oneuptime.com/blog/post/2026-01-25-health-probes-kubernetes-spring-boot/view">How to Build Health Probes for Kubernetes in Spring Boot</a> (2026-01)</li>
+<li><a href="https://www.momentslog.com/development/spring-boot-graceful-shutdown-on-kubernetes-build-a-termination-budget-that-actually-drains-traffic">Spring Boot Graceful Shutdown on Kubernetes: Build a Termination Budget That Actually Drains Traffic</a> — §5 부등식의 출처</li>
+<li><a href="https://odedia.org/production-considerations-for-spring-on-kubernetes">Production Considerations for Spring on Kubernetes</a> · <a href="https://katyella.com/blog/deploy-spring-boot-kubernetes/">Deploying Spring Boot to Kubernetes: A Production-Ready Guide</a></li>
+<li><a href="https://oneuptime.com/blog/post/2026-01-25-spring-boot-jvm-tuning-production/view">How to Optimize Spring Boot for Production with JVM Tuning</a> (2026-01) · <a href="https://medium.com/@karunakunwar899/spring-boot-java-21-in-2026-cut-memory-by-60-boost-startup-by-30-without-rewriting-your-854f7ca5d358">Spring Boot + Java 21 in 2026: Cut Memory by 60%</a> (Medium)</li>
+<li><a href="https://foojay.io/today/the-ultimate-10-years-java-garbage-collection-guide-2016-2026-choosing-the-right-gc-for-every-workload/">The Ultimate 10 Years Java GC Guide (2016–2026)</a> (foojay) · <a href="https://www.javacodegeeks.com/2026/04/the-jvm-garbage-collector-decision-in-2026-g1-vs-zgc-vs-shenandoah-for-real-workloads.html">The JVM GC Decision in 2026: G1 vs ZGC vs Shenandoah</a> (2026-04)</li>
+<li><a href="https://netflixtechblog.com/bending-pause-times-to-your-will-with-generational-zgc-256629c9386b">Netflix — Bending pause times to your will with Generational ZGC</a> · <a href="https://openjdk.org/jeps/474">JEP 474: ZGC Generational Mode by Default</a> · <a href="https://inside.java/2025/10/20/jdk-25-performance-improvements/">Performance Improvements in JDK 25</a></li>
+<li><a href="https://docs.spring.io/spring-boot/reference/actuator/endpoints.html#actuator.endpoints.kubernetes-probes">Spring Boot — Kubernetes Probes</a> (공식)</li>
+</ul>
+
+<h2 id="다음-단계">다음 단계</h2>
+<p>인프라가 안정됐다면, 이제 2026년에 <strong>프레임워크 기능으로 들어온 것들</strong>을 살펴볼 차례입니다. 무엇을 채택하고 무엇을 관망할지 → <strong><a href="05-stack-radar-2026.html">05. 2026 스택 레이더 — OpenTelemetry·gRPC·Spring AI·Passkeys</a></strong></p>
+
+  </main>
+<aside class="toc" aria-label="페이지 목차">
+<div class="toc-title">이 페이지</div>
+<a class="lvl2" href="#1-jvm-메모리는-힙만이-아니다">1. JVM 메모리는 힙만이 아니다</a>
+<a class="lvl2" href="#2-cpu-제한과-스레드-수-스로틀링이라는-숨은-지연">2. CPU 제한과 스레드 수 — 스로틀링이라는 숨은 지연</a>
+<a class="lvl2" href="#3-2026년의-gc-선택-기본은-g1-바꿀-땐-이유와-함께">3. 2026년의 GC 선택 — 기본은 G1, 바꿀 땐 이유와 함께</a>
+<a class="lvl2" href="#4-프로브-3종-각각-다른-질문에-답한다">4. 프로브 3종 — 각각 다른 질문에 답한다</a>
+<a class="lvl2" href="#5-종료-예산-배포마다-5xx가-튀는-진짜-이유">5. 종료 예산 — 배포마다 5xx가 튀는 진짜 이유</a>
+<a class="lvl2" href="#6-cloud-run은-어디가-다른가">6. Cloud Run은 어디가 다른가</a>
+<a class="lvl2" href="#7-체크리스트">7. 체크리스트</a>
+<a class="lvl2" href="#더-읽을거리">더 읽을거리</a>
+<a class="lvl2" href="#다음-단계">다음 단계</a>
+</aside>
+</div>
+<label for="navtoggle" class="scrim"></label>
+<script src="../assets/app.js" defer></script>
+</body>
+</html>

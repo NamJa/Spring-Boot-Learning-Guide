@@ -279,11 +279,17 @@
 <td>규모 단계(S0~S3)·모듈러 모놀리스·도메인 성격별 전략·의사결정</td>
 <td style="text-align: center;">전체(특히 3·5·6)</td>
 </tr>
+<tr>
+<td style="text-align: center;">14</td>
+<td>📎 <strong>부록 F</strong> 운영 현장 인사이트</td>
+<td>가상 스레드 실전·커넥션 풀/캐시/락·아웃박스/멱등성·컨테이너 속 JVM/K8s·2026 스택 레이더</td>
+<td style="text-align: center;">5·6·7·부록 E</td>
+</tr>
 </tbody>
 </table>
 
 <aside class="callout tip">
-<p><strong>부록 선행 관계</strong>: 부록 B는 <strong>부록 A</strong>를, 부록 C는 <strong>Phase 3-4(트랜잭션)</strong> 를, 부록 D는 <strong>Phase 2</strong>를 먼저 보고 오는 것을 권장합니다. <strong>부록 E</strong>는 본문을 한 바퀴 돈 뒤에 읽는 것이 가장 좋습니다 — "어떻게 만드는가"를 알고 나서야 "어떻게 설계할 것인가"가 의미를 갖습니다.</p>
+<p><strong>부록 선행 관계</strong>: 부록 B는 <strong>부록 A</strong>를, 부록 C는 <strong>Phase 3-4(트랜잭션)</strong> 를, 부록 D는 <strong>Phase 2</strong>를 먼저 보고 오는 것을 권장합니다. <strong>부록 E</strong>는 본문을 한 바퀴 돈 뒤에 읽는 것이 가장 좋습니다 — "어떻게 만드는가"를 알고 나서야 "어떻게 설계할 것인가"가 의미를 갖습니다. <strong>부록 F</strong>는 부록 E 다음, 또는 운영에서 실제 장애를 겪은 뒤에 읽으면 가장 와닿습니다.</p>
 </aside>
 
 <h3>🎯 목표별 빠른 트랙</h3>
@@ -296,6 +302,7 @@
 <li><strong>🧠 이론·면접 대비</strong>: Phase 0 → 부록 C(AOP) → 부록 A(JPA) → 부록 D(MVC 내부) <em>(원리 위주)</em></li>
 <li><strong>🌐 화면(SSR)까지</strong>: 본문 완주 → 부록 D(Thymeleaf·세션 로그인)</li>
 <li><strong>🏗️ 설계·아키텍처 판단</strong>: 본문 완주 → <strong>부록 E</strong>(규모 단계 → 모듈러 모놀리스 → 도메인 성격 → 의사결정) <em>(팀 리드·설계 결정을 앞둔 경우)</em></li>
+<li><strong>🛠️ 운영·인프라·CS 심화</strong>: Phase 5 → 6 → 7 → <strong>부록 F</strong>(가상 스레드 → 풀/캐시/락 → 아웃박스/멱등성 → JVM/K8s → 스택 레이더) <em>(운영 장애를 겪었거나 인프라 팀과 협업하는 경우)</em></li>
 </ul>
 <hr />
 
@@ -389,7 +396,7 @@
 <hr />
 
 <h2>📎 부록 (심화)</h2>
-<p>본문이 "넓고 빠르게" 한 바퀴 도는 입문 과정이라면, 부록은 실무·중급으로 들어가는 <strong>심화 과정</strong>입니다. (부록 A~D는 인프런 김영한 강사 로드맵의 <em>JPA 기본편 / Querydsl / 핵심원리 고급편 / MVC 1·2편</em> 영역을 Kotlin·Spring Boot 4 기준으로 보강한 것이고, <strong>부록 E</strong>는 "언제 무엇을 도입할 것인가"라는 설계 판단을 다룹니다.)</p>
+<p>본문이 "넓고 빠르게" 한 바퀴 도는 입문 과정이라면, 부록은 실무·중급으로 들어가는 <strong>심화 과정</strong>입니다. (부록 A~D는 인프런 김영한 강사 로드맵의 <em>JPA 기본편 / Querydsl / 핵심원리 고급편 / MVC 1·2편</em> 영역을 Kotlin·Spring Boot 4 기준으로 보강한 것이고, <strong>부록 E</strong>는 "언제 무엇을 도입할 것인가"라는 설계 판단을, <strong>부록 F</strong>는 2026년 커뮤니티(Medium·LinkedIn·Reddit·velog·기술 블로그)의 운영 후기를 CS 배경과 함께 정리한 설계·인프라 심화를 다룹니다.)</p>
 
 <h3>부록 A — JPA 심화</h3>
 
@@ -436,6 +443,17 @@
 <li><a href="appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a></li>
 <li><a href="appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a></li>
 <li><a href="appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a></li>
+</ul>
+
+<h3>부록 F — 운영 현장 인사이트 (설계·인프라·CS, 2026-09 기준)</h3>
+
+<ul>
+<li><a href="appendix-f-production-insights/README.html">부록 F 개요 — 상한이 사라지면 다음 상한은 어디인가</a></li>
+<li><a href="appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전 — 피닝·ThreadLocal·병목의 이동·코루틴</a></li>
+<li><a href="appendix-f-production-insights/02-connection-pool-cache-locks.html">데이터 계층 운영 — 커넥션 풀·캐시·락</a></li>
+<li><a href="appendix-f-production-insights/03-reliability-outbox-idempotency.html">신뢰성 패턴 — 아웃박스·멱등성·재시도·속도 제한</a></li>
+<li><a href="appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes — 메모리·GC·프로브·종료 예산</a></li>
+<li><a href="appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더 — OpenTelemetry·gRPC·Spring AI·Passkeys</a></li>
 </ul>
 <hr />
 

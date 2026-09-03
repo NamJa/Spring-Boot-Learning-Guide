@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>Repository 인터페이스</h1>
@@ -293,19 +300,19 @@
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">interface</span><span class="w"> </span><span class="nc">BookRepository</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">JpaRepository</span><span class="o">&lt;</span><span class="n">Book</span><span class="p">,</span><span class="w"> </span><span class="kt">Long</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 
 <span class="w">    </span><span class="c1">// JPQL: 테이블이 아니라 Entity(Book)와 필드(title)를 대상으로 한다</span>
-<span class="w">    </span><span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;SELECT b FROM Book b WHERE b.title LIKE %:keyword%&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">searchByTitle</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">&quot;keyword&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">keyword</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span>
+<span class="w">    </span><span class="nd">@Query</span><span class="p">(</span><span class="s">"SELECT b FROM Book b WHERE b.title LIKE %:keyword%"</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">searchByTitle</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">"keyword"</span><span class="p">)</span><span class="w"> </span><span class="n">keyword</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span>
 
 <span class="w">    </span><span class="c1">// 특정 가격 이하의 책을 저자별로 정렬</span>
-<span class="w">    </span><span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;SELECT b FROM Book b WHERE b.price &lt;= :max ORDER BY b.author&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findCheaperThan</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">&quot;max&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">max</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span>
+<span class="w">    </span><span class="nd">@Query</span><span class="p">(</span><span class="s">"SELECT b FROM Book b WHERE b.price &lt;= :max ORDER BY b.author"</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findCheaperThan</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">"max"</span><span class="p">)</span><span class="w"> </span><span class="n">max</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span>
 
 <span class="w">    </span><span class="c1">// 네이티브 SQL (DB 고유 기능이 필요할 때만 사용)</span>
 <span class="w">    </span><span class="nd">@Query</span><span class="p">(</span>
-<span class="w">        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;SELECT * FROM books WHERE author = :author&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"SELECT * FROM books WHERE author = :author"</span><span class="p">,</span>
 <span class="w">        </span><span class="n">nativeQuery</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
 <span class="w">    </span><span class="p">)</span>
-<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findByAuthorNative</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">&quot;author&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findByAuthorNative</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">"author"</span><span class="p">)</span><span class="w"> </span><span class="n">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -325,8 +332,8 @@
 </div>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 사용 예: 0번 페이지, 페이지당 20건, 가격 내림차순</span>
-<span class="kd">val</span><span class="w"> </span><span class="nv">pageable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PageRequest</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">20</span><span class="p">,</span><span class="w"> </span><span class="n">Sort</span><span class="p">.</span><span class="na">by</span><span class="p">(</span><span class="n">Sort</span><span class="p">.</span><span class="na">Direction</span><span class="p">.</span><span class="na">DESC</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;price&quot;</span><span class="p">))</span>
-<span class="kd">val</span><span class="w"> </span><span class="nv">page</span><span class="p">:</span><span class="w"> </span><span class="n">Page</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">findByAuthor</span><span class="p">(</span><span class="s">&quot;김작가&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">pageable</span><span class="p">)</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">pageable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PageRequest</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">20</span><span class="p">,</span><span class="w"> </span><span class="n">Sort</span><span class="p">.</span><span class="na">by</span><span class="p">(</span><span class="n">Sort</span><span class="p">.</span><span class="na">Direction</span><span class="p">.</span><span class="na">DESC</span><span class="p">,</span><span class="w"> </span><span class="s">"price"</span><span class="p">))</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">page</span><span class="p">:</span><span class="w"> </span><span class="n">Page</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">findByAuthor</span><span class="p">(</span><span class="s">"김작가"</span><span class="p">,</span><span class="w"> </span><span class="n">pageable</span><span class="p">)</span>
 
 <span class="n">page</span><span class="p">.</span><span class="na">content</span><span class="w">          </span><span class="c1">// 현재 페이지의 List&lt;Book&gt;</span>
 <span class="n">page</span><span class="p">.</span><span class="na">totalElements</span><span class="w">    </span><span class="c1">// 전체 건수</span>

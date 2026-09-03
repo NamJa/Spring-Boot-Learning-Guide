@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>실행 가능 JAR 빌드</h1>
@@ -175,7 +182,7 @@ book-api-0.0.1-SNAPSHOT-plain.jar<span class="w">  </span><span class="c1"># pla
 <p>라이브러리로 쓸 일이 없다면 plain jar 생성을 끌 수 있습니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
-<span class="n">tasks</span><span class="p">.</span><span class="na">named</span><span class="o">&lt;</span><span class="n">Jar</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;jar&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="n">tasks</span><span class="p">.</span><span class="na">named</span><span class="o">&lt;</span><span class="n">Jar</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"jar"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="w"> </span><span class="c1">// plain jar 비활성화</span>
 <span class="p">}</span>
 </pre></div>
@@ -324,13 +331,13 @@ java<span class="w"> </span>-Dspring.aot.enabled<span class="o">=</span><span cl
 <p>위 3단계를 손으로 하는 대신, <a href="02-docker.html">Buildpacks</a>에 맡길 수 있습니다. 환경 변수 하나면 빌드팩이 훈련 실행까지 대신해 줍니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
-<span class="n">tasks</span><span class="p">.</span><span class="na">named</span><span class="o">&lt;</span><span class="n">org</span><span class="p">.</span><span class="na">springframework</span><span class="p">.</span><span class="na">boot</span><span class="p">.</span><span class="na">gradle</span><span class="p">.</span><span class="na">tasks</span><span class="p">.</span><span class="na">bundling</span><span class="p">.</span><span class="na">BootBuildImage</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;bootBuildImage&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="n">tasks</span><span class="p">.</span><span class="na">named</span><span class="o">&lt;</span><span class="n">org</span><span class="p">.</span><span class="na">springframework</span><span class="p">.</span><span class="na">boot</span><span class="p">.</span><span class="na">gradle</span><span class="p">.</span><span class="na">tasks</span><span class="p">.</span><span class="na">bundling</span><span class="p">.</span><span class="na">BootBuildImage</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"bootBuildImage"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">environment</span><span class="p">.</span><span class="na">set</span><span class="p">(</span>
 <span class="w">        </span><span class="n">mapOf</span><span class="p">(</span>
 <span class="w">            </span><span class="c1">// CDS (JDK 17+)</span>
-<span class="w">            </span><span class="s">&quot;BP_JVM_CDS_ENABLED&quot;</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="s">&quot;true&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">"BP_JVM_CDS_ENABLED"</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="s">"true"</span><span class="p">,</span>
 <span class="w">            </span><span class="c1">// 또는 AOT 캐시 (JDK 25+)</span>
-<span class="w">            </span><span class="c1">// &quot;BP_JVM_AOTCACHE_ENABLED&quot; to &quot;true&quot;,</span>
+<span class="w">            </span><span class="c1">// "BP_JVM_AOTCACHE_ENABLED" to "true",</span>
 <span class="w">        </span><span class="p">)</span>
 <span class="w">    </span><span class="p">)</span>
 <span class="p">}</span>
@@ -367,7 +374,7 @@ java<span class="w"> </span>-Dspring.aot.enabled<span class="o">=</span><span cl
 </table>
 <p><code>bootRun</code>에 인자나 프로파일을 넘길 때는 <code>--args</code>를 사용합니다.</p>
 
-<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>./gradlew<span class="w"> </span>bootRun<span class="w"> </span>--args<span class="o">=</span><span class="s1">&#39;--spring.profiles.active=local --server.port=9090&#39;</span>
+<div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>./gradlew<span class="w"> </span>bootRun<span class="w"> </span>--args<span class="o">=</span><span class="s1">'--spring.profiles.active=local --server.port=9090'</span>
 </pre></div>
 </div>
 
@@ -413,7 +420,7 @@ java<span class="w"> </span>-jar<span class="w"> </span>app.jar
 java<span class="w"> </span>-Xmx512m<span class="w"> </span>-XX:+UseContainerSupport<span class="w"> </span>-jar<span class="w"> </span>app.jar
 
 <span class="c1"># JAVA_OPTS 패턴 (쉘에서 펼쳐서 전달)</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">JAVA_OPTS</span><span class="o">=</span><span class="s2">&quot;-Xmx512m -XX:MaxRAMPercentage=75.0&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">JAVA_OPTS</span><span class="o">=</span><span class="s2">"-Xmx512m -XX:MaxRAMPercentage=75.0"</span>
 java<span class="w"> </span><span class="nv">$JAVA_OPTS</span><span class="w"> </span>-jar<span class="w"> </span>app.jar<span class="w"> </span>--spring.profiles.active<span class="o">=</span>prod
 </pre></div>
 </div>

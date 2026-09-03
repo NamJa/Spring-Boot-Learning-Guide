@@ -1,0 +1,66 @@
+<h1>부록 F. 운영 현장 인사이트 — 설계·인프라·CS</h1>
+<p>부록 E가 "<strong>언제 무엇을 도입할 것인가</strong>"라는 설계 판단을 다뤘다면, 이 부록은 도입한 뒤 <strong>운영에서 실제로 터지는 지점</strong>을 다룹니다. 2026년 8~9월 기준으로 Medium · LinkedIn · Reddit(r/java) · velog · 각 사 기술 블로그 · Spring 공식 블로그에서 반복해서 올라오는 후기와 인사이트를 모아, <strong>왜 그런 일이 생기는지(CS 배경)</strong> → <strong>Spring Boot 4.1에서 어떻게 다루는지(코드)</strong> 순서로 정리했습니다.</p>
+
+<figure class="dg">
+<figcaption>2026년 커뮤니티가 반복해서 말하는 다섯 가지</figcaption>
+<div class="dg-grid c3">
+  <div class="cell is-accent">
+    <div class="k">🧵 "가상 스레드를 켰는데 운영에서 터졌다"</div>
+    <div class="v">테스트에선 빨라졌는데 운영에서 커넥션 풀·다운스트림·피닝이 병목으로 <strong>이동</strong>했다는 후기가 가장 많습니다. → <a href="01-virtual-threads-in-practice.html">01</a></div>
+  </div>
+  <div class="cell is-accent">
+    <div class="k">🗄️ "풀을 늘렸더니 더 느려졌다"</div>
+    <div class="v">HikariCP 사이징 공식, 캐시 스탬피드, 분산 락의 함정. 데이터 계층은 <strong>수학</strong>으로 다뤄야 합니다. → <a href="02-connection-pool-cache-locks.html">02</a></div>
+  </div>
+  <div class="cell is-accent">
+    <div class="k">📨 "정확히 한 번은 없다"</div>
+    <div class="v">아웃박스 + 멱등 소비자 + 지터 있는 재시도가 2025~26년 이벤트 기반 Spring의 <strong>표준 청사진</strong>으로 굳었습니다. → <a href="03-reliability-outbox-idempotency.html">03</a></div>
+  </div>
+  <div class="cell is-accent">
+    <div class="k">📦 "OOMKilled인데 힙은 여유가 있었다"</div>
+    <div class="v">컨테이너 속 JVM 메모리·GC 선택·프로브·종료 예산. 인프라 팀과 <strong>같은 언어</strong>로 말하기. → <a href="04-jvm-in-containers-kubernetes.html">04</a></div>
+  </div>
+  <div class="cell is-accent">
+    <div class="k">📡 "OTel · gRPC · AI 에이전트 · Passkeys"</div>
+    <div class="v">Boot 4.1과 Spring AI 2.0 GA(2026-06)로 <strong>프레임워크 기능</strong>이 된 것들. 무엇을 채택하고 무엇을 관망할지. → <a href="05-stack-radar-2026.html">05</a></div>
+  </div>
+  <div class="cell">
+    <div class="k">🎯 이 부록의 태도</div>
+    <div class="v">유행을 나열하지 않습니다. <strong>"왜 그런 일이 벌어지는가"</strong>를 CS로 설명하고, 도입 시점을 <a href="../appendix-e-scale-and-domain/01-scale-tiers.html">부록 E의 규모 단계(S0~S3)</a>에 매핑합니다.</div>
+  </div>
+</div>
+</figure>
+
+<h2>1. 왜 "인사이트"를 따로 모았나</h2>
+<p>공식 문서는 <strong>기능이 무엇인지</strong>는 알려 주지만, <strong>운영에서 어떤 순서로 무엇이 무너지는지</strong>는 알려 주지 않습니다. 그 정보는 현장 후기에만 있습니다. 예를 들어 2026년 Medium에서 가장 많이 읽힌 Spring 글 중 하나는 <em>"Virtual Threads Made My Spring App Faster — Then Production Happened"</em> 류의 후기입니다. 요지는 한결같습니다. <strong>가상 스레드는 스레드 병목을 없애는 대신, 그 뒤에 숨어 있던 진짜 병목(커넥션 풀·외부 API·락)을 드러낸다</strong>는 것입니다. 이런 것은 문서에 없습니다.</p>
+
+<aside class="callout important">
+<p><strong>이 부록의 한 문장 결론:</strong> 성능·신뢰성 문제의 대부분은 <strong>어딘가에 있던 상한(스레드 수·풀 크기·TTL·타임아웃)이 사라지거나 어긋나서</strong> 생깁니다. 새 기술을 켤 때는 "이 기술이 <strong>어떤 상한을 없애는가</strong>, 그러면 <strong>그 다음 상한은 어디인가</strong>"를 먼저 물으세요.</p>
+</aside>
+
+<h2>2. 이 부록의 구성</h2>
+
+<ol>
+<li><strong><a href="01-virtual-threads-in-practice.html">01. 가상 스레드 실전</a></strong> — OS 스레드의 비용(CS), 피닝과 JDK 24의 해결, ThreadLocal 팽창과 JDK 25 Scoped Values, 병목의 이동, 구조적 동시성 vs Kotlin 코루틴.</li>
+<li><strong><a href="02-connection-pool-cache-locks.html">02. 데이터 계층 운영</a></strong> — HikariCP 사이징 공식과 그 근거, Boot 4.1 지연 커넥션, L1/L2 캐시와 스탬피드 방어, 낙관적 락 → 비관적 락 → 분산 락의 선택 순서.</li>
+<li><strong><a href="03-reliability-outbox-idempotency.html">03. 신뢰성 패턴</a></strong> — dual-write 문제와 아웃박스(Modulith 재활용 vs 직접 구현), 멱등 소비자와 <code>Idempotency-Key</code>, 지터 있는 재시도, 동시성 상한과 토큰 버킷.</li>
+<li><strong><a href="04-jvm-in-containers-kubernetes.html">04. 컨테이너 속 JVM과 Kubernetes</a></strong> — 힙 밖 메모리, cgroup CPU와 스레드 수, 2026년 GC 선택(G1 vs Generational ZGC), 프로브 3종, 종료 예산 산식, Cloud Run과의 대응.</li>
+<li><strong><a href="05-stack-radar-2026.html">05. 2026 스택 레이더</a></strong> — OpenTelemetry 스타터, Boot 4.1 gRPC 자동 설정, Spring AI 2.0 MCP 서버, Spring Security 7 Passkeys·SSRF 방어. 채택/시범/관망 판정.</li>
+</ol>
+
+<h2>3. 선수 지식</h2>
+
+<ul>
+<li><strong>Phase 0-5</strong> — <a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">MVC vs WebFlux와 가상 스레드 소개</a>. 01은 거기서 한 줄로 켠 설정의 뒷면입니다.</li>
+<li><strong>Phase 3</strong> — <a href="../phase-3-data-jpa/04-transactions.html">트랜잭션</a>과 <a href="../phase-3-data-jpa/05-database-setup.html">PostgreSQL 설정</a>. 02·03은 트랜잭션 경계를 전제로 합니다.</li>
+<li><strong>Phase 5-3</strong> — <a href="../phase-5-production-features/03-actuator-observability.html">Actuator·관측성</a>. 04의 프로브와 05의 OpenTelemetry가 이를 확장합니다.</li>
+<li><strong>Phase 6·7</strong> — <a href="../phase-6-build-deploy/04-deploy-operations.html">배포·운영</a>과 <a href="../phase-7-cloud-run/05-cicd-operations.html">Cloud Run 운영</a>. 04는 이를 Kubernetes 관점에서 다시 봅니다.</li>
+<li><strong>부록 E</strong> — <a href="../appendix-e-scale-and-domain/01-scale-tiers.html">규모 단계 S0~S3</a>. 이 부록의 모든 "언제 도입하나"는 이 단계를 기준으로 답합니다.</li>
+</ul>
+
+<aside class="callout note">
+<p>예제는 계속 <strong>Book API</strong>(<code>com.example.bookapi</code>)이며, 부록 E처럼 서점으로 자란 상황(<code>catalog</code> · <code>order</code> · <code>member</code>)을 필요할 때만 가정합니다. 버전 기준은 <strong>Spring Boot 4.1.1 · Spring Framework 7.0.9 · JDK 21</strong>(JDK 25 기능은 그렇게 표시)입니다. 인용한 글의 출처는 각 페이지 끝 <strong>더 읽을거리</strong>에 모았습니다.</p>
+</aside>
+
+<h2>다음 단계</h2>
+<p>→ <strong><a href="01-virtual-threads-in-practice.html">01. 가상 스레드 실전</a></strong> 에서 "한 줄로 켠 뒤 무슨 일이 벌어지는가"부터 시작합니다.</p>

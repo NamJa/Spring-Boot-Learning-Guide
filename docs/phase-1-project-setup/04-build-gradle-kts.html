@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>build.gradle.kts 해부</h1>
@@ -114,19 +121,19 @@
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">plugins</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// Kotlin JVM 컴파일 지원</span>
-<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;jvm&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">"jvm"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"2.3.21"</span>
 <span class="w">    </span><span class="c1">// kotlin-spring: @Component/@Configuration 등 Spring 어노테이션이 붙은 클래스를 자동 open</span>
-<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;plugin.spring&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">"plugin.spring"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"2.3.21"</span>
 <span class="w">    </span><span class="c1">// Spring Boot Gradle 플러그인: bootJar/bootRun, BOM 버전 관리 연동</span>
-<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;org.springframework.boot&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;4.1.1&quot;</span>
+<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">"org.springframework.boot"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"4.1.1"</span>
 <span class="w">    </span><span class="c1">// 의존성 버전을 Spring Boot BOM에 맞춰 자동 관리 (Initializr 기본 출력)</span>
-<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;io.spring.dependency-management&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;1.1.7&quot;</span>
+<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">"io.spring.dependency-management"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"1.1.7"</span>
 <span class="w">    </span><span class="c1">// kotlin-jpa(noArg): @Entity 클래스에 기본 생성자 합성 — JPA를 선택하면 함께 붙는다</span>
-<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;plugin.jpa&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">"plugin.jpa"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"2.3.21"</span>
 <span class="p">}</span>
 
-<span class="n">group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;com.example&quot;</span>
-<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;0.0.1-SNAPSHOT&quot;</span>
+<span class="n">group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"com.example"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"0.0.1-SNAPSHOT"</span>
 
 <span class="c1">// JDK 21 툴체인: 빌드/실행에 사용할 JDK를 고정 (jvmTarget도 여기에 맞춰진다)</span>
 <span class="n">java</span><span class="w"> </span><span class="p">{</span>
@@ -141,54 +148,54 @@
 
 <span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// --- 웹/REST: Spring MVC, 내장 Tomcat, Jackson 3 (구 spring-boot-starter-web) ---</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-webmvc&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-webmvc"</span><span class="p">)</span>
 <span class="w">    </span><span class="c1">// --- JPA/Hibernate ---</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-data-jpa&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-data-jpa"</span><span class="p">)</span>
 <span class="w">    </span><span class="c1">// --- Bean Validation (@Valid, @NotNull 등) ---</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-validation&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-validation"</span><span class="p">)</span>
 <span class="w">    </span><span class="c1">// --- Actuator: /actuator/health 등 운영 엔드포인트 ---</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-actuator&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-actuator"</span><span class="p">)</span>
 <span class="w">    </span><span class="c1">// --- H2 웹 콘솔: Boot 4에서 별도 모듈로 분리됨 (개발용) ---</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-h2console&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-h2console"</span><span class="p">)</span>
 
 <span class="w">    </span><span class="c1">// --- Kotlin 지원 ---</span>
 <span class="w">    </span><span class="c1">// Jackson 3가 Kotlin data class를 (기본 생성자 없이) 직렬화/역직렬화하도록</span>
 <span class="w">    </span><span class="c1">// ⚠️ Jackson 2의 com.fasterxml.jackson.module 이 아니라 tools.jackson.module 이다</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;tools.jackson.module:jackson-module-kotlin&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"tools.jackson.module:jackson-module-kotlin"</span><span class="p">)</span>
 <span class="w">    </span><span class="c1">// Spring이 런타임 리플렉션을 사용하므로 필수</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.jetbrains.kotlin:kotlin-reflect&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"org.jetbrains.kotlin:kotlin-reflect"</span><span class="p">)</span>
 
 <span class="w">    </span><span class="c1">// --- 런타임 전용: H2 인메모리 DB ---</span>
-<span class="w">    </span><span class="n">runtimeOnly</span><span class="p">(</span><span class="s">&quot;com.h2database:h2&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">runtimeOnly</span><span class="p">(</span><span class="s">"com.h2database:h2"</span><span class="p">)</span>
 
 <span class="w">    </span><span class="c1">// --- 테스트: Boot 4는 기술별 test 스타터로 쪼개졌다 ---</span>
 <span class="w">    </span><span class="c1">// (각 스타터가 spring-boot-starter-test = JUnit 6 · AssertJ · Mockito 를 전이로 가져온다)</span>
-<span class="w">    </span><span class="n">testImplementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-webmvc-test&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="n">testImplementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-data-jpa-test&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="n">testImplementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-validation-test&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="n">testImplementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-actuator-test&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="n">testImplementation</span><span class="p">(</span><span class="s">&quot;org.jetbrains.kotlin:kotlin-test-junit5&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">testImplementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-webmvc-test"</span><span class="p">)</span>
+<span class="w">    </span><span class="n">testImplementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-data-jpa-test"</span><span class="p">)</span>
+<span class="w">    </span><span class="n">testImplementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-validation-test"</span><span class="p">)</span>
+<span class="w">    </span><span class="n">testImplementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-actuator-test"</span><span class="p">)</span>
+<span class="w">    </span><span class="n">testImplementation</span><span class="p">(</span><span class="s">"org.jetbrains.kotlin:kotlin-test-junit5"</span><span class="p">)</span>
 <span class="w">    </span><span class="c1">// JUnit Platform 런처 (테스트 실행에 필요)</span>
-<span class="w">    </span><span class="n">testRuntimeOnly</span><span class="p">(</span><span class="s">&quot;org.junit.platform:junit-platform-launcher&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">testRuntimeOnly</span><span class="p">(</span><span class="s">"org.junit.platform:junit-platform-launcher"</span><span class="p">)</span>
 <span class="p">}</span>
 
 <span class="n">kotlin</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">compilerOptions</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">freeCompilerArgs</span><span class="p">.</span><span class="na">addAll</span><span class="p">(</span>
 <span class="w">            </span><span class="c1">// JSR-305 어노테이션(@Nullable 등)을 엄격하게 해석 → 플랫폼 타입을 null 안전 타입으로</span>
-<span class="w">            </span><span class="s">&quot;-Xjsr305=strict&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">"-Xjsr305=strict"</span><span class="p">,</span>
 <span class="w">            </span><span class="c1">// 주생성자 프로퍼티의 애너테이션을 파라미터 + 프로퍼티에 함께 적용 (Kotlin 2.2+)</span>
 <span class="w">            </span><span class="c1">// → Bean Validation/Jackson이 @field: 없이도 애너테이션을 인식한다 (Phase 4-1)</span>
-<span class="w">            </span><span class="s">&quot;-Xannotation-default-target=param-property&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">"-Xannotation-default-target=param-property"</span><span class="p">,</span>
 <span class="w">        </span><span class="p">)</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 
 <span class="c1">// kotlin-jpa 플러그인이 함께 넣어 주는 블록: JPA 애너테이션 클래스를 open 처리</span>
 <span class="n">allOpen</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">annotation</span><span class="p">(</span><span class="s">&quot;jakarta.persistence.Entity&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="n">annotation</span><span class="p">(</span><span class="s">&quot;jakarta.persistence.MappedSuperclass&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="n">annotation</span><span class="p">(</span><span class="s">&quot;jakarta.persistence.Embeddable&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">annotation</span><span class="p">(</span><span class="s">"jakarta.persistence.Entity"</span><span class="p">)</span>
+<span class="w">    </span><span class="n">annotation</span><span class="p">(</span><span class="s">"jakarta.persistence.MappedSuperclass"</span><span class="p">)</span>
+<span class="w">    </span><span class="n">annotation</span><span class="p">(</span><span class="s">"jakarta.persistence.Embeddable"</span><span class="p">)</span>
 <span class="p">}</span>
 
 <span class="n">tasks</span><span class="p">.</span><span class="na">withType</span><span class="o">&lt;</span><span class="n">Test</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
@@ -253,8 +260,8 @@
 
 <h2 id="3-group-version-java-툴체인">3. group / version / java 툴체인</h2>
 
-<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;com.example&quot;</span>
-<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;0.0.1-SNAPSHOT&quot;</span>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"com.example"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"0.0.1-SNAPSHOT"</span>
 
 <span class="n">java</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">toolchain</span><span class="w"> </span><span class="p">{</span>
@@ -321,8 +328,8 @@
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">kotlin</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">compilerOptions</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">freeCompilerArgs</span><span class="p">.</span><span class="na">addAll</span><span class="p">(</span>
-<span class="w">            </span><span class="s">&quot;-Xjsr305=strict&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s">&quot;-Xannotation-default-target=param-property&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">"-Xjsr305=strict"</span><span class="p">,</span>
+<span class="w">            </span><span class="s">"-Xannotation-default-target=param-property"</span><span class="p">,</span>
 <span class="w">        </span><span class="p">)</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
@@ -346,7 +353,7 @@
 
 <h2 id="7-settings-gradle-kts">7. settings.gradle.kts</h2>
 
-<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">rootProject</span><span class="p">.</span><span class="na">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;book-api&quot;</span>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">rootProject</span><span class="p">.</span><span class="na">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"book-api"</span>
 </pre></div>
 </div>
 <p>루트 프로젝트 이름을 정합니다. 멀티 모듈로 확장하면 여기서 <code>include("module-a")</code> 식으로 하위 모듈을 추가합니다.</p>
@@ -356,12 +363,12 @@
 
 <div class="code-block" data-lang="toml"><span class="code-lang">toml</span><div class="hl"><pre><span></span><span class="c1"># gradle/libs.versions.toml</span>
 <span class="k">[versions]</span>
-<span class="n">kotlin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;2.3.21&quot;</span>
-<span class="n">springBoot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;4.1.1&quot;</span>
+<span class="n">kotlin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"2.3.21"</span>
+<span class="n">springBoot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"4.1.1"</span>
 
 <span class="k">[plugins]</span>
-<span class="n">kotlin-jvm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;org.jetbrains.kotlin.jvm&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="p">.</span><span class="n">ref</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;kotlin&quot;</span><span class="w"> </span><span class="p">}</span>
-<span class="n">spring-boot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;org.springframework.boot&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="p">.</span><span class="n">ref</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;springBoot&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="n">kotlin-jvm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"org.jetbrains.kotlin.jvm"</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="p">.</span><span class="n">ref</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"kotlin"</span><span class="w"> </span><span class="p">}</span>
+<span class="n">spring-boot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"org.springframework.boot"</span><span class="p">,</span><span class="w"> </span><span class="n">version</span><span class="p">.</span><span class="n">ref</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"springBoot"</span><span class="w"> </span><span class="p">}</span>
 </pre></div>
 </div>
 

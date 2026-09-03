@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>프록시와 즉시/지연 로딩, N+1</h1>
@@ -167,8 +174,8 @@
 </table>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@ManyToOne</span><span class="p">(</span><span class="n">fetch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FetchType</span><span class="p">.</span><span class="na">LAZY</span><span class="p">)</span><span class="w">   </span><span class="c1">// book 조회 시 category는 프록시</span>
-<span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;category_id&quot;</span><span class="p">)</span>
-<span class="kd">var</span><span class="w"> </span><span class="nv">category</span><span class="p">:</span><span class="w"> </span><span class="n">Category? </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+<span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"category_id"</span><span class="p">)</span>
+<span class="kd">var</span><span class="w"> </span><span class="nv">category</span><span class="p">:</span><span class="w"> </span><span class="n">Category?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
 </pre></div>
 </div>
 <p>각 연관의 <strong>기본 FetchType</strong>은 다음과 같습니다. 표를 외워 두세요.</p>
@@ -252,7 +259,7 @@
 <h3 id="4-1-페치-조인-fetch-join-가장-근본적">4-1. 페치 조인 (fetch join) — 가장 근본적</h3>
 <p>JPQL에서 <code>join fetch</code>로 연관을 <strong>한 방의 JOIN</strong>으로 함께 가져옵니다.</p>
 
-<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;select b from Book b join fetch b.category&quot;</span><span class="p">)</span>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Query</span><span class="p">(</span><span class="s">"select b from Book b join fetch b.category"</span><span class="p">)</span>
 <span class="kd">fun</span><span class="w"> </span><span class="nf">findAllWithCategory</span><span class="p">():</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span>
 </pre></div>
 </div>
@@ -269,12 +276,12 @@
 <h3 id="4-2-entitygraph-어노테이션으로-페치-조인">4-2. @EntityGraph — 어노테이션으로 페치 조인</h3>
 <p>Spring Data JPA에서 JPQL 없이 페치 조인 효과를 냅니다.</p>
 
-<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@EntityGraph</span><span class="p">(</span><span class="n">attributePaths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s">&quot;category&quot;</span><span class="o">]</span><span class="p">)</span>
-<span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;select b from Book b&quot;</span><span class="p">)</span>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@EntityGraph</span><span class="p">(</span><span class="n">attributePaths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s">"category"</span><span class="o">]</span><span class="p">)</span>
+<span class="nd">@Query</span><span class="p">(</span><span class="s">"select b from Book b"</span><span class="p">)</span>
 <span class="kd">fun</span><span class="w"> </span><span class="nf">findAllWithCategoryGraph</span><span class="p">():</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span>
 
 <span class="c1">// 메서드 이름 쿼리에도 적용 가능</span>
-<span class="nd">@EntityGraph</span><span class="p">(</span><span class="n">attributePaths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s">&quot;category&quot;</span><span class="o">]</span><span class="p">)</span>
+<span class="nd">@EntityGraph</span><span class="p">(</span><span class="n">attributePaths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s">"category"</span><span class="o">]</span><span class="p">)</span>
 <span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findAll</span><span class="p">():</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span>
 </pre></div>
 </div>
@@ -282,7 +289,7 @@
 <h3 id="4-3-batchsize-in-절로-묶어-조회">4-3. @BatchSize — IN 절로 묶어 조회</h3>
 <p>연관 초기화를 <strong>N번이 아니라 <code>IN</code> 쿼리 몇 번</strong>으로 줄입니다. 컬렉션 N+1에 특히 유효합니다.</p>
 
-<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@OneToMany</span><span class="p">(</span><span class="n">mappedBy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;book&quot;</span><span class="p">)</span>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@OneToMany</span><span class="p">(</span><span class="n">mappedBy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"book"</span><span class="p">)</span>
 <span class="nd">@BatchSize</span><span class="p">(</span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">100</span><span class="p">)</span><span class="w">         </span><span class="c1">// reviews를 100개씩 IN 절로 묶어 로딩</span>
 <span class="kd">var</span><span class="w"> </span><span class="nv">reviews</span><span class="p">:</span><span class="w"> </span><span class="n">MutableList</span><span class="o">&lt;</span><span class="n">Review</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mutableListOf</span><span class="p">()</span>
 </pre></div>

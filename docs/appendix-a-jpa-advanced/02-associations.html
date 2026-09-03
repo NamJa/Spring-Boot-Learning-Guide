@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>연관관계 매핑</h1>
@@ -214,8 +221,8 @@
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">publishedAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">,</span>
 
 <span class="w">    </span><span class="nd">@ManyToOne</span><span class="p">(</span><span class="n">fetch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FetchType</span><span class="p">.</span><span class="na">LAZY</span><span class="p">)</span><span class="w">   </span><span class="c1">// 항상 LAZY 권장 (04장 참고)</span>
-<span class="w">    </span><span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;category_id&quot;</span><span class="p">)</span><span class="w">    </span><span class="c1">// FK 컬럼명 지정</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">category</span><span class="p">:</span><span class="w"> </span><span class="n">Category? </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">    </span><span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"category_id"</span><span class="p">)</span><span class="w">    </span><span class="c1">// FK 컬럼명 지정</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">category</span><span class="p">:</span><span class="w"> </span><span class="n">Category?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -242,8 +249,8 @@
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">rating</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
 
 <span class="w">    </span><span class="nd">@ManyToOne</span><span class="p">(</span><span class="n">fetch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FetchType</span><span class="p">.</span><span class="na">LAZY</span><span class="p">)</span>
-<span class="w">    </span><span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;book_id&quot;</span><span class="p">)</span><span class="w">   </span><span class="c1">// ← 주인: 이쪽이 FK를 관리</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">book</span><span class="p">:</span><span class="w"> </span><span class="n">Book? </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">    </span><span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"book_id"</span><span class="p">)</span><span class="w">   </span><span class="c1">// ← 주인: 이쪽이 FK를 관리</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">book</span><span class="p">:</span><span class="w"> </span><span class="n">Book?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -252,9 +259,9 @@
 <span class="kd">class</span><span class="w"> </span><span class="nc">Book</span><span class="p">(</span>
 <span class="w">    </span><span class="c1">// ... 위 필드들 ...</span>
 
-<span class="w">    </span><span class="nd">@OneToMany</span><span class="p">(</span><span class="n">mappedBy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;book&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cascade</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">CascadeType</span><span class="p">.</span><span class="na">ALL</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">orphanRemoval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@OneToMany</span><span class="p">(</span><span class="n">mappedBy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"book"</span><span class="p">,</span><span class="w"> </span><span class="n">cascade</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">CascadeType</span><span class="p">.</span><span class="na">ALL</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">orphanRemoval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">reviews</span><span class="p">:</span><span class="w"> </span><span class="n">MutableList</span><span class="o">&lt;</span><span class="n">Review</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mutableListOf</span><span class="p">()</span>
-<span class="w">    </span><span class="c1">//               ▲ &quot;Review.book 필드가 주인이다&quot; — 나는 읽기 전용 거울</span>
+<span class="w">    </span><span class="c1">//               ▲ "Review.book 필드가 주인이다" — 나는 읽기 전용 거울</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -291,7 +298,7 @@
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Entity</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">Book</span><span class="p">(</span>
 <span class="w">    </span><span class="c1">// ...</span>
-<span class="w">    </span><span class="nd">@OneToMany</span><span class="p">(</span><span class="n">mappedBy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;book&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cascade</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">CascadeType</span><span class="p">.</span><span class="na">ALL</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">orphanRemoval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@OneToMany</span><span class="p">(</span><span class="n">mappedBy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"book"</span><span class="p">,</span><span class="w"> </span><span class="n">cascade</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">CascadeType</span><span class="p">.</span><span class="na">ALL</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">orphanRemoval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">reviews</span><span class="p">:</span><span class="w"> </span><span class="n">MutableList</span><span class="o">&lt;</span><span class="n">Review</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mutableListOf</span><span class="p">()</span>
 <span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// 연관관계 편의 메서드: 양쪽을 한 번에 일관되게 세팅</span>
@@ -310,7 +317,7 @@
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 사용</span>
 <span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bookRepository</span><span class="p">.</span><span class="na">findById</span><span class="p">(</span><span class="m">1L</span><span class="p">).</span><span class="na">get</span><span class="p">()</span>
-<span class="n">book</span><span class="p">.</span><span class="na">addReview</span><span class="p">(</span><span class="n">Review</span><span class="p">(</span><span class="n">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;좋아요&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rating</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">5</span><span class="p">))</span>
+<span class="n">book</span><span class="p">.</span><span class="na">addReview</span><span class="p">(</span><span class="n">Review</span><span class="p">(</span><span class="n">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"좋아요"</span><span class="p">,</span><span class="w"> </span><span class="n">rating</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">5</span><span class="p">))</span>
 <span class="c1">// → book.reviews 에도 들어가고, review.book = book 도 세팅됨 → FK 정상 저장</span>
 </pre></div>
 </div>
@@ -342,8 +349,8 @@
 <p><strong><code>@OneToOne</code></strong> 은 FK를 어느 테이블에 둘지 선택할 수 있습니다. 주 테이블(예: <code>book</code>)에 FK를 두면 조회가 편하고, 대상 테이블에 두면 <code>book</code> 테이블이 깔끔해집니다. 주 테이블에 두는 단방향을 기본으로 권장합니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@OneToOne</span><span class="p">(</span><span class="n">fetch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FetchType</span><span class="p">.</span><span class="na">LAZY</span><span class="p">)</span>
-<span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;detail_id&quot;</span><span class="p">)</span>
-<span class="kd">var</span><span class="w"> </span><span class="nv">detail</span><span class="p">:</span><span class="w"> </span><span class="n">BookDetail? </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+<span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"detail_id"</span><span class="p">)</span>
+<span class="kd">var</span><span class="w"> </span><span class="nv">detail</span><span class="p">:</span><span class="w"> </span><span class="n">BookDetail?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
 </pre></div>
 </div>
 <p><strong><code>@ManyToMany</code>는 실무에서 지양합니다.</strong> 이유는 명확합니다.</p>
@@ -360,8 +367,8 @@
 <h2 id="7-cascade와-orphanremoval">7. cascade와 orphanRemoval</h2>
 <p><strong><code>cascade</code>(영속성 전이)</strong> 는 "부모 엔티티의 영속성 동작을 자식에게 전파"하는 옵션입니다. 위 <code>Book.reviews</code>에 <code>cascade = [CascadeType.ALL]</code>을 줬으므로, <code>book</code>을 저장하면 그 안의 <code>reviews</code>도 함께 <code>persist</code>됩니다.</p>
 
-<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Book</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span>
-<span class="n">book</span><span class="p">.</span><span class="na">addReview</span><span class="p">(</span><span class="n">Review</span><span class="p">(</span><span class="n">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;굿&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">rating</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">5</span><span class="p">))</span>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Book</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"..."</span><span class="p">,</span><span class="w"> </span><span class="p">...)</span>
+<span class="n">book</span><span class="p">.</span><span class="na">addReview</span><span class="p">(</span><span class="n">Review</span><span class="p">(</span><span class="n">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"굿"</span><span class="p">,</span><span class="w"> </span><span class="n">rating</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">5</span><span class="p">))</span>
 <span class="n">bookRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">book</span><span class="p">)</span><span class="w">   </span><span class="c1">// book 저장 시 review도 자동 INSERT (cascade)</span>
 </pre></div>
 </div>

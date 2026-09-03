@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>DispatcherServlet과 요청 처리 흐름</h1>
@@ -180,7 +187,7 @@
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// Phase 2에서 쓰던 JSON API (이 부록 전체에서 그대로 유지)</span>
 <span class="nd">@RestController</span><span class="w">                         </span><span class="c1">// = @Controller + @ResponseBody</span>
-<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">"/api/books"</span><span class="p">)</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookController</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookService</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 
 <span class="w">    </span><span class="nd">@GetMapping</span>
@@ -192,13 +199,13 @@
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 부록 D에서 새로 추가하는 HTML 화면 컨트롤러 (다음 문서에서 본격 사용)</span>
 <span class="nd">@Controller</span><span class="w">                             </span><span class="c1">// @ResponseBody 없음 → 반환 String = 뷰 이름</span>
-<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">&quot;/books&quot;</span><span class="p">)</span>
+<span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">"/books"</span><span class="p">)</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookViewController</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookService</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 
 <span class="w">    </span><span class="nd">@GetMapping</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="n">Model</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">&quot;books&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">findAll</span><span class="p">())</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;books/list&quot;</span><span class="w">             </span><span class="c1">// → templates/books/list.html 을 렌더링</span>
+<span class="w">        </span><span class="n">model</span><span class="p">.</span><span class="na">addAttribute</span><span class="p">(</span><span class="s">"books"</span><span class="p">,</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">findAll</span><span class="p">())</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">"books/list"</span><span class="w">             </span><span class="c1">// → templates/books/list.html 을 렌더링</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -269,15 +276,15 @@
 <p><code>@PathVariable</code>, <code>@RequestParam</code>, <code>@RequestBody</code>, <code>Model</code>, <code>HttpSession</code>… 컨트롤러 메서드 파라미터에 무엇이든 선언하면 알아서 채워지는 것도 마법처럼 보였을 겁니다. 그 마법의 주인공이 <strong>아규먼트 리졸버(<code>HandlerMethodArgumentResolver</code>)</strong> 입니다.</p>
 <p><code>RequestMappingHandlerAdapter</code>는 메서드를 호출하기 전에, <strong>각 파라미터마다 "이걸 처리할 수 있는 리졸버"를 찾아</strong> 값을 만들어 채웁니다.</p>
 
-<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">&quot;/{id}&quot;</span><span class="p">)</span>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@GetMapping</span><span class="p">(</span><span class="s">"/{id}"</span><span class="p">)</span>
 <span class="kd">fun</span><span class="w"> </span><span class="nf">detail</span><span class="p">(</span>
 <span class="w">    </span><span class="nd">@PathVariable</span><span class="w"> </span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">,</span><span class="w">          </span><span class="c1">// PathVariableMethodArgumentResolver 가 URL에서 추출</span>
 <span class="w">    </span><span class="nd">@RequestParam</span><span class="p">(</span><span class="n">required</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span><span class="w"> </span><span class="c1">// RequestParamMethodArgumentResolver 가 쿼리스트링에서</span>
 <span class="w">    </span><span class="n">sort</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span>
 <span class="w">    </span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="n">Model</span><span class="p">,</span><span class="w">                    </span><span class="c1">// ModelMethodProcessor 가 모델 객체 주입</span>
-<span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;books/detail&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">"books/detail"</span><span class="w"> </span><span class="p">}</span>
 
-<span class="nd">@PostMapping</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span>
+<span class="nd">@PostMapping</span><span class="p">(</span><span class="s">"/api/books"</span><span class="p">)</span>
 <span class="kd">fun</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span>
 <span class="w">    </span><span class="nd">@RequestBody</span><span class="w"> </span><span class="n">req</span><span class="p">:</span><span class="w"> </span><span class="n">CreateBookRequest</span><span class="w">  </span><span class="c1">// RequestResponseBodyMethodProcessor</span>
 <span class="w">                                          </span><span class="c1">// → 내부에서 HttpMessageConverter 호출</span>

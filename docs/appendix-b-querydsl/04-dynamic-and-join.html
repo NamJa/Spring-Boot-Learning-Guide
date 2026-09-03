@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>04. 동적 쿼리와 조인</h1>
@@ -116,8 +123,8 @@
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">price</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">publishedAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">,</span>
 <span class="w">    </span><span class="nd">@ManyToOne</span><span class="p">(</span><span class="n">fetch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FetchType</span><span class="p">.</span><span class="na">LAZY</span><span class="p">)</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">category</span><span class="p">:</span><span class="w"> </span><span class="n">Category? </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">                 </span><span class="c1">// 도서 → 분류 (N:1)</span>
-<span class="w">    </span><span class="nd">@OneToMany</span><span class="p">(</span><span class="n">mappedBy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;book&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">category</span><span class="p">:</span><span class="w"> </span><span class="n">Category?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">                 </span><span class="c1">// 도서 → 분류 (N:1)</span>
+<span class="w">    </span><span class="nd">@OneToMany</span><span class="p">(</span><span class="n">mappedBy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"book"</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">reviews</span><span class="p">:</span><span class="w"> </span><span class="n">MutableList</span><span class="o">&lt;</span><span class="n">Review</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mutableListOf</span><span class="p">(),</span><span class="w">  </span><span class="c1">// 도서 → 리뷰 (1:N)</span>
 <span class="p">)</span>
 </pre></div>
@@ -164,13 +171,13 @@
 <span class="w">            </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
 
 <span class="w">    </span><span class="c1">// 조건이 없으면 null → where에서 제외된다</span>
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">titleContains</span><span class="p">(</span><span class="n">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">):</span><span class="w"> </span><span class="n">BooleanExpression? </span><span class="o">=</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">titleContains</span><span class="p">(</span><span class="n">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">):</span><span class="w"> </span><span class="n">BooleanExpression?</span><span class="w"> </span><span class="o">=</span>
 <span class="w">        </span><span class="n">title</span><span class="o">?.</span><span class="na">takeIf</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">isNotBlank</span><span class="p">()</span><span class="w"> </span><span class="p">}</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">title</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
 
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">authorEq</span><span class="p">(</span><span class="n">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">):</span><span class="w"> </span><span class="n">BooleanExpression? </span><span class="o">=</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">authorEq</span><span class="p">(</span><span class="n">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">):</span><span class="w"> </span><span class="n">BooleanExpression?</span><span class="w"> </span><span class="o">=</span>
 <span class="w">        </span><span class="n">author</span><span class="o">?.</span><span class="na">takeIf</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">isNotBlank</span><span class="p">()</span><span class="w"> </span><span class="p">}</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
 
-<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">priceGoe</span><span class="p">(</span><span class="n">minPrice</span><span class="p">:</span><span class="w"> </span><span class="kt">Int?</span><span class="p">):</span><span class="w"> </span><span class="n">BooleanExpression? </span><span class="o">=</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">priceGoe</span><span class="p">(</span><span class="n">minPrice</span><span class="p">:</span><span class="w"> </span><span class="kt">Int?</span><span class="p">):</span><span class="w"> </span><span class="n">BooleanExpression?</span><span class="w"> </span><span class="o">=</span>
 <span class="w">        </span><span class="n">minPrice</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">.</span><span class="na">goe</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -184,7 +191,7 @@
 </ul>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 조건 메서드끼리 조합도 가능</span>
-<span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">inPriceRange</span><span class="p">(</span><span class="n">min</span><span class="p">:</span><span class="w"> </span><span class="kt">Int?</span><span class="p">,</span><span class="w"> </span><span class="n">max</span><span class="p">:</span><span class="w"> </span><span class="kt">Int?</span><span class="p">):</span><span class="w"> </span><span class="n">BooleanExpression? </span><span class="p">{</span>
+<span class="kd">private</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">inPriceRange</span><span class="p">(</span><span class="n">min</span><span class="p">:</span><span class="w"> </span><span class="kt">Int?</span><span class="p">,</span><span class="w"> </span><span class="n">max</span><span class="p">:</span><span class="w"> </span><span class="kt">Int?</span><span class="p">):</span><span class="w"> </span><span class="n">BooleanExpression?</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">lower</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">min</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">.</span><span class="na">goe</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">upper</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">max</span><span class="o">?.</span><span class="na">let</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">.</span><span class="na">loe</span><span class="p">(</span><span class="nb">it</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="p">{</span>
@@ -211,11 +218,11 @@
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QBook</span><span class="p">.</span><span class="na">book</span>
 <span class="kd">val</span><span class="w"> </span><span class="nv">category</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QCategory</span><span class="p">.</span><span class="na">category</span>
 
-<span class="c1">// 분류명이 &#39;프로그래밍&#39;인 도서 (inner join)</span>
+<span class="c1">// 분류명이 '프로그래밍'인 도서 (inner join)</span>
 <span class="n">queryFactory</span>
 <span class="w">    </span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="na">join</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">category</span><span class="p">,</span><span class="w"> </span><span class="n">category</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="na">where</span><span class="p">(</span><span class="n">category</span><span class="p">.</span><span class="na">name</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="s">&quot;프로그래밍&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="p">.</span><span class="na">where</span><span class="p">(</span><span class="n">category</span><span class="p">.</span><span class="na">name</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="s">"프로그래밍"</span><span class="p">))</span>
 <span class="w">    </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
 
 <span class="c1">// 분류가 없는 도서까지 포함 (left join)</span>
@@ -233,7 +240,7 @@
 <span class="n">queryFactory</span>
 <span class="w">    </span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="na">join</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">category</span><span class="p">,</span><span class="w"> </span><span class="n">category</span><span class="p">).</span><span class="na">fetchJoin</span><span class="p">()</span><span class="w">   </span><span class="c1">// ← fetchJoin</span>
-<span class="w">    </span><span class="p">.</span><span class="na">where</span><span class="p">(</span><span class="n">category</span><span class="p">.</span><span class="na">name</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="s">&quot;프로그래밍&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="p">.</span><span class="na">where</span><span class="p">(</span><span class="n">category</span><span class="p">.</span><span class="na">name</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="s">"프로그래밍"</span><span class="p">))</span>
 <span class="w">    </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -262,7 +269,7 @@
 <p>서브쿼리는 <code>JPAExpressions</code>로 작성합니다. 메인 쿼리의 Q타입과 충돌하지 않도록 <strong>서브쿼리용 별칭을 따로</strong> 만드는 점이 중요합니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">val</span><span class="w"> </span><span class="nv">book</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QBook</span><span class="p">.</span><span class="na">book</span>
-<span class="kd">val</span><span class="w"> </span><span class="nv">sub</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QBook</span><span class="p">(</span><span class="s">&quot;sub&quot;</span><span class="p">)</span><span class="w">     </span><span class="c1">// 서브쿼리 전용 별칭</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">sub</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">QBook</span><span class="p">(</span><span class="s">"sub"</span><span class="p">)</span><span class="w">     </span><span class="c1">// 서브쿼리 전용 별칭</span>
 
 <span class="c1">// 가격이 전체 평균가 이상인 도서</span>
 <span class="n">queryFactory</span>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>용어집 (Glossary) · Spring Boot 학습 가이드</title>
-<meta name="description" content="이 가이드 75개 페이지에 등장하는 용어를 한곳에 모았습니다. 읽다가 낯선 단어를 만나면 여기서 한 줄 정의를 확인하고, 필요하면 자세히 다루는 페이지로 바로 이동하세요. Spring Boot 4 기준이며, Boot 3까지와 이름·패키지가 달라진 항목은 마지막 절에 따">
+<meta name="description" content="이 가이드 81개 페이지에 등장하는 용어를 한곳에 모았습니다. 읽다가 낯선 단어를 만나면 여기서 한 줄 정의를 확인하고, 필요하면 자세히 다루는 페이지로 바로 이동하세요. Spring Boot 4 기준이며, Boot 3까지와 이름·패키지가 달라진 항목은 마지막 절에 따">
 <link rel="stylesheet" href="./assets/style.css">
 </head>
 <body>
@@ -104,10 +104,17 @@
   <a href="appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>용어집 (Glossary)</h1>
-<p>이 가이드 75개 페이지에 등장하는 용어를 한곳에 모았습니다. 읽다가 낯선 단어를 만나면 여기서 한 줄 정의를 확인하고, 필요하면 <strong>자세히 다루는 페이지</strong>로 바로 이동하세요. Spring Boot 4 기준이며, Boot 3까지와 이름·패키지가 달라진 항목은 마지막 절에 따로 모았습니다.</p>
+<p>이 가이드 81개 페이지에 등장하는 용어를 한곳에 모았습니다. 읽다가 낯선 단어를 만나면 여기서 한 줄 정의를 확인하고, 필요하면 <strong>자세히 다루는 페이지</strong>로 바로 이동하세요. Spring Boot 4 기준이며, Boot 3까지와 이름·패키지가 달라진 항목은 마지막 절에 따로 모았습니다.</p>
 
 <div class="gl-tools">
   <input type="search" id="gl-filter" class="gl-filter" placeholder="용어 검색 — 예: 프록시, @Transactional, Jackson" autocomplete="off" aria-label="용어 검색">
@@ -812,6 +819,63 @@
 <div class="gl-item">
   <div class="gl-term">ArchUnit</div>
   <div class="gl-def">자바 바이트코드를 읽어 <strong>아키텍처 규칙을 테스트로 검증</strong>하는 라이브러리(2026-08-30 기준 1.5.0). "컨트롤러는 리포지토리를 직접 참조하지 않는다" 같은 규칙을 코드로 쓴다. Spring Modulith도 내부적으로 사용한다. <a href="appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a></div>
+</div>
+
+<div class="gl-item">
+  <div class="gl-term">피닝 (pinning) <span class="gl-tag">가상 스레드</span></div>
+  <div class="gl-def">가상 스레드가 블로킹 중인데도 <strong>캐리어 스레드를 놓지 못하는</strong> 상태. <code>synchronized</code> 안의 I/O(JDK 24 JEP 491로 해결)와 네이티브 프레임이 원인. Kotlin의 <code>synchronized {}</code>·<code>@Synchronized</code>도 JDK 21에서는 피닝된다. JFR 이벤트 <code>jdk.VirtualThreadPinned</code>로 진단. <a href="appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Scoped Values <span class="gl-tag">JDK 25</span></div>
+  <div class="gl-def"><code>ThreadLocal</code>의 대안(JEP 506, JDK 25 정식). 값이 불변이고 범위가 끝나면 사라지며 자식 스레드에 복사 없이 공유된다. 가상 스레드 수십만 개에서 <code>ThreadLocal</code>이 힙을 채우는 문제의 해법. <a href="appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">구조적 동시성 (structured concurrency)</div>
+  <div class="gl-def">자식 작업이 부모 범위 안에서 시작·종료되고, 하나가 실패하면 나머지가 취소되는 규칙. JDK는 <code>StructuredTaskScope</code>(JEP 505, JDK 25에서도 preview), Kotlin 코루틴은 <code>coroutineScope</code>로 정식 지원. <a href="appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">@ConcurrencyLimit</div>
+  <div class="gl-def">Spring Framework 7 내장 애너테이션. 메서드의 <strong>동시 실행 수</strong>를 제한한다(초과분은 대기). 가상 스레드로 스레드 풀 상한이 사라진 뒤 커넥션 풀·외부 API를 보호하는 용도. <code>@EnableResilientMethods</code>로 활성화. <a href="appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">HikariCP 풀 사이징 공식</div>
+  <div class="gl-def"><strong>pool = (DB 코어 수 × 2) + 유효 스핀들 수</strong>(SSD는 1). 기준은 앱이 아니라 <strong>DB 서버</strong>. 커넥션을 늘리면 DB 쪽 컨텍스트 스위칭·락 경합이 늘어 오히려 느려진다. 인스턴스 수 × 풀 크기 ≤ DB <code>max_connections</code>. <a href="appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">지연 커넥션 (spring.datasource.connection-fetch=lazy) <span class="gl-tag">Boot 4.1</span></div>
+  <div class="gl-def">트랜잭션 시작 시점이 아니라 <strong>첫 SQL 실행 시점</strong>에 커넥션을 빌리도록 <code>LazyConnectionDataSourceProxy</code>로 감싸는 Boot 4.1 옵션. 트랜잭션 안의 외부 호출·캐시 히트 경로에서 커넥션 점유 시간을 줄인다. <a href="appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">캐시 스탬피드 (cache stampede, thundering herd)</div>
+  <div class="gl-def">캐시 항목이 만료된 순간 같은 키를 읽던 요청들이 <strong>동시에 캐시 미스</strong>를 내고 같은 쿼리를 DB에 몰아 보내는 현상. <code>@Cacheable(sync = true)</code>(요청 병합) → TTL 지터 → 조기 재계산 → 분산 락 순서로 방어. <a href="appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">멱등 소비자 · Idempotency-Key</div>
+  <div class="gl-def">at-least-once 전달로 같은 메시지가 두 번 와도 <strong>한 번만 반영</strong>되게 하는 소비자. 처리한 <code>event_id</code>를 자기 트랜잭션 안의 테이블(인박스)에 기록한다. HTTP에서는 클라이언트가 <code>Idempotency-Key</code> 헤더를 보내고 서버가 키→응답을 저장해 재시도에 같은 응답을 돌려준다. <a href="appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">종료 예산 (termination budget)</div>
+  <div class="gl-def">Kubernetes 파드 종료 시 <strong>terminationGracePeriodSeconds ≥ preStop sleep + timeout-per-shutdown-phase + 여유</strong>가 성립해야 롤링 배포에서 5xx가 나지 않는다. preStop은 라우팅 전파 지연을, shutdown phase는 진행 중 요청을 흡수한다. <a href="appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">OOMKilled (exit 137) vs OutOfMemoryError</div>
+  <div class="gl-def">전자는 컨테이너 프로세스 전체 RSS가 limit을 넘어 <strong>커널</strong>이 죽인 것(JVM 로그 없음), 후자는 <strong>힙</strong>이 부족해 JVM이 던진 예외. <code>MaxRAMPercentage=75</code>는 힙에만 걸리므로 나머지 25%(메타스페이스·스레드 스택·다이렉트 버퍼)가 넘치면 전자가 난다. <a href="appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Generational ZGC</div>
+  <div class="gl-def">멈춤 시간 1ms 미만을 목표로 하는 세대별 ZGC. JDK 21은 <code>-XX:+UseZGC -XX:+ZGenerational</code>, JDK 24부터 유일한 ZGC 모드가 되어 플래그가 제거됐다. CPU와 힙 헤드룸(25%+)을 더 쓰므로 G1과 같은 컨테이너 limit에서 측정 후 전환. <a href="appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">InetAddressFilter <span class="gl-tag">Boot 4.1</span></div>
+  <div class="gl-def">SSRF 방어용 빈. <code>InetAddressFilter.externalAddresses()</code>를 등록하면 자동 설정된 모든 HTTP 클라이언트가 사설망·루프백·링크로컬(클라우드 메타데이터) 주소로 나가는 요청을 <code>FilteredHostException</code>으로 차단한다. 직접 만든 <code>RestClient.create()</code>에는 적용되지 않는다. <a href="appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">MCP (Model Context Protocol) · @McpTool</div>
+  <div class="gl-def">AI 에이전트가 외부 도구·리소스를 호출하는 표준 프로토콜. Spring AI 2.0(2026-06 GA, Boot 4.1 필수)은 <code>@McpTool</code> 메서드로 MCP 서버를 만들고, 전송은 Streamable HTTP가 기본(SSE는 deprecated). 기존 서비스 계층을 재사용하는 <strong>또 하나의 어댑터</strong>. <a href="appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a></div>
+</div>
+<div class="gl-item">
+  <div class="gl-term">Passkeys (WebAuthn)</div>
+  <div class="gl-def">공개키 암호 기반의 비밀번호 없는 인증(FIDO2). Spring Security 7이 <code>spring-security-webauthn</code>과 Kotlin DSL <code>webAuthn { rpId; allowedOrigins }</code>로 1급 지원. 기본 저장소는 인메모리, 운영은 JDBC 리포지토리 빈 등록. <a href="appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a></div>
 </div>
 
 <h2 id="gl-boot4">Boot 4에서 바뀐 이름 (빠른 대조)</h2>

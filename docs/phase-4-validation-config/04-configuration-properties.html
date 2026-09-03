@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>@ConfigurationProperties</h1>
@@ -111,9 +118,9 @@
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Service</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookService</span><span class="p">(</span>
-<span class="w">    </span><span class="nd">@Value</span><span class="p">(</span><span class="s">&quot;\</span><span class="si">${</span><span class="n">app</span><span class="p">.</span><span class="na">book</span><span class="p">.</span><span class="na">default</span><span class="o">-</span><span class="n">page</span><span class="o">-</span><span class="n">size</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span><span class="w"> </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">defaultPageSize</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
-<span class="w">    </span><span class="nd">@Value</span><span class="p">(</span><span class="s">&quot;\</span><span class="si">${</span><span class="n">app</span><span class="p">.</span><span class="na">book</span><span class="p">.</span><span class="na">currency</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span><span class="w"> </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">currency</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
-<span class="w">    </span><span class="nd">@Value</span><span class="p">(</span><span class="s">&quot;\</span><span class="si">${</span><span class="n">app</span><span class="p">.</span><span class="na">book</span><span class="p">.</span><span class="na">recommendation</span><span class="o">-</span><span class="n">enabled</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)</span><span class="w"> </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">recommendationEnabled</span><span class="p">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">,</span>
+<span class="w">    </span><span class="nd">@Value</span><span class="p">(</span><span class="s">"\</span><span class="si">${</span><span class="n">app</span><span class="p">.</span><span class="na">book</span><span class="p">.</span><span class="na">default</span><span class="o">-</span><span class="n">page</span><span class="o">-</span><span class="n">size</span><span class="si">}</span><span class="s">"</span><span class="p">)</span><span class="w"> </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">defaultPageSize</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">,</span>
+<span class="w">    </span><span class="nd">@Value</span><span class="p">(</span><span class="s">"\</span><span class="si">${</span><span class="n">app</span><span class="p">.</span><span class="na">book</span><span class="p">.</span><span class="na">currency</span><span class="si">}</span><span class="s">"</span><span class="p">)</span><span class="w"> </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">currency</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="nd">@Value</span><span class="p">(</span><span class="s">"\</span><span class="si">${</span><span class="n">app</span><span class="p">.</span><span class="na">book</span><span class="p">.</span><span class="na">recommendation</span><span class="o">-</span><span class="n">enabled</span><span class="si">}</span><span class="s">"</span><span class="p">)</span><span class="w"> </span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">recommendationEnabled</span><span class="p">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="p">,</span>
 <span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
 </pre></div>
 </div>
@@ -140,10 +147,10 @@
 
 <span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.boot.context.properties.ConfigurationProperties</span>
 
-<span class="nd">@ConfigurationProperties</span><span class="p">(</span><span class="n">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;app.book&quot;</span><span class="p">)</span>
+<span class="nd">@ConfigurationProperties</span><span class="p">(</span><span class="n">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"app.book"</span><span class="p">)</span>
 <span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BookProperties</span><span class="p">(</span>
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">defaultPageSize</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">20</span><span class="p">,</span><span class="w">            </span><span class="c1">// 케밥 케이스 default-page-size 와 자동 매칭</span>
-<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">currency</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;KRW&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">currency</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"KRW"</span><span class="p">,</span>
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">recommendationEnabled</span><span class="p">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">allowedCategories</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emptyList</span><span class="p">(),</span>
 <span class="p">)</span>
@@ -208,7 +215,7 @@
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bookProperties</span><span class="p">.</span><span class="na">allowedCategories</span><span class="p">.</span><span class="na">isNotEmpty</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span>
 <span class="w">            </span><span class="n">category</span><span class="w"> </span><span class="k">!in</span><span class="w"> </span><span class="n">bookProperties</span><span class="p">.</span><span class="na">allowedCategories</span>
 <span class="w">        </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="n">IllegalArgumentException</span><span class="p">(</span><span class="s">&quot;허용되지 않은 카테고리: </span><span class="si">$</span><span class="n">category</span><span class="s">&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="n">IllegalArgumentException</span><span class="p">(</span><span class="s">"허용되지 않은 카테고리: </span><span class="si">$</span><span class="n">category</span><span class="s">"</span><span class="p">)</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
@@ -227,13 +234,13 @@
 <span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.validation.annotation.Validated</span>
 
 <span class="nd">@Validated</span>
-<span class="nd">@ConfigurationProperties</span><span class="p">(</span><span class="n">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;app.book&quot;</span><span class="p">)</span>
+<span class="nd">@ConfigurationProperties</span><span class="p">(</span><span class="n">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"app.book"</span><span class="p">)</span>
 <span class="kd">data</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BookProperties</span><span class="p">(</span>
 <span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">Min</span><span class="p">(</span><span class="m">1</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">defaultPageSize</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">20</span><span class="p">,</span>
 
 <span class="w">    </span><span class="nd">@field</span><span class="p">:</span><span class="n">NotBlank</span>
-<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">currency</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;KRW&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">currency</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"KRW"</span><span class="p">,</span>
 
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">recommendationEnabled</span><span class="p">:</span><span class="w"> </span><span class="kt">Boolean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">allowedCategories</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emptyList</span><span class="p">(),</span>
@@ -302,12 +309,12 @@
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
 <span class="n">plugins</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;kapt&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span><span class="w">   </span><span class="c1">// kapt 플러그인 적용 필요</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">"kapt"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"2.3.21"</span><span class="w">   </span><span class="c1">// kapt 플러그인 적용 필요</span>
 <span class="p">}</span>
 
 <span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// ...</span>
-<span class="w">    </span><span class="n">kapt</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-configuration-processor&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">kapt</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-configuration-processor"</span><span class="p">)</span>
 <span class="p">}</span>
 </pre></div>
 </div>

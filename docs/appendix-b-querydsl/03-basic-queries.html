@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>03. 기본 쿼리</h1>
@@ -154,7 +161,7 @@
 <span class="n">queryFactory</span>
 <span class="w">    </span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="na">where</span><span class="p">(</span>
-<span class="w">        </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="s">&quot;김작가&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="s">"김작가"</span><span class="p">)</span>
 <span class="w">            </span><span class="p">.</span><span class="na">and</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">.</span><span class="na">goe</span><span class="p">(</span><span class="m">15000</span><span class="p">)),</span>
 <span class="w">    </span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
@@ -163,7 +170,7 @@
 <span class="n">queryFactory</span>
 <span class="w">    </span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="na">where</span><span class="p">(</span>
-<span class="w">        </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="s">&quot;김작가&quot;</span><span class="p">),</span>
+<span class="w">        </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="s">"김작가"</span><span class="p">),</span>
 <span class="w">        </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">.</span><span class="na">goe</span><span class="p">(</span><span class="m">15000</span><span class="p">),</span>
 <span class="w">    </span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
@@ -174,11 +181,11 @@
 <p><strong>방법 B(콤마 나열)</strong> 가 더 읽기 좋고, <a href="04-dynamic-and-join.html">04 페이지</a>의 동적 쿼리 패턴과도 자연스럽게 이어집니다. <code>or</code>가 필요할 때만 <code>.and()</code>/<code>.or()</code> 체이닝을 씁니다.</p>
 </aside>
 
-<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// OR 조합: 저자가 &#39;김작가&#39;이거나 가격이 30000 이상</span>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// OR 조합: 저자가 '김작가'이거나 가격이 30000 이상</span>
 <span class="n">queryFactory</span>
 <span class="w">    </span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="na">where</span><span class="p">(</span>
-<span class="w">        </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="s">&quot;김작가&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="s">"김작가"</span><span class="p">)</span>
 <span class="w">            </span><span class="p">.</span><span class="na">or</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">.</span><span class="na">goe</span><span class="p">(</span><span class="m">30000</span><span class="p">)),</span>
 <span class="w">    </span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
@@ -273,14 +280,14 @@
 </tbody>
 </table>
 
-<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 가격이 1만~3만원, 제목에 &#39;Spring&#39; 포함, 저자는 목록 중 하나</span>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 가격이 1만~3만원, 제목에 'Spring' 포함, 저자는 목록 중 하나</span>
 <span class="kd">fun</span><span class="w"> </span><span class="nf">search</span><span class="p">():</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span>
 <span class="w">    </span><span class="n">queryFactory</span>
 <span class="w">        </span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
 <span class="w">        </span><span class="p">.</span><span class="na">where</span><span class="p">(</span>
 <span class="w">            </span><span class="n">book</span><span class="p">.</span><span class="na">price</span><span class="p">.</span><span class="na">between</span><span class="p">(</span><span class="m">10000</span><span class="p">,</span><span class="w"> </span><span class="m">30000</span><span class="p">),</span>
-<span class="w">            </span><span class="n">book</span><span class="p">.</span><span class="na">title</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;Spring&quot;</span><span class="p">),</span>
-<span class="w">            </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">.</span><span class="n">`in`</span><span class="p">(</span><span class="n">listOf</span><span class="p">(</span><span class="s">&quot;김작가&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;이작가&quot;</span><span class="p">)),</span>
+<span class="w">            </span><span class="n">book</span><span class="p">.</span><span class="na">title</span><span class="p">.</span><span class="na">contains</span><span class="p">(</span><span class="s">"Spring"</span><span class="p">),</span>
+<span class="w">            </span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">.</span><span class="n">`in`</span><span class="p">(</span><span class="n">listOf</span><span class="p">(</span><span class="s">"김작가"</span><span class="p">,</span><span class="w"> </span><span class="s">"이작가"</span><span class="p">)),</span>
 <span class="w">        </span><span class="p">)</span>
 <span class="w">        </span><span class="p">.</span><span class="na">fetch</span><span class="p">()</span>
 </pre></div>
@@ -360,15 +367,15 @@
 <span class="kd">val</span><span class="w"> </span><span class="nv">list</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">queryFactory</span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">).</span><span class="na">fetch</span><span class="p">()</span>
 
 <span class="c1">// 단건 (없으면 null, 2건 이상이면 예외)</span>
-<span class="kd">val</span><span class="w"> </span><span class="nv">one</span><span class="p">:</span><span class="w"> </span><span class="n">Book? </span><span class="o">=</span><span class="w"> </span><span class="n">queryFactory</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">one</span><span class="p">:</span><span class="w"> </span><span class="n">Book?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">queryFactory</span>
 <span class="w">    </span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="na">where</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">isbn</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="s">&quot;978-89-000-0000-0&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="p">.</span><span class="na">where</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">isbn</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="s">"978-89-000-0000-0"</span><span class="p">))</span>
 <span class="w">    </span><span class="p">.</span><span class="na">fetchOne</span><span class="p">()</span>
 
 <span class="c1">// 조건에 맞는 첫 건만</span>
-<span class="kd">val</span><span class="w"> </span><span class="nv">first</span><span class="p">:</span><span class="w"> </span><span class="n">Book? </span><span class="o">=</span><span class="w"> </span><span class="n">queryFactory</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">first</span><span class="p">:</span><span class="w"> </span><span class="n">Book?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">queryFactory</span>
 <span class="w">    </span><span class="p">.</span><span class="na">selectFrom</span><span class="p">(</span><span class="n">book</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="na">where</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="s">&quot;김작가&quot;</span><span class="p">))</span>
+<span class="w">    </span><span class="p">.</span><span class="na">where</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">author</span><span class="p">.</span><span class="na">eq</span><span class="p">(</span><span class="s">"김작가"</span><span class="p">))</span>
 <span class="w">    </span><span class="p">.</span><span class="na">orderBy</span><span class="p">(</span><span class="n">book</span><span class="p">.</span><span class="na">publishedAt</span><span class="p">.</span><span class="na">desc</span><span class="p">())</span>
 <span class="w">    </span><span class="p">.</span><span class="na">fetchFirst</span><span class="p">()</span>
 </pre></div>

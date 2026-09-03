@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>소스에서 직접 배포 (가장 간단)</h1>
@@ -282,11 +289,11 @@ Service URL: https://book-api-123456789012.asia-northeast3.run.app</code></pre><
 
 <div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># 배포된 서비스 URL을 가져와 변수에 저장</span>
 <span class="nv">SERVICE_URL</span><span class="o">=</span><span class="k">$(</span>gcloud<span class="w"> </span>run<span class="w"> </span>services<span class="w"> </span>describe<span class="w"> </span>book-api<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--region<span class="w"> </span>asia-northeast3<span class="w"> </span>--format<span class="o">=</span><span class="s1">&#39;value(status.url)&#39;</span><span class="k">)</span>
+<span class="w">  </span>--region<span class="w"> </span>asia-northeast3<span class="w"> </span>--format<span class="o">=</span><span class="s1">'value(status.url)'</span><span class="k">)</span>
 
 <span class="c1"># Actuator 헬스 체크 호출</span>
-curl<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SERVICE_URL</span><span class="s2">/actuator/health&quot;</span>
-<span class="c1"># {&quot;status&quot;:&quot;UP&quot;}  ← 이렇게 나오면 성공!</span>
+curl<span class="w"> </span><span class="s2">"</span><span class="nv">$SERVICE_URL</span><span class="s2">/actuator/health"</span>
+<span class="c1"># {"status":"UP"}  ← 이렇게 나오면 성공!</span>
 </pre></div>
 </div>
 

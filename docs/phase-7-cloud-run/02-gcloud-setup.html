@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>gcloud CLI 설치와 프로젝트 설정</h1>
@@ -129,8 +136,8 @@ gcloud<span class="w"> </span>--version
 <p>Homebrew cask로 설치하면 보통 PATH가 자동으로 잡히지만, <code>gcloud</code> 명령을 못 찾는다면 <code>~/.zshrc</code>에 다음을 추가합니다(Homebrew 경로는 환경에 따라 다를 수 있습니다).</p>
 
 <div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># ~/.zshrc 에 추가</span>
-<span class="nb">source</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>brew<span class="w"> </span>--prefix<span class="k">)</span><span class="s2">/share/google-cloud-sdk/path.zsh.inc&quot;</span><span class="w">        </span><span class="c1"># PATH 설정</span>
-<span class="nb">source</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>brew<span class="w"> </span>--prefix<span class="k">)</span><span class="s2">/share/google-cloud-sdk/completion.zsh.inc&quot;</span><span class="w">  </span><span class="c1"># 명령어 자동완성</span>
+<span class="nb">source</span><span class="w"> </span><span class="s2">"</span><span class="k">$(</span>brew<span class="w"> </span>--prefix<span class="k">)</span><span class="s2">/share/google-cloud-sdk/path.zsh.inc"</span><span class="w">        </span><span class="c1"># PATH 설정</span>
+<span class="nb">source</span><span class="w"> </span><span class="s2">"</span><span class="k">$(</span>brew<span class="w"> </span>--prefix<span class="k">)</span><span class="s2">/share/google-cloud-sdk/completion.zsh.inc"</span><span class="w">  </span><span class="c1"># 명령어 자동완성</span>
 </pre></div>
 </div>
 <p>추가 후 새 터미널을 열거나 <code>source ~/.zshrc</code>로 적용합니다. 자동완성이 켜지면 <code>gcloud run dep&lt;Tab&gt;</code>이 <code>gcloud run deploy</code>로 완성됩니다.</p>
@@ -150,7 +157,7 @@ gcloud<span class="w"> </span>auth<span class="w"> </span>login
 <p>GCP의 모든 리소스는 <strong>프로젝트(project)</strong> 안에 들어갑니다. 청구·권한·리소스의 경계가 프로젝트 단위입니다.</p>
 
 <div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span><span class="c1"># 프로젝트 생성 (PROJECT_ID는 전 세계에서 유일해야 함)</span>
-gcloud<span class="w"> </span>projects<span class="w"> </span>create<span class="w"> </span>book-api-12345<span class="w"> </span>--name<span class="o">=</span><span class="s2">&quot;Book API&quot;</span>
+gcloud<span class="w"> </span>projects<span class="w"> </span>create<span class="w"> </span>book-api-12345<span class="w"> </span>--name<span class="o">=</span><span class="s2">"Book API"</span>
 
 <span class="c1"># 이후 모든 명령의 기본 프로젝트로 지정</span>
 gcloud<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>project<span class="w"> </span>book-api-12345

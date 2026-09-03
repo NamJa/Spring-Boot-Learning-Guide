@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>JPQL</h1>
@@ -115,7 +122,7 @@
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Transactional</span><span class="p">(</span><span class="n">readOnly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
 <span class="kd">fun</span><span class="w"> </span><span class="nf">basicJpql</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// 엔티티 b 를 그대로 조회</span>
-<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">books</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="s">&quot;select b from Book b where b.price &gt;= 20000&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">books</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="s">"select b from Book b where b.price &gt;= 20000"</span><span class="p">,</span><span class="w"> </span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
 <span class="w">        </span><span class="p">.</span><span class="na">resultList</span>
 <span class="p">}</span>
 </pre></div>
@@ -130,7 +137,7 @@
 <p>JPQL의 식별자는 <strong>테이블/컬럼명이 아니라 엔티티 클래스명과 필드명</strong>입니다. <code>Book</code>(클래스명, 대소문자 구분), <code>b.price</code>(필드명)처럼 씁니다. Spring Data JPA에서는 <code>@Query</code>로 감싸 Repository 메서드로 노출합니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">interface</span><span class="w"> </span><span class="nc">BookRepository</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">JpaRepository</span><span class="o">&lt;</span><span class="n">Book</span><span class="p">,</span><span class="w"> </span><span class="kt">Long</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;select b from Book b where b.author = :author and b.price &gt;= :min&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@Query</span><span class="p">(</span><span class="s">"select b from Book b where b.author = :author and b.price &gt;= :min"</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">author</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="n">min</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Book</span><span class="o">&gt;</span>
 <span class="p">}</span>
 </pre></div>
@@ -140,13 +147,13 @@
 <p>두 가지 방식이 있습니다. <strong>이름 기준(<code>:name</code>)</strong> 을 항상 권장합니다 — 가독성과 안전성 때문입니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 이름 기준 (권장)</span>
-<span class="n">em</span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="s">&quot;select b from Book b where b.author = :author&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="na">setParameter</span><span class="p">(</span><span class="s">&quot;author&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;김영한&quot;</span><span class="p">)</span>
+<span class="n">em</span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="s">"select b from Book b where b.author = :author"</span><span class="p">,</span><span class="w"> </span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">setParameter</span><span class="p">(</span><span class="s">"author"</span><span class="p">,</span><span class="w"> </span><span class="s">"김영한"</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="na">resultList</span>
 
 <span class="c1">// 위치 기준 (?1) — 순서가 바뀌면 깨지므로 비권장</span>
-<span class="n">em</span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="s">&quot;select b from Book b where b.author = ?1&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
-<span class="w">    </span><span class="p">.</span><span class="na">setParameter</span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;김영한&quot;</span><span class="p">)</span>
+<span class="n">em</span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="s">"select b from Book b where b.author = ?1"</span><span class="p">,</span><span class="w"> </span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">setParameter</span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="s">"김영한"</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="na">resultList</span>
 </pre></div>
 </div>
@@ -161,14 +168,14 @@
 <h3 id="3-1-엔티티-프로젝션">3-1. 엔티티 프로젝션</h3>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 조회한 Book 은 전부 영속 상태로 관리됨 (변경 감지 대상)</span>
-<span class="s">&quot;select b from Book b&quot;</span>
+<span class="s">"select b from Book b"</span>
 </pre></div>
 </div>
 
 <h3 id="3-2-스칼라-프로젝션">3-2. 스칼라 프로젝션</h3>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 컬럼/표현식 — 영속성 컨텍스트가 관리하지 않음</span>
-<span class="s">&quot;select b.title, b.price from Book b&quot;</span><span class="w">   </span><span class="c1">// 결과: List&lt;Array&lt;Any&gt;&gt;</span>
+<span class="s">"select b.title, b.price from Book b"</span><span class="w">   </span><span class="c1">// 결과: List&lt;Array&lt;Any&gt;&gt;</span>
 </pre></div>
 </div>
 
@@ -183,11 +190,11 @@
 </div>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Query</span><span class="p">(</span>
-<span class="w">    </span><span class="s">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="s">"""</span>
 <span class="s">    select new com.example.bookapi.dto.BookSummary(b.title, b.author, b.price)</span>
 <span class="s">    from Book b</span>
 <span class="s">    where b.price &gt;= :min</span>
-<span class="s">    &quot;&quot;&quot;</span>
+<span class="s">    """</span>
 <span class="p">)</span>
 <span class="kd">fun</span><span class="w"> </span><span class="nf">findSummaries</span><span class="p">(</span><span class="n">min</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">BookSummary</span><span class="o">&gt;</span>
 </pre></div>
@@ -200,7 +207,7 @@
 <h2 id="4-페이징-setfirstresult-setmaxresults">4. 페이징 — setFirstResult / setMaxResults</h2>
 <p>JPQL 페이징은 DB 방언(dialect)에 맞는 <code>LIMIT</code>/<code>OFFSET</code>을 JPA가 알아서 만들어 줍니다.</p>
 
-<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">em</span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="s">&quot;select b from Book b order by b.id desc&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="n">em</span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="s">"select b from Book b order by b.id desc"</span><span class="p">,</span><span class="w"> </span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="na">setFirstResult</span><span class="p">(</span><span class="m">20</span><span class="p">)</span><span class="w">   </span><span class="c1">// offset: 21번째부터</span>
 <span class="w">    </span><span class="p">.</span><span class="na">setMaxResults</span><span class="p">(</span><span class="m">10</span><span class="p">)</span><span class="w">    </span><span class="c1">// limit: 10개</span>
 <span class="w">    </span><span class="p">.</span><span class="na">resultList</span>
@@ -211,22 +218,22 @@
 <h2 id="5-조인-내부-외부-페치">5. 조인 — 내부 / 외부 / 페치</h2>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 내부 조인 — 연관 경로로 조인</span>
-<span class="s">&quot;select b from Book b join b.category c where c.name = :name&quot;</span>
+<span class="s">"select b from Book b join b.category c where c.name = :name"</span>
 
 <span class="c1">// 외부 조인 — category 가 없는 Book 도 포함</span>
-<span class="s">&quot;select b from Book b left join b.category c&quot;</span>
+<span class="s">"select b from Book b left join b.category c"</span>
 
 <span class="c1">// 세타 조인(연관 없는 조인) — from 절에 나열</span>
-<span class="s">&quot;select b from Book b, Category c where b.title = c.name&quot;</span>
+<span class="s">"select b from Book b, Category c where b.title = c.name"</span>
 </pre></div>
 </div>
 <p><strong>페치 조인(<code>join fetch</code>)</strong> 은 <a href="04-proxy-fetch.html">04장</a>에서 본 N+1 해결의 핵심입니다. 일반 조인과 달리 <strong>연관 엔티티까지 함께 영속 상태로 로딩</strong>합니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 일반 조인: category 로 필터링만, b.category 는 여전히 프록시 (지연 로딩 대상)</span>
-<span class="s">&quot;select b from Book b join b.category c where c.name = &#39;소설&#39;&quot;</span>
+<span class="s">"select b from Book b join b.category c where c.name = '소설'"</span>
 
 <span class="c1">// 페치 조인: b.category 까지 즉시 함께 로딩 → 이후 접근해도 추가 SELECT 없음</span>
-<span class="s">&quot;select b from Book b join fetch b.category&quot;</span>
+<span class="s">"select b from Book b join fetch b.category"</span>
 </pre></div>
 </div>
 
@@ -238,13 +245,13 @@
 <p>여러 행을 한 번에 수정/삭제할 때는 <strong>벌크 연산</strong>을 씁니다. 변경 감지는 엔티티를 하나씩 처리하므로, 수만 건을 한 번에 바꿀 땐 비효율적이기 때문입니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Modifying</span><span class="w">          </span><span class="c1">// Spring Data JPA: UPDATE/DELETE JPQL 임을 표시</span>
-<span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;update Book b set b.price = b.price * 11 / 10 where b.publishedAt &lt; :date&quot;</span><span class="p">)</span>
+<span class="nd">@Query</span><span class="p">(</span><span class="s">"update Book b set b.price = b.price * 11 / 10 where b.publishedAt &lt; :date"</span><span class="p">)</span>
 <span class="kd">fun</span><span class="w"> </span><span class="nf">raisePriceForOldBooks</span><span class="p">(</span><span class="n">date</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">):</span><span class="w"> </span><span class="kt">Int</span><span class="w">   </span><span class="c1">// 반환: 영향받은 행 수</span>
 </pre></div>
 </div>
 <p>순수 <code>EntityManager</code>로는 <code>executeUpdate()</code>입니다.</p>
 
-<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">val</span><span class="w"> </span><span class="nv">affected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="s">&quot;update Book b set b.price = b.price + 1000&quot;</span><span class="p">)</span>
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">val</span><span class="w"> </span><span class="nv">affected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">em</span><span class="p">.</span><span class="na">createQuery</span><span class="p">(</span><span class="s">"update Book b set b.price = b.price + 1000"</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="na">executeUpdate</span><span class="p">()</span><span class="w">   </span><span class="c1">// DB에 직접 UPDATE, 한 방에 수천 건 처리</span>
 </pre></div>
 </div>
@@ -259,7 +266,7 @@ println(book.price)   // 여전히 10000! (1차 캐시는 안 바뀜)</code></p>
 </aside>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Modifying</span><span class="p">(</span><span class="n">clearAutomatically</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="n">flushAutomatically</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
-<span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;update Book b set b.price = b.price + 1000&quot;</span><span class="p">)</span>
+<span class="nd">@Query</span><span class="p">(</span><span class="s">"update Book b set b.price = b.price + 1000"</span><span class="p">)</span>
 <span class="kd">fun</span><span class="w"> </span><span class="nf">bumpAllPrices</span><span class="p">():</span><span class="w"> </span><span class="kt">Int</span>
 </pre></div>
 </div>
@@ -273,10 +280,10 @@ println(book.price)   // 여전히 10000! (1차 캐시는 안 바뀜)</code></p>
 </ul>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 동적 쿼리를 문자열로 — 끔찍하다</span>
-<span class="kd">val</span><span class="w"> </span><span class="nv">sb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StringBuilder</span><span class="p">(</span><span class="s">&quot;select b from Book b where 1=1&quot;</span><span class="p">)</span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">author</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="n">sb</span><span class="p">.</span><span class="na">append</span><span class="p">(</span><span class="s">&quot; and b.author = :author&quot;</span><span class="p">)</span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">minPrice</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="n">sb</span><span class="p">.</span><span class="na">append</span><span class="p">(</span><span class="s">&quot; and b.price &gt;= :minPrice&quot;</span><span class="p">)</span>
-<span class="c1">// 공백 빠뜨리면 &quot;where1=1and...&quot; 로 깨지고, 파라미터 바인딩도 if 로 또 분기...</span>
+<span class="kd">val</span><span class="w"> </span><span class="nv">sb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StringBuilder</span><span class="p">(</span><span class="s">"select b from Book b where 1=1"</span><span class="p">)</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">author</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="n">sb</span><span class="p">.</span><span class="na">append</span><span class="p">(</span><span class="s">" and b.author = :author"</span><span class="p">)</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">minPrice</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="n">sb</span><span class="p">.</span><span class="na">append</span><span class="p">(</span><span class="s">" and b.price &gt;= :minPrice"</span><span class="p">)</span>
+<span class="c1">// 공백 빠뜨리면 "where1=1and..." 로 깨지고, 파라미터 바인딩도 if 로 또 분기...</span>
 </pre></div>
 </div>
 

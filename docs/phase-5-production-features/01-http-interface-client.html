@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>선언적 HTTP 클라이언트</h1>
@@ -166,10 +173,10 @@
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
 <span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// 동기 RestClient + @HttpExchange 인터페이스 지원</span>
-<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-restclient&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-restclient"</span><span class="p">)</span>
 
 <span class="w">    </span><span class="c1">// 리액티브가 필요할 때만</span>
-<span class="w">    </span><span class="c1">// implementation(&quot;org.springframework.boot:spring-boot-starter-webclient&quot;)</span>
+<span class="w">    </span><span class="c1">// implementation("org.springframework.boot:spring-boot-starter-webclient")</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -192,11 +199,11 @@
 <span class="w">    </span><span class="kd">val</span><span class="w"> </span><span class="nv">coverImageUrl</span><span class="p">:</span><span class="w"> </span><span class="kt">String?</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="c1">// 인터페이스 &quot;선언&quot;만 하면, 구현은 Spring이 프록시로 만들어 준다.</span>
-<span class="nd">@HttpExchange</span><span class="p">(</span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/books&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">accept</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s">&quot;application/json&quot;</span><span class="o">]</span><span class="p">)</span>
+<span class="c1">// 인터페이스 "선언"만 하면, 구현은 Spring이 프록시로 만들어 준다.</span>
+<span class="nd">@HttpExchange</span><span class="p">(</span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"/books"</span><span class="p">,</span><span class="w"> </span><span class="n">accept</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s">"application/json"</span><span class="o">]</span><span class="p">)</span>
 <span class="kd">interface</span><span class="w"> </span><span class="nc">BookMetadataClient</span><span class="w"> </span><span class="p">{</span>
 
-<span class="w">    </span><span class="nd">@GetExchange</span><span class="p">(</span><span class="s">&quot;/{isbn}&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@GetExchange</span><span class="p">(</span><span class="s">"/{isbn}"</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findByIsbn</span><span class="p">(</span><span class="nd">@PathVariable</span><span class="w"> </span><span class="n">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">BookMetadata</span>
 <span class="p">}</span>
 </pre></div>
@@ -212,10 +219,10 @@
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.service.annotation.PostExchange</span>
 <span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.web.bind.annotation.RequestBody</span>
 
-<span class="nd">@HttpExchange</span><span class="p">(</span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/books&quot;</span><span class="p">)</span>
+<span class="nd">@HttpExchange</span><span class="p">(</span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"/books"</span><span class="p">)</span>
 <span class="kd">interface</span><span class="w"> </span><span class="nc">BookMetadataClient</span><span class="w"> </span><span class="p">{</span>
 
-<span class="w">    </span><span class="nd">@GetExchange</span><span class="p">(</span><span class="s">&quot;/{isbn}&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@GetExchange</span><span class="p">(</span><span class="s">"/{isbn}"</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findByIsbn</span><span class="p">(</span><span class="nd">@PathVariable</span><span class="w"> </span><span class="n">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="n">BookMetadata</span>
 
 <span class="w">    </span><span class="nd">@PostExchange</span>
@@ -234,7 +241,7 @@
 <span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Configuration</span>
 
 <span class="nd">@Configuration</span>
-<span class="nd">@ImportHttpServices</span><span class="p">(</span><span class="n">group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;book-metadata&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">types</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">BookMetadataClient</span><span class="o">::</span><span class="n">class</span><span class="o">]</span><span class="p">)</span>
+<span class="nd">@ImportHttpServices</span><span class="p">(</span><span class="n">group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"book-metadata"</span><span class="p">,</span><span class="w"> </span><span class="n">types</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">BookMetadataClient</span><span class="o">::</span><span class="n">class</span><span class="o">]</span><span class="p">)</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">HttpClientConfig</span>
 </pre></div>
 </div>
@@ -251,7 +258,7 @@
 <span class="w">      </span><span class="nt">connect-timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2s</span>
 <span class="w">      </span><span class="nt">read-timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5s</span>
 <span class="w">    </span><span class="nt">serviceclient</span><span class="p">:</span>
-<span class="w">      </span><span class="c1"># @ImportHttpServices(group = &quot;book-metadata&quot;) 와 연결되는 그룹 설정</span>
+<span class="w">      </span><span class="c1"># @ImportHttpServices(group = "book-metadata") 와 연결되는 그룹 설정</span>
 <span class="w">      </span><span class="nt">book-metadata</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">base-url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://metadata.example.com/api</span>
 <span class="w">        </span><span class="nt">connect-timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2s</span>
@@ -275,7 +282,7 @@
 <span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">enrich</span><span class="p">(</span><span class="n">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">meta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">metadataClient</span><span class="p">.</span><span class="na">findByIsbn</span><span class="p">(</span><span class="n">isbn</span><span class="p">)</span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;</span><span class="si">${</span><span class="n">meta</span><span class="p">.</span><span class="na">title</span><span class="si">}</span><span class="s"> / </span><span class="si">${</span><span class="n">meta</span><span class="p">.</span><span class="na">authors</span><span class="p">.</span><span class="na">joinToString</span><span class="p">()</span><span class="si">}</span><span class="s">&quot;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">"</span><span class="si">${</span><span class="n">meta</span><span class="p">.</span><span class="na">title</span><span class="si">}</span><span class="s"> / </span><span class="si">${</span><span class="n">meta</span><span class="p">.</span><span class="na">authors</span><span class="p">.</span><span class="na">joinToString</span><span class="p">()</span><span class="si">}</span><span class="s">"</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -301,8 +308,8 @@
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">bookMetadataClient</span><span class="p">(</span><span class="n">builder</span><span class="p">:</span><span class="w"> </span><span class="n">RestClient</span><span class="p">.</span><span class="na">Builder</span><span class="p">):</span><span class="w"> </span><span class="n">BookMetadataClient</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// 1. base URL과 기본 헤더를 가진 RestClient 구성</span>
 <span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">restClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span>
-<span class="w">            </span><span class="p">.</span><span class="na">baseUrl</span><span class="p">(</span><span class="s">&quot;https://metadata.example.com/api&quot;</span><span class="p">)</span>
-<span class="w">            </span><span class="p">.</span><span class="na">defaultHeader</span><span class="p">(</span><span class="s">&quot;X-Client&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;book-api&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">baseUrl</span><span class="p">(</span><span class="s">"https://metadata.example.com/api"</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">defaultHeader</span><span class="p">(</span><span class="s">"X-Client"</span><span class="p">,</span><span class="w"> </span><span class="s">"book-api"</span><span class="p">)</span>
 <span class="w">            </span><span class="p">.</span><span class="na">build</span><span class="p">()</span>
 
 <span class="w">        </span><span class="c1">// 2. RestClient를 어댑터로 감싸 프록시 팩토리 생성</span>
@@ -322,7 +329,7 @@
 <p>선언적 인터페이스도 결국 <code>RestClient</code> 위에서 돕니다. HTTP 4xx/5xx 응답은 기본적으로 예외(<code>RestClientResponseException</code> 계열)로 던져집니다. base URL을 만드는 <code>RestClient.Builder</code>에 <strong>상태 핸들러</strong>를 달아 외부 에러를 우리 도메인 예외로 바꿀 수 있습니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="kd">val</span><span class="w"> </span><span class="nv">restClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span>
-<span class="w">    </span><span class="p">.</span><span class="na">baseUrl</span><span class="p">(</span><span class="s">&quot;https://metadata.example.com/api&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">baseUrl</span><span class="p">(</span><span class="s">"https://metadata.example.com/api"</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="na">defaultStatusHandler</span><span class="p">({</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">status</span><span class="p">.</span><span class="na">value</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="m">404</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">_</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">-&gt;</span>
 <span class="w">        </span><span class="k">throw</span><span class="w"> </span><span class="n">BookMetadataNotFoundException</span><span class="p">()</span><span class="w">  </span><span class="c1">// 우리 도메인 예외로 변환</span>
 <span class="w">    </span><span class="p">}</span>

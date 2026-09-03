@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>테스트 전략</h1>
@@ -154,11 +161,11 @@
 <p>Spring Boot 4부터 테스트 의존성이 <strong>기술별 스타터</strong>로 쪼개졌습니다. 필요한 슬라이스만 골라 넣으면 되고, 각 스타터가 <code>spring-boot-starter-test</code>(JUnit 6 · AssertJ 3.27 · Mockito 5.23 · Hamcrest · JSONassert)를 전이 의존성으로 가져옵니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
-<span class="n">testImplementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-webmvc-test&quot;</span><span class="p">)</span><span class="w">    </span><span class="c1">// MockMvc, RestTestClient</span>
-<span class="n">testImplementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-data-jpa-test&quot;</span><span class="p">)</span><span class="w">  </span><span class="c1">// @DataJpaTest</span>
-<span class="n">testImplementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-starter-restclient-test&quot;</span><span class="p">)</span><span class="w"> </span><span class="c1">// @RestClientTest</span>
-<span class="n">testImplementation</span><span class="p">(</span><span class="s">&quot;org.jetbrains.kotlin:kotlin-test-junit5&quot;</span><span class="p">)</span>
-<span class="n">testRuntimeOnly</span><span class="p">(</span><span class="s">&quot;org.junit.platform:junit-platform-launcher&quot;</span><span class="p">)</span>
+<span class="n">testImplementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-webmvc-test"</span><span class="p">)</span><span class="w">    </span><span class="c1">// MockMvc, RestTestClient</span>
+<span class="n">testImplementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-data-jpa-test"</span><span class="p">)</span><span class="w">  </span><span class="c1">// @DataJpaTest</span>
+<span class="n">testImplementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-restclient-test"</span><span class="p">)</span><span class="w"> </span><span class="c1">// @RestClientTest</span>
+<span class="n">testImplementation</span><span class="p">(</span><span class="s">"org.jetbrains.kotlin:kotlin-test-junit5"</span><span class="p">)</span>
+<span class="n">testRuntimeOnly</span><span class="p">(</span><span class="s">"org.junit.platform:junit-platform-launcher"</span><span class="p">)</span>
 </pre></div>
 </div>
 
@@ -233,27 +240,27 @@
 <span class="w">                </span><span class="n">listOf</span><span class="p">(</span>
 <span class="w">                    </span><span class="n">BookResponse</span><span class="p">(</span>
 <span class="w">                        </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">,</span>
-<span class="w">                        </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;코틀린 인 액션&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;드미트리 제메로프&quot;</span><span class="p">,</span>
-<span class="w">                        </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;978-8966262281&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"코틀린 인 액션"</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"드미트리 제메로프"</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"978-8966262281"</span><span class="p">,</span>
 <span class="w">                        </span><span class="n">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">35000</span><span class="p">,</span>
 <span class="w">                        </span><span class="n">publishedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="m">2017</span><span class="p">,</span><span class="w"> </span><span class="m">6</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span>
 <span class="w">                    </span><span class="p">),</span>
 <span class="w">                </span><span class="p">),</span>
 <span class="w">            </span><span class="p">)</span>
 
-<span class="w">        </span><span class="n">mockMvc</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="n">mockMvc</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"/api/books"</span><span class="p">)</span>
 <span class="w">            </span><span class="p">.</span><span class="na">andExpect</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                </span><span class="n">status</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">isOk</span><span class="p">()</span><span class="w"> </span><span class="p">}</span>
-<span class="w">                </span><span class="n">jsonPath</span><span class="p">(</span><span class="s">&quot;</span><span class="err">$</span><span class="s">[0].title&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">value</span><span class="p">(</span><span class="s">&quot;코틀린 인 액션&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="w">                </span><span class="n">jsonPath</span><span class="p">(</span><span class="s">"</span><span class="err">$</span><span class="s">[0].title"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">value</span><span class="p">(</span><span class="s">"코틀린 인 액션"</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="nd">@Test</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">`POST with blank title returns 400`</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">mockMvc</span><span class="p">.</span><span class="na">post</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">mockMvc</span><span class="p">.</span><span class="na">post</span><span class="p">(</span><span class="s">"/api/books"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="n">contentType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">org</span><span class="p">.</span><span class="na">springframework</span><span class="p">.</span><span class="na">http</span><span class="p">.</span><span class="na">MediaType</span><span class="p">.</span><span class="na">APPLICATION_JSON</span>
-<span class="w">            </span><span class="n">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;&quot;{&quot;title&quot;:&quot;&quot;,&quot;author&quot;:&quot;홍길동&quot;,&quot;isbn&quot;:&quot;978-8966262281&quot;,&quot;price&quot;:1000,&quot;publishedAt&quot;:&quot;2017-06-01&quot;}&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="n">content</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"""{"title":"","author":"홍길동","isbn":"978-8966262281","price":1000,"publishedAt":"2017-06-01"}"""</span>
 <span class="w">        </span><span class="p">}.</span><span class="na">andExpect</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="n">status</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">isBadRequest</span><span class="p">()</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1">// Bean Validation 실패 (Phase 4)</span>
 <span class="w">        </span><span class="p">}</span>
@@ -275,9 +282,9 @@
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">`GET books is ok`</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">given</span><span class="p">(</span><span class="n">bookService</span><span class="p">.</span><span class="na">findAll</span><span class="p">()).</span><span class="na">willReturn</span><span class="p">(</span><span class="n">emptyList</span><span class="p">())</span>
 
-<span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">mvc</span><span class="p">.</span><span class="na">get</span><span class="p">().</span><span class="na">uri</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">))</span>
+<span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">mvc</span><span class="p">.</span><span class="na">get</span><span class="p">().</span><span class="na">uri</span><span class="p">(</span><span class="s">"/api/books"</span><span class="p">))</span>
 <span class="w">            </span><span class="p">.</span><span class="na">hasStatusOk</span><span class="p">()</span>
-<span class="w">            </span><span class="p">.</span><span class="na">bodyJson</span><span class="p">().</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">&quot;[]&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">bodyJson</span><span class="p">().</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">"[]"</span><span class="p">)</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -303,39 +310,39 @@
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">`findByTitleContaining returns matching books`</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">repository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span>
 <span class="w">            </span><span class="n">Book</span><span class="p">(</span>
-<span class="w">                </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;코틀린 인 액션&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;드미트리 제메로프&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;978-8966262281&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"코틀린 인 액션"</span><span class="p">,</span>
+<span class="w">                </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"드미트리 제메로프"</span><span class="p">,</span>
+<span class="w">                </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"978-8966262281"</span><span class="p">,</span>
 <span class="w">                </span><span class="n">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">35000</span><span class="p">,</span>
 <span class="w">                </span><span class="n">publishedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="m">2017</span><span class="p">,</span><span class="w"> </span><span class="m">6</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span>
 <span class="w">            </span><span class="p">),</span>
 <span class="w">        </span><span class="p">)</span>
 <span class="w">        </span><span class="n">repository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span>
 <span class="w">            </span><span class="n">Book</span><span class="p">(</span>
-<span class="w">                </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;이펙티브 코틀린&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;마르친 모스카와&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;978-8966263363&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"이펙티브 코틀린"</span><span class="p">,</span>
+<span class="w">                </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"마르친 모스카와"</span><span class="p">,</span>
+<span class="w">                </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"978-8966263363"</span><span class="p">,</span>
 <span class="w">                </span><span class="n">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">30000</span><span class="p">,</span>
 <span class="w">                </span><span class="n">publishedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="m">2022</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span>
 <span class="w">            </span><span class="p">),</span>
 <span class="w">        </span><span class="p">)</span>
 <span class="w">        </span><span class="n">repository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span>
 <span class="w">            </span><span class="n">Book</span><span class="p">(</span>
-<span class="w">                </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;자바 최강의 기술&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;조슈아 블로크&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;978-8966263158&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"자바 최강의 기술"</span><span class="p">,</span>
+<span class="w">                </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"조슈아 블로크"</span><span class="p">,</span>
+<span class="w">                </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"978-8966263158"</span><span class="p">,</span>
 <span class="w">                </span><span class="n">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">28000</span><span class="p">,</span>
 <span class="w">                </span><span class="n">publishedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="m">2018</span><span class="p">,</span><span class="w"> </span><span class="m">10</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span>
 <span class="w">            </span><span class="p">),</span>
 <span class="w">        </span><span class="p">)</span>
 
-<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repository</span><span class="p">.</span><span class="na">findByTitleContaining</span><span class="p">(</span><span class="s">&quot;코틀린&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repository</span><span class="p">.</span><span class="na">findByTitleContaining</span><span class="p">(</span><span class="s">"코틀린"</span><span class="p">)</span>
 
 <span class="w">        </span><span class="c1">// AssertJ — 읽기 좋은 단언</span>
 <span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 <span class="w">            </span><span class="p">.</span><span class="na">hasSize</span><span class="p">(</span><span class="m">2</span><span class="p">)</span>
 <span class="w">            </span><span class="p">.</span><span class="na">extracting</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">title</span><span class="w"> </span><span class="p">}</span>
-<span class="w">            </span><span class="p">.</span><span class="na">containsExactlyInAnyOrder</span><span class="p">(</span><span class="s">&quot;코틀린 인 액션&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;이펙티브 코틀린&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">containsExactlyInAnyOrder</span><span class="p">(</span><span class="s">"코틀린 인 액션"</span><span class="p">,</span><span class="w"> </span><span class="s">"이펙티브 코틀린"</span><span class="p">)</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -362,20 +369,20 @@
 
 <span class="nd">@SpringBootTest</span><span class="p">(</span><span class="n">webEnvironment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SpringBootTest</span><span class="p">.</span><span class="na">WebEnvironment</span><span class="p">.</span><span class="na">RANDOM_PORT</span><span class="p">)</span>
 <span class="nd">@AutoConfigureRestTestClient</span><span class="w">   </span><span class="c1">// ← Boot 4: 테스트 HTTP 클라이언트를 명시적으로 활성화</span>
-<span class="nd">@ActiveProfiles</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">)</span><span class="w">        </span><span class="c1">// application-test.yml 설정 사용 (Phase 4)</span>
+<span class="nd">@ActiveProfiles</span><span class="p">(</span><span class="s">"test"</span><span class="p">)</span><span class="w">        </span><span class="c1">// application-test.yml 설정 사용 (Phase 4)</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookApiIntegrationTest</span><span class="p">(</span>
 <span class="w">    </span><span class="nd">@Autowired</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">client</span><span class="p">:</span><span class="w"> </span><span class="n">RestTestClient</span><span class="p">,</span>
 <span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nd">@Test</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">`create then fetch book end-to-end`</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// 1. 도서 등록 (인증 필요 — Phase 5-2)</span>
-<span class="w">        </span><span class="n">client</span><span class="p">.</span><span class="na">post</span><span class="p">().</span><span class="na">uri</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span>
-<span class="w">            </span><span class="p">.</span><span class="na">headers</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">setBasicAuth</span><span class="p">(</span><span class="s">&quot;admin&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;admin-secret&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="n">client</span><span class="p">.</span><span class="na">post</span><span class="p">().</span><span class="na">uri</span><span class="p">(</span><span class="s">"/api/books"</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">headers</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nb">it</span><span class="p">.</span><span class="na">setBasicAuth</span><span class="p">(</span><span class="s">"admin"</span><span class="p">,</span><span class="w"> </span><span class="s">"admin-secret"</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
 <span class="w">            </span><span class="p">.</span><span class="na">body</span><span class="p">(</span>
 <span class="w">                </span><span class="n">CreateBookRequest</span><span class="p">(</span>
-<span class="w">                    </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;스프링 부트 4 입문&quot;</span><span class="p">,</span>
-<span class="w">                    </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;김종우&quot;</span><span class="p">,</span>
-<span class="w">                    </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;978-8966262281&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"스프링 부트 4 입문"</span><span class="p">,</span>
+<span class="w">                    </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"김종우"</span><span class="p">,</span>
+<span class="w">                    </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"978-8966262281"</span><span class="p">,</span>
 <span class="w">                    </span><span class="n">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">42000</span><span class="p">,</span>
 <span class="w">                    </span><span class="n">publishedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="m">2026</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span>
 <span class="w">                </span><span class="p">),</span>
@@ -383,14 +390,14 @@
 <span class="w">            </span><span class="p">.</span><span class="na">exchange</span><span class="p">()</span><span class="w">                       </span><span class="c1">// 요청 실행 → ResponseSpec 반환</span>
 <span class="w">            </span><span class="p">.</span><span class="na">expectStatus</span><span class="p">().</span><span class="na">isCreated</span><span class="p">()</span><span class="w">       </span><span class="c1">// 201 검증</span>
 <span class="w">            </span><span class="p">.</span><span class="na">expectBody</span><span class="p">()</span>
-<span class="w">            </span><span class="p">.</span><span class="na">jsonPath</span><span class="p">(</span><span class="s">&quot;</span><span class="err">$</span><span class="s">.title&quot;</span><span class="p">).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">&quot;스프링 부트 4 입문&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">jsonPath</span><span class="p">(</span><span class="s">"</span><span class="err">$</span><span class="s">.title"</span><span class="p">).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">"스프링 부트 4 입문"</span><span class="p">)</span>
 
 <span class="w">        </span><span class="c1">// 2. 조회 (인증 불필요)</span>
-<span class="w">        </span><span class="n">client</span><span class="p">.</span><span class="na">get</span><span class="p">().</span><span class="na">uri</span><span class="p">(</span><span class="s">&quot;/api/books&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="n">client</span><span class="p">.</span><span class="na">get</span><span class="p">().</span><span class="na">uri</span><span class="p">(</span><span class="s">"/api/books"</span><span class="p">)</span>
 <span class="w">            </span><span class="p">.</span><span class="na">exchange</span><span class="p">()</span>
 <span class="w">            </span><span class="p">.</span><span class="na">expectStatus</span><span class="p">().</span><span class="na">isOk</span><span class="p">()</span>
 <span class="w">            </span><span class="p">.</span><span class="na">expectBody</span><span class="p">()</span>
-<span class="w">            </span><span class="p">.</span><span class="na">jsonPath</span><span class="p">(</span><span class="s">&quot;</span><span class="err">$</span><span class="s">[0].title&quot;</span><span class="p">).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">&quot;스프링 부트 4 입문&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">.</span><span class="na">jsonPath</span><span class="p">(</span><span class="s">"</span><span class="err">$</span><span class="s">[0].title"</span><span class="p">).</span><span class="na">isEqualTo</span><span class="p">(</span><span class="s">"스프링 부트 4 입문"</span><span class="p">)</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -411,13 +418,13 @@
 <span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nd">@Test</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">`enrich returns title from external api`</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="n">server</span><span class="p">.</span><span class="na">expect</span><span class="p">(</span><span class="n">requestTo</span><span class="p">(</span><span class="s">&quot;/books/978-1617293290&quot;</span><span class="p">))</span>
-<span class="w">            </span><span class="p">.</span><span class="na">andRespond</span><span class="p">(</span><span class="n">withSuccess</span><span class="p">(</span><span class="s">&quot;&quot;&quot;{&quot;isbn&quot;:&quot;978-1617293290&quot;,&quot;title&quot;:&quot;코틀린 인 액션&quot;,&quot;authors&quot;:[&quot;드미트리&quot;]}&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="n">server</span><span class="p">.</span><span class="na">expect</span><span class="p">(</span><span class="n">requestTo</span><span class="p">(</span><span class="s">"/books/978-1617293290"</span><span class="p">))</span>
+<span class="w">            </span><span class="p">.</span><span class="na">andRespond</span><span class="p">(</span><span class="n">withSuccess</span><span class="p">(</span><span class="s">"""{"isbn":"978-1617293290","title":"코틀린 인 액션","authors":["드미트리"]}"""</span><span class="p">,</span>
 <span class="w">                </span><span class="n">MediaType</span><span class="p">.</span><span class="na">APPLICATION_JSON</span><span class="p">))</span>
 
-<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">enrich</span><span class="p">(</span><span class="s">&quot;978-1617293290&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">enrich</span><span class="p">(</span><span class="s">"978-1617293290"</span><span class="p">)</span>
 
-<span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">result</span><span class="p">).</span><span class="na">contains</span><span class="p">(</span><span class="s">&quot;코틀린 인 액션&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="n">assertThat</span><span class="p">(</span><span class="n">result</span><span class="p">).</span><span class="na">contains</span><span class="p">(</span><span class="s">"코틀린 인 액션"</span><span class="p">)</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -432,9 +439,9 @@
 <p>H2로는 PostgreSQL 고유 기능(JSONB, 특정 함수 등)을 검증할 수 없습니다. <strong>Testcontainers</strong>는 테스트 중 <strong>실제 PostgreSQL을 도커 컨테이너로</strong> 띄워 줍니다.</p>
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts — Testcontainers 2.x 기준 (Spring Boot 4.1 관리 버전 2.0.5)</span>
-<span class="n">testImplementation</span><span class="p">(</span><span class="s">&quot;org.springframework.boot:spring-boot-testcontainers&quot;</span><span class="p">)</span>
-<span class="n">testImplementation</span><span class="p">(</span><span class="s">&quot;org.testcontainers:testcontainers-postgresql&quot;</span><span class="p">)</span>
-<span class="n">testImplementation</span><span class="p">(</span><span class="s">&quot;org.testcontainers:testcontainers-junit-jupiter&quot;</span><span class="p">)</span>
+<span class="n">testImplementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-testcontainers"</span><span class="p">)</span>
+<span class="n">testImplementation</span><span class="p">(</span><span class="s">"org.testcontainers:testcontainers-postgresql"</span><span class="p">)</span>
+<span class="n">testImplementation</span><span class="p">(</span><span class="s">"org.testcontainers:testcontainers-junit-jupiter"</span><span class="p">)</span>
 </pre></div>
 </div>
 
@@ -451,14 +458,14 @@
 <span class="k">import</span><span class="w"> </span><span class="nn">org.testcontainers.postgresql.PostgreSQLContainer</span><span class="w">   </span><span class="c1">// ⚠️ 2.x에서 이동한 패키지</span>
 
 <span class="nd">@SpringBootTest</span>
-<span class="nd">@ActiveProfiles</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">)</span>
+<span class="nd">@ActiveProfiles</span><span class="p">(</span><span class="s">"test"</span><span class="p">)</span>
 <span class="nd">@Testcontainers</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookRepositoryPostgresTest</span><span class="w"> </span><span class="p">{</span>
 
-<span class="w">    </span><span class="kd">companion</span><span class="w"> </span><span class="kd">object</span><span class="w"> </span><span class="err">{</span>
+<span class="w">    </span><span class="kd">companion</span><span class="w"> </span><span class="kd">object</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nd">@Container</span>
 <span class="w">        </span><span class="nd">@ServiceConnection</span><span class="w">   </span><span class="c1">// 컨테이너 접속 정보를 datasource 설정에 자동 연결 (Spring Boot 3.1+)</span>
-<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">postgres</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PostgreSQLContainer</span><span class="p">(</span><span class="s">&quot;postgres:18&quot;</span><span class="p">)</span><span class="w">   </span><span class="c1">// 2026-07 기준 최신 메이저</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">postgres</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">PostgreSQLContainer</span><span class="p">(</span><span class="s">"postgres:18"</span><span class="p">)</span><span class="w">   </span><span class="c1">// 2026-07 기준 최신 메이저</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="nd">@Autowired</span><span class="w"> </span><span class="kd">lateinit</span><span class="w"> </span><span class="kd">var</span><span class="w"> </span><span class="nv">repository</span><span class="p">:</span><span class="w"> </span><span class="n">BookRepository</span>
@@ -467,9 +474,9 @@
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">`works against real postgres`</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">saved</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">repository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span>
 <span class="w">            </span><span class="n">Book</span><span class="p">(</span>
-<span class="w">                </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;테스트 도서&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;테스트 저자&quot;</span><span class="p">,</span>
-<span class="w">                </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;978-8966262281&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"테스트 도서"</span><span class="p">,</span>
+<span class="w">                </span><span class="n">author</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"테스트 저자"</span><span class="p">,</span>
+<span class="w">                </span><span class="n">isbn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"978-8966262281"</span><span class="p">,</span>
 <span class="w">                </span><span class="n">price</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1000</span><span class="p">,</span>
 <span class="w">                </span><span class="n">publishedAt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LocalDate</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="m">2025</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span>
 <span class="w">            </span><span class="p">),</span>

@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>상속 매핑과 값 타입</h1>
@@ -154,23 +161,23 @@
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="nd">@Entity</span>
 <span class="nd">@Inheritance</span><span class="p">(</span><span class="n">strategy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">InheritanceType</span><span class="p">.</span><span class="na">JOINED</span><span class="p">)</span>
-<span class="nd">@DiscriminatorColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;content_type&quot;</span><span class="p">)</span><span class="w">  </span><span class="c1">// 구분 컬럼 (SINGLE_TABLE에서 특히 중요)</span>
+<span class="nd">@DiscriminatorColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"content_type"</span><span class="p">)</span><span class="w">  </span><span class="c1">// 구분 컬럼 (SINGLE_TABLE에서 특히 중요)</span>
 <span class="kd">abstract</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">Content</span><span class="p">(</span>
 <span class="w">    </span><span class="nd">@Id</span><span class="w"> </span><span class="nd">@GeneratedValue</span><span class="p">(</span><span class="n">strategy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GenerationType</span><span class="p">.</span><span class="na">IDENTITY</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">title</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">,</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">price</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>
 <span class="p">)</span>
 
 <span class="nd">@Entity</span>
-<span class="nd">@DiscriminatorValue</span><span class="p">(</span><span class="s">&quot;BOOK&quot;</span><span class="p">)</span>
+<span class="nd">@DiscriminatorValue</span><span class="p">(</span><span class="s">"BOOK"</span><span class="p">)</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">Book</span><span class="p">(</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">isbn</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span>
 <span class="w">    </span><span class="c1">// title, price, id는 부모에서 상속</span>
 <span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Content</span><span class="p">()</span>
 
 <span class="nd">@Entity</span>
-<span class="nd">@DiscriminatorValue</span><span class="p">(</span><span class="s">&quot;EBOOK&quot;</span><span class="p">)</span>
+<span class="nd">@DiscriminatorValue</span><span class="p">(</span><span class="s">"EBOOK"</span><span class="p">)</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">Ebook</span><span class="p">(</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">fileSizeMb</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>
 <span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">Content</span><span class="p">()</span>
@@ -200,10 +207,10 @@
 <span class="kd">abstract</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nc">BaseEntity</span><span class="p">(</span>
 <span class="w">    </span><span class="nd">@CreatedDate</span>
 <span class="w">    </span><span class="nd">@Column</span><span class="p">(</span><span class="n">updatable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span><span class="w">          </span><span class="c1">// 생성 후 수정 금지</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">createdAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDateTime? </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">createdAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDateTime?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 
 <span class="w">    </span><span class="nd">@LastModifiedDate</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">updatedAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDateTime? </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">updatedAt</span><span class="p">:</span><span class="w"> </span><span class="n">LocalDateTime?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -273,16 +280,16 @@
 
 <span class="nd">@Embeddable</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">Address</span><span class="p">(</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">city</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">street</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">zipcode</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">city</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">street</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">zipcode</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span>
 <span class="p">)</span>
 
 <span class="c1">// 금액을 의미 있는 타입으로 (price는 Int지만, 별도 금액 묶음 예시)</span>
 <span class="nd">@Embeddable</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">Money</span><span class="p">(</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">amount</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w">        </span><span class="c1">// 원화 정수</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">currency</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;KRW&quot;</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">currency</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"KRW"</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -291,15 +298,15 @@
 <span class="kd">class</span><span class="w"> </span><span class="nc">Publisher</span><span class="p">(</span>
 <span class="w">    </span><span class="nd">@Id</span><span class="w"> </span><span class="nd">@GeneratedValue</span><span class="p">(</span><span class="n">strategy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GenerationType</span><span class="p">.</span><span class="na">IDENTITY</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
-<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">name</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">name</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">""</span><span class="p">,</span>
 
 <span class="w">    </span><span class="nd">@Embedded</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">address</span><span class="p">:</span><span class="w"> </span><span class="n">Address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Address</span><span class="p">(),</span><span class="w">      </span><span class="c1">// 컬럼: city, street, zipcode 로 풀림</span>
 
 <span class="w">    </span><span class="nd">@Embedded</span>
 <span class="w">    </span><span class="nd">@AttributeOverrides</span><span class="p">(</span>
-<span class="w">        </span><span class="n">AttributeOverride</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;amount&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">column</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;fee_amount&quot;</span><span class="p">)),</span>
-<span class="w">        </span><span class="n">AttributeOverride</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;currency&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">column</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;fee_currency&quot;</span><span class="p">))</span>
+<span class="w">        </span><span class="n">AttributeOverride</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"amount"</span><span class="p">,</span><span class="w"> </span><span class="n">column</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"fee_amount"</span><span class="p">)),</span>
+<span class="w">        </span><span class="n">AttributeOverride</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"currency"</span><span class="p">,</span><span class="w"> </span><span class="n">column</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Column</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"fee_currency"</span><span class="p">))</span>
 <span class="w">    </span><span class="p">)</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nv">listingFee</span><span class="p">:</span><span class="w"> </span><span class="n">Money</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Money</span><span class="p">()</span><span class="w">        </span><span class="c1">// 같은 타입을 두 번 쓰면 컬럼명 충돌 → 오버라이드</span>
 <span class="p">)</span>

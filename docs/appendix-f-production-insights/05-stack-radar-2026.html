@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05. 2026 스택 레이더 — OpenTelemetry·gRPC·Spring AI·Passkeys · Spring Boot 학습 가이드</title>
+<meta name="description" content="2026년 상반기는 Spring 생태계에 &quot;직접 붙이던 것이 프레임워크 기능이 된&quot; 해였습니다. Spring Boot 4.1(6월 10일)은 gRPC 자동 설정과 SSRF 방어를, Spring AI 2.0(6월 12일 GA)은 MCP 서버 애너테이션을, Spring S">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<input id="navtoggle" type="checkbox" hidden>
+<header class="topbar">
+  <label for="navtoggle" class="hamburger" aria-label="메뉴">☰</label>
+  <a class="brand" href="../index.html">🍃 Spring Boot 학습 가이드 <span>(Kotlin)</span></a>
+</header>
+<div class="layout">
+  <aside class="sidebar"><nav class="nav">
+  <div class="nav-section">개요</div>
+  <a href="../index.html">🏠 홈</a>
+  <a href="../glossary.html">📖 용어집</a>
+  <div class="nav-section">Phase 0: Spring 핵심 개념</div>
+  <a href="../phase-0-spring-fundamentals/README.html">📄 개요</a>
+  <a href="../phase-0-spring-fundamentals/00-server-side-intro.html">서버 사이드 개발 입문</a>
+  <a href="../phase-0-spring-fundamentals/01-what-is-spring.html">Spring &amp; Spring Boot 입문</a>
+  <a href="../phase-0-spring-fundamentals/02-ioc-and-di.html">IoC 컨테이너와 의존성 주입</a>
+  <a href="../phase-0-spring-fundamentals/03-bean-lifecycle-scope.html">Bean 생명주기와 스코프</a>
+  <a href="../phase-0-spring-fundamentals/04-auto-configuration.html">자동 설정과 스타터</a>
+  <a href="../phase-0-spring-fundamentals/05-mvc-vs-webflux.html">Spring MVC vs WebFlux</a>
+  <div class="nav-section">Phase 1: 프로젝트 설정</div>
+  <a href="../phase-1-project-setup/README.html">📄 개요</a>
+  <a href="../phase-1-project-setup/01-environment-setup.html">개발 환경 설정</a>
+  <a href="../phase-1-project-setup/02-create-project.html">Spring Initializr로 프로젝트 생성</a>
+  <a href="../phase-1-project-setup/03-project-structure.html">프로젝트 구조 해부</a>
+  <a href="../phase-1-project-setup/04-build-gradle-kts.html">build.gradle.kts 해부</a>
+  <a href="../phase-1-project-setup/05-application-yml.html">application.yml 설정</a>
+  <div class="nav-section">Phase 2: 첫 번째 REST API</div>
+  <a href="../phase-2-first-api/README.html">📄 개요</a>
+  <a href="../phase-2-first-api/01-application-entry-point.html">진입점 — @SpringBootApplication</a>
+  <a href="../phase-2-first-api/02-dto-and-serialization.html">DTO와 JSON 직렬화</a>
+  <a href="../phase-2-first-api/03-rest-controller.html">@RestController 구현</a>
+  <a href="../phase-2-first-api/04-service-layer.html">Service 계층과 DI</a>
+  <a href="../phase-2-first-api/05-local-run-and-test.html">로컬 실행과 테스트</a>
+  <div class="nav-section">Phase 3: 데이터 영속성 (Spring Data JPA)</div>
+  <a href="../phase-3-data-jpa/README.html">📄 개요</a>
+  <a href="../phase-3-data-jpa/01-jpa-concepts.html">Spring Data JPA 개념</a>
+  <a href="../phase-3-data-jpa/02-entity-mapping.html">Entity 매핑 (Kotlin)</a>
+  <a href="../phase-3-data-jpa/03-repository.html">Repository 인터페이스</a>
+  <a href="../phase-3-data-jpa/04-transactions.html">트랜잭션 관리</a>
+  <a href="../phase-3-data-jpa/05-database-setup.html">데이터베이스 설정 (H2 / PostgreSQL)</a>
+  <div class="nav-section">Phase 4: 검증 · 예외 · 설정</div>
+  <a href="../phase-4-validation-config/README.html">📄 개요</a>
+  <a href="../phase-4-validation-config/01-bean-validation.html">Bean Validation 입력 검증</a>
+  <a href="../phase-4-validation-config/02-exception-handling.html">전역 예외 처리</a>
+  <a href="../phase-4-validation-config/03-profiles-config.html">외부화된 설정과 프로파일</a>
+  <a href="../phase-4-validation-config/04-configuration-properties.html">@ConfigurationProperties</a>
+  <div class="nav-section">Phase 5: 실전 기능 (Spring Boot 4)</div>
+  <a href="../phase-5-production-features/README.html">📄 개요</a>
+  <a href="../phase-5-production-features/01-http-interface-client.html">선언적 HTTP 클라이언트</a>
+  <a href="../phase-5-production-features/02-security-basics.html">Spring Security 7 기초</a>
+  <a href="../phase-5-production-features/03-actuator-observability.html">Actuator와 관측성</a>
+  <a href="../phase-5-production-features/04-testing.html">테스트 전략</a>
+  <a href="../phase-5-production-features/05-api-versioning.html">API 버전 관리</a>
+  <div class="nav-section">Phase 6: 빌드 &amp; 배포</div>
+  <a href="../phase-6-build-deploy/README.html">📄 개요</a>
+  <a href="../phase-6-build-deploy/01-executable-jar.html">실행 가능 JAR 빌드</a>
+  <a href="../phase-6-build-deploy/02-docker.html">Docker 컨테이너화</a>
+  <a href="../phase-6-build-deploy/03-native-image.html">GraalVM 네이티브 이미지</a>
+  <a href="../phase-6-build-deploy/04-deploy-operations.html">프로파일별 배포 &amp; 운영</a>
+  <div class="nav-section">Phase 7: Google Cloud &amp; Cloud Run 배포</div>
+  <a href="../phase-7-cloud-run/README.html">📄 개요</a>
+  <a href="../phase-7-cloud-run/01-cloud-run-concepts.html">Cloud Run 핵심 개념</a>
+  <a href="../phase-7-cloud-run/02-gcloud-setup.html">gcloud CLI 설치와 프로젝트 설정</a>
+  <a href="../phase-7-cloud-run/03-source-deploy.html">소스에서 직접 배포</a>
+  <a href="../phase-7-cloud-run/04-image-deploy.html">컨테이너 이미지 빌드 후 배포</a>
+  <a href="../phase-7-cloud-run/05-cicd-operations.html">CI/CD와 운영</a>
+  <div class="nav-section">부록 A: JPA 심화</div>
+  <a href="../appendix-a-jpa-advanced/README.html">📄 개요</a>
+  <a href="../appendix-a-jpa-advanced/01-persistence-context.html">영속성 컨텍스트</a>
+  <a href="../appendix-a-jpa-advanced/02-associations.html">연관관계 매핑</a>
+  <a href="../appendix-a-jpa-advanced/03-inheritance-embedded.html">상속 매핑과 값 타입</a>
+  <a href="../appendix-a-jpa-advanced/04-proxy-fetch.html">프록시와 N+1</a>
+  <a href="../appendix-a-jpa-advanced/05-jpql.html">JPQL</a>
+  <div class="nav-section">부록 B: Querydsl</div>
+  <a href="../appendix-b-querydsl/README.html">📄 개요</a>
+  <a href="../appendix-b-querydsl/01-why-querydsl.html">왜 Querydsl인가</a>
+  <a href="../appendix-b-querydsl/02-setup-kotlin.html">Kotlin + Gradle 설정</a>
+  <a href="../appendix-b-querydsl/03-basic-queries.html">기본 쿼리</a>
+  <a href="../appendix-b-querydsl/04-dynamic-and-join.html">동적 쿼리와 조인</a>
+  <a href="../appendix-b-querydsl/05-dto-and-repository.html">DTO 프로젝션 &amp; 리포지토리 통합</a>
+  <div class="nav-section">부록 C: AOP / 프록시 고급</div>
+  <a href="../appendix-c-aop/README.html">📄 개요</a>
+  <a href="../appendix-c-aop/01-proxy-and-decorator.html">프록시와 동적 프록시</a>
+  <a href="../appendix-c-aop/02-spring-aop.html">Spring AOP 실전</a>
+  <a href="../appendix-c-aop/03-pitfalls-and-internals.html">함정과 내부 동작</a>
+  <div class="nav-section">부록 D: Spring MVC 내부 원리 &amp; SSR</div>
+  <a href="../appendix-d-mvc-internals/README.html">📄 개요</a>
+  <a href="../appendix-d-mvc-internals/01-dispatcher-servlet.html">DispatcherServlet과 요청 흐름</a>
+  <a href="../appendix-d-mvc-internals/02-thymeleaf-ssr.html">Thymeleaf 서버 사이드 렌더링</a>
+  <a href="../appendix-d-mvc-internals/03-filter-interceptor.html">필터와 인터셉터</a>
+  <a href="../appendix-d-mvc-internals/04-session-login.html">쿠키·세션과 로그인</a>
+  <div class="nav-section">부록 E: 규모·도메인별 설계 전략</div>
+  <a href="../appendix-e-scale-and-domain/README.html">📄 개요</a>
+  <a href="../appendix-e-scale-and-domain/01-scale-tiers.html">규모 단계별 설계</a>
+  <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
+  <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
+  <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="README.html">📄 개요</a>
+  <a href="01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="05-stack-radar-2026.html" class="active">2026 스택 레이더</a>
+</nav></aside>
+  <main class="content">
+<h1>05. 2026 스택 레이더 — OpenTelemetry·gRPC·Spring AI·Passkeys</h1>
+<p>2026년 상반기는 Spring 생태계에 <strong>"직접 붙이던 것이 프레임워크 기능이 된"</strong> 해였습니다. Spring Boot 4.1(6월 10일)은 gRPC 자동 설정과 SSRF 방어를, Spring AI 2.0(6월 12일 GA)은 MCP 서버 애너테이션을, Spring Security 7은 Passkeys와 MFA를 들고 왔습니다. LinkedIn·Medium의 "2026 백엔드 트렌드" 글들이 공통으로 꼽는 것도 이 넷입니다. 이 페이지는 각각을 <strong>Book API에 붙이면 어떻게 되는지</strong> 보여 주고, 마지막에 <strong>채택 / 시범 / 관망</strong> 판정을 내립니다.</p>
+
+<figure class="dg">
+<figcaption>2026-09 기준 레이더 — 안쪽이 "지금 채택"</figcaption>
+<div class="dg-grid c2">
+  <div class="cell is-accent"><div class="k">🟢 채택 (Adopt)</div><div class="v"><strong>OpenTelemetry 스타터</strong> — 세 신호를 OTLP 하나로. <strong><code>InetAddressFilter</code></strong> — 사용자 URL을 fetch하는 곳이 있으면 즉시</div></div>
+  <div class="cell"><div class="k">🟡 시범 (Trial)</div><div class="v"><strong>gRPC(Boot 4.1)</strong> — 내부 서비스 간 통신이 생기는 S2부터. <strong>Passkeys</strong> — 소비자 대상 로그인이 있으면</div></div>
+  <div class="cell"><div class="k">🟠 평가 (Assess)</div><div class="v"><strong>Spring AI 2.0 MCP 서버</strong> — "AI 에이전트가 우리 API의 새 클라이언트"라는 전제가 성립하는 팀부터</div></div>
+  <div class="cell is-muted"><div class="k">⚪ 관망 (Hold)</div><div class="v">HTTP/3(서블릿 스택 미지원), 구조적 동시성 API(JDK 25 preview), 4.2.0-M1의 AMQP 1.0</div></div>
+</div>
+</figure>
+
+<h2 id="1-opentelemetry-스타터-세-신호-한-형식">1. OpenTelemetry 스타터 — 세 신호, 한 형식</h2>
+<p><a href="../phase-5-production-features/03-actuator-observability.html">Phase 5-3</a>에서는 Micrometer Tracing 브리지와 OTLP 익스포터를 <strong>직접</strong> 조합했습니다. Boot 4.0부터는 그 조합이 <strong><code>spring-boot-starter-opentelemetry</code></strong> 하나로 묶였고(start.spring.io에서 "OpenTelemetry" 선택), 4.1에서 샘플러·한도·exemplar 설정이 추가됐습니다. 의미는 벤더 중립입니다 — 메트릭·추적·로그가 <strong>OTLP</strong>라는 한 와이어 포맷으로 나가므로 Collector 뒤의 백엔드(Grafana Tempo, Jaeger, Datadog, Cloud Trace)를 바꿔도 앱은 그대로입니다.</p>
+
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts — Phase 5-3의 두 줄(bridge-otel + exporter-otlp)을 이 한 줄로 대체</span>
+<span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-opentelemetry"</span><span class="p">)</span>
+<span class="c1">// 로그까지 OTLP로 보내려면 (아직 alpha 표기) — Logback 어펜더</span>
+<span class="n">implementation</span><span class="p">(</span><span class="s">"io.opentelemetry.instrumentation:opentelemetry-logback-appender-1.0:2.21.0-alpha"</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">management</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">opentelemetry</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">                                    </span><span class="c1"># 4.1: 한 스위치로 전체 on/off</span>
+<span class="w">    </span><span class="nt">resource-attributes</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">service.name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">book-api</span>
+<span class="w">      </span><span class="nt">deployment.environment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">prod</span>
+<span class="w">    </span><span class="nt">tracing</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">export</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">otlp</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://otel-collector:4318/v1/traces</span>
+<span class="w">      </span><span class="nt">sampler</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">parent-based-trace-id-ratio</span><span class="w">           </span><span class="c1"># 4.1: 샘플러 선택</span>
+<span class="w">    </span><span class="nt">logging</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">export</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">otlp</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://otel-collector:4318/v1/logs</span>
+<span class="w">  </span><span class="nt">otlp</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">metrics</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">export</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://otel-collector:4318/v1/metrics</span><span class="w">   </span><span class="c1"># 메트릭은 Micrometer OTLP 레지스트리 경로</span>
+<span class="w">        </span><span class="nt">compression-mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gzip</span><span class="w">                       </span><span class="c1"># 4.1</span>
+<span class="w">  </span><span class="nt">tracing</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">sampling</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">probability</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span><span class="w">                               </span><span class="c1"># 운영 10% — sampler가 ratio 계열일 때 사용</span>
+<span class="w">    </span><span class="nt">exemplars</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">filter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trace-based</span><span class="w">                            </span><span class="c1"># 4.1: 메트릭 ↔ 추적 연결(exemplar)</span>
+</pre></div>
+</div>
+
+<figure class="dg">
+<figcaption>메트릭 · 추적 · 로그가 나가는 경로 — 키 이름이 다른 이유</figcaption>
+<div class="dg-pipe">
+  <div class="dg-node"><div class="t">Micrometer</div><div class="s">메트릭 → <code>management.otlp.metrics.*</code><br>(Micrometer 자체 OTLP 레지스트리)</div></div>
+  <div class="dg-arrow h"></div>
+  <div class="dg-node is-accent"><div class="t">OTel Collector :4318</div><div class="s">수신 · 배치 · 라우팅</div></div>
+  <div class="dg-arrow h"></div>
+  <div class="dg-node"><div class="t">백엔드</div><div class="s">Tempo · Jaeger · Cloud Trace · Datadog …</div></div>
+</div>
+<div class="dg-arrow v"></div>
+<div class="dg-pipe">
+  <div class="dg-node"><div class="t">Micrometer Tracing → OTel SDK</div><div class="s">추적·로그 → <code>management.opentelemetry.*</code><br>(OTel SDK 경로)</div></div>
+  <div class="dg-arrow h"></div>
+  <div class="dg-node is-muted"><div class="t">같은 Collector</div></div>
+</div>
+<p class="dg-foot">메트릭은 Micrometer가, 추적·로그는 OpenTelemetry SDK가 내보내기 때문에 프로퍼티 접두어가 갈립니다. 둘 다 같은 Collector로 보내면 됩니다.</p>
+</figure>
+
+<aside class="callout tip">
+<p><strong>비동기 경계에서 trace가 끊긴다면</strong> 4.1의 <code>@Async</code> 컨텍스트 자동 전파가 처리합니다. 직접 만든 <code>Executor</code>가 있다면 <code>ContextPropagatingTaskDecorator</code>를 빈으로 등록하세요. 그리고 추적이 자동으로 붙는 것은 <strong>Spring이 만들어 준</strong> 클라이언트(<code>RestClient.Builder</code> 주입, <a href="../phase-5-production-features/01-http-interface-client.html">HTTP 인터페이스</a>)뿐입니다. <code>RestClient.create()</code>로 직접 만들면 span이 끊깁니다.</p>
+</aside>
+
+<h2 id="2-grpc-boot-4-1의-자동-설정">2. gRPC — Boot 4.1의 자동 설정</h2>
+<p>Book API가 서점으로 자라 <code>order</code>와 <code>catalog</code>가 <strong>별도 서비스</strong>가 되는 순간(<a href="../appendix-e-scale-and-domain/01-scale-tiers.html">S3</a>), 서비스 간 호출을 REST/JSON으로 할지 gRPC로 할지 결정해야 합니다. 2026년 6월 Boot 4.1이 Spring gRPC 1.1을 <strong>공식 스타터</strong>로 흡수하면서 "붙이는 비용"이 크게 줄었습니다.</p>
+
+<table>
+<thead>
+<tr><th>관점(CS)</th><th>REST + JSON</th><th>gRPC + Protobuf</th></tr>
+</thead>
+<tbody>
+<tr><td>전송</td><td>HTTP/1.1 또는 2, 텍스트</td><td><strong>HTTP/2 필수</strong> — 한 연결에 다중 스트림(멀티플렉싱), 헤더 압축</td></tr>
+<tr><td>직렬화</td><td>JSON — 사람이 읽음, 필드명 반복, 파싱 비용</td><td>바이너리, <strong>필드 번호</strong>로 식별 → 크기 1/3~1/10, 파싱 수 배 빠름</td></tr>
+<tr><td>계약</td><td>OpenAPI(선택)</td><td><code>.proto</code>가 <strong>곧 계약</strong>. 코드 생성으로 클라이언트·서버 타입 일치 강제</td></tr>
+<tr><td>스키마 진화</td><td>필드 추가는 쉬움, 이름 변경은 깨짐</td><td>번호를 재사용하지 않으면 <strong>양방향 호환</strong>. 이름은 자유롭게 변경</td></tr>
+<tr><td>스트리밍</td><td>SSE·WebSocket 별도</td><td>단방향·양방향 스트리밍이 <strong>1급 기능</strong></td></tr>
+<tr><td>브라우저·공개 API</td><td>자연스러움</td><td>grpc-web 프록시 필요 → <strong>외부 공개엔 부적합</strong></td></tr>
+</tbody>
+</table>
+
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts — catalog 서비스(서버) 쪽</span>
+<span class="n">plugins</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">"com.google.protobuf"</span><span class="p">)</span><span class="w">      </span><span class="c1">// .proto → Kotlin/Java 스텁 생성 (버전은 plugins.gradle.org 최신)</span>
+<span class="p">}</span>
+<span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-grpc-server"</span><span class="p">)</span><span class="w">   </span><span class="c1">// 4.1 신설</span>
+<span class="w">    </span><span class="n">testImplementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-grpc-server-test"</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<div class="code-block" data-lang="text"><span class="code-lang">text</span><pre class="hl"><code>// src/main/proto/catalog.proto
+syntax = &quot;proto3&quot;;
+package bookapi.catalog;
+option java_package = &quot;com.example.bookapi.catalog.grpc&quot;;
+option java_multiple_files = true;
+
+service Catalog {
+  rpc GetStock (GetStockRequest) returns (StockReply);
+}
+message GetStockRequest { int64 book_id = 1; }
+message StockReply      { int64 book_id = 1; int32 quantity = 2; }   // 필드 번호는 영구 — 삭제해도 재사용 금지</code></pre></div>
+
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.catalog</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">com.example.bookapi.catalog.grpc.CatalogGrpc</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">com.example.bookapi.catalog.grpc.GetStockRequest</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">com.example.bookapi.catalog.grpc.StockReply</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">io.grpc.stub.StreamObserver</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.grpc.server.service.GrpcService</span>
+
+<span class="nd">@GrpcService</span><span class="w">                                       </span><span class="c1">// BindableService 빈이면 자동 노출</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">CatalogGrpcService</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">inventoryService</span><span class="p">:</span><span class="w"> </span><span class="n">InventoryService</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">CatalogGrpc</span><span class="p">.</span><span class="na">CatalogImplBase</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getStock</span><span class="p">(</span><span class="n">request</span><span class="p">:</span><span class="w"> </span><span class="n">GetStockRequest</span><span class="p">,</span><span class="w"> </span><span class="n">responseObserver</span><span class="p">:</span><span class="w"> </span><span class="n">StreamObserver</span><span class="o">&lt;</span><span class="n">StockReply</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">val</span><span class="w"> </span><span class="nv">qty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">inventoryService</span><span class="p">.</span><span class="na">stockOf</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="na">bookId</span><span class="p">)</span>
+<span class="w">        </span><span class="n">responseObserver</span><span class="p">.</span><span class="na">onNext</span><span class="p">(</span><span class="n">StockReply</span><span class="p">.</span><span class="na">newBuilder</span><span class="p">().</span><span class="na">setBookId</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="na">bookId</span><span class="p">).</span><span class="na">setQuantity</span><span class="p">(</span><span class="n">qty</span><span class="p">).</span><span class="na">build</span><span class="p">())</span>
+<span class="w">        </span><span class="n">responseObserver</span><span class="p">.</span><span class="na">onCompleted</span><span class="p">()</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="c1"># catalog 서비스</span>
+<span class="nt">spring</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">grpc</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">server</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">9090</span><span class="w">                       </span><span class="c1"># 독립 Netty 서버. 서블릿 통합(같은 8080 포트, HTTP/2)도 선택 가능</span>
+<span class="w">      </span><span class="nt">reflection</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">                  </span><span class="c1"># grpcurl로 탐색 가능 — 개발 환경에서만</span>
+<span class="w">      </span><span class="nt">health</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">                  </span><span class="c1"># gRPC 표준 헬스 서비스 — Kubernetes grpc 프로브와 연결</span>
+</pre></div>
+</div>
+
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// order 서비스(클라이언트) 쪽 — 스텁을 빈으로 주입받는다</span>
+<span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.boot:spring-boot-starter-grpc-client"</span><span class="p">)</span>
+
+<span class="nd">@SpringBootApplication</span>
+<span class="nd">@ImportGrpcClients</span><span class="p">(</span><span class="n">target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"catalog"</span><span class="p">,</span><span class="w"> </span><span class="n">types</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">CatalogGrpc</span><span class="p">.</span><span class="na">CatalogBlockingStub</span><span class="o">::</span><span class="n">class</span><span class="o">]</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">OrderApplication</span>
+
+<span class="c1">// application.yml</span>
+<span class="c1">// spring.grpc.client.channel.catalog.target: static://catalog:9090</span>
+</pre></div>
+</div>
+
+<p>Boot 4.1은 <code>ObservationGrpcServerInterceptor</code>를 자동 등록하므로 §1의 추적이 gRPC 호출에도 이어지고, <code>@GrpcAdvice</code>로 <a href="../phase-4-validation-config/02-exception-handling.html">Phase 4-2</a>의 <code>@RestControllerAdvice</code>와 같은 방식의 예외 처리를 합니다. 테스트는 <code>@AutoConfigureTestGrpcTransport</code>로 포트 없이 인프로세스 채널을 씁니다.</p>
+
+<aside class="callout note">
+<p><strong>Kotlin에서의 선택지:</strong> 위는 Java 스텁(<code>StreamObserver</code>)입니다. <code>grpc-kotlin</code>을 추가하면 <code>suspend fun getStock(...)</code> 형태의 코루틴 스텁이 생성되어 <a href="01-virtual-threads-in-practice.html">01</a>의 코루틴 팬아웃과 자연스럽게 결합됩니다. 시작은 Java 스텁으로 하고, 스트리밍이 필요해지면 옮기세요.</p>
+</aside>
+
+<h2 id="3-spring-ai-2-0-book-api를-mcp-도구로">3. Spring AI 2.0 — Book API를 MCP 도구로</h2>
+<p>2026년 LinkedIn·Medium의 트렌드 글이 가장 많이 반복한 문장은 <strong>"AI 에이전트가 API의 새로운 클라이언트다"</strong>입니다. 사람이 화면에서 누르던 "도서 검색"을 에이전트가 <strong>도구 호출</strong>로 수행합니다. 그 표준 프로토콜이 <strong>MCP(Model Context Protocol)</strong>이고, Spring AI 2.0(2026-06-12 GA, <strong>Boot 4.1 · Framework 7 필수</strong>)은 MCP 서버를 <strong>애너테이션 하나</strong>로 만듭니다. 커뮤니티 인큐베이터에 있던 <code>@McpTool</code> 계열이 코어로 편입됐고, 전송은 <strong>Streamable HTTP가 기본</strong>(SSE는 deprecated)입니다.</p>
+
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
+<span class="n">dependencies</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="n">platform</span><span class="p">(</span><span class="s">"org.springframework.ai:spring-ai-bom:2.0.1"</span><span class="p">))</span><span class="w">            </span><span class="c1">// Boot BOM 관리 대상 아님</span>
+<span class="w">    </span><span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.ai:spring-ai-starter-mcp-server-webmvc"</span><span class="p">)</span><span class="w">      </span><span class="c1">// MVC 위 Streamable HTTP / SSE / Stateless</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">spring</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ai</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">mcp</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">server</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">book-api</span>
+<span class="w">        </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.1.0</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SYNC</span>
+<span class="w">        </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">STREAMABLE</span><span class="w">                  </span><span class="c1"># STREAMABLE | SSE | STATELESS</span>
+<span class="w">        </span><span class="nt">annotation-scanner</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.mcp</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">com.example.bookapi.service.BookService</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.stereotype.Component</span>
+<span class="c1">// MCP 애너테이션 import 생략 — Spring AI 2.0 코어 (@McpTool, @McpToolParam, @McpResource)</span>
+
+<span class="nd">@Component</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">BookTools</span><span class="p">(</span><span class="kd">private</span><span class="w"> </span><span class="kd">val</span><span class="w"> </span><span class="nv">bookService</span><span class="p">:</span><span class="w"> </span><span class="n">BookService</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="c1">// JSON 스키마는 시그니처와 @McpToolParam 설명에서 자동 생성 — 별도 스키마 파일 없음</span>
+<span class="w">    </span><span class="nd">@McpTool</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"search_books"</span><span class="p">,</span><span class="w"> </span><span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"제목·저자 키워드로 도서를 검색한다. 최대 20건"</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">searchBooks</span><span class="p">(</span>
+<span class="w">        </span><span class="nd">@McpToolParam</span><span class="p">(</span><span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"검색 키워드"</span><span class="p">,</span><span class="w"> </span><span class="n">required</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="n">keyword</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">,</span>
+<span class="w">    </span><span class="p">):</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">BookResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">search</span><span class="p">(</span><span class="n">keyword</span><span class="p">,</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">20</span><span class="p">)</span>
+
+<span class="w">    </span><span class="nd">@McpTool</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"get_book"</span><span class="p">,</span><span class="w"> </span><span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"도서 ID로 상세 정보를 조회한다"</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">getBook</span><span class="p">(</span><span class="nd">@McpToolParam</span><span class="p">(</span><span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"도서 ID"</span><span class="p">,</span><span class="w"> </span><span class="n">required</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span><span class="w"> </span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span><span class="w"> </span><span class="o">=</span>
+<span class="w">        </span><span class="n">bookService</span><span class="p">.</span><span class="na">getBook</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+
+<span class="w">    </span><span class="nd">@McpResource</span><span class="p">(</span><span class="n">uri</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"book://{id}"</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"book"</span><span class="p">,</span><span class="w"> </span><span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"도서 한 권의 상세 (읽기 전용)"</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">bookResource</span><span class="p">(</span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">String</span><span class="p">):</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bookService</span><span class="p">.</span><span class="na">getBook</span><span class="p">(</span><span class="n">id</span><span class="p">.</span><span class="na">toLong</span><span class="p">()).</span><span class="na">toJson</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<p>중요한 것은 <strong>기존 <code>BookService</code>를 그대로 재사용</strong>했다는 점입니다. MCP 도구는 컨트롤러와 같은 층의 <strong>또 하나의 어댑터</strong>입니다. 그래서 <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">부록 E-02</a>의 "서비스 계층에 비즈니스 규칙을 모아라"는 원칙이 여기서 보상을 받습니다.</p>
+
+<aside class="callout warning">
+<p><strong>에이전트 클라이언트가 바꾸는 운영 전제 세 가지.</strong> ① 에이전트는 실패하면 <strong>즉시·반복적으로</strong> 재시도합니다 → <a href="03-reliability-outbox-idempotency.html">03</a>의 <code>Idempotency-Key</code>와 속도 제한이 선택이 아닌 필수. ② 에이전트가 URL을 인자로 넘기는 도구(예: "이 링크의 도서 정보를 가져와")는 <strong>SSRF의 정석 경로</strong> → §4의 <code>InetAddressFilter</code>. ③ 도구 설명(description)이 곧 <strong>API 문서</strong>입니다 — 모호하면 에이전트가 잘못 호출합니다. 2026년의 "No-BS" 평가들은 Spring AI를 "<em>Spring 팀이 만든 AI 통합</em>"으로 자리매김하되, 다중 에이전트 오케스트레이션은 아직 <strong>평가 단계</strong>로 봅니다.</p>
+</aside>
+
+<h2 id="4-spring-security-7-passkeys-mfa-ssrf-방어">4. Spring Security 7 — Passkeys · MFA · SSRF 방어</h2>
+
+<h3 id="4-1-passkeyswebauthn-비밀번호-없는-로그인">4.1 Passkeys(WebAuthn) — 비밀번호 없는 로그인</h3>
+<p><a href="../appendix-d-mvc-internals/04-session-login.html">부록 D-04</a>의 폼 로그인에 <strong>Passkeys</strong>를 더하면 비밀번호 유출·피싱이 원리적으로 사라집니다(공개키 암호, 출처(origin) 바인딩). Spring Security 7은 이를 1급 기능으로 넣었고, Kotlin DSL도 지원합니다.</p>
+
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
+<span class="n">implementation</span><span class="p">(</span><span class="s">"org.springframework.security:spring-security-webauthn"</span><span class="p">)</span>
+</pre></div>
+</div>
+
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.config</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Bean</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Configuration</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.security.config.annotation.web.builders.HttpSecurity</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.security.config.annotation.web.invoke</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.security.web.SecurityFilterChain</span>
+
+<span class="nd">@Configuration</span><span class="p">(</span><span class="n">proxyBeanMethods</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">WebAuthnSecurityConfig</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">filterChain</span><span class="p">(</span><span class="n">http</span><span class="p">:</span><span class="w"> </span><span class="n">HttpSecurity</span><span class="p">):</span><span class="w"> </span><span class="n">SecurityFilterChain</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">http</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">formLogin</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span><span class="w">                                    </span><span class="c1">// 1차 등록은 기존 로그인으로</span>
+<span class="w">            </span><span class="n">webAuthn</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">rpName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"Book API"</span>
+<span class="w">                </span><span class="n">rpId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"bookapi.example.com"</span><span class="w">                 </span><span class="c1">// 도메인과 일치해야 함 — localhost 개발 시 "localhost"</span>
+<span class="w">                </span><span class="n">allowedOrigins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">setOf</span><span class="p">(</span><span class="s">"https://bookapi.example.com"</span><span class="p">)</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">http</span><span class="p">.</span><span class="na">build</span><span class="p">()</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<p>기본 엔드포인트가 생깁니다: <code>POST /webauthn/register/options</code> → <code>POST /webauthn/register</code>(등록), <code>POST /webauthn/authenticate/options</code> → <code>POST /login/webauthn</code>(로그인). 기본 저장소는 <strong>인메모리</strong>이므로 운영에서는 <code>JdbcPublicKeyCredentialUserEntityRepository</code>·<code>JdbcUserCredentialRepository</code>를 빈으로 등록해 DB에 저장합니다(스키마는 Spring Security가 제공).</p>
+
+<h3 id="4-2-oauth2-리소스-서버-4-1의-프로퍼티-두-줄">4.2 OAuth2 리소스 서버 — 4.1의 프로퍼티 두 줄</h3>
+<p><a href="../phase-5-production-features/02-security-basics.html">Phase 5-2 §6</a>의 JWT 리소스 서버에서 권한 매핑을 위해 <code>JwtAuthenticationConverter</code>를 직접 만들던 코드가 4.1에서 프로퍼티로 내려왔습니다.</p>
+
+<div class="code-block" data-lang="yaml"><span class="code-lang">yaml</span><div class="hl"><pre><span></span><span class="nt">spring</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">security</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">oauth2</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">resourceserver</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">jwt</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">issuer-uri</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://auth.example.com</span>
+<span class="w">          </span><span class="nt">authorities-claim-expressions</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">roles</span><span class="w">            </span><span class="c1"># 4.1: 권한을 읽을 클레임 (SpEL 가능)</span>
+<span class="w">          </span><span class="nt">authority-prefix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ROLE_</span><span class="w">                          </span><span class="c1"># 4.1: 접두어 — hasRole("ADMIN")과 맞춤</span>
+</pre></div>
+</div>
+
+<h3 id="4-3-ssrf-방어-inetaddressfilter">4.3 SSRF 방어 — <code>InetAddressFilter</code></h3>
+<p>SSRF(Server-Side Request Forgery)는 사용자가 준 URL을 서버가 대신 fetch할 때, 그 URL이 <code>http://169.254.169.254/</code>(클라우드 메타데이터)나 <code>http://10.0.0.5:5432</code>(내부 DB)를 가리키는 공격입니다. §3의 에이전트 도구가 이 패턴을 정확히 만듭니다. Boot 4.1은 <strong>빈 하나</strong>로 자동 설정된 모든 HTTP 클라이언트(<code>RestClient</code>, <code>WebClient</code>, HTTP 인터페이스 클라이언트)에 주소 필터를 적용합니다.</p>
+
+<div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="k">package</span><span class="w"> </span><span class="nn">com.example.bookapi.config</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Bean</span>
+<span class="k">import</span><span class="w"> </span><span class="nn">org.springframework.context.annotation.Configuration</span>
+<span class="c1">// InetAddressFilter import — Boot 4.1 HTTP 클라이언트 자동 설정 모듈</span>
+
+<span class="nd">@Configuration</span><span class="p">(</span><span class="n">proxyBeanMethods</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">HttpClientSecurityConfig</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 사설망·루프백·링크로컬(메타데이터 169.254.x.x)로 나가는 요청을 DNS 해석 후 차단 → FilteredHostException</span>
+<span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">ssrfFilter</span><span class="p">():</span><span class="w"> </span><span class="n">InetAddressFilter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">InetAddressFilter</span><span class="p">.</span><span class="na">externalAddresses</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<aside class="callout important">
+<p>필터는 <strong>Spring이 만들어 준 클라이언트에만</strong> 붙습니다. <code>RestClient.create()</code>로 직접 만든 인스턴스는 보호되지 않습니다 — §1의 추적과 같은 이유입니다. 이 가이드가 <a href="../phase-5-production-features/01-http-interface-client.html">Phase 5-1</a>부터 <code>RestClient.Builder</code> 주입을 고집한 이유가 하나 더 늘었습니다.</p>
+</aside>
+
+<h2 id="5-판정-규모-단계별로">5. 판정 — 규모 단계별로</h2>
+
+<table>
+<thead>
+<tr><th>기술</th><th>S0~S1</th><th>S2</th><th>S3</th><th>한 줄 근거</th></tr>
+</thead>
+<tbody>
+<tr><td>OpenTelemetry 스타터</td><td><strong>채택</strong></td><td>채택</td><td>채택</td><td>비용은 의존성 한 줄, 얻는 것은 백엔드 이식성. Phase 5-3 설정을 대체</td></tr>
+<tr><td><code>InetAddressFilter</code></td><td>사용자 URL fetch가 있으면 <strong>채택</strong></td><td>채택</td><td>채택</td><td>빈 하나. 없을 이유가 없음</td></tr>
+<tr><td>gRPC</td><td>관망</td><td><strong>시범</strong> — 내부 호출이 생기면</td><td>채택</td><td>외부 공개 API에는 여전히 REST. 서비스 간 계약·스트리밍에 가치</td></tr>
+<tr><td>Passkeys</td><td>소비자 로그인이 있으면 시범</td><td>시범</td><td>채택</td><td>MFA 요구가 규제로 들어오는 도메인(금융·의료)부터</td></tr>
+<tr><td>Spring AI 2.0 MCP 서버</td><td>평가</td><td><strong>시범</strong></td><td>시범</td><td>서비스 계층이 정리된 팀은 어댑터 하나. 정리 안 된 팀은 먼저 부록 E</td></tr>
+<tr><td>HTTP/3 · 구조적 동시성 API · AMQP 1.0</td><td>관망</td><td>관망</td><td>관망</td><td>서블릿 스택 미지원 / JDK 25 preview / 4.2 마일스톤</td></tr>
+</tbody>
+</table>
+
+<h2 id="더-읽을거리">더 읽을거리</h2>
+<ul>
+<li><a href="https://spring.io/blog/2025/11/18/opentelemetry-with-spring-boot/">OpenTelemetry with Spring Boot</a> (Spring 공식 블로그) · <a href="https://www.danvega.dev/blog/opentelemetry-spring-boot">OpenTelemetry with Spring Boot 4: The New Starter</a> (Dan Vega) · <a href="https://foojay.io/today/spring-boot-4-opentelemetry-explained/">Spring Boot 4 — OpenTelemetry Guide</a> (foojay)</li>
+<li><a href="https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.1-Release-Notes">Spring Boot 4.1 Release Notes</a> · <a href="https://www.infoq.com/news/2026/06/spring-boot-4-1/">Spring Boot 4.1 Adds gRPC Auto-Configuration, SSRF Mitigation, and Kotlin 2.3 Support</a> (InfoQ, 2026-06) · <a href="https://spring.io/blog/2026/08/20/spring-boot-4-2-0-M1-available-now/">Spring Boot 4.2.0-M1</a> (2026-08-20)</li>
+<li><a href="https://docs.spring.io/spring-boot/reference/io/grpc.html">Spring Boot — gRPC</a> (공식) · <a href="https://stevenpg.com/posts/ultimate-guide-spring-grpc/">The Ultimate Guide to gRPC with Spring Boot 4.1</a> · <a href="https://tucanoo.com/grpc-in-spring-boot-4-1-auto-configuration-tutorial/">gRPC in Spring Boot 4.1: The New Auto-Configuration, End to End</a></li>
+<li><a href="https://spring.io/blog/2026/06/12/spring-ai-2-0-0-GA-available-now/">Spring AI 2.0.0 GA Available Now</a> (2026-06-12) · <a href="https://docs.spring.io/spring-ai/reference/api/mcp/mcp-annotations-server.html">Spring AI — MCP Server Annotations</a> · <a href="https://medium.com/@chrisvanbreeden/spring-boot-4-and-spring-ai-2-0-the-new-java-ai-stack-58e9577e7919">Spring Boot 4 and Spring AI 2.0: The New Java AI Stack</a> (Medium) · <a href="https://medium.com/@alxkm/java-ai-frameworks-in-2026-the-no-bs-guide-for-backend-engineers-c3c15c58b452">Java AI Frameworks in 2026: The No-BS Guide</a> (Medium, 2026-05)</li>
+<li><a href="https://docs.spring.io/spring-security/reference/servlet/authentication/passkeys.html">Spring Security — Passkeys</a> (공식) · <a href="https://www.luminis.eu/blog/spring-security-7-and-passkeys-a-practical-guide/">Spring Security 7 and Passkeys: A Practical Guide</a> (Luminis) · <a href="https://stevenpg.com/posts/ultimate-guide-spring-security-7-migration/">The Ultimate Guide to Spring Security 7 (Migrating from 6)</a></li>
+<li><a href="https://www.danvega.dev/blog/spring-boot-ssrf-protection-inet-address-filter">SSRF Protection in Spring Boot 4.1 with InetAddressFilter</a> (Dan Vega) · <a href="https://medium.com/@maneakanksha772/securing-spring-boot-4-1-the-built-in-ssrf-mitigation-4d70e168b405">Securing Spring Boot 4.1: The Built-In SSRF Mitigation</a> (Medium, 2026-08)</li>
+<li><a href="https://medium.com/@ntiinsd/java-spring-boot-in-2026-the-7-trends-that-will-quietly-redefine-backend-development-b9f00b0b970f">Java &amp; Spring Boot in 2026: The 7 Trends</a> · <a href="https://dev.to/x4nent/the-modular-monolith-2026-complete-guide-spring-modulith-archunit-fitness-functions-and-lessons-878">The Modular Monolith 2026 Complete Guide</a> (DEV) — 트렌드 종합</li>
+</ul>
+
+<h2 id="다음-단계">다음 단계</h2>
+<ul>
+<li>🏠 <strong><a href="../index.html">가이드 홈으로 돌아가기</a></strong></li>
+<li>🧭 <strong><a href="../appendix-e-scale-and-domain/04-decision-guide.html">부록 E-04 의사결정 가이드</a></strong> — 이 페이지의 "채택/시범/관망"을 여러분 서비스의 규모·도메인에 대입해 보세요</li>
+<li>🧵 <strong><a href="01-virtual-threads-in-practice.html">부록 F-01</a></strong>로 돌아가 체크리스트를 실제 서비스에 적용하기</li>
+</ul>
+<p>레이더는 매년 바뀝니다. 바뀌지 않는 것은 <strong>"이 기술이 어떤 상한을 없애고, 다음 상한은 어디인가"</strong>를 묻는 습관입니다. 🧭</p>
+
+  </main>
+<aside class="toc" aria-label="페이지 목차">
+<div class="toc-title">이 페이지</div>
+<a class="lvl2" href="#1-opentelemetry-스타터-세-신호-한-형식">1. OpenTelemetry 스타터 — 세 신호, 한 형식</a>
+<a class="lvl2" href="#2-grpc-boot-4-1의-자동-설정">2. gRPC — Boot 4.1의 자동 설정</a>
+<a class="lvl2" href="#3-spring-ai-2-0-book-api를-mcp-도구로">3. Spring AI 2.0 — Book API를 MCP 도구로</a>
+<a class="lvl2" href="#4-spring-security-7-passkeys-mfa-ssrf-방어">4. Spring Security 7 — Passkeys · MFA · SSRF 방어</a>
+<a class="lvl3" href="#4-1-passkeyswebauthn-비밀번호-없는-로그인">4.1 Passkeys(WebAuthn) — 비밀번호 없는 로그인</a>
+<a class="lvl3" href="#4-2-oauth2-리소스-서버-4-1의-프로퍼티-두-줄">4.2 OAuth2 리소스 서버 — 4.1의 프로퍼티 두 줄</a>
+<a class="lvl3" href="#4-3-ssrf-방어-inetaddressfilter">4.3 SSRF 방어 — InetAddressFilter</a>
+<a class="lvl2" href="#5-판정-규모-단계별로">5. 판정 — 규모 단계별로</a>
+<a class="lvl2" href="#더-읽을거리">더 읽을거리</a>
+<a class="lvl2" href="#다음-단계">다음 단계</a>
+</aside>
+</div>
+<label for="navtoggle" class="scrim"></label>
+<script src="../assets/app.js" defer></script>
+</body>
+</html>

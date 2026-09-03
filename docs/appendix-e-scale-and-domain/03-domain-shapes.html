@@ -104,6 +104,13 @@
   <a href="02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="03-domain-shapes.html" class="active">도메인 성격별 전략</a>
   <a href="04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>03. 도메인 성격별 전략</h1>
@@ -203,7 +210,7 @@
 <span class="p">)</span><span class="w"> </span><span class="p">{</span>
 
 <span class="w">    </span><span class="c1">// 자주 조회되고 거의 안 바뀌는 단건 — 캐시 대상으로 적합</span>
-<span class="w">    </span><span class="nd">@Cacheable</span><span class="p">(</span><span class="n">cacheNames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s">&quot;books&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;#id&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@Cacheable</span><span class="p">(</span><span class="n">cacheNames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s">"books"</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"#id"</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">findById</span><span class="p">(</span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">):</span><span class="w"> </span><span class="n">BookResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...</span>
 
 <span class="w">    </span><span class="c1">// 목록은 캐시하지 않는다 — 필터 조합마다 키가 폭발한다</span>
@@ -256,8 +263,8 @@
 
 <span class="w">    </span><span class="c1">// 조건부 원자 갱신 — 재고가 충분할 때만 차감되고, 갱신된 행 수를 돌려준다</span>
 <span class="w">    </span><span class="nd">@Modifying</span><span class="p">(</span><span class="n">clearAutomatically</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
-<span class="w">    </span><span class="nd">@Query</span><span class="p">(</span><span class="s">&quot;update Book b set b.stock = b.stock - :qty where b.id = :id and b.stock &gt;= :qty&quot;</span><span class="p">)</span>
-<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">decreaseStock</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">,</span><span class="w"> </span><span class="nd">@Param</span><span class="p">(</span><span class="s">&quot;qty&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">qty</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">):</span><span class="w"> </span><span class="kt">Int</span>
+<span class="w">    </span><span class="nd">@Query</span><span class="p">(</span><span class="s">"update Book b set b.stock = b.stock - :qty where b.id = :id and b.stock &gt;= :qty"</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">decreaseStock</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">"id"</span><span class="p">)</span><span class="w"> </span><span class="n">id</span><span class="p">:</span><span class="w"> </span><span class="kt">Long</span><span class="p">,</span><span class="w"> </span><span class="nd">@Param</span><span class="p">(</span><span class="s">"qty"</span><span class="p">)</span><span class="w"> </span><span class="n">qty</span><span class="p">:</span><span class="w"> </span><span class="kt">Int</span><span class="p">):</span><span class="w"> </span><span class="kt">Int</span>
 <span class="p">}</span>
 </pre></div>
 </div>

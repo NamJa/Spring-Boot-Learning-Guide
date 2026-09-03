@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>자동 설정과 스타터</h1>
@@ -206,7 +213,7 @@
 
 <span class="w">    </span><span class="c1">// Spring Boot 4의 JSON 엔진은 Jackson 3 → 패키지가 tools.jackson.*</span>
 <span class="w">    </span><span class="nd">@Bean</span>
-<span class="w">    </span><span class="nd">@ConditionalOnClass</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s">&quot;tools.jackson.databind.json.JsonMapper&quot;</span><span class="o">]</span><span class="p">)</span>
+<span class="w">    </span><span class="nd">@ConditionalOnClass</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s">"tools.jackson.databind.json.JsonMapper"</span><span class="o">]</span><span class="p">)</span>
 <span class="w">    </span><span class="nd">@ConditionalOnMissingBean</span><span class="w"> </span><span class="c1">// 사용자가 JsonMapper Bean을 안 만들었을 때만!</span>
 <span class="w">    </span><span class="kd">fun</span><span class="w"> </span><span class="nf">jsonMapper</span><span class="p">():</span><span class="w"> </span><span class="n">JsonMapper</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JsonMapper</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">findAndAddModules</span><span class="p">().</span><span class="na">build</span><span class="p">()</span>
 <span class="p">}</span>
@@ -234,9 +241,9 @@
 
 <div class="code-block" data-lang="groovy"><span class="code-lang">groovy</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts (Gradle Kotlin DSL)</span>
 <span class="n">dependencies</span><span class="w"> </span><span class="o">{</span>
-<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">&quot;org.springframework.boot:spring-boot-starter-webmvc&quot;</span><span class="o">)</span>
-<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">&quot;org.springframework.boot:spring-boot-starter-data-jpa&quot;</span><span class="o">)</span>
-<span class="w">    </span><span class="n">testImplementation</span><span class="o">(</span><span class="s2">&quot;org.springframework.boot:spring-boot-starter-webmvc-test&quot;</span><span class="o">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">"org.springframework.boot:spring-boot-starter-webmvc"</span><span class="o">)</span>
+<span class="w">    </span><span class="n">implementation</span><span class="o">(</span><span class="s2">"org.springframework.boot:spring-boot-starter-data-jpa"</span><span class="o">)</span>
+<span class="w">    </span><span class="n">testImplementation</span><span class="o">(</span><span class="s2">"org.springframework.boot:spring-boot-starter-webmvc-test"</span><span class="o">)</span>
 <span class="o">}</span>
 </pre></div>
 </div>

@@ -10,8 +10,8 @@ Served as a **generated static HTML site**. **`src/**/*.html` (content HTML frag
 
 ## Structure
 
-- `src/phase-{0..7}-*/`, `src/appendix-{a..d}-*/` — **edit these.** Content HTML fragments: no `<html>`/`<head>`/nav, just the page body (`<h1>` first). 부록: A=JPA 심화, B=Querydsl, C=AOP/프록시 고급, D=Spring MVC 내부 원리 & SSR, E=서비스 규모·도메인별 설계 전략(모듈러 모놀리스 / Spring Modulith 2.1.1 — Boot BOM 관리 대상 아님 / 도메인 성격별 전략). Querydsl은 OpenFeign 포크(`io.github.openfeign.querydsl`; `querydsl-jpa`는 classifier 없이, `querydsl-apt`는 `:jakarta`) 기준.
-- `src/index.html` — home page (→ `docs/index.html`).
+- `src/phase-{0..7}-*/`, `src/appendix-{a..f}-*/` — **edit these.** Content HTML fragments: no `<html>`/`<head>`/nav, just the page body (`<h1>` first). 부록: A=JPA 심화, B=Querydsl, C=AOP/프록시 고급, D=Spring MVC 내부 원리 & SSR, E=서비스 규모·도메인별 설계 전략(모듈러 모놀리스 / Spring Modulith 2.1.1 — Boot BOM 관리 대상 아님 / 도메인 성격별 전략), F=운영 현장 인사이트(2026-09 기준 커뮤니티 후기를 CS 배경과 함께: 가상 스레드 실전 / HikariCP·캐시·락 / 아웃박스·멱등성·재시도·속도 제한 / 컨테이너 속 JVM·K8s 프로브·종료 예산 / OTel 스타터·gRPC(4.1)·Spring AI 2.0 MCP·Passkeys·InetAddressFilter). 부록 F 각 페이지 끝의 「더 읽을거리」에 인용 출처(Medium·LinkedIn·velog·spring.io 등)를 남기는 관례를 유지. Querydsl은 OpenFeign 포크(`io.github.openfeign.querydsl`; `querydsl-jpa`는 classifier 없이, `querydsl-apt`는 `:jakarta`) 기준.
+- `src/index.html` — home page (→ `docs/index.html`). `src/glossary.html` — 용어집 (nav 「개요」 카테고리).
 - `src/_nav.html` — nav tree source; links are **root-relative** and the build rewrites them per page and marks the current one `active`. Update when adding/renaming pages.
 - `tools/build_site.py` — generator. `tools/verify_site.py` — link/feature verifier.
 - `tools/assets/base.css` (layout·typography·legacy diagram classes), `tools/assets/diagrams.css` (the `dg-*` component library), `tools/assets/app.js` — copied/concatenated into `docs/assets/{style.css,app.js}` at build time. **Edit these, never `docs/assets/*`.**
@@ -26,11 +26,11 @@ After editing anything in `src/` or `tools/`, rebuild **and** verify:
 ```bash
 python3 -m venv .venv && . .venv/bin/activate   # first time only
 pip install pygments                            # first time only (markdown 은 더 이상 필요 없음)
-python tools/build_site.py                      # 75 pages + assets → docs/
+python tools/build_site.py                      # 81 pages + assets → docs/
 python tools/verify_site.py                     # 링크·앵커·CSS·JS 훅 검증 (오류 시 exit 1)
 ```
 
-`tools/build_site.py --check` 는 빌드 없이 소스만 검사하고, `--page <경로>` 는 한 페이지만 다시 만듭니다. Then commit both `src/` and the regenerated `docs/`.
+`tools/build_site.py --check` 는 빌드 없이 소스만 검사하고, `--page <경로>` 는 한 페이지만 다시 만듭니다. Then commit both `src/` and the regenerated `docs/`. Commit messages follow `docs:` / `docs(scope):` / `refactor(site):` prefixes with a Korean subject (see `git log`).
 
 ## Source HTML conventions
 

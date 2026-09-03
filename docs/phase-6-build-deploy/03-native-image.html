@@ -104,6 +104,13 @@
   <a href="../appendix-e-scale-and-domain/02-modular-monolith.html">패키지 구조와 모듈러 모놀리스</a>
   <a href="../appendix-e-scale-and-domain/03-domain-shapes.html">도메인 성격별 전략</a>
   <a href="../appendix-e-scale-and-domain/04-decision-guide.html">의사결정 가이드</a>
+  <div class="nav-section">부록 F: 운영 현장 인사이트 (설계·인프라·CS)</div>
+  <a href="../appendix-f-production-insights/README.html">📄 개요</a>
+  <a href="../appendix-f-production-insights/01-virtual-threads-in-practice.html">가상 스레드 실전</a>
+  <a href="../appendix-f-production-insights/02-connection-pool-cache-locks.html">커넥션 풀·캐시·락</a>
+  <a href="../appendix-f-production-insights/03-reliability-outbox-idempotency.html">아웃박스·멱등성·재시도</a>
+  <a href="../appendix-f-production-insights/04-jvm-in-containers-kubernetes.html">컨테이너 속 JVM과 Kubernetes</a>
+  <a href="../appendix-f-production-insights/05-stack-radar-2026.html">2026 스택 레이더</a>
 </nav></aside>
   <main class="content">
 <h1>GraalVM 네이티브 이미지</h1>
@@ -163,12 +170,12 @@
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// build.gradle.kts</span>
 <span class="n">plugins</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;jvm&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span>
-<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">&quot;plugin.spring&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;2.3.21&quot;</span>
-<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;org.springframework.boot&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;4.1.1&quot;</span>
-<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;io.spring.dependency-management&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;1.1.7&quot;</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">"jvm"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"2.3.21"</span>
+<span class="w">    </span><span class="n">kotlin</span><span class="p">(</span><span class="s">"plugin.spring"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"2.3.21"</span>
+<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">"org.springframework.boot"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"4.1.1"</span>
+<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">"io.spring.dependency-management"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"1.1.7"</span>
 <span class="w">    </span><span class="c1">// GraalVM 네이티브 빌드 도구 (Spring Boot 4.1.1 관리 버전)</span>
-<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;org.graalvm.buildtools.native&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">&quot;1.1.8&quot;</span>
+<span class="w">    </span><span class="n">id</span><span class="p">(</span><span class="s">"org.graalvm.buildtools.native"</span><span class="p">)</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="s">"1.1.8"</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -179,7 +186,7 @@
 <p>Spring Boot 플러그인이 적용되면 AOT 처리(<code>processAot</code>)와 네이티브 컴파일 태스크가 자동 구성됩니다. GraalVM JDK가 활성 JDK인지 확인합니다.</p>
 
 <div class="code-block" data-lang="bash"><span class="code-lang">bash</span><div class="hl"><pre><span></span>java<span class="w"> </span>-version
-<span class="c1"># openjdk version &quot;25&quot; ... GraalVM CE 25...</span>
+<span class="c1"># openjdk version "25" ... GraalVM CE 25...</span>
 </pre></div>
 </div>
 
@@ -222,7 +229,7 @@
 
 <div class="code-block" data-lang="kotlin"><span class="code-lang">kotlin</span><div class="hl"><pre><span></span><span class="c1">// 2) 더 세밀한 제어가 필요하면 RuntimeHintsRegistrar 구현</span>
 <span class="kd">class</span><span class="w"> </span><span class="nc">BookRuntimeHints</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">RuntimeHintsRegistrar</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">registerHints</span><span class="p">(</span><span class="n">hints</span><span class="p">:</span><span class="w"> </span><span class="n">RuntimeHints</span><span class="p">,</span><span class="w"> </span><span class="n">classLoader</span><span class="p">:</span><span class="w"> </span><span class="n">ClassLoader?)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">override</span><span class="w"> </span><span class="kd">fun</span><span class="w"> </span><span class="nf">registerHints</span><span class="p">(</span><span class="n">hints</span><span class="p">:</span><span class="w"> </span><span class="n">RuntimeHints</span><span class="p">,</span><span class="w"> </span><span class="n">classLoader</span><span class="p">:</span><span class="w"> </span><span class="n">ClassLoader?</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// 리플렉션 힌트 — 필요한 MemberCategory만 골라 지정한다</span>
 <span class="w">        </span><span class="n">hints</span><span class="p">.</span><span class="na">reflection</span><span class="p">().</span><span class="na">registerType</span><span class="p">(</span><span class="n">Book</span><span class="o">::</span><span class="n">class</span><span class="p">.</span><span class="na">java</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="nb">it</span><span class="p">.</span><span class="na">withMembers</span><span class="p">(</span>
@@ -232,7 +239,7 @@
 <span class="w">            </span><span class="p">)</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">        </span><span class="c1">// 리소스 힌트 (네이티브 이미지에 포함시킬 리소스)</span>
-<span class="w">        </span><span class="n">hints</span><span class="p">.</span><span class="na">resources</span><span class="p">().</span><span class="na">registerPattern</span><span class="p">(</span><span class="s">&quot;db/migration/*.sql&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="n">hints</span><span class="p">.</span><span class="na">resources</span><span class="p">().</span><span class="na">registerPattern</span><span class="p">(</span><span class="s">"db/migration/*.sql"</span><span class="p">)</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 
